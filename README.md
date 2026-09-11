@@ -10,6 +10,8 @@
 
 ![JC-AGRITecH Overview](smart_farm_ui_overview.jpg)
 
+![JC-AGRITecH Sensor Details Showcase](smart_farm_sensor_details_showcase.jpg)
+
 ## 📌 ภาพรวมโครงการ (Project Overview)
 **JC -AGRITecH + AI เวอร์ชัน 1.0** คือแพลตฟอร์มเกษตรอัจฉริยะแบบฟูลสแตก (Full-Stack Smart Agriculture Platform) ระดับอุตสาหกรรมที่ผสาน **วิศวกรรมสมองกลฝังตัว (Embedded Engineering)**, **ปัญญาประดิษฐ์ระดับขอบโครงข่าย (TinyML Edge AI)**, **การเรียนรู้เชิงลึกพยากรณ์อนุกรมเวลา (Cloud Deep Learning Time-Series Forecaster)** และ **ตำราวิชาการระดับ Masterclass** เข้าด้วยกันอย่างสมบูรณ์แบบ
 
