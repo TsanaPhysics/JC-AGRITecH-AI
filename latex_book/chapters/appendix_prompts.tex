@@ -1,0 +1,123 @@
+% ==============================================================================
+% ภาคผนวก ก: สารบบพรอมพ์บริบทและวิศวกรรมคำสั่งในการพัฒนาระบบ
+% (Appendix A: Context Prompts & Prompt Engineering Trajectory)
+% ==============================================================================
+\chapter{สารบบพรอมพ์บริบทและวิศวกรรมคำสั่งในการพัฒนาระบบ}
+\label{ch:appendix_prompts}
+
+\section{บทนำและกรอบแนวคิดวิศวกรรมพรอมพ์เชิงบริบท}
+
+ในการวิจัยและพัฒนาระบบฟาร์มอัจฉริยะและการเรียนรู้เชิงลึก \textbf{JC -AGRITecH + AI} การใช้ประโยชน์จากปัญญาประดิษฐ์แบบสร้างสรรค์ (Generative AI) และระบบปัญญาประดิษฐ์ตัวแทน (Agentic AI) ไม่ได้จำกัดอยู่เพียงการถาม-ตอบข้อความทั่วไป แต่ได้รับการประยุกต์ใช้เป็น \textbf{เครื่องมือร่วมวิจัยและวิศวกรรมซอฟต์แวร์ฝังตัว (Pair-Programming and Engineering Co-Pilot)} ตลอดวงจรการพัฒนา ตั้งแต่การวิเคราะห์วงจรฮาร์ดแวร์ การเขียนไดรเวอร์เซนเซอร์ การตรวจวิเคราะห์หาสาเหตุรากเหง้าของปัญหา (Root Cause Analysis: RCA) การสังเคราะห์ชุดข้อมูลฟิสิกส์เคมีดิน การฝึกสอนโมเดล TinyML ตลอดจนการจัดทำคู่มือและเล่มตำราวิชาการ
+
+หัวใจสำคัญที่ทำให้ปัญญาประดิษฐ์สามารถสร้างซอฟต์แวร์ฝังตัวระดับอุตสาหกรรมที่ทำงานได้จริง 100\% โดยไม่ก่อให้เกิดปัญหาความขัดแย้งของขาสัญญาณฮาร์ดแวร์หรือหน่วยความจำรั่วไหล คือการออกแบบ \textbf{พรอมพ์บริบท (Context Prompting)} ที่มีความรัดกุม แม่นยำ และบูรณาการข้อมูลเชิงวิศวกรรมอย่างเป็นระบบ
+
+\section{สถาปัตยกรรมพรอมพ์บริบทแม่บท (Master System Context Prompt)}
+
+ก่อนเริ่มต้นการพัฒนาทุกขั้นตอน ปัญญาประดิษฐ์จะได้รับข้อมูลบริบทแม่บท (System Priming Context) เพื่อกำหนดบทบาท ขอบเขตสถาปัตยกรรม และข้อจำกัดทางวิศวกรรมอย่างชัดเจน ดังแสดงในกรอบที่ \ref{box:master_context_prompt}
+
+\begin{promptbox}{พรอมพ์บริบทแม่บทสำหรับการพัฒนาระบบ JC -AGRITecH + AI (Master Context Prompt)}
+\small
+\textbf{[ROLE \& EXPERTISE]} \\
+คุณคือสถาปนิกวิศวกรรมสมองกลฝังตัวอาวุโส (Senior Embedded Systems Architect), นักปฐพีวิทยาเชิงคำนวณ (Computational Agronomist) และวิศวกรปัญญาประดิษฐ์ขอบโครงข่าย (Edge AI Engineer) ปฏิบัติงานร่วมกับ ผศ.ดร.จิรภัทร จันทมาลี (สาขาวิชาจุลชีววิทยา) และ ผศ.ดร.ชีวะ ทัศนา (สาขาวิชาฟิสิกส์) คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+
+\vspace{4pt}
+\textbf{[HARDWARE ENVIRONMENT \& PIN MATRIX]}
+\begin{itemize}[leftmargin=15pt, itemsep=1pt]
+    \item ไมโครคอนโทรลเลอร์: ESP32-S3 Dual-Core Xtensa LX7 ความเร็ว 240\,MHz, Flash 8\,MB (DIO Mode), PSRAM 2\,MB
+    \item บอร์ดคอนโทรลเลอร์: ATD3.5-S3 บูรณาการหน้าจอสัมผัส 3.5 นิ้ว IPS ST7796 SPI (ความละเอียด $480 \times 320$ พิกเซล)
+    \item บอร์ดขยายสัญญาณ: ATD3.5-S3 Farm1 Shield ประกอบด้วยรีเลย์ 4 ช่อง (GPIO 39, 38, 7, 6)
+    \item บัสเซนเซอร์ I2C ร่วม: SCL = GPIO 8 (สายสีเขียว), SDA = GPIO 9 (สายสีเหลือง) เชื่อมต่อ SHT45 และ BH1750 โดมตะวัน
+    \item พอร์ตอุตสาหกรรม RS485: RX = GPIO 41, TX = GPIO 40 สื่อสารกับเซนเซอร์ดิน 7-in-1 Modbus RTU ที่ Baudrate 4800
+    \item พอร์ตแอนะล็อกผิวดิน: ADC1 CH0 (GPIO 1) ขั้วต่อ Terminal A1 สำหรับ Capacitive Soil Moisture Stick
+    \item ขาควบคุมไฟแบคไลท์จอ: GPIO 3 (Active HIGH ห้ามนำไปชนกับคำสั่งขับรีเลย์)
+\end{itemize}
+
+\vspace{4pt}
+\textbf{[ENGINEERING PRINCIPLES \& CONSTRAINTS]}
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item \textbf{Zero Heap Fragmentation:} ฟังก์ชันตรวจวัดและโมเดล TinyML ต้องทำงานแบบ Zero Dynamic Allocation ห้ามใช้ \texttt{malloc}, \texttt{free}, หรือ \texttt{new} ในลูปประมวลผลเซนเซอร์
+    \item \textbf{Non-blocking Concurrency:} การส่งโทรมาตร Wi-Fi และหน้าจอแสดงผลต้องทำงานแยก Core บน FreeRTOS โดยมี Hardware Watchdog คุ้มกัน
+    \item \textbf{Physics-Grounded Inference:} การชดเชยค่า NPK และ pH ต้องอิงกฎทางฟิสิกส์ (Stokes-Einstein, USDA Handbook 60, Nernst Equation)
+    \item \textbf{Industrial Contrast UI:} หน้าจอและภาพประกอบต้องใช้หลักการ Dark Mode, คอนทราสต์สูง มองเห็นชัดเจนแม้อยู่กลางแจ้ง
+\end{enumerate}
+\end{promptbox}
+\label{box:master_context_prompt}
+
+\section{กรอบวงจรกระบวนการ CLEAR ในการวิศวกรรมพรอมพ์}
+
+การสั่งการและพัฒนาตลอดทั้งโครงการ ดำเนินการตามกรอบระเบียบวิธี \textbf{CLEAR Prompting Framework} ซึ่งประกอบด้วย 5 องค์ประกอบหลัก:
+\begin{enumerate}
+    \item \textbf{C -- Context Priming (การปูพื้นฐานบริบท):} ระบุพิกัดไฟล์ แผนผังพิน อุปกรณ์ฮาร์ดแวร์จริง และข้อจำกัดทางกายภาพ
+    \item \textbf{L -- Logic Formulation (การกำหนดตรรกะและทฤษฎี):} ระบุสูตรคำนวณทางคณิตศาสตร์ สัมประสิทธิ์เคมี หรือโปรโตคอลสื่อสาร (เช่น CRC16 Modbus, Dewey VPD, Nernstian Slope)
+    \item \textbf{E -- Execution-Oriented Directives (คำสั่งเชิงปฏิบัติการ):} สั่งให้ AI เขียนโค้ดภาษา C++, Python หรือคำสั่งคอมไพล์ที่สมบูรณ์ ไร้โค้ดจำลอง (No Placeholders / Stubs) พร้อมระบุชื่อไฟล์และเส้นทางอย่างแน่นอน
+    \item \textbf{A -- Audit and RCA Diagnostics (การตรวจสอบและวิเคราะห์ปัญหา):} เมื่อเกิดความผิดพลาด กำหนดให้ AI ดำเนินการสืบค้นหาสาเหตุเชิงลึก (Root Cause Analysis) จากรหัส Register, ขาสัญญาณออสซิลโลสโคป, และ Memory Map
+    \item \textbf{R -- Refinement and Sync (การขัดเกลาและซิงค์ข้อมูล):} ปรับปรุง UI นำข้อค้นพบทางวิศวกรรมไปอัปเดตลงในคู่มือปฏิบัติการและเล่มตำราวิชาการ LaTeX อย่างเป็นเอกภาพ
+\end{enumerate}
+
+\section{พรอมพ์บริบทเฉพาะทางสำหรับการแก้ปัญหาและการวิจัย}
+
+\subsection{พรอมพ์บริบทการสืบสวนและแก้ไขหน้าจอดำ (Hardware RCA Prompt)}
+
+\begin{promptbox}{พรอมพ์สืบสวนหาสาเหตุรากเหง้าของปัญหาหน้าจอดำ (Display RCA Prompt)}
+\small
+\textbf{บริบท:} บอร์ด ATD3.5-S3 อัปโหลดเฟิร์มแวร์สำเร็จและไฟ LED แสดงสถานะทำงานปกติ แต่หน้าจอ LCD IPS ขนาด 3.5 นิ้ว ไม่แสดงผลข้อมูลใด ๆ (Black Screen) \\
+\textbf{โจทย์คำสั่ง:} ดำเนินการวิเคราะห์วงจรฮาร์ดแวร์และโครงสร้างโค้ดแบบ Root Cause Analysis:
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item ตรวจสอบพินคอนฟิกของ Backlight Driver บนบอร์ด ATD3.5-S3 เปรียบเทียบกับไฟล์ \texttt{PinConfigs.h}
+    \item ตรวจหา Pin Collision ระหว่างการควบคุมรีเลย์ Farm1 Shield และคำสั่งเปิด/ปิดจอ
+    \item สแกนขนาดหน่วยความจำ Flash และ Partition Scheme ใน \texttt{platformio.ini} เพื่อตรวจหาภาวะ Flash Boot Loop
+    \item ปรับแต่งค่า \texttt{cfg.invert} ของคอนโทรลเลอร์ ST7796 เพื่อให้สีพื้นหลังแสดงผล Dark Mode ถูกต้อง
+\end{enumerate}
+\end{promptbox}
+
+\subsection{พรอมพ์บริบทการออกแบบโมเดล TinyML ชดเชยอุณหภูมิและความชื้น}
+
+\begin{promptbox}{พรอมพ์วิศวกรรมโมเดลการเรียนรู้เชิงลึกขอบโครงข่าย (TinyML Soil Physics Prompt)}
+\small
+\textbf{บริบท:} หัววัดดินชนิดอิเล็กโทรดโลหะ 7-in-1 เผชิญปัญหาการแทรกแซงข้ามมิติ (Cross-Sensitivity) โดยอุณหภูมิดินที่เปลี่ยนแปลงทำให้ค่า EC และ NPK แกว่งตัวตามกฎ Stokes-Einstein $\approx +2.0\%/^\circ\text{C}$ และเมื่อความชื้นลดลง ฟิล์มน้ำในดินจะขาดช่วง ทำให้เซนเซอร์อ่านค่าปุ๋ยลดลงอย่างผิดพลาด \\
+\textbf{โจทย์คำสั่ง:}
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item พัฒนาสคริปต์ภาษาไพทอน \texttt{scripts/train\_soil\_calibrator.py} จำลองชุดข้อมูลฟิสิกส์เคมีดิน 4,000 ตัวอย่าง ตามแบบจำลอง Hilhorst Dielectric Model และ Nernst Equation
+    \item ออกแบบโมเดล Multi-Layer Perceptron (MLP) ขนาด 10 ตัวแปรนำเข้า (Raw N, P, K, EC, Moisture, $T_{\text{soil}}$, $T_{\text{air}}$, $\text{RH}$, Soil Stick ADC, Raw pH) และทำนายค่าจริง 5 มิติ
+    \item แปลงพารามิเตอร์น้ำหนักทั้งหมดเป็นไฟล์เฮดเดอร์ C++ สแตนดาร์ด \texttt{SoilNeuralCalibrator.h} โดยใช้โครงสร้างอาเรย์สแตติก (Zero Dynamic Allocation) รันบนชิป ESP32-S3 ด้วยเวลาคำนวณต่ำกว่า $0.15\,\text{ms}$
+\end{enumerate}
+\end{promptbox}
+
+\section{สารบบลำดับพรอมพ์การพัฒนาจริง (Prompt Trajectory: Prompts 1--37)}
+
+ตารางที่ \ref{tab:prompt_trajectory_matrix} สรุปภาพรวมลำดับพรอมพ์ทั้งหมด 37 ลำดับ ตลอดระยะเวลาการดำเนินโครงการ โดยแบ่งตามระยะและขอบเขตงานวิศวกรรม
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{c p{3.0cm} p{5.5cm} Y}
+\toprule
+\textbf{ลำดับ} & \textbf{ระยะการพัฒนา} & \textbf{ประเด็นคำสั่ง / ความต้องการหลัก} & \textbf{ผลสัมฤทธิ์เชิงวิศวกรรม} \\
+\midrule
+1--3 & Hardware Driver Setup & กำหนดพิน เชื่อมต่อ SHT45, BH1750, Modbus RS485 ดิน 7-in-1 & ไดรเวอร์ \texttt{AgriSensors.cpp}, การถอดรหัส Modbus Holding Regs \\
+4--6 & Flash \& Firmware Upload & แยกแยะพอร์ต OTG/Upload และอัปโหลดโค้ดผ่าน macOS Serial & กำหนด CP2102 Baudrate, สำรวจพอร์ต \texttt{/dev/cu.usbserial} \\
+7--8 & Display \& I2C RCA & แก้ปัญหาหน้าจอดำ และสีหน้าจอกลับด้าน ตรวจพบสาย I2C สลับพิน & สลับพิน Backlight GPIO 3, สแกนพบ SDA=9, SCL=8, ฟอนต์ไทย \\
+9--14 & Database \& Cloud Hub & ส่งข้อมูล Wi-Fi เข้าสู่ระบบ Self-Hosted และคลาวด์ & REST API (\texttt{main\_api.py}), แดชบอร์ด Streamlit, JSON Telemetry \\
+15--20 & Deep Learning \& Analytics & พัฒนาโมเดล AI พยากรณ์ความชื้น และแนะนำปริมาณปุ๋ย NPK & สคริปต์ PyTorch LSTM, การแปลง Time-series Window, เมนู AI Lab \\
+21--23 & Tri-Lingual Touch UI & พัฒนาระบบ 3 ภาษา (ไทย, อังกฤษ, จีน) บนหน้าจอสัมผัส LCD & ไฟล์ฟอนต์ \texttt{ThaiFontVLW.h}, จีน \texttt{efontCN}, ปุ่ม Touch Switcher \\
+24--27 & Masterpiece UI Design & ออกแบบหน้าจอภาพรวม 4 การ์ดสไตล์ Glassmorphism และเกจโค้ง & ฟังก์ชัน \texttt{drawOverviewScreen Masterpiece}, ภาพปกตำรา \\
+28--30 & Academic Cover Redesign & จัดวางชื่อผู้วิจัยคู่ขนาน 2 ท่าน และขยายภาพหน้าจอ UI เต็มหน้า A4 & ปกวิชาการ มรภ.รำไพพรรณี, กรอบทองและวงแหวนออร่า 3D \\
+31--34 & 3D Boot Screen \& Branding & ออกแบบหน้าจอบูต Neural Plant Nexus และปรับแต่งข้อความแบรนด์ & แอนิเมชัน 3D LovyanGFX, ข้อความ \texttt{JC-AGRITecH +AI v1.0} \\
+35--36 & TinyML Edge Calibrator & พัฒนา Deep Learning บน ESP32-S3 ชดเชยอุณหภูมิและความชื้นดิน & โมเดล MLP C++, ป้ายเรืองแสง \texttt{[AI-Edge]}, หน้ารากพืชใหม่ \\
+37 & Academic Book \& Manual & อัปเดตข้อมูลทฤษฎี สมการ ตาราง และภาคผนวกพรอมพ์ลงในเล่มตำรา & เอกสารตำราฉบับสมบูรณ์ 50+ หน้า คอมไพล์ผ่าน XeLaTeX 100\% \\
+\bottomrule
+\end{tabularx}
+\caption{เมทริกซ์การจำแนกประเภทและประวัติวิวัฒนาการของพรอมพ์ตลอดโครงการ}
+\label{tab:prompt_trajectory_matrix}
+\end{table}
+
+\section{บทสรุปและข้อเสนอแนะด้านวิศวกรรมพรอมพ์}
+
+จากประสบการณ์การพัฒนาระบบ JC -AgriTech + AI สรุปบทเรียนและข้อพึงระวังในการวิศวกรรมพรอมพ์สำหรับงานสมองกลฝังตัวและการเรียนรู้เชิงลึกได้ดังนี้:
+\begin{enumerate}
+    \item \textbf{ความแม่นยำของผังพินฮาร์ดแวร์ (Pin-Level Grounding):} พรอมพ์ที่ดีต้องระบุแผนผังพินที่แน่นอนเสมอ เพื่อป้องกันไม่ให้ AI คาดเดาขาสัญญาณไมโครคอนโทรลเลอร์เอง ซึ่งอาจทำให้เกิดความเสียหายทางฮาร์ดแวร์
+    \item \textbf{การผสานกฎทางฟิสิกส์ (Physics-Informed Prompts):} การแจ้งข้อมูลทฤษฎีเชิงลึก (เช่น อุณหภูมิกับการแพร่ไอออน หรือกฎโคไซน์ของแสง) ช่วยให้ AI ออกแบบสูตรคณิตศาสตร์และโมเดลการเรียนรู้เชิงลึกที่มีความแม่นยำสูงกว่าการใช้ข้อมูลสถิติดิบเพียงอย่างเดียว
+    \item \textbf{การบันทึกประวัติแบบวนซ้ำ (Continuous Prompt Book Sync):} การจัดทำเอกสารบันทึกพรอมพ์อย่างเป็นระบบคู่ขนานกับการเขียนโค้ดจริง ช่วยให้สามารถตรวจสอบย้อนกลับ (Traceability) และถ่ายทอดองค์ความรู้สู่นักศึกษาและนักวิจัยท่านอื่นได้อย่างมีประสิทธิภาพสูงสุด
+\end{enumerate}

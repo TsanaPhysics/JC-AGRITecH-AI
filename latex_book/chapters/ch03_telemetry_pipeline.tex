@@ -1,0 +1,164 @@
+\chapter{สถาปัตยกรรมการสื่อสารข้อมูลไร้สายและการจัดเก็บอนุกรมเวลา}
+\label{chap:telemetry}
+
+การประยุกต์ใช้ปัญญาประดิษฐ์กับการเกษตรจำเป็นต้องอาศัยชุดข้อมูลที่มีความต่อเนื่อง ครบถ้วน และมีคุณภาพสูง การออกแบบระบบสื่อสารข้อมูลจึงต้องคำนึงถึงความเสถียรของเครือข่ายไร้สายในพื้นที่แปลงปลูก การประทับเวลาสากลที่ถูกต้องแม่นยำ และการจัดรูปแบบโครงสร้างข้อมูลที่พร้อมส่งต่อไปยังกระบวนการเรียนรู้เชิงลึก บทนี้นำเสนอสถาปัตยกรรมท่อส่งข้อมูล (Data Pipeline) จากระดับโหนดเซนเซอร์สู่ฐานข้อมูล
+
+\section{การส่งข้อมูลผ่านเครือข่ายไร้สายแบบ Non-blocking Resilient Pipeline}
+
+ในสภาพแวดล้อมทางการเกษตรจริง สัญญาณเครือข่ายไร้สาย Wi-Fi มักประสบปัญหาสัญญาณขาดหายหรือความหน่วงสูงเนื่องจากระยะทาง สิ่งกีดขวาง และสภาพลมฟ้าอากาศ หากระบบเฟิร์มแวร์ใช้คำสั่งสื่อสารเครือข่ายแบบรอคอย (Blocking I/O) การที่สัญญาณเน็ตหลุดจะส่งผลให้ลูปหลักของไมโครคอนโทรลเลอร์หยุดชะงัก ทำให้หน้าจอ LCD ค้าง และระบบควบคุมปั๊มน้ำในแปลงไม่สามารถสั่งปิดได้ตามเวลา ซึ่งก่อให้เกิดความเสียหายร้ายแรงต่อพืชผล
+
+เพื่อแก้ไขปัญหานี้ โมดูล \textbf{CloudDataManager} ได้รับการออกแบบให้ทำงานในรูปแบบ \textbf{Non-blocking Asynchronous Pipeline} โดยใช้ประโยชน์จากสถาปัตยกรรมสองแกนประมวลผล (Dual-Core Xtensa LX7) ของชิป ESP32-S3 ในการแบ่งแยกหน้าที่การทำงานอย่างเด็ดขาด ดังแสดงในภาพที่ \ref{fig:tikz_telemetry_pipeline}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.88\textwidth}{!}{
+\begin{tikzpicture}[
+    node distance=1.0cm and 0.8cm,
+    block/.style={rectangle, draw=rbruNavy, fill=white, thick, rounded corners=3pt, align=center, minimum height=0.9cm, minimum width=2.5cm, drop shadow={opacity=0.15}},
+    core1/.style={rectangle, draw=agriGreen!90!black, fill=agriGreen!8, thick, rounded corners=4pt, align=center, minimum height=1.0cm, minimum width=3.4cm},
+    core0/.style={rectangle, draw=agriBlue!90!black, fill=agriBlue!8, thick, rounded corners=4pt, align=center, minimum height=1.0cm, minimum width=3.4cm},
+    cloud/.style={rectangle, draw=rbruGold!90!black, fill=rbruGold!15, thick, rounded corners=4pt, align=center, minimum height=1.0cm, minimum width=3.0cm},
+    line/.style={draw=rbruNavy, -latex', thick},
+    dashedline/.style={draw=agriGreen!70!black, -latex', thick, dashed}
+]
+    % Core 1: Realtime Edge
+    \node[core1] (sensor_task) {\textbf{Core 1: Control Loop}\\\footnotesize Sensor Poll (I2C, RS485, ADC)};
+    \node[core1, below=0.8cm of sensor_task] (vpd_calc) {\textbf{VPD \& Agronomic Logic}\\\footnotesize Penman Equation \& Safety Rules};
+    \node[core1, below=0.8cm of vpd_calc] (actuator_task) {\textbf{Actuator \& LCD Task}\\\footnotesize Relays Switching \& 30 FPS Render};
+    \node[rectangle, draw=agriGreen!80!black, fill=agriGreen!12, thick, rounded corners=3pt, below=0.5cm of actuator_task, font=\scriptsize\bfseries, text=agriGreen!90!black, align=center, minimum width=3.4cm] (local_note) {$\circlearrowright$ Local Autonomous Loop\\\mdseries\scriptsize Unaffected by Network Outages};
+
+    % Core 0: Network Worker
+    \node[core0, right=2.0cm of sensor_task] (wifi_fsm) {\textbf{Core 0: Network Worker}\\\footnotesize Wi-Fi Background Auto-Reconnect};
+    \node[core0, below=0.8cm of wifi_fsm] (ntp_sync) {\textbf{SNTP Synchronization}\\\footnotesize UTC+7 Epoch \& ISO Timestamp};
+    \node[core0, below=0.8cm of ntp_sync] (json_builder) {\textbf{JSON Serialization}\\\footnotesize ArduinoJson Memory Pool};
+
+    % Cloud Endpoints
+    \node[cloud, right=2.2cm of wifi_fsm] (fastapi_srv) {\textbf{Self-Hosted Server}\\\footnotesize FastAPI REST (Port 8000)};
+    \node[cloud, right=2.2cm of json_builder] (firebase_srv) {\textbf{Google Cloud}\\\footnotesize Firebase Realtime DB};
+
+    % Connections Core 1
+    \draw[line] (sensor_task) -- (vpd_calc);
+    \draw[line] (vpd_calc) -- (actuator_task);
+    \draw[line, draw=agriGreen!80!black, <->] (actuator_task) -- (local_note);
+
+    % Inter-core Queue
+    \draw[line, draw=agriGreen!70!black] (vpd_calc.east) -- node[above, font=\footnotesize] {FreeRTOS Queue} (json_builder.west);
+
+    % Connections Core 0
+    \draw[line] (wifi_fsm) -- (ntp_sync);
+    \draw[line] (ntp_sync) -- (json_builder);
+
+    % Network dispatch
+    \draw[line, draw=agriBlue] (json_builder.east) -- node[above, font=\scriptsize] {HTTP POST (3s)} (firebase_srv.west);
+    \draw[line, draw=agriBlue] (wifi_fsm.east) -- node[above, font=\scriptsize] {Telemetry Ingest} (fastapi_srv.west);
+
+\end{tikzpicture}
+}
+\caption{สถาปัตยกรรมท่อส่งข้อมูลแบบไม่ปิดกั้น (Non-blocking Resilient Pipeline) บน ESP32-S3 Dual-Core}
+\label{fig:tikz_telemetry_pipeline}
+\end{figure}
+
+กลไกหลักของระบบประกอบด้วย 3 มิติสำคัญ:
+\begin{enumerate}
+    \item \textbf{การเชื่อมต่อและกู้คืนสัญญาณอัตโนมัติในพื้นหลัง (Background Auto-Reconnect):} ไมโครคอนโทรลเลอร์ตรวจสอบสถานะการเชื่อมต่อทุก 10 วินาที หากหลุดการเชื่อมต่อจะเริ่มกระบวนการ Reconnect ในพื้นหลังโดยไม่ใช้ลูปหน่วงเวลา \texttt{delay()} หรือ \texttt{while(WiFi.status() != WL\_CONNECTED)}
+    \item \textbf{การจำกัดเวลาตอบสนองเครือข่ายขั้นต่ำ (Short HTTP Timeout):} คำสั่งส่งข้อมูลผ่าน HTTP POST ถูกจำกัดเวลาไว้เพียง 3 วินาที หากเครือข่ายปลายทางล่าช้า ระบบจะตัดการเชื่อมต่อทันทีเพื่อป้องกัน Core 0 เกิดอาการ Watchdog Timeout
+    \item \textbf{การทำงานอิสระอย่างสมบูรณ์ของระบบควบคุมท้องถิ่น (Local Autonomy):} งานวัดค่าทางกายภาพและการควบคุมรีเลย์ปั๊มน้ำดำเนินต่อไปอย่างต่อเนื่องบน Core 1 แม้ระบบ Wi-Fi จะขาดหายไปเป็นเวลานาน
+\end{enumerate}
+
+\section{การประทับเวลามาตรฐานสากลด้วยโปรโตคอล NTP}
+
+ชุดข้อมูลอนุกรมเวลา (Time-Series Dataset) จำเป็นต้องมีดัชนีเวลา (Time Index) ที่เที่ยงตรงเพื่อใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างตัวแปรทางสถิติและการเทรนโมเดล AI เมื่อระบบเชื่อมต่อกับเครือข่ายสำเร็จ โมดูลจะเรียกใช้บริการ Network Time Protocol (NTP) จากพูลเซิร์ฟเวอร์สากล ได้แก่ \texttt{pool.ntp.org} และ \texttt{time.nist.gov}
+
+\begin{equation}
+    \text{Timezone Offset} = +7 \times 3600\ \text{วินาที} = 25,200\ \text{วินาที}
+    \label{eq:ntp_offset}
+\end{equation}
+
+ระบบจะแปลงเวลาเป็นเวลามาตรฐานของประเทศไทย (UTC+7) พร้อมส่งออกข้อมูล 2 รูปแบบคู่ขนานกัน ได้แก่ \textbf{Unix Epoch Time} (จำนวนวินาทีตั้งแต่วันที่ 1 มกราคม 1970) สำหรับใช้เป็นดัชนีตัวเลขในโมเดลคณิตศาสตร์ และสตริงรูปแบบ \textbf{ISO 8601} (\texttt{YYYY-MM-DD HH:MM:SS}) สำหรับการแสดงผลบนหน้าจอแดชบอร์ด
+
+\section{โค้ดโปรแกรมการส่งข้อมูลแบบไม่ปิดกั้น (Non-blocking HTTP Dispatch)}
+
+การส่งข้อมูลขึ้นระบบคลาวด์และเซิร์ฟเวอร์ท้องถิ่นได้รับการพัฒนาให้อยู่ในคลาส \texttt{CloudDataManager} โดยใช้ไลบรารี \texttt{HTTPClient} ของ ESP32 ดังแสดงในโค้ดตัวอย่างต่อไปนี้
+
+\begin{pythonbox}[โค้ด C++ การส่งข้อมูล Telemetry แบบ Non-blocking พร้อม Watchdog Timeout]
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
+bool postTelemetryData(const String& serverUrl, const String& jsonPayload) {
+    if (WiFi.status() != WL_CONNECTED) {
+        // Return immediately if network is offline; do not block loop
+        return false;
+    }
+
+    HTTPClient http;
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+    http.setTimeout(3000); // 3-second hard timeout for resilience
+
+    int httpResponseCode = http.POST(jsonPayload);
+    bool success = false;
+
+    if (httpResponseCode > 0) {
+        if (httpResponseCode == HTTP_CODE_OK || 
+            httpResponseCode == HTTP_CODE_CREATED) {
+            success = true;
+        }
+    } else {
+        Serial.printf("[HTTP] POST failed, error: %s\n", 
+                      http.errorToString(httpResponseCode).c_str());
+    }
+
+    http.end(); // Free connection socket
+    return success;
+}
+\end{pythonbox}
+
+\section{โครงสร้างข้อมูลและการบูรณาการกับ Google Firebase Realtime Database}
+
+ข้อมูลจากเซนเซอร์ทั้งหมดจะถูกประกอบเข้าด้วยกันในรูปแบบ JSON (JavaScript Object Notation) ด้วยไลบรารี ArduinoJson โดยโครงสร้างข้อมูลครอบคลุมทั้งตัวแปรนำเข้า (Input Features) ตัวแปรสภาวะ (State Variables) และตัวแปรสั่งการ (Actuator Controls)
+
+\begin{definitionbox}{โครงสร้างข้อมูล Telemetry JSON ของระบบ JC -AgriTech + AI}
+\begin{verbatim}
+{
+  "timestamp": 1789116000,
+  "datetime": "2026-09-11 15:45:00",
+  "air": {
+    "temperature": 29.68,
+    "humidity": 79.38,
+    "dew_point": 25.71,
+    "vpd": 0.86,
+    "connected": true
+  },
+  "light": {
+    "lux": 34.2,
+    "klux": 0.034,
+    "solar_radiation": 0.27,
+    "connected": true
+  },
+  "soil_stick": {
+    "adc_raw": 2039,
+    "moisture_percent": 60.7
+  },
+  "soil_7in1": {
+    "moisture_percent": 38.5,
+    "temperature": 30.6,
+    "ec": 1.45,
+    "ph": 6.42,
+    "nitrogen": 45.0,
+    "phosphorus": 18.2,
+    "potassium": 124.0
+  },
+  "actuators": {
+    "pump": true,
+    "misting": false
+  }
+}
+\end{verbatim}
+\end{definitionbox}
+
+ระบบรองรับการส่งข้อมูลขึ้น \textbf{Google Firebase Realtime Database} ผ่าน HTTPS REST API สองรูปแบบพร้อมกัน:
+\begin{itemize}
+    \item \textbf{คำสั่ง POST ที่ \texttt{/telemetry.json}:} Firebase จะสร้าง Push-ID เฉพาะตัวตามลำดับเวลา ทำให้ข้อมูลถูกบันทึกต่อท้ายอย่างเป็นระเบียบ ไม่ทับซ้อนกัน ก่อให้เกิดคลังข้อมูลประวัติศาสตร์ขนาดใหญ่สำหรับการฝึกโมเดล AI
+    \item \textbf{คำสั่ง PUT ที่ \texttt{/latest.json}:} อัปเดตทับข้อมูลแถวล่าสุด เพื่อให้แอปพลิเคชันหรือแดชบอร์ดดึงข้อมูลไปแสดงผลสถานะปัจจุบันได้อย่างรวดเร็ว
+\end{itemize}

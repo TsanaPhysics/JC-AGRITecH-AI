@@ -1,0 +1,54 @@
+# Environments & Python
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# PlatformIO & Embedded Builds
+.pio/
+**/.pio/
+.pioenvs/
+.piolibdeps/
+*.bin
+*.elf
+*.hex
+
+# LaTeX Auxiliary Files (Keep main.pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.idx
+*.ind
+*.ilg
+*.listing
+latex_book/*.aux
+latex_book/*.log
+latex_book/*.out
+latex_book/*.toc
+latex_book/*.lof
+latex_book/*.lot
+latex_book/*.idx
+latex_book/*.ind
+latex_book/*.ilg
+latex_book/*.listing
+latex_book/preview/
+
+# OS & Editor Files
+.DS_Store
+**/.DS_Store
+.vscode/
+**/.vscode/
+.idea/
+**/.idea/
+
+# Local archives & unneeded folders
+Claude outputs/
+gallery/
+*.tar.gz
+server/smartfarm.db
+*.pdf
+!latex_book/main.pdf

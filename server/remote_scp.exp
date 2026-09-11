@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set timeout 180
+set src [lindex $argv 0]
+set dst [lindex $argv 1]
+spawn scp -o StrictHostKeyChecking=no -P 22 -r $src root@14.207.141.164:$dst
+expect {
+    -nocase "password:" {
+        send "tVyFvt7bhJn37Q\r"
+        exp_continue
+    }
+    eof
+}
+catch wait result
+exit [lindex $result 3]

@@ -1,0 +1,306 @@
+\chapter{ปัญญาประดิษฐ์และการเรียนรู้เชิงลึกสำหรับเกษตรกรรมแม่นยำ}
+\label{chap:deeplearning}
+
+หัวใจสำคัญของการยกระดับระบบสมาร์ตฟาร์มจากการเป็นเพียง \textbf{"ระบบเฝ้าระวัง (Monitoring)"} ไปสู่การเป็น \textbf{"ระบบพยากรณ์และตัดสินใจอัจฉริยะ (Predictive Autonomy)"} คือการประยุกต์ใช้โมเดลการเรียนรู้เชิงลึก (Deep Learning)\index{Deep Learning} เพื่อวิเคราะห์ความสัมพันธ์แบบไม่เป็นเชิงเส้น (Non-linear Dynamics) ระหว่างสภาวะบรรยากาศ แสงแดด และการสูญเสียน้ำในดิน บทนี้นำเสนอทฤษฎีและการประยุกต์ใช้โครงข่ายประสาทเทียมแบบหน่วยความจำระยะสั้นยาว (LSTM)\index{LSTM} ร่วมกับชุดข้อมูลที่เก็บได้จริงจากระบบ JC -AgriTech + AI
+
+\section{ทฤษฎีการพยากรณ์อนุกรมเวลาหลายตัวแปรในแปลงเกษตร}
+
+พลวัตความชื้นในดินบริเวณเขตรากพืชขึ้นอยู่กับปฏิสัมพันธ์อันซับซ้อนระหว่างกระบวนการระเหยของน้ำจากผิวดิน (Evaporation) และการคายน้ำของปากใบพืช (Transpiration) ซึ่งรวมเรียกว่า \textbf{การคายระเหยน้ำ (Evapotranspiration หรือ ET)}\index{Evapotranspiration (ET)} ตามสมการมาตรฐาน FAO-56 Penman-Monteith\index{Penman-Monteith}
+
+\begin{equation}
+    ET_0 = \frac{0.408 \Delta (R_n - G) + \gamma \frac{900}{T+273} u_2 (e_s - e_a)}{\Delta + \gamma(1 + 0.34 u_2)}
+    \label{eq:penman_monteith}
+\end{equation}
+
+โดยที่:
+\begin{itemize}
+    \item $R_n$ คือรังสีสุทธิที่ผิวพืช (Net Radiation, $\text{MJ}\cdot\text{m}^{-2}\cdot\text{day}^{-1}$) ซึ่งวัดได้จากเซนเซอร์โดมตะวัน BH1750
+    \item $T$ คืออุณหภูมิอากาศเฉลี่ย ($^\circ\text{C}$) วัดจากเซนเซอร์ SHT45
+    \item $(e_s - e_a)$ คือค่าแรงดึงระเหยน้ำของอากาศ (Vapor Pressure Deficit: VPD, $\text{kPa}$)
+    \item $\Delta$ คือความชันของเส้นโค้งความดันไออิ่มตัว ($\text{kPa}\cdot{^\circ\text{C}}^{-1}$)
+    \item $\gamma$ คือค่าคงที่ไซโครเมตริก ($\text{kPa}\cdot{^\circ\text{C}}^{-1}$)
+\end{itemize}
+
+อัตราการเปลี่ยนแปลงความชื้นในดินบริเวณเขตรากพืช ($\theta$) สามารถจำลองด้วยสมการสมดุลน้ำ (Water Balance Equation):
+
+\begin{equation}
+    \frac{d\theta}{dt} = \frac{1}{Z_r} \Big( I(t) - ET(t) - D(t) \Big)
+    \label{eq:water_balance}
+\end{equation}
+
+เมื่อ $Z_r$ คือความลึกเขตรากพืช, $I(t)$ คืออัตราการให้น้ำจากปั๊มรีเลย์, และ $D(t)$ คือการซึมลึก โจทย์การพยากรณ์จึงเป็นการทำนายค่า $\hat{y}_{t+H}$ (ความชื้นในดินล่วงหน้า $H$ ก้าวเวลา) จากประวัติข้อมูลย้อนหลัง $W$ ก้าวเวลา
+
+\begin{equation}
+    \hat{y}_{t+H} = f_\theta\Big( \mathbf{x}_{t-W+1}, \mathbf{x}_{t-W+2}, \dots, \mathbf{x}_t \Big)
+    \label{eq:multivariate_forecasting}
+\end{equation}
+
+โดยที่ $\mathbf{x}_t \in \mathbb{R}^D$ คือเวกเตอร์คุณลักษณะขนาด $D=12$ มิติ ณ เวลา $t$
+
+\section{สถาปัตยกรรมโครงข่ายประสาทเทียมแบบ LSTM}
+
+โครงข่ายประสาทเทียมแบบ \textbf{LSTM (Long Short-Term Memory)} ได้รับการออกแบบให้มีเซลล์หน่วยความจำ (Memory Cell $c_t$) และกลไกประตูกำกับสัญญาณ 3 ประตู ได้แก่ ประตูลืม (Forget Gate $f_t$) ประตูรับข้อมูล (Input Gate $i_t$) และประตูส่งออก (Output Gate $o_t$) ดังแสดงในภาพที่ \ref{fig:tikz_lstm_unrolled}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.86\textwidth}{!}{
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.2cm,
+    lstm/.style={rectangle, draw=rbruNavy, fill=agriBlue!10, thick, rounded corners=4pt, align=center, minimum height=1.5cm, minimum width=2.2cm, drop shadow={opacity=0.15}},
+    inputnode/.style={circle, draw=agriGreen, fill=agriGreen!15, thick, inner sep=2pt, minimum size=0.9cm, font=\small},
+    outputnode/.style={circle, draw=agriRed, fill=agriRed!15, thick, inner sep=2pt, minimum size=0.9cm, font=\small},
+    dense/.style={rectangle, draw=rbruGold!90!black, fill=rbruGold!20, thick, rounded corners=3pt, align=center, minimum height=0.9cm, minimum width=2.2cm},
+    line/.style={draw=rbruNavy, -latex', thick},
+    stateline/.style={draw=agriBlue!80!black, -latex', thick}
+]
+    % Input Nodes
+    \node[inputnode] (x1) {$\mathbf{x}_{t-2}$};
+    \node[inputnode, right=2.8cm of x1] (x2) {$\mathbf{x}_{t-1}$};
+    \node[inputnode, right=2.8cm of x2] (x3) {$\mathbf{x}_t$};
+
+    % LSTM Cell Blocks
+    \node[lstm, above=1.0cm of x1] (lstm1) {\textbf{LSTM Cell}\\\footnotesize $\mathbf{c}_{t-2}, \mathbf{h}_{t-2}$};
+    \node[lstm, above=1.0cm of x2] (lstm2) {\textbf{LSTM Cell}\\\footnotesize $\mathbf{c}_{t-1}, \mathbf{h}_{t-1}$};
+    \node[lstm, above=1.0cm of x3] (lstm3) {\textbf{LSTM Cell}\\\footnotesize $\mathbf{c}_t, \mathbf{h}_t$};
+
+    % Dense Regressor
+    \node[dense, above=1.0cm of lstm3] (dense_reg) {\textbf{Dense Regressor}\\\footnotesize Linear(64 $\to$ 1)};
+    \node[outputnode, above=0.8cm of dense_reg] (y_pred) {$\hat{y}_{t+H}$};
+
+    % Connections Inputs to LSTM
+    \draw[line] (x1) -- (lstm1);
+    \draw[line] (x2) -- (lstm2);
+    \draw[line] (x3) -- (lstm3);
+
+    % Recurrent Connections
+    \draw[stateline] (lstm1) -- node[above, font=\scriptsize] {$\mathbf{c}_{t-2}, \mathbf{h}_{t-2}$} (lstm2);
+    \draw[stateline] (lstm2) -- node[above, font=\scriptsize] {$\mathbf{c}_{t-1}, \mathbf{h}_{t-1}$} (lstm3);
+
+    % Output Pipeline
+    \draw[line] (lstm3) -- node[right, font=\scriptsize] {$\mathbf{h}_t$ (State)} (dense_reg);
+    \draw[line] (dense_reg) -- (y_pred);
+
+\end{tikzpicture}
+}
+\caption{สถาปัตยกรรมโครงข่ายประสาทเทียมแบบคลี่ขยายตามเวลา (Unrolled LSTM Multi-step Architecture)}
+\label{fig:tikz_lstm_unrolled}
+\end{figure}
+
+สมการการทำงานภายในเซลล์ LSTM กำหนดโดย:
+\begin{align}
+    f_t &= \sigma\Big( W_f [\mathbf{x}_t, h_{t-1}] + b_f \Big) \label{eq:forget_gate} \\
+    i_t &= \sigma\Big( W_i [\mathbf{x}_t, h_{t-1}] + b_i \Big) \label{eq:input_gate} \\
+    \tilde{c}_t &= \tanh\Big( W_c [\mathbf{x}_t, h_{t-1}] + b_c \Big) \label{eq:candidate_cell} \\
+    c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t \label{eq:cell_state} \\
+    o_t &= \sigma\Big( W_o [\mathbf{x}_t, h_{t-1}] + b_o \Big) \label{eq:output_gate} \\
+    h_t &= o_t \odot \tanh(c_t) \label{eq:hidden_state}
+\end{align}
+
+\section{การสร้างแบบจำลองและลูปการฝึกโครงข่ายด้วย PyTorch}
+
+การฝึกโมเดลในไฟล์ \texttt{ai\_colab\_starter.py} เริ่มต้นจากการแปลงข้อมูลดิบเป็นหน้าต่างเลื่อนขนาด $W = 12$ สเต็ป (ข้อมูลย้อนหลัง 3 ชั่วโมง) เพื่อพยากรณ์ความชื้นในดินเขตรากพืชในอีก 1 ชั่วโมงข้างหน้า ดังแสดงในโค้ด PyTorch ต่อไปนี้
+
+\begin{pythonbox}[การสร้างโครงข่ายประสาทเทียม AgriLSTMForecaster ด้วย PyTorch]
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+class AgriLSTMForecaster(nn.Module):
+    """
+    Multivariate LSTM Neural Network for Root-Zone Moisture Prediction.
+    Designed by Asst. Prof. Dr. Chewa Thassana (JC-AgriTech + AI).
+    """
+    def __init__(self, input_dim=12, hidden_dim=64, num_layers=2):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=0.2
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1) # Predict target root-zone moisture (%)
+        )
+        
+    def forward(self, x):
+        # x shape: [batch_size, seq_len, input_dim]
+        out, (hn, cn) = self.lstm(x)
+        prediction = self.fc(out[:, -1, :])
+        return prediction
+
+def train_agri_model(model, train_loader, val_loader, epochs=50, lr=1e-3):
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
+    
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
+        for batch_x, batch_y in train_loader:
+            optimizer.zero_grad()
+            preds = model(batch_x)
+            loss = criterion(preds, batch_y)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            train_loss += loss.item()
+            
+        # Validation step
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for vx, vy in val_loader:
+                vpreds = model(vx)
+                val_loss += criterion(vpreds, vy).item()
+                
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch [{epoch+1}/{epochs}] - Train Loss: {train_loss/len(train_loader):.4f} - Val Loss: {val_loss/len(val_loader):.4f}")
+\end{pythonbox}
+
+\section{สถาปัตยกรรม TinyML บนชิป ESP32-S3: การชดเชยค่า NPK, pH และความชื้นดิน (Soil Neural Calibrator)}
+\label{sec:tinyml_soil_calibrator}
+
+ในการใช้งานจริงภาคสนาม เซนเซอร์วัดคุณสมบัติดินแบบมัลติโพรบ 7-in-1 (RS485 Modbus RTU) และเซนเซอร์วัดความชื้นชนิดคาปาซิทีฟ (Soil Stick) มักเผชิญกับปัญหาข้อจำกัดทางฟิสิกส์และเคมีของดินอย่างรุนแรง ซึ่งสมการเชิงเส้นแบบดั้งเดิม ($y = mx + c$) ไม่สามารถแก้ไขได้ ระบบ JC -AGRITecH + AI จึงได้บูรณาการโครงข่ายประสาทเทียมขนาดเล็ก \textbf{(TinyML Deep Neural Calibrator)}\index{TinyML} ฝังลงในหน่วยความจำของชิปไมโครคอนโทรลเลอร์ ESP32-S3 เพื่อทำหน้าที่ประมวลผลชดเชยค่าความคลาดเคลื่อนแบบเรียลไทม์ (Edge AI Inference) ณ ปลายทาง
+
+\subsection{ปัญหาทางฟิสิกส์-เคมีดินและการแทรกแซงข้ามมิติ (Cross-Sensitivity)}
+
+ความคลาดเคลื่อนของเซนเซอร์ดินเกิดจาก 3 ปัจจัยทางธรรมชาติที่เกี่ยวพันกันแบบไม่เป็นเชิงเส้น:
+
+\begin{enumerate}
+    \item \textbf{การแทรกแซงของความชื้นต่อสภาพนำไฟฟ้า (EC-Moisture Coupling):} 
+    ตามแบบจำลองไดอิเล็กทริกของ Hilhorst (2000)\index{Hilhorst Model} และสมการ Rhoades et al. (1976)\index{Rhoades Model} สภาพนำไฟฟ้ารวมในเนื้อดิน (Bulk EC: $\sigma_b$) จะแปรผันตามสัดส่วนปริมาตรน้ำในช่องว่างดิน ($\theta$) เมื่อดินแห้ง ฟิล์มน้ำรอบเม็ดดินจะขาดช่วง ส่งผลให้ความต้านทานไฟฟ้าพุ่งสูงและสภาพนำไฟฟ้าดิ่งลง เซนเซอร์วัด NPK จึงอ่านค่าธาตุอาหารตกวูบเป็นศูนย์ แม้ในดินจะมีเม็ดปุ๋ยสะสมอยู่เต็มก็ตาม
+    
+    \item \textbf{ผลกระทบจากอุณหภูมิดินต่อการเคลื่อนที่ของไอออน (Thermal Drift):}
+    ตามสมการ Stokes-Einstein เมื่อดินมีอุณหภูมิสูงขึ้น ความหนืดของน้ำในช่องว่างดินจะลดลง ส่งผลให้ไอออนของธาตุอาหาร ($\text{NH}_4^+$, $\text{NO}_3^-$, $\text{H}_2\text{PO}_4^-$, $\text{K}^+$) เคลื่อนที่ได้คล่องตัวขึ้น (Ion Mobility สูงขึ้น) โดยตามมาตรฐาน USDA Handbook 60 ค่าสภาพนำไฟฟ้าจะขยับขึ้นประมาณ \textbf{$+1.9\%$ ถึง $+2.1\%$ ต่อ $1^\circ\text{C}$}:
+    \begin{equation}
+        \text{EC}_{T} = \text{EC}_{25} \times \Big[ 1 + \alpha(T_{\text{soil}} - 25) \Big]
+        \label{eq:thermal_drift}
+    \end{equation}
+    หากในแปลงปลูกมีอุณหภูมิดินต่างกันระหว่างเช้าตรู่ ($20^\circ\text{C}$) และบ่ายแดดจัด ($38^\circ\text{C}$) ค่า NPK ดิบจะแกว่งตัวสูงเกินจริงถึง $+36\%$
+    
+    \item \textbf{การเลื่อนของความชันศักย์ไฟฟ้ากรด-ด่าง (Nernstian pH Drift):}
+    ตามสมการเคมีไฟฟ้า Nernst ค่าความชันในการวัดกรด-ด่าง ($S = \frac{2.303 RT}{F}$) จะเพิ่มขึ้นจาก $59.16\,\text{mV/pH}$ ที่ $25^\circ\text{C}$ เป็น $62.13\,\text{mV/pH}$ ที่ $40^\circ\text{C}$ ทำให้การคำนวณค่า pH ดิบเบี่ยงเบนไปตามอุณหภูมิของแปลงปลูก
+\end{enumerate}
+
+\subsection{สถาปัตยกรรมโครงข่ายประสาทเทียม Multi-Layer Perceptron (MLP)}
+
+เพื่อปลดล็อกการแทรกแซงข้ามมิติดังกล่าว ระบบได้ออกแบบโครงข่ายประสาทเทียมแบบ Multi-Layer Perceptron (MLP)\index{Multi-Layer Perceptron} ขนาดกะทัดรัด (10 Inputs $\to$ Dense 16 $\to$ Dense 16 $\to$ 5 Outputs) ดังโครงสร้าง:
+
+\begin{equation}
+    \mathbf{y} = \mathbf{W}_2 \cdot \text{ReLU}\Big( \mathbf{W}_1 \cdot \text{ReLU}(\mathbf{W}_0 \cdot \tilde{\mathbf{x}} + \mathbf{b}_1) + \mathbf{b}_2 \Big) + \mathbf{b}_3
+    \label{eq:mlp_inference}
+\end{equation}
+
+โดยมีรายละเอียดเวกเตอร์อินพุต $\mathbf{x} \in \mathbb{R}^{10}$ และเวกเตอร์ผลลัพธ์ $\mathbf{y} \in \mathbb{R}^5$ ดังแสดงในตารางที่ \ref{tab:tinyml_io}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{c p{4.2cm} Y c}
+\toprule
+\textbf{มิติ} & \textbf{ตัวแปรขาเข้า (Inputs: $\mathbf{x}$)} & \textbf{ตัวแปรเป้าหมายที่ชดเชย (Outputs: $\mathbf{y}$)} & \textbf{หน่วย} \\
+\midrule
+1 & Raw Nitrogen (จากรีจิสเตอร์ Modbus) & True Available Nitrogen ($N$) & $\text{mg/kg}$ \\
+2 & Raw Phosphorus (จากรีจิสเตอร์ Modbus) & True Available Phosphorus ($P$) & $\text{mg/kg}$ \\
+3 & Raw Potassium (จากรีจิสเตอร์ Modbus) & True Exchangeable Potassium ($K$) & $\text{mg/kg}$ \\
+4 & Raw Electrical Conductivity ($\text{EC}$) & True Soil pH (ชดเชยอุณหภูมิ Nernst) & $\text{pH}$ \\
+5 & Raw Soil Probe Moisture ($\%$) & True Volumetric Moisture (ผสาน 2 เซนเซอร์) & $\%$ \\
+6 & Soil Temperature ($T_{\text{soil}}$ จากหัววัด) & -- & $^\circ\text{C}$ \\
+7 & Air Temperature ($T_{\text{air}}$ จาก SHT45) & -- & $^\circ\text{C}$ \\
+8 & Air Relative Humidity ($\text{RH}_{\text{air}}$ จาก SHT45) & -- & $\%$ \\
+9 & Raw Capacitive ADC (จาก Soil Stick) & -- & $0-4095$ \\
+10 & Raw Soil pH (จากรีจิสเตอร์ Modbus) & -- & $\text{pH}$ \\
+\bottomrule
+\end{tabularx}
+\caption{รายละเอียดตัวแปรอินพุตและเอาต์พุตของโมเดล TinyML Soil Neural Calibrator}
+\label{tab:tinyml_io}
+\end{table}
+
+\subsection{ผลการฝึกสอนและประเมินความแม่นยำของโมเดล}
+
+สคริปต์ฝึกสอน \texttt{scripts/train\_soil\_calibrator.py} จำลองชุดข้อมูลฟิสิกส์เคมีดินจำนวน 4,000 ตัวอย่าง ตามสัมประสิทธิ์การเคลื่อนที่ของไอออนและปฏิกิริยาเคมีดินจริง ทำการปรับมาตรฐานการแจกแจงข้อมูลด้วย \texttt{StandardScaler} และฝึกด้วยอัลกอริทึม Adam พร้อม L2 Regularization ผลการทดสอบบนชุดข้อมูลทดสอบ (Hold-out Test Set 20\%) ปรากฏดังตารางที่ \ref{tab:tinyml_metrics}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{Y c c c}
+\toprule
+\textbf{คุณสมบัติดินที่ชดเชย (Target Parameter)} & \textbf{สัมประสิทธิ์การตัดสินใจ ($R^2$)} & \textbf{RMSE} & \textbf{MAE} \\
+\midrule
+ไนโตรเจนที่ใช้ประโยชน์ได้ (Available Nitrogen) & $0.9629$ & $13.12\,\text{mg/kg}$ & $9.49\,\text{mg/kg}$ \\
+ฟอสฟอรัสที่ใช้ประโยชน์ได้ (Available Phosphorus) & $0.8087$ & $9.32\,\text{mg/kg}$ & $6.76\,\text{mg/kg}$ \\
+โพแทสเซียมที่แลกเปลี่ยนได้ (Exchangeable K) & $0.9639$ & $22.32\,\text{mg/kg}$ & $16.32\,\text{mg/kg}$ \\
+ความเป็นกรด-ด่างของดิน (Soil pH) & $0.9890$ & $0.12\,\text{pH}$ & $0.10\,\text{pH}$ \\
+ปริมาณความชื้นดินเนื้อแท้ (Volumetric Moisture) & $0.9970$ & $1.21\,\%$ & $0.96\,\%$ \\
+\bottomrule
+\end{tabularx}
+\caption{ดัชนีชี้วัดความแม่นยำของโมเดล TinyML Soil Neural Calibrator บนชุดทดสอบ}
+\label{tab:tinyml_metrics}
+\end{table}
+
+\subsection{การแปลงเป็น C++ Inference Engine และการทำงานบน ESP32-S3}
+
+น้ำหนักโครงข่ายประสาทเทียมทั้งหมด (549 พารามิเตอร์) ถูกแปลงเป็นไฟล์เฮดเดอร์ C++ ภาษา C++ สแตนดาร์ด \texttt{gravity/include/SoilNeuralCalibrator.h} โดยใช้เทคนิค \textbf{Zero Dynamic Memory Allocation} เพื่อป้องกันการเกิดภาวะหน่วยความจำแตกกระจาย (Heap Fragmentation) บนไมโครคอนโทรลเลอร์:
+
+\begin{cppbox}[โครงสร้าง C++ Inference Engine ของ SoilNeuralCalibrator บน ESP32-S3]
+#include <Arduino.h>
+#include <math.h>
+
+struct SoilAICalibratedData {
+    float nitrogen;     // Calibrated Nitrogen (mg/kg)
+    float phosphorus;   // Calibrated Phosphorus (mg/kg)
+    float potassium;    // Calibrated Potassium (mg/kg)
+    float ph;           // Nernst temperature-compensated pH
+    float moisture;     // Dual-sensor fused volumetric moisture (%)
+    float confidence;   // Inference confidence score (0.0 - 1.0)
+};
+
+class SoilNeuralCalibrator {
+public:
+    static SoilAICalibratedData predict(
+        float rawN, float rawP, float rawK, float rawEC, float rawMoist,
+        float soilTemp, float airTemp, float airRH, uint16_t stickADC, float rawPH
+    ) {
+        float x[10] = { rawN, rawP, rawK, rawEC, rawMoist, soilTemp, airTemp, airRH, (float)stickADC, rawPH };
+        
+        // 1. Feature Normalization: z = (x - mean) / std
+        float x_norm[10];
+        for (int i = 0; i < 10; ++i) {
+            x_norm[i] = (x[i] - SoilNeuralWeights::X_MEAN[i]) / SoilNeuralWeights::X_SCALE[i];
+        }
+
+        // 2. Hidden Layer 1: Dense(10 -> 16, Activation: ReLU)
+        float h1[16];
+        for (int j = 0; j < 16; ++j) {
+            float sum = SoilNeuralWeights::BIAS_1[j];
+            for (int i = 0; i < 10; ++i) sum += x_norm[i] * SoilNeuralWeights::W0[i][j];
+            h1[j] = (sum > 0.0f) ? sum : 0.0f;
+        }
+
+        // 3. Hidden Layer 2: Dense(16 -> 16, Activation: ReLU)
+        float h2[16];
+        for (int j = 0; j < 16; ++j) {
+            float sum = SoilNeuralWeights::BIAS_2[j];
+            for (int i = 0; i < 16; ++i) sum += h1[i] * SoilNeuralWeights::W1[i][j];
+            h2[j] = (sum > 0.0f) ? sum : 0.0f;
+        }
+
+        // 4. Output Layer: Dense(16 -> 5, Linear) and Denormalization
+        SoilAICalibratedData out;
+        // out.nitrogen, out.phosphorus, out.potassium, out.ph, out.moisture
+        return out;
+    }
+};
+\end{cppbox}
+
+\subsection{การบูรณาการระบบแสดงผลและการส่งผ่านโทรมาตร (Telemetry Pipeline)}
+
+เฟิร์มแวร์หลักของบอร์ดเชื่อมโยงผลลัพธ์ของโมเดล TinyML เข้าสู่ทุกกระบวนการของระบบ:
+\begin{itemize}
+    \item \textbf{หน้าจอแดชบอร์ด LCD (DisplayManager.cpp):} การ์ดที่ 4 (Deep Soil NPK \& pH) มีการประดับป้ายเรืองแสง \texttt{[AI-Edge]} โดยตัวเลขแสดงผล pH และแคปซูลเม็ดยา 3 สี (N, P, K) จะดึงค่าที่ผ่านการคำนวณของ AI ไปแสดงผลโดยตรง
+    \item \textbf{หน้าต่างรายละเอียดเขตรากพืช (PAGE\_DETAIL\_SOIL7):} แสดงผลเปรียบเทียบระหว่างค่าดิบจากฮาร์ดแวร์ (Raw Sensor) กับค่าที่ผ่านการชดเชยอุณหภูมิและความชื้นของ TinyML เพื่อความโปร่งใสในการตรวจสอบ
+    \item \textbf{การส่งข้อมูลคลาวด์ (CloudDataManager.cpp):} ข้อมูล \texttt{ai\_calibrated} จะถูกบรรจุลงในโครงสร้าง JSON ส่งตรงเข้าสู่ FastAPI และ Firebase Realtime Database แบบเรียลไทม์
+\end{itemize}
+
