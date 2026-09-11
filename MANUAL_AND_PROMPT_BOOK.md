@@ -870,3 +870,21 @@ cd /Users/chewathassana/Desktop/handysense/server
   * **คอมไพล์เล่มตำราวิชาการ XeLaTeX ([latex_book/main.pdf](file:///Users/chewathassana/Desktop/handysense/latex_book/main.pdf)):**
     * รันกระบวนการ XeLaTeX และ MakeIndex สมบูรณ์แบบ 100% ไร้ข้อผิดพลาด
     * ความหนาของเล่มขยายเป็น **78 หน้า** ประกอบด้วยเนื้อหาครบถ้วนตั้งแต่ปก, คำนำ, สารบัญ, บทที่ 1--5, ภาคผนวก ก, ภาคผนวก ข, บรรณานุกรม, ดรรชนีคำค้น และประวัติผู้เขียน
+
+### 🔹 พรอมพ์ที่ 40: ส่งออกและเผยแพร่สถาปัตยกรรมโครงการฉบับสมบูรณ์ขึ้นสู่ GitHub (JC-AGRITecH2026 Full Monorepo Release)
+> **ผู้ใช้:** *"upload /Users/chewathassana/Desktop/handysense/latex_book /Users/chewathassana/Desktop/handysense/scripts /Users/chewathassana/Desktop/handysense/server /Users/chewathassana/Desktop/handysense/MANUAL_AND_PROMPT_BOOK.md /Users/chewathassana/Desktop/handysense/smart_farm_ui_overview.jpg /Users/chewathassana/Desktop/handysense/splash_screen_ai_concept_v2.jpg /Users/chewathassana/Desktop/handysense/splash_screen_ai_concept.jpg"*
+* **การดำเนินการของ AI:**
+  * **ปรับโครงสร้างพื้นที่จัดเก็บ Git Monorepo แม่บท:**
+    * ย้ายขอบเขตการควบคุมเวอร์ชันขึ้นสู่รากของโปรเจกต์ (`/Users/chewathassana/Desktop/handysense/`)
+    * ปรับแต่งไฟล์ `.gitignore` ครอบคลุมการตัดทิ้งไฟล์ไบนารี (`.pio/`, `venv/`, `*.pyc`, `*.aux`, `*.log`, `latex_book/preview/`) แต่เก็บรักษาไฟล์ผลลัพธ์ตำรา [latex_book/main.pdf](file:///Users/chewathassana/Desktop/handysense/latex_book/main.pdf) ไว้สำหรับการเผยแพร่
+    * จัดทำ [README.md](file:///Users/chewathassana/Desktop/handysense/README.md) หน้าหลักของโครงการ สรุปสถาปัตยกรรม 5 เลเยอร์, โครงสร้างไฟล์, วิธีการรันระบบ และภาพประกอบระบบจริง
+  * **นำส่งข้อมูลขึ้น GitHub Repository ([https://github.com/Tsanaphy2023/JC-AGRITecH2026](https://github.com/Tsanaphy2023/JC-AGRITecH2026)):**
+    * รวมไฟล์ทั้งหมด 65 ไฟล์ 12,817 บรรทัด ครอบคลุม:
+      1. `gravity/` (ESP32-S3 Firmware C++, PlatformIO, TinyML Calibrator, LCD UI)
+      2. `server/` (FastAPI Cloud Service, Streamlit Cockpit, SQLite DB, Serial Bridge)
+      3. `scripts/` (สคริปต์ฝึกโมเดล TinyML และจำลองฟิสิกส์เคมีดิน)
+      4. `latex_book/` (ต้นฉบับตำราวิชาการ 78 หน้า พร้อมไฟล์ PDF คุณภาพสูง)
+      5. `MANUAL_AND_PROMPT_BOOK.md` (บันทึกวิศวกรรมและประวัติการพัฒนา 40 พรอมพ์)
+      6. ภาพถ่ายหน้าจอฮาร์ดแวร์จริงและภาพบูตสกรีน 3D
+    * นำส่งด้วย Commit ID `a7598a4` (`Upload complete JC-AGRITecH2026 system: Firmware, Server, Scripts, LaTeX Book and Manual`) บนกิ่ง `main`
+    * ลบโทเค็นยืนยันตัวตนออกจากคอนฟิกโลคอลทันทีเพื่อความปลอดภัยสูงสุดตามระเบียบรักษาความมั่นคงปลอดภัยไซเบอร์
