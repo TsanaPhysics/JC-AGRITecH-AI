@@ -12,6 +12,14 @@
 
 ![JC-AGRITecH Sensor Details Showcase](smart_farm_sensor_details_showcase.jpg)
 
+### 🖥️ ภาพแสดงรายละเอียดหน้าจอเซนเซอร์เดี่ยวทั้ง 4 สถานี (Dedicated Sensor Telemetry Figures)
+
+| 1. เซนเซอร์ผิวดินชั้นตื้น Soil Stick (0-10 ซม.) | 2. เซนเซอร์เขตรากลึก Soil 7-in-1 & TinyML AI |
+| :---: | :---: |
+| [![Soil Stick](figure_sensor_01_soil_stick.jpg)](figure_sensor_01_soil_stick.jpg) | [![Soil 7-in-1](figure_sensor_02_soil_7in1.jpg)](figure_sensor_02_soil_7in1.jpg) |
+| **3. สภาพบรรยากาศ, ความชื้น & ฟิสิกส์ VPD (SHT45)** | **4. โดมตะวัน 360°, ฟลักซ์รังสีแสง & PAR (BH1750)** |
+| [![SHT45](figure_sensor_03_sht45.jpg)](figure_sensor_03_sht45.jpg) | [![BH1750](figure_sensor_04_bh1750.jpg)](figure_sensor_04_bh1750.jpg) |
+
 ## 📌 ภาพรวมโครงการ (Project Overview)
 **JC -AGRITecH + AI เวอร์ชัน 1.0** คือแพลตฟอร์มเกษตรอัจฉริยะแบบฟูลสแตก (Full-Stack Smart Agriculture Platform) ระดับอุตสาหกรรมที่ผสาน **วิศวกรรมสมองกลฝังตัว (Embedded Engineering)**, **ปัญญาประดิษฐ์ระดับขอบโครงข่าย (TinyML Edge AI)**, **การเรียนรู้เชิงลึกพยากรณ์อนุกรมเวลา (Cloud Deep Learning Time-Series Forecaster)** และ **ตำราวิชาการระดับ Masterclass** เข้าด้วยกันอย่างสมบูรณ์แบบ
 

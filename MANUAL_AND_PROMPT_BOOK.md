@@ -913,3 +913,23 @@ cd /Users/chewathassana/Desktop/handysense/server
       4. `latex_book/figures/ui_screen_soil_7in1.png` (เขตรากลึกและ TinyML Edge AI)
     * สร้างภาพรวมผลงาน Master Showcase ขนาด 2040 x 1440 พิกเซล: [smart_farm_sensor_details_showcase.jpg](file:///Users/chewathassana/Desktop/handysense/smart_farm_sensor_details_showcase.jpg) ในกรอบเรืองแสง Cyber-Agritech พร้อมคำอธิบายฟังก์ชันสมบูรณ์แบบ
 
+### 🔹 พรอมพ์ที่ 42: แยกชุดภาพหน้าจอแสดงผลออกเป็น 4 ภาพเดี่ยว พร้อมกรอบ Bezel ฮาร์ดแวร์และการ์ดสรุปเทคนิคระดับพรีเมียมสำหรับการนำเสนอ
+> **ผู้ใช้:** *"แยกเป้น 4 ภาไ สำหรับแสดง"*
+* **การดำเนินการของ AI:**
+  * **พัฒนาสคริปต์เรนเดอร์ภาพเดี่ยวระดับพรีเมียม ([scripts/render_4_individual_figures.py](file:///Users/chewathassana/Desktop/handysense/scripts/render_4_individual_figures.py)):**
+    * พัฒนาระบบเรนเดอร์ภาพเดี่ยวขนาดใหญ่ 1280 × 1060 พิกเซล สำหรับการนำเสนอทางวิชาการและการจัดแสดงบนหน้าจอโปรเจกเตอร์/เอกสารประกอบการสอน
+    * เสริมกรอบแชสซีตัวเครื่องกล่องควบคุม (Industrial Controller Bezel Chassis) จำลองน็อตยึด 4 มุมและแถบสะท้อนแสงโลหะรอบหน้าจอสัมผัส IPS 3.5 นิ้ว
+    * ออกแบบการ์ดสรุปข้อมูลเชิงวิศวกรรม 3 คอลัมน์ด้านล่างจอภาพ:
+      1. ข้อมูลการเชื่อมต่อพอร์ตและฮาร์ดแวร์ (Hardware Specs & Pinout)
+      2. โมเดลฟิสิกส์ การคำนวณ หรืออัลกอริทึมปัญญาประดิษฐ์ (Physics & TinyML AI)
+      3. กลยุทธ์การตัดสินใจทางการเกษตรและการควบคุมอัตโนมัติ (Agronomic & Automation Control)
+  * **ส่งออกภาพความละเอียดสูง 4 ภาพเดี่ยว:**
+    1. [figure_sensor_01_soil_stick.jpg](file:///Users/chewathassana/Desktop/handysense/figure_sensor_01_soil_stick.jpg): เซนเซอร์วัดความชื้นผิวดินชั้นตื้น Soil Stick 0-10 ซม. พร้อมระบบรดน้ำอัตโนมัติฮิสเทอรีซิส
+    2. [figure_sensor_02_soil_7in1.jpg](file:///Users/chewathassana/Desktop/handysense/figure_sensor_02_soil_7in1.jpg): เซนเซอร์เขตรากลึก Soil 7-in-1 พร้อมโครงข่ายประสาทเทียม TinyML Edge AI และคำแนะนำใส่ปุ๋ย
+    3. [figure_sensor_03_sht45.jpg](file:///Users/chewathassana/Desktop/handysense/figure_sensor_03_sht45.jpg): เซนเซอร์บรรยากาศ Sensirion SHT45 ดัชนี VPD และการจัดการการคายน้ำ/พ่นหมอก
+    4. [figure_sensor_04_bh1750.jpg](file:///Users/chewathassana/Desktop/handysense/figure_sensor_04_bh1750.jpg): โดมตะวัน 360° BH1750 ฟลักซ์รังสีแสงอาทิตย์ และโฟโตไบโอโลยี PAR / DLI
+  * **อัปเดตไฟล์ README.md และคลัง GitHub:**
+    * จัดวางตารางภาพเดี่ยวทั้ง 4 ภาพใน [README.md](file:///Users/chewathassana/Desktop/handysense/README.md)
+    * สำเนาไฟล์ภาพลงใน [latex_book/figures/](file:///Users/chewathassana/Desktop/handysense/latex_book/figures/) เพื่อรองรับการนำเข้าเอกสารวิชาการ
+
+
