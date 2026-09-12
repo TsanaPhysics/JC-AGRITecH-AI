@@ -757,7 +757,8 @@ static void drawOverviewTopHeader() {
     // ========================================================================
     int timeCapsuleX = 208, timeCapsuleY = 6, timeCapsuleW = 168, timeCapsuleH = 26;
     lcd.fillRoundRect(timeCapsuleX, timeCapsuleY, timeCapsuleW, timeCapsuleH, 13, 0x0185); // พื้นหลังเข้มหรู
-    lcd.drawRoundRect(timeCapsuleX, timeCapsuleY, timeCapsuleW, timeCapsuleH, 13, 0x15D3); // ขอบเขียวมรกตเรืองแสง
+    lcd.drawRoundRect(timeCapsuleX, timeCapsuleY, timeCapsuleW, timeCapsuleH, 13, 0x07E0); // ขอบเขียวมรกตเรืองแสง หนา 2px
+    lcd.drawRoundRect(timeCapsuleX + 1, timeCapsuleY + 1, timeCapsuleW - 2, timeCapsuleH - 2, 12, 0x15D3);
 
     // ดึงค่าสตริงวันที่และเวลาปัจจุบัน
     String dateStr = CloudDataManager_getDateString();
@@ -842,30 +843,34 @@ static void drawOverviewBottomNav() {
     const char *lbl_relay = L_STR("รีเลย์", "RELAYS", "继电器");
     const char *lbl_setup = L_STR("ตั้งค่า", "SETUP", "设置");
 
-    // ปุ่ม 1: ภาพรวม (Active: พื้นเขียวมรกต 0x0320, ขอบเขียวสด 0x15D3, ตัวหนังสือขาว)
+    // ปุ่ม 1: ภาพรวม (Active: พื้นเขียวมรกต 0x0320, ขอบเขียวสดหนา 2 ชั้น คมกริบ)
     lcd.fillRoundRect(10, 274, 106, 38, 8, 0x0320);
-    lcd.drawRoundRect(10, 274, 106, 38, 8, 0x15D3);
+    lcd.drawRoundRect(10, 274, 106, 38, 8, 0x07E0);
+    lcd.drawRoundRect(11, 275, 104, 36, 7, 0x15D3);
     lcd.setTextColor(0xFFFF, 0x0320);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_home, 10 + 53, 274 + 19);
 
-    // ปุ่ม 2: ข้อมูล/กราฟ (พื้น 0x0926, ขอบ 0x0471, ตัวหนังสือฟ้าอ่อน)
+    // ปุ่ม 2: ข้อมูล/กราฟ (พื้น 0x0926, ขอบฟ้าหนา 2 ชั้น คมกริบ)
     lcd.fillRoundRect(126, 274, 106, 38, 8, 0x0926);
-    lcd.drawRoundRect(126, 274, 106, 38, 8, 0x0471);
+    lcd.drawRoundRect(126, 274, 106, 38, 8, 0x07FF);
+    lcd.drawRoundRect(127, 275, 104, 36, 7, 0x0471);
     lcd.setTextColor(0x9E7F, 0x0926);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_graph, 126 + 53, 274 + 19);
 
-    // ปุ่ม 3: รีเลย์ (พื้น 0x28A3, ขอบ 0xB887, ตัวหนังสือกุหลาบอ่อน)
+    // ปุ่ม 3: รีเลย์ (พื้น 0x28A3, ขอบชมพูม่วงหนา 2 ชั้น คมกริบ)
     lcd.fillRoundRect(242, 274, 106, 38, 8, 0x28A3);
-    lcd.drawRoundRect(242, 274, 106, 38, 8, 0xB887);
+    lcd.drawRoundRect(242, 274, 106, 38, 8, 0xF81F);
+    lcd.drawRoundRect(243, 275, 104, 36, 7, 0xB887);
     lcd.setTextColor(0xFCD7, 0x28A3);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_relay, 242 + 53, 274 + 19);
 
-    // ปุ่ม 4: ตั้งค่า (พื้น 0x2902, ขอบ 0xB2A1, ตัวหนังสืออำพันอ่อน)
+    // ปุ่ม 4: ตั้งค่า (พื้น 0x2902, ขอบเหลืองทองหนา 2 ชั้น คมกริบ)
     lcd.fillRoundRect(358, 274, 106, 38, 8, 0x2902);
-    lcd.drawRoundRect(358, 274, 106, 38, 8, 0xB2A1);
+    lcd.drawRoundRect(358, 274, 106, 38, 8, 0xFFE0);
+    lcd.drawRoundRect(359, 275, 104, 36, 7, 0xB2A1);
     lcd.setTextColor(0xFDE8, 0x2902);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_setup, 358 + 53, 274 + 19);
@@ -889,7 +894,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // การ์ด 1: สภาพอากาศรอบแปลง (x: 10, y: 42, w: 224, h: 114)
         // -------------------------------------------------------------
         lcd.fillRoundRect(10, 42, 224, 114, 10, 0x10E4);
-        lcd.drawRoundRect(10, 42, 224, 114, 10, 0x03FF); // ขอบฟ้านีออนเรืองแสง
+        // ขอบฟ้านีออนหนา 3 ชั้น คมชัด เรืองแสง (High-Contrast Bold Bezel)
+        lcd.drawRoundRect(10, 42, 224, 114, 10, 0x07FF);
+        lcd.drawRoundRect(11, 43, 222, 112, 9, 0x07FF);
+        lcd.drawRoundRect(12, 44, 220, 110, 8, 0x03FF);
         lcd.loadFont(thai_font_vlw);
         const char *t1 = L_STR("สภาพอากาศรอบแปลง", "Microclimate Weather", "微气候环境");
         lcd.setTextColor(0x07FF, 0x10E4); // สีฟ้าไซแอนนีออนสดใส
@@ -900,7 +908,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // การ์ด 2: แสงอาทิตย์ โดมตะวัน (x: 246, y: 42, w: 224, h: 114)
         // -------------------------------------------------------------
         lcd.fillRoundRect(246, 42, 224, 114, 10, 0x10E4);
-        lcd.drawRoundRect(246, 42, 224, 114, 10, 0xFD20); // ขอบส้มทองนีออน
+        // ขอบส้มทองนีออนหนา 3 ชั้น คมชัด เรืองแสง (High-Contrast Bold Bezel)
+        lcd.drawRoundRect(246, 42, 224, 114, 10, 0xFFE0);
+        lcd.drawRoundRect(247, 43, 222, 112, 9, 0xFFE0);
+        lcd.drawRoundRect(248, 44, 220, 110, 8, 0xFD20);
         lcd.loadFont(thai_font_vlw);
         const char *t2 = L_STR("ความเข้มแสงโดมตะวัน", "Solar Dome Light", "太阳辐射强度");
         lcd.setTextColor(0xFFE0, 0x10E4); // สีเหลืองทองนีออนสว่างสดใส
@@ -929,7 +940,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // การ์ด 3: ความชื้นในดินผิวดิน (x: 10, y: 164, w: 224, h: 102)
         // -------------------------------------------------------------
         lcd.fillRoundRect(10, 164, 224, 102, 10, 0x10E4);
-        lcd.drawRoundRect(10, 164, 224, 102, 10, 0x1FE6); // ขอบเขียวมรกตนีออน
+        // ขอบเขียวมรกตนีออนหนา 3 ชั้น คมชัด เรืองแสง (High-Contrast Bold Bezel)
+        lcd.drawRoundRect(10, 164, 224, 102, 10, 0x07E0);
+        lcd.drawRoundRect(11, 165, 222, 100, 9, 0x07E0);
+        lcd.drawRoundRect(12, 166, 220, 98, 8, 0x1FE6);
         lcd.loadFont(thai_font_vlw);
         const char *t3 = L_STR("ความชื้นในดิน (ผิวดิน)", "Soil Moisture", "土壤水分");
         lcd.setTextColor(0x07E0, 0x10E4); // สีเขียวมรกตนีออนสว่างสดใส
@@ -947,7 +961,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // การ์ด 4: ธาตุอาหารดินลึก & pH (x: 246, y: 164, w: 224, h: 102)
         // -------------------------------------------------------------
         lcd.fillRoundRect(246, 164, 224, 102, 10, 0x10E4);
-        lcd.drawRoundRect(246, 164, 224, 102, 10, 0xFFE0); // ขอบเหลืองทองนีออน
+        // ขอบเหลืองทองนีออนหนา 3 ชั้น คมชัด เรืองแสง (High-Contrast Bold Bezel)
+        lcd.drawRoundRect(246, 164, 224, 102, 10, 0xFFE0);
+        lcd.drawRoundRect(247, 165, 222, 100, 9, 0xFFE0);
+        lcd.drawRoundRect(248, 166, 220, 98, 8, 0xFD20);
         lcd.loadFont(thai_font_vlw);
         const char *t4 = L_STR("ธาตุอาหารดิน & pH", "Deep Soil NPK & pH", "土壤养分与pH");
         lcd.setTextColor(0xFFE0, 0x10E4); // สีเหลืองทองนีออนสว่างสดใส (Yellow Tone ตามคำขอ)
@@ -957,6 +974,7 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // ป้ายสัญลักษณ์ AI-Edge แสดงว่าใช้ TinyML ชดเชยอุณหภูมิและความชื้นแล้ว
         lcd.fillRoundRect(396, 172, 64, 16, 4, 0x0320);
         lcd.drawRoundRect(396, 172, 64, 16, 4, 0x07E0);
+        lcd.drawRoundRect(397, 173, 62, 14, 3, 0x07E0);
         lcd.setTextColor(0x07E0, 0x0320);
         lcd.setTextDatum(textdatum_t::middle_center);
         lcd.drawString("AI-Edge", 396 + 32, 172 + 8, &fonts::Font0);

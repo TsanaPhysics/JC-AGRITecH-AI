@@ -395,33 +395,37 @@ st.markdown("""
         box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
     }
 
-    /* Master UI Gradient Borders from smart_farm_ui_overview.jpg */
+    /* Master UI Gradient Borders from smart_farm_ui_overview.jpg (Bold 3.5px High-Contrast) */
     .card-air {
-        border: 2px solid transparent !important;
+        border: 3.5px solid transparent !important;
         background: linear-gradient(#111722, #111722) padding-box,
-                    linear-gradient(135deg, #00ff87 0%, #00f2fe 50%, #8b5cf6 100%) border-box !important;
+                    linear-gradient(135deg, #00ff87 0%, #00f2fe 50%, #38bdf8 100%) border-box !important;
+        box-shadow: 0 0 18px rgba(0, 242, 254, 0.25), 0 10px 28px rgba(0, 0, 0, 0.45) !important;
     }
     .card-light {
-        border: 2px solid transparent !important;
+        border: 3.5px solid transparent !important;
         background: linear-gradient(#111722, #111722) padding-box,
-                    linear-gradient(135deg, #f59e0b 0%, #ec4899 100%) border-box !important;
+                    linear-gradient(135deg, #f59e0b 0%, #facc15 50%, #fb8500 100%) border-box !important;
+        box-shadow: 0 0 18px rgba(250, 204, 21, 0.25), 0 10px 28px rgba(0, 0, 0, 0.45) !important;
     }
     .card-soil {
-        border: 2px solid transparent !important;
+        border: 3.5px solid transparent !important;
         background: linear-gradient(#111722, #111722) padding-box,
-                    linear-gradient(135deg, #00f2fe 0%, #8b5cf6 100%) border-box !important;
+                    linear-gradient(135deg, #00ff87 0%, #38bdf8 100%) border-box !important;
+        box-shadow: 0 0 18px rgba(0, 255, 135, 0.25), 0 10px 28px rgba(0, 0, 0, 0.45) !important;
     }
     .card-fertility {
-        border: 2px solid transparent !important;
+        border: 3.5px solid transparent !important;
         background: linear-gradient(#111722, #111722) padding-box,
-                    linear-gradient(135deg, #f59e0b 0%, #b45309 100%) border-box !important;
+                    linear-gradient(135deg, #fde047 0%, #eab308 50%, #fbbf24 100%) border-box !important;
+        box-shadow: 0 0 18px rgba(253, 224, 71, 0.28), 0 10px 28px rgba(0, 0, 0, 0.45) !important;
     }
 
     /* Distinct Card Glows on Hover */
-    .card-air:hover { box-shadow: 0 16px 36px rgba(0, 242, 254, 0.28); }
-    .card-light:hover { box-shadow: 0 16px 36px rgba(255, 183, 3, 0.28); }
-    .card-soil:hover { box-shadow: 0 16px 36px rgba(0, 255, 135, 0.28); }
-    .card-fertility:hover { box-shadow: 0 16px 36px rgba(192, 132, 252, 0.28); }
+    .card-air:hover { box-shadow: 0 0 26px rgba(0, 242, 254, 0.45), 0 16px 36px rgba(0, 0, 0, 0.6) !important; }
+    .card-light:hover { box-shadow: 0 0 26px rgba(250, 204, 21, 0.45), 0 16px 36px rgba(0, 0, 0, 0.6) !important; }
+    .card-soil:hover { box-shadow: 0 0 26px rgba(0, 255, 135, 0.45), 0 16px 36px rgba(0, 0, 0, 0.6) !important; }
+    .card-fertility:hover { box-shadow: 0 0 26px rgba(253, 224, 71, 0.45), 0 16px 36px rgba(0, 0, 0, 0.6) !important; }
 
     .kpi-accent-bar {
         position: absolute;
@@ -650,10 +654,10 @@ st.markdown("""
         flex-direction: column;
         justify-content: space-between;
     }
-    .lcd-card-air { border: 1.5px solid #10b981; }
-    .lcd-card-light { border: 1.5px solid #f59e0b; }
-    .lcd-card-soil-stick { border: 1.5px solid #06b6d4; }
-    .lcd-card-soil-7in1 { border: 1.5px solid #10b981; }
+    .lcd-card-air { border: 2.5px solid #00f2fe !important; box-shadow: 0 0 12px rgba(0, 242, 254, 0.25) !important; }
+    .lcd-card-light { border: 2.5px solid #facc15 !important; box-shadow: 0 0 12px rgba(250, 204, 21, 0.25) !important; }
+    .lcd-card-soil-stick { border: 2.5px solid #00ff87 !important; box-shadow: 0 0 12px rgba(0, 255, 135, 0.25) !important; }
+    .lcd-card-soil-7in1 { border: 2.5px solid #fde047 !important; box-shadow: 0 0 12px rgba(253, 224, 71, 0.25) !important; }
 
     .lcd-card-title {
         font-size: 0.78rem;
