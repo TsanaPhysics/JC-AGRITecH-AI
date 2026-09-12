@@ -120,7 +120,7 @@ void DisplayManager_setPage(DisplayPage page) {
         pageChanged = true;
         scrollOffsetY = 0;
         if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
-            maxScrollY = (currentPage == PAGE_DETAIL_SOIL7) ? 260 : 190;
+            maxScrollY = (currentPage == PAGE_DETAIL_SOIL7) ? 560 : 430;
         } else {
             maxScrollY = 0;
         }
@@ -1103,139 +1103,143 @@ static void drawPageDetailAir(const FarmSensorTelemetry &data) {
     lcd.setClipRect(0, 36, 460, 284);
 
     // --- การ์ด 1: ข้อมูลเซนเซอร์สด & เกจวัดความชื้น (Real-time Gauge) ---
+    // ขยายความสูงการ์ดเป็น 200px ให้ระยะห่างบรรทัด 1.5 - 1.7 เท่า (32-34px) สบายตา ชัดเจน
     int c1_y = 40 - sy;
-    lcd.fillRoundRect(6, c1_y, 450, 134, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c1_y, 450, 134, 6, COLOR_ACCENT);
+    lcd.fillRoundRect(6, c1_y, 450, 200, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c1_y, 450, 200, 6, COLOR_ACCENT);
     lcd.setTextSize(1);
     lcd.setTextColor(COLOR_ACCENT, COLOR_CARD_BG);
     lcd.drawString(L_STR("[SHT45] อุณหภูมิและความชื้นสัมพัทธ์ (Sensirion CMOSens)",
                          "[SHT45] TEMPERATURE & RELATIVE HUMIDITY (Sensirion CMOSens)",
-                         "[SHT45] 空气温湿度监测 (Sensirion CMOSens)"), 16, c1_y + 8);
+                         "[SHT45] 空气温湿度监测 (Sensirion CMOSens)"), 16, c1_y + 10);
 
-    // บรรทัดตัวเลขหลัก: [TEMP] 27.3 °C (81.2 °F) & [RH%] 88.1 %RH
-    drawBadgeTag(16, c1_y + 28, "TEMP", 0xB222, 0xFFFF, 0xFD20, 42, 18);
+    // บรรทัดตัวเลขหลัก: [TEMP] 27.3 °C (81.2 °F) & [RH%] 88.1 %RH (y: c1_y + 44)
+    drawBadgeTag(16, c1_y + 42, "TEMP", 0xB222, 0xFFFF, 0xFD20, 44, 20);
     float fahrenheit = (data.air.temperature * 1.8f) + 32.0f;
     snprintf(buf, sizeof(buf), "%.1f C  (%.1f F)", data.air.temperature, fahrenheit);
     lcd.setTextColor(0xFD20, COLOR_CARD_BG);
-    lcd.drawString(buf, 64, c1_y + 30);
+    lcd.drawString(buf, 68, c1_y + 44);
 
-    drawBadgeTag(240, c1_y + 28, "RH%", 0x0B34, 0xFFFF, 0x3DFF, 38, 18);
+    drawBadgeTag(240, c1_y + 42, "RH%", 0x0B34, 0xFFFF, 0x3DFF, 40, 20);
     snprintf(buf, sizeof(buf), "%.1f %%RH", data.air.humidity);
     lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
-    lcd.drawString(buf, 284, c1_y + 30);
+    lcd.drawString(buf, 288, c1_y + 44);
 
-    // จุดน้ำค้าง Dew Point & ระยะห่างจุดน้ำค้าง Dew Margin
+    // จุดน้ำค้าง Dew Point & ระยะห่างจุดน้ำค้าง Dew Margin (y: c1_y + 78, delta = 34px)
     float dewMargin = data.air.temperature - data.air.dewPoint;
     snprintf(buf, sizeof(buf), "Dew Point: %.1f C   |   Dew Margin: %.1f C", data.air.dewPoint, dewMargin);
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 52);
+    lcd.drawString(buf, 16, c1_y + 78);
 
-    // เกจวัดความชื้นอากาศ: หัวข้อและตัวเลขเปอร์เซ็นต์
+    // เกจวัดความชื้นอากาศ: หัวข้อและตัวเลขเปอร์เซ็นต์ (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("เกจระดับความชื้นอากาศ:", "Air Humidity Gauge:", "空气湿度刻度:"), 16, c1_y + 72);
+    lcd.drawString(L_STR("เกจระดับความชื้นอากาศ:", "Air Humidity Gauge:", "空气湿度刻度:"), 16, c1_y + 112);
     snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.air.humidity,
              (data.air.humidity > 80.0f) ? L_STR("สูง", "High", "高") : ((data.air.humidity < 40.0f) ? L_STR("ต่ำ", "Low", "低") : L_STR("ปกติ", "Normal", "适宜")));
     uint16_t barColor = (data.air.humidity > 80.0f) ? 0xFD20 : ((data.air.humidity < 40.0f) ? COLOR_WARN : 0x07E0);
     lcd.setTextColor(barColor, COLOR_CARD_BG);
     lcd.setTextDatum(textdatum_t::top_right);
-    lcd.drawString(buf, 446, c1_y + 72);
+    lcd.drawString(buf, 446, c1_y + 112);
     lcd.setTextDatum(textdatum_t::top_left);
 
-    // บาร์กราฟเต็มความกว้างการ์ด สวยงาม
+    // บาร์กราฟเต็มความกว้างการ์ด สวยงาม (y: c1_y + 144, delta = 32px)
     int barW = constrain((int)(data.air.humidity * 4.26f), 0, 426);
-    lcd.drawRoundRect(16, c1_y + 92, 430, 12, 4, 0x4208);
-    lcd.fillRect(18, c1_y + 94, 426, 8, 0x0841);
-    lcd.fillRect(18, c1_y + 94, barW, 8, barColor);
+    lcd.drawRoundRect(16, c1_y + 144, 430, 12, 4, 0x4208);
+    lcd.fillRect(18, c1_y + 146, 426, 8, 0x0841);
+    lcd.fillRect(18, c1_y + 146, barW, 8, barColor);
 
+    // บรรทัดสมการ (y: c1_y + 172, delta = 28px)
     snprintf(buf, sizeof(buf), "VPsat: %.2f kPa  |  VPact: %.2f kPa  |  FAO-56 Penman Equation",
              0.61078f * exp((17.27f * data.air.temperature) / (data.air.temperature + 237.3f)),
              (0.61078f * exp((17.27f * data.air.temperature) / (data.air.temperature + 237.3f))) * (data.air.humidity / 100.0f));
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 110);
+    lcd.drawString(buf, 16, c1_y + 172);
 
     // --- การ์ด 2: คำแนะนำสำหรับเกษตรกร & การคายน้ำ (Agronomic Advice & VPD) ---
-    int c2_y = 178 - sy;
-    lcd.fillRoundRect(6, c2_y, 450, 130, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c2_y, 450, 130, 6, 0x07E0);
+    // ขยายความสูงการ์ดเป็น 210px
+    int c2_y = c1_y + 212;
+    lcd.fillRoundRect(6, c2_y, 450, 210, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c2_y, 450, 210, 6, 0x07E0);
     lcd.setTextColor(0x07E0, COLOR_CARD_BG);
     lcd.drawString(L_STR("คำแนะนำสำหรับเกษตรกร (VPD & สุขภาพพืช):",
                          "AGRONOMIC ADVICE (VPD & TRANSPIRATION):",
-                         "农学指导 (VPD 与植物蒸腾健康):"), 16, c2_y + 8);
+                         "农学指导 (VPD 与植物蒸腾健康):"), 16, c2_y + 10);
 
     snprintf(buf, sizeof(buf), "VPD: %.2f kPa", data.air.vpd);
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c2_y + 26);
+    lcd.drawString(buf, 16, c2_y + 44);
 
     // สถานะ VPD อยู่ฝั่งขวา ไม่ทับข้อความ
     if (data.air.vpd >= 0.8f && data.air.vpd <= 1.2f) {
-        lcd.fillRoundRect(176, c2_y + 24, 270, 22, 4, 0x0320);
-        lcd.drawRoundRect(176, c2_y + 24, 270, 22, 4, 0x07E0);
+        lcd.fillRoundRect(176, c2_y + 40, 270, 24, 4, 0x0320);
+        lcd.drawRoundRect(176, c2_y + 40, 270, 24, 4, 0x07E0);
         lcd.setTextColor(0x07E0, 0x0320);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ สภาวะเหมาะสมสูงสุด ]", "[ Optimal Air Flow ]", "[ 气候适宜 气孔正常 ]"), 176 + 135, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ สภาวะเหมาะสมสูงสุด ]", "[ Optimal Air Flow ]", "[ 气候适宜 气孔正常 ]"), 176 + 135, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ปากใบเปิดเต็มที่ การสังเคราะห์แสงและดูดซึมปุ๋ยดีเยี่ยม",
                              "Advice: Stomata fully open, maximum nutrient & water uptake.",
-                             "指导建议: 气孔充分张开，养分与水分输送效率最佳。"), 16, c2_y + 50);
+                             "指导建议: 气孔充分张开，养分与水分输送效率最佳。"), 16, c2_y + 80);
     } else if (data.air.vpd < 0.8f) {
-        lcd.fillRoundRect(176, c2_y + 24, 270, 22, 4, 0x3180);
-        lcd.drawRoundRect(176, c2_y + 24, 270, 22, 4, 0xFD20);
+        lcd.fillRoundRect(176, c2_y + 40, 270, 24, 4, 0x3180);
+        lcd.drawRoundRect(176, c2_y + 40, 270, 24, 4, 0xFD20);
         lcd.setTextColor(0xFD20, 0x3180);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ความชื้นสูงเกินไป เสี่ยงเชื้อรา ]", "[ High Humidity Alert ]", "[ 湿度过高 谨防霉菌 ]"), 176 + 135, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ ความชื้นสูงเกินไป เสี่ยงเชื้อรา ]", "[ High Humidity Alert ]", "[ 湿度过高 谨防霉菌 ]"), 176 + 135, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: พืชคายน้ำไม่ออก เสี่ยงเชื้อราและขาดแคลเซียม ควรระบายอากาศ",
                              "Advice: Stifled transpiration; risk of fungus & Ca deficiency. Ventilate!",
-                             "指导建议: 蒸腾受阻，谨防真菌病害及缺钙，建议通风降湿。"), 16, c2_y + 50);
+                             "指导建议: 蒸腾受阻，谨防真菌病害及缺钙，建议通风降湿。"), 16, c2_y + 80);
     } else {
-        lcd.fillRoundRect(176, c2_y + 24, 270, 22, 4, 0x3800);
-        lcd.drawRoundRect(176, c2_y + 24, 270, 22, 4, COLOR_WARN);
+        lcd.fillRoundRect(176, c2_y + 40, 270, 24, 4, 0x3800);
+        lcd.drawRoundRect(176, c2_y + 40, 270, 24, 4, COLOR_WARN);
         lcd.setTextColor(COLOR_WARN, 0x3800);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ อากาศแห้ง พืชเครียด ]", "[ Dry Air Stress Alert ]", "[ 气候干燥 蒸腾胁迫 ]"), 176 + 135, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ อากาศแห้ง พืชเครียด ]", "[ Dry Air Stress Alert ]", "[ 气候干燥 蒸腾胁迫 ]"), 176 + 135, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ปากใบปิด พืชเหี่ยวเฉา ควรเปิดระบบพ่นหมอกเพิ่มความชื้น",
                              "Advice: Stomata closing to save water; engage misting system!",
-                             "指导建议: 气孔紧闭防失水，建议开启喷雾增加湿度。"), 16, c2_y + 50);
+                             "指导建议: 气孔紧闭防失水，建议开启喷雾增加湿度。"), 16, c2_y + 80);
     }
 
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("พ่นหมอกอัตโนมัติ: ทำงานเมื่อ Temp > 35 C หรือ RH < 70%",
                          "Auto Misting triggers when Temp > 35 C or RH < 70%",
-                         "智能喷雾联动: 当气温 > 35℃ 或湿度 < 70% 自动启动"), 16, c2_y + 72);
+                         "智能喷雾联动: 当气温 > 35℃ 或湿度 < 70% 自动启动"), 16, c2_y + 114);
     lcd.setTextColor(0xFDE0, COLOR_CARD_BG);
     lcd.drawString(L_STR("ระยะห่างจุดน้ำค้าง < 2 C: เสี่ยงเกิดหยดน้ำเกาะใบ แนะนำเร่งพัดลมกวนอากาศ",
                          "Dew margin < 2 C: Condensation alert; boost ventilation fan!",
-                         "露点温差低于 2℃ 时，叶面极易结露，需加强通风。"), 16, c2_y + 90);
+                         "露点温差低于 2℃ 时，叶面极易结露，需加强通风。"), 16, c2_y + 148);
     lcd.setTextColor(0x633C, COLOR_CARD_BG);
-    lcd.drawString("I2C Telemetry: SDA=GPIO9, SCL=GPIO8 | Sensirion SHT45 (Accuracy: +/-0.1C)", 16, c2_y + 108);
+    lcd.drawString("I2C Telemetry: SDA=GPIO9, SCL=GPIO8 | Sensirion SHT45 (Accuracy: +/-0.1C)", 16, c2_y + 180);
 
     // --- การ์ด 3: ข้อมูลทางเทคนิคและฮาร์ดแวร์ I2C (Technical Specs) ---
-    int c3_y = 314 - sy;
-    lcd.fillRoundRect(6, c3_y, 450, 110, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c3_y, 450, 110, 6, 0x4208);
+    // ขยายความสูงการ์ดเป็น 176px
+    int c3_y = c2_y + 222;
+    lcd.fillRoundRect(6, c3_y, 450, 176, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c3_y, 450, 176, 6, 0x4208);
     lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ข้อมูลทางเทคนิค & ฮาร์ดแวร์ I2C:", "TECHNICAL SPECS & I2C HARDWARE:", "技术参数与 I2C 硬件通信:"), 16, c3_y + 8);
+    lcd.drawString(L_STR("ข้อมูลทางเทคนิค & ฮาร์ดแวร์ I2C:", "TECHNICAL SPECS & I2C HARDWARE:", "技术参数与 I2C 硬件通信:"), 16, c3_y + 10);
 
     lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-    lcd.drawString("Pinout: SDA=GPIO9 (Yellow), SCL=GPIO8 (Green) | I2C Addr: 0x44", 16, c3_y + 28);
+    lcd.drawString("Pinout: SDA=GPIO9 (Yellow), SCL=GPIO8 (Green) | I2C Addr: 0x44", 16, c3_y + 44);
     lcd.drawString(L_STR("ความถี่บัส: 10 kHz ฟิลเตอร์ฮาร์ดแวร์ลดสัญญาณรบกวน | ออนไลน์",
                          "Bus Frequency: 10 kHz Noise-Immune Filter | ONLINE",
-                         "总线频率: 10 kHz 硬件抗干扰滤波 | 在线正常"), 16, c3_y + 48);
+                         "总线频率: 10 kHz 硬件抗干扰滤波 | 在线正常"), 16, c3_y + 78);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString("Precision: +/-0.1 C (Temperature), +/-1.5 %RH (Humidity)", 16, c3_y + 68);
+    lcd.drawString("Precision: +/-0.1 C (Temperature), +/-1.5 %RH (Humidity)", 16, c3_y + 112);
     lcd.drawString(L_STR("การประมวลผล: คำนวณ VPD และ Dew Point ตามมาตรฐาน FAO-56 Penman",
                          "Calculations: Real-time VPD & Dew Point by FAO-56 Penman",
-                         "算法标准: 采用联合国粮农组织 FAO-56 标准计算"), 16, c3_y + 88);
+                         "算法标准: 采用联合国粮农组织 FAO-56 标准计算"), 16, c3_y + 144);
 
     // --- แถบปุ่มนำทางด้านล่าง ---
-    drawDetailBottomNav(sy, PAGE_DETAIL_LIGHT, 432);
+    drawDetailBottomNav(sy, PAGE_DETAIL_LIGHT, 662);
 
     // ปิด Clip Rect และวาดสไลด์บาร์
     lcd.clearClipRect();
@@ -1256,131 +1260,132 @@ static void drawPageDetailLight(const FarmSensorTelemetry &data) {
     lcd.setClipRect(0, 36, 460, 284);
 
     // --- การ์ด 1: พลังงานรังสีดวงอาทิตย์หลัก (Hero Metric) ---
+    // ขยายความสูงการ์ดเป็น 200px ให้ระยะห่างบรรทัด 1.5 - 1.7 เท่า (32-34px) สบายตา ชัดเจน
     int c1_y = 40 - sy;
-    lcd.fillRoundRect(6, c1_y, 450, 134, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c1_y, 450, 134, 6, COLOR_YELLOW);
+    lcd.fillRoundRect(6, c1_y, 450, 200, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c1_y, 450, 200, 6, COLOR_YELLOW);
     lcd.setTextSize(1);
     lcd.setTextColor(COLOR_YELLOW, COLOR_CARD_BG);
     lcd.drawString(L_STR("[BH1750] ฟลักซ์รังสีดวงอาทิตย์โดมตะวัน (Solar Flux Density)",
                          "[BH1750] SUN DOME SOLAR RADIATION FLUX DENSITY",
-                         "[BH1750] 太阳穹顶光合辐射通量密度"), 16, c1_y + 8);
+                         "[BH1750] 太阳穹顶光合辐射通量密度"), 16, c1_y + 10);
 
-    drawBadgeTag(16, c1_y + 28, "SOLAR", 0x9360, 0xFFFF, 0xFFE0, 48, 18);
+    drawBadgeTag(16, c1_y + 42, "SOLAR", 0x9360, 0xFFFF, 0xFFE0, 50, 20);
     snprintf(buf, sizeof(buf), "%.1f W/m2", data.light.solarRadiation);
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 70, c1_y + 30);
+    lcd.drawString(buf, 74, c1_y + 44);
 
-    drawBadgeTag(240, c1_y + 28, "LUX", 0x7BC1, 0xFFFF, 0xFF30, 36, 18);
+    drawBadgeTag(240, c1_y + 42, "LUX", 0x7BC1, 0xFFFF, 0xFF30, 38, 20);
     snprintf(buf, sizeof(buf), "%.2f kLux (%.0f Lux)", data.light.lux / 1000.0f, data.light.lux);
     lcd.setTextColor(0xFF30, COLOR_CARD_BG);
-    lcd.drawString(buf, 284, c1_y + 30);
+    lcd.drawString(buf, 288, c1_y + 44);
 
     float solarConstRatio = (data.light.solarRadiation / 1361.0f) * 100.0f;
     snprintf(buf, sizeof(buf), "%s: %.1f %% (จาก 1361 W/m2 Max Solar Constant)",
              L_STR("สัดส่วนคงที่สุริยะ", "Solar Constant Ratio", "太阳能常数占比"), solarConstRatio);
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 52);
+    lcd.drawString(buf, 16, c1_y + 78);
 
-    // ระดับรังสีดวงอาทิตย์: หัวข้อและตัวเลข
+    // ระดับรังสีดวงอาทิตย์: หัวข้อและตัวเลข (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ระดับรังสีดวงอาทิตย์ (0 - 1000 W/m2):", "Solar Radiation Level (0 - 1000 W/m2):", "太阳辐射强度刻度:"), 16, c1_y + 72);
+    lcd.drawString(L_STR("ระดับรังสีดวงอาทิตย์ (0 - 1000 W/m2):", "Solar Radiation Level (0 - 1000 W/m2):", "太阳辐射强度刻度:"), 16, c1_y + 112);
     snprintf(buf, sizeof(buf), "%.1f W/m2", data.light.solarRadiation);
     lcd.setTextColor(0xFDE0, COLOR_CARD_BG);
     lcd.setTextDatum(textdatum_t::top_right);
-    lcd.drawString(buf, 446, c1_y + 72);
+    lcd.drawString(buf, 446, c1_y + 112);
     lcd.setTextDatum(textdatum_t::top_left);
 
-    // บาร์กราฟเต็มความกว้างการ์ด (0 - 1000 W/m2)
+    // บาร์กราฟเต็มความกว้างการ์ด (0 - 1000 W/m2) (y: c1_y + 144, delta = 32px)
     int radBarW = constrain((int)(data.light.solarRadiation * 426.0f / 1000.0f), 0, 426);
-    lcd.drawRoundRect(16, c1_y + 92, 430, 12, 4, 0x4208);
-    lcd.fillRect(18, c1_y + 94, 426, 8, 0x0841);
-    lcd.fillRect(18, c1_y + 94, radBarW, 8, 0xFDE0);
+    lcd.drawRoundRect(16, c1_y + 144, 430, 12, 4, 0x4208);
+    lcd.fillRect(18, c1_y + 146, 426, 8, 0x0841);
+    lcd.fillRect(18, c1_y + 146, radBarW, 8, 0xFDE0);
 
     snprintf(buf, sizeof(buf), "Optical Calibration: 1 Lux = 0.0079 W/m2 | Cosine Diffuser 360 All-weather");
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 110);
+    lcd.drawString(buf, 16, c1_y + 172);
 
     // --- การ์ด 2: คำแนะนำการสังเคราะห์แสง & PAR (Photobiology Advice) ---
-    int c2_y = 178 - sy;
-    lcd.fillRoundRect(6, c2_y, 450, 130, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c2_y, 450, 130, 6, 0x07E0);
+    int c2_y = c1_y + 212;
+    lcd.fillRoundRect(6, c2_y, 450, 210, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c2_y, 450, 210, 6, 0x07E0);
     lcd.setTextColor(0x07E0, COLOR_CARD_BG);
     lcd.drawString(L_STR("คำแนะนำการสังเคราะห์แสง (PAR & DLI Photobiology):",
                          "AGRONOMIC ADVICE (PAR & DAILY LIGHT INTEGRAL):",
-                         "光生物学指导 (PAR 光合辐射与日积光照):"), 16, c2_y + 8);
+                         "光生物学指导 (PAR 光合辐射与日积光照):"), 16, c2_y + 10);
 
     float estPAR = data.light.solarRadiation * 2.1f;
     snprintf(buf, sizeof(buf), "PAR: ~%.0f umol/(m2*s)", estPAR);
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c2_y + 26);
+    lcd.drawString(buf, 16, c2_y + 44);
 
     if (data.light.lux < 500.0f) {
-        lcd.fillRoundRect(190, c2_y + 24, 256, 22, 4, 0x1104);
-        lcd.drawRoundRect(190, c2_y + 24, 256, 22, 4, 0x541F);
+        lcd.fillRoundRect(190, c2_y + 40, 256, 24, 4, 0x1104);
+        lcd.drawRoundRect(190, c2_y + 40, 256, 24, 4, 0x541F);
         lcd.setTextColor(0x841F, 0x1104);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ แดดร่ม / พืชพักตัวยามค่ำคืน ]", "[ Shade / Night Resting ]", "[ 遮阴阴天 植物休眠 ]"), 190 + 128, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ แดดร่ม / พืชพักตัวยามค่ำคืน ]", "[ Shade / Night Resting ]", "[ 遮阴阴天 植物休眠 ]"), 190 + 128, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: แสงน้อยเกินไป พืชหยุดสร้างแป้งและน้ำตาล ไม่ควรให้น้ำหรือปุ๋ยมาก",
                              "Advice: Low photon flux; photosynthesis halted. Conserve water.",
-                             "指导建议: 光照不足，光合速率极低，植物休眠，避免多浇水。"), 16, c2_y + 50);
+                             "指导建议: 光照不足，光合速率极低，植物休眠，避免多浇水。"), 16, c2_y + 80);
     } else if (data.light.lux < 30000.0f) {
-        lcd.fillRoundRect(190, c2_y + 24, 256, 22, 4, 0x0320);
-        lcd.drawRoundRect(190, c2_y + 24, 256, 22, 4, 0x07E0);
+        lcd.fillRoundRect(190, c2_y + 40, 256, 24, 4, 0x0320);
+        lcd.drawRoundRect(190, c2_y + 40, 256, 24, 4, 0x07E0);
         lcd.setTextColor(0x07E0, 0x0320);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ แดดพอเหมาะ สังเคราะห์แสงสมบูรณ์ ]", "[ Optimal Sunlight ]", "[ 光照充足 光合优良 ]"), 190 + 128, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ แดดพอเหมาะ สังเคราะห์แสงสมบูรณ์ ]", "[ Optimal Sunlight ]", "[ 光照充足 光合优良 ]"), 190 + 128, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: โดมตะวันรับแสงเหมาะสม พืชสังเคราะห์แสงสะสมผลผลิตได้เต็มที่",
                              "Advice: Optimal photons for crop biomass and sugar accumulation.",
-                             "指导建议: 光合有效辐射极佳，光合效率处于黄金峰值。"), 16, c2_y + 50);
+                             "指导建议: 光合有效辐射极佳，光合效率处于黄金峰值。"), 16, c2_y + 80);
     } else {
-        lcd.fillRoundRect(190, c2_y + 24, 256, 22, 4, 0x3180);
-        lcd.drawRoundRect(190, c2_y + 24, 256, 22, 4, 0xFFE0);
+        lcd.fillRoundRect(190, c2_y + 40, 256, 24, 4, 0x3180);
+        lcd.drawRoundRect(190, c2_y + 40, 256, 24, 4, 0xFFE0);
         lcd.setTextColor(0xFFE0, 0x3180);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ แดดจัดมาก ระวังใบไหม้ กางสแลน ]", "[ Intense Sun Alert ]", "[ 强光暴晒 谨防灼伤 ]"), 190 + 128, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ แดดจัดมาก ระวังใบไหม้ กางสแลน ]", "[ Intense Sun Alert ]", "[ 强光暴晒 谨防灼伤 ]"), 190 + 128, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: แดดเข้มข้นจัด แนะนำกางสแลนพรางแสง 50% หรือเปิดพ่นหมอก",
                              "Advice: Intense photon stress! Deploy 50% shade cloth or mist.",
-                             "指导建议: 强光伴随高温，建议拉上50%遮阳网或喷雾降温。"), 16, c2_y + 50);
+                             "指导建议: 强光伴随高温，建议拉上50%遮阳网或喷雾降温。"), 16, c2_y + 80);
     }
 
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("ดัชนี DLI: ปริมาณโมลของแสงต่อวัน ช่วยประเมินพลังงานสะสมเพื่อการติดดอกออกผล",
                          "Daily Light Integral (DLI) gauges total photon energy received per day.",
-                         "DLI 日累积光效: 决定作物的最终产量与开花挂果品质。"), 16, c2_y + 72);
+                         "DLI 日累积光效: 决定作物的最终产量与开花挂果品质。"), 16, c2_y + 114);
     lcd.drawString(L_STR("โดมตะวัน: ตัวรับแสงทรงโดมรับแสงได้ทุกทิศทาง 360 องศา ชดเชยมุมตกกระทบ",
                          "Sun Dome: 360-degree all-weather optical dome diffuser.",
-                         "穹顶设计: 全天候 360 度半球全景采光漫反射。"), 16, c2_y + 90);
+                         "穹顶设计: 全天候 360 度半球全景采光漫反射。"), 16, c2_y + 148);
     lcd.setTextColor(0x633C, COLOR_CARD_BG);
-    lcd.drawString("Sensor Hardware: ROHM BH1750FVI 16-bit | I2C Addr: 0x23 | ฝาครอบ IP65", 16, c2_y + 108);
+    lcd.drawString("Sensor Hardware: ROHM BH1750FVI 16-bit | I2C Addr: 0x23 | ฝาครอบ IP65", 16, c2_y + 180);
 
     // --- การ์ด 3: ข้อมูลทางเทคนิคและฮาร์ดแวร์ I2C ---
-    int c3_y = 314 - sy;
-    lcd.fillRoundRect(6, c3_y, 450, 110, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c3_y, 450, 110, 6, 0x4208);
+    int c3_y = c2_y + 222;
+    lcd.fillRoundRect(6, c3_y, 450, 176, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c3_y, 450, 176, 6, 0x4208);
     lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ข้อมูลทางเทคนิค & เซนเซอร์ BH1750:", "TECHNICAL SPECS & SENSOR BUS:", "技术规格与传感器总线:"), 16, c3_y + 8);
+    lcd.drawString(L_STR("ข้อมูลทางเทคนิค & เซนเซอร์ BH1750:", "TECHNICAL SPECS & SENSOR BUS:", "技术规格与传感器总线:"), 16, c3_y + 10);
 
     lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-    lcd.drawString("Pinout: SDA=GPIO9, SCL=GPIO8 | I2C Addr: 0x23", 16, c3_y + 28);
+    lcd.drawString("Pinout: SDA=GPIO9, SCL=GPIO8 | I2C Addr: 0x23", 16, c3_y + 44);
     lcd.drawString(L_STR("ชิปเซนเซอร์: ROHM BH1750FVI 16-bit Ambient Light Sensor",
                          "Sensor IC: ROHM BH1750FVI 16-bit Ambient Light Sensor",
-                         "传感器芯片: 罗姆 ROHM BH1750FVI 16位高精度光敏芯片"), 16, c3_y + 48);
+                         "传感器芯片: 罗姆 ROHM BH1750FVI 16位高精度光敏芯片"), 16, c3_y + 78);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString("Dynamic Range: 1 - 65,535 Lux | High-Resolution Mode (1 Lux)", 16, c3_y + 68);
+    lcd.drawString("Dynamic Range: 1 - 65,535 Lux | High-Resolution Mode (1 Lux)", 16, c3_y + 112);
     lcd.drawString(L_STR("การป้องกัน: โดมอะคริลิกกันน้ำกันละอองฝนมาตรฐาน IP65",
                          "Enclosure: Weatherproof IP65 optical acrylic dome diffuser",
-                         "防护等级: IP65 级全天候防水防尘光学穹顶"), 16, c3_y + 88);
+                         "防护等级: IP65 级全天候防水防尘光学穹顶"), 16, c3_y + 144);
 
-    drawDetailBottomNav(sy, PAGE_DETAIL_SOIL1, 432);
+    drawDetailBottomNav(sy, PAGE_DETAIL_SOIL1, 662);
 
     lcd.clearClipRect();
     drawScrollBar(scrollOffsetY, maxScrollY, 38, 280, COLOR_YELLOW);
@@ -1400,131 +1405,132 @@ static void drawPageDetailSoil1(const FarmSensorTelemetry &data) {
     lcd.setClipRect(0, 36, 460, 284);
 
     // --- การ์ด 1: ความชื้นผิวดินสด & เกจวัด (Real-time Gauge) ---
+    // ขยายความสูงการ์ดเป็น 200px ให้ระยะห่างบรรทัด 1.5 - 1.7 เท่า (32-34px) สบายตา ชัดเจน
     int c1_y = 40 - sy;
-    lcd.fillRoundRect(6, c1_y, 450, 134, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c1_y, 450, 134, 6, COLOR_CYAN);
+    lcd.fillRoundRect(6, c1_y, 450, 200, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c1_y, 450, 200, 6, COLOR_CYAN);
     lcd.setTextSize(1);
     lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
     lcd.drawString(L_STR("[Soil Stick] ความชื้นผิวดินชั้นตื้น (0 - 10 ซม.)",
                          "[Soil Stick] TOPSOIL SURFACE MOISTURE (0 - 10 CM)",
-                         "[Soil Stick] 表层土壤湿度检测 (0 - 10 厘米)"), 16, c1_y + 8);
+                         "[Soil Stick] 表层土壤湿度检测 (0 - 10 厘米)"), 16, c1_y + 10);
 
-    drawBadgeTag(16, c1_y + 28, "SOIL", 0x0BCB, 0xFFFF, 0x3DFF, 44, 18);
+    drawBadgeTag(16, c1_y + 42, "SOIL", 0x0BCB, 0xFFFF, 0x3DFF, 46, 20);
     snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.soilStick.moisture, L_STR("ผิวดิน", "Moist", "湿度"));
     lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
-    lcd.drawString(buf, 68, c1_y + 30);
+    lcd.drawString(buf, 72, c1_y + 44);
 
-    drawBadgeTag(240, c1_y + 28, "ADC", 0x9A81, 0xFFFF, 0xFD20, 38, 18);
+    drawBadgeTag(240, c1_y + 42, "ADC", 0x9A81, 0xFFFF, 0xFD20, 40, 20);
     float volts = (data.soilStick.rawAdc * 3.3f) / 4095.0f;
     snprintf(buf, sizeof(buf), "%.2f V | Raw ADC: %d", volts, data.soilStick.rawAdc);
     lcd.setTextColor(0xFD20, COLOR_CARD_BG);
-    lcd.drawString(buf, 284, c1_y + 30);
+    lcd.drawString(buf, 290, c1_y + 44);
 
     snprintf(buf, sizeof(buf), "%s: < 40.0%% [ระบบเตรียมพร้อมจ่ายน้ำอัตโนมัติ]", L_STR("เกณฑ์วิกฤตรดน้ำ", "Trigger Level", "浇水阈值"));
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 52);
+    lcd.drawString(buf, 16, c1_y + 78);
 
-    // เกจระดับความชื้น: หัวข้อและตัวเลข
+    // เกจระดับความชื้น: หัวข้อและตัวเลข (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("เกจระดับความชื้นผิวดิน (0 - 100%):", "Topsoil Moisture Gauge (0 - 100%):", "表层土壤湿度刻度:"), 16, c1_y + 72);
+    lcd.drawString(L_STR("เกจระดับความชื้นผิวดิน (0 - 100%):", "Topsoil Moisture Gauge (0 - 100%):", "表层土壤湿度刻度:"), 16, c1_y + 112);
     snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.soilStick.moisture,
              (data.soilStick.moisture < 40.0f) ? L_STR("แห้ง", "Dry", "干旱") : ((data.soilStick.moisture > 75.0f) ? L_STR("แฉะ", "Wet", "过湿") : L_STR("ชุ่มชื้น", "Optimal", "适宜")));
     uint16_t soilCol = (data.soilStick.moisture < 40.0f) ? COLOR_WARN : ((data.soilStick.moisture > 75.0f) ? COLOR_CYAN : 0x07E0);
     lcd.setTextColor(soilCol, COLOR_CARD_BG);
     lcd.setTextDatum(textdatum_t::top_right);
-    lcd.drawString(buf, 446, c1_y + 72);
+    lcd.drawString(buf, 446, c1_y + 112);
     lcd.setTextDatum(textdatum_t::top_left);
 
-    // บาร์กราฟเต็มความกว้างการ์ด
+    // บาร์กราฟเต็มความกว้างการ์ด (y: c1_y + 144, delta = 32px)
     int barW = constrain((int)(data.soilStick.moisture * 4.26f), 0, 426);
-    lcd.drawRoundRect(16, c1_y + 92, 430, 12, 4, 0x4208);
-    lcd.fillRect(18, c1_y + 94, 426, 8, 0x0841);
-    lcd.fillRect(18, c1_y + 94, barW, 8, soilCol);
+    lcd.drawRoundRect(16, c1_y + 144, 430, 12, 4, 0x4208);
+    lcd.fillRect(18, c1_y + 146, 426, 8, 0x0841);
+    lcd.fillRect(18, c1_y + 146, barW, 8, soilCol);
 
     snprintf(buf, sizeof(buf), "Dry Calibration: 3280 ADC | Wet Calibration: 1320 ADC | Capacitive Sensing");
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(buf, 16, c1_y + 110);
+    lcd.drawString(buf, 16, c1_y + 172);
 
     // --- การ์ด 2: คำแนะนำการให้น้ำ & ระบบอัตโนมัติ (Agronomic Advice) ---
-    int c2_y = 178 - sy;
-    lcd.fillRoundRect(6, c2_y, 450, 130, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c2_y, 450, 130, 6, 0x07E0);
+    int c2_y = c1_y + 212;
+    lcd.fillRoundRect(6, c2_y, 450, 210, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c2_y, 450, 210, 6, 0x07E0);
     lcd.setTextColor(0x07E0, COLOR_CARD_BG);
     lcd.drawString(L_STR("คำแนะนำการให้น้ำ & กลยุทธ์อัตโนมัติ:",
                          "AGRONOMIC ADVICE (IRRIGATION & AUTOMATION):",
-                         "灌溉指导与自动化控制策略:"), 16, c2_y + 8);
+                         "灌溉指导与自动化控制策略:"), 16, c2_y + 10);
 
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(L_STR("สถานะผิวดิน:", "Topsoil Status:", "土壤状态:"), 16, c2_y + 26);
+    lcd.drawString(L_STR("สถานะผิวดิน:", "Topsoil Status:", "土壤状态:"), 16, c2_y + 44);
 
     if (data.soilStick.moisture < 40.0f) {
-        lcd.fillRoundRect(120, c2_y + 24, 326, 22, 4, 0x3800);
-        lcd.drawRoundRect(120, c2_y + 24, 326, 22, 4, COLOR_WARN);
+        lcd.fillRoundRect(120, c2_y + 40, 326, 24, 4, 0x3800);
+        lcd.drawRoundRect(120, c2_y + 40, 326, 24, 4, COLOR_WARN);
         lcd.setTextColor(COLOR_WARN, 0x3800);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินแห้งแล้ง: เริ่มเปิดปั๊มรดน้ำ ]", "[ DRY SOIL: Water Now ]", "[ 土壤干旱: 建议浇水 ]"), 120 + 163, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ ดินแห้งแล้ง: เริ่มเปิดปั๊มรดน้ำ ]", "[ DRY SOIL: Water Now ]", "[ 土壤干旱: 建议浇水 ]"), 120 + 163, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ดินชั้นตื้นสูญเสียความชื้นสูง ระบบเริ่มรดน้ำอัตโนมัติ",
                              "Advice: Topsoil depleted below threshold; automated pump activated.",
-                             "指导建议: 表层土壤严重缺水，智能自控系统已激活水泵灌溉。"), 16, c2_y + 50);
+                             "指导建议: 表层土壤严重缺水，智能自控系统已激活水泵灌溉。"), 16, c2_y + 80);
     } else if (data.soilStick.moisture <= 70.0f) {
-        lcd.fillRoundRect(120, c2_y + 24, 326, 22, 4, 0x0320);
-        lcd.drawRoundRect(120, c2_y + 24, 326, 22, 4, 0x07E0);
+        lcd.fillRoundRect(120, c2_y + 40, 326, 24, 4, 0x0320);
+        lcd.drawRoundRect(120, c2_y + 40, 326, 24, 4, 0x07E0);
         lcd.setTextColor(0x07E0, 0x0320);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ชุ่มชื้นดี (งดการรดน้ำเพื่อประหยัดน้ำ) ]", "[ OPTIMAL MOISTURE: OK ]", "[ 水分适宜 (暂缓浇水) ]"), 120 + 163, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ ชุ่มชื้นดี (งดการรดน้ำเพื่อประหยัดน้ำ) ]", "[ OPTIMAL MOISTURE: OK ]", "[ 水分适宜 (暂缓浇水) ]"), 120 + 163, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: รากพืชดูดซึมน้ำและปุ๋ยได้สะดวก งดการให้น้ำเพิ่มเพื่อประหยัดน้ำ",
                              "Advice: Ideal root moisture; maintain water hold to conserve resources.",
-                             "指导建议: 水分充足透气良好，暂缓浇水以节约水资源。"), 16, c2_y + 50);
+                             "指导建议: 水分充足透气良好，暂缓浇水以节约水资源。"), 16, c2_y + 80);
     } else {
-        lcd.fillRoundRect(120, c2_y + 24, 326, 22, 4, 0x0214);
-        lcd.drawRoundRect(120, c2_y + 24, 326, 22, 4, COLOR_CYAN);
+        lcd.fillRoundRect(120, c2_y + 40, 326, 24, 4, 0x0214);
+        lcd.drawRoundRect(120, c2_y + 40, 326, 24, 4, COLOR_CYAN);
         lcd.setTextColor(COLOR_CYAN, 0x0214);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินแฉะเกินไป: ระวังรากขาดอากาศ ]", "[ WATERLOGGED ALERT ]", "[ 土壤过湿: 谨防沤根 ]"), 120 + 163, c2_y + 24 + 11);
+        lcd.drawString(L_STR("[ ดินแฉะเกินไป: ระวังรากขาดอากาศ ]", "[ WATERLOGGED ALERT ]", "[ 土壤过湿: 谨防沤根 ]"), 120 + 163, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ดินอิ่มตัวด้วยน้ำมากเกินไป เสี่ยงรากขาดอากาศ ควรพรวนดินระบายน้ำ",
                              "Advice: Saturated soil reduces root oxygen. Hold watering immediately!",
-                             "指导建议: 水分过饱和导致根系缺氧，立即停止灌溉并通风透气。"), 16, c2_y + 50);
+                             "指导建议: 水分过饱和导致根系缺氧，立即停止灌溉并通风透气。"), 16, c2_y + 80);
     }
 
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("ระบบอัตโนมัติ: รดน้ำเมื่อ < 40.0% --> ตัดน้ำเมื่อถึง 65.0% (ระบบฮิสเทอรีซิส)",
                          "Automation Rule: Water ON < 40.0% --> OFF at >= 65.0% (Hysteresis)",
-                         "智能滞回自控: 湿度低于 40% 启动 --> 达到 65% 停止"), 16, c2_y + 72);
+                         "智能滞回自控: 湿度低于 40% 启动 --> 达到 65% 停止"), 16, c2_y + 114);
     lcd.setTextColor(0xFDE0, COLOR_CARD_BG);
     lcd.drawString(L_STR("ระบบความปลอดภัย: ตัดการทำงานปั๊มฉุกเฉินภายใน 5 นาที ป้องกันมอเตอร์ปั๊มไหม้",
                          "Safety Feature: 5-Minute maximum continuous run protects pump motor.",
-                         "安全保障机制: 5分钟连续运行强制保护关断，防止水泵干烧。"), 16, c2_y + 90);
+                         "安全保障机制: 5分钟连续运行强制保护关断，防止水泵干烧。"), 16, c2_y + 148);
     lcd.setTextColor(0x633C, COLOR_CARD_BG);
-    lcd.drawString("Hardware: ESP32-S3 Port A1 (GPIO1) | 12-bit SAR ADC | แผ่นทองแดงทนสนิม", 16, c2_y + 108);
+    lcd.drawString("Hardware: ESP32-S3 Port A1 (GPIO1) | 12-bit SAR ADC | แผ่นทองแดงทนสนิม", 16, c2_y + 180);
 
     // --- การ์ด 3: ข้อมูลฮาร์ดแวร์และการสอบเทียบ ADC ---
-    int c3_y = 314 - sy;
-    lcd.fillRoundRect(6, c3_y, 450, 110, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c3_y, 450, 110, 6, 0x4208);
+    int c3_y = c2_y + 222;
+    lcd.fillRoundRect(6, c3_y, 450, 176, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c3_y, 450, 176, 6, 0x4208);
     lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ข้อมูลฮาร์ดแวร์ & เซนเซอร์คาปาซิทีฟ:", "HARDWARE SPECS & CAPACITIVE SENSING:", "硬件参数与电容感应原理:"), 16, c3_y + 8);
+    lcd.drawString(L_STR("ข้อมูลฮาร์ดแวร์ & เซนเซอร์คาปาซิทีฟ:", "HARDWARE SPECS & CAPACITIVE SENSING:", "硬件参数与电容感应原理:"), 16, c3_y + 10);
 
     lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-    lcd.drawString("Pinout: ESP32-S3 Port A1 (GPIO 1) | 12-bit ADC (0 - 4095)", 16, c3_y + 28);
+    lcd.drawString("Pinout: ESP32-S3 Port A1 (GPIO 1) | 12-bit ADC (0 - 4095)", 16, c3_y + 44);
     lcd.drawString(L_STR("หลักการทำงาน: แผ่นทองแดงวัดความจุไฟฟ้า ไร้การกัดกร่อนจากกระแสตรง",
                          "Working Principle: High-frequency capacitance (Corrosion-Free)",
-                         "感应原理: 高频交变电容测量，无直流电解腐蚀，寿命长"), 16, c3_y + 48);
+                         "感应原理: 高频交变电容测量，无直流电解腐蚀，寿命长"), 16, c3_y + 78);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString("Calibration Map: Dry Air = 3280 ADC | 100% Water = 1320 ADC", 16, c3_y + 68);
+    lcd.drawString("Calibration Map: Dry Air = 3280 ADC | 100% Water = 1320 ADC", 16, c3_y + 112);
     lcd.drawString(L_STR("ชั้นดิน: ตรวจจับชั้นผิวดิน 0-10 ซม. ซึ่งเป็นด่านแรกของการระเหยน้ำ",
                          "Topsoil Layer: Monitors 0-10 cm zone where solar evaporation peaks.",
-                         "监测区位: 专注 0-10cm 表层土壤，此处水分蒸发最快。"), 16, c3_y + 88);
+                         "监测区位: 专注 0-10cm 表层土壤，此处水分蒸发最快。"), 16, c3_y + 144);
 
-    drawDetailBottomNav(sy, PAGE_DETAIL_SOIL7, 432);
+    drawDetailBottomNav(sy, PAGE_DETAIL_SOIL7, 662);
 
     lcd.clearClipRect();
     drawScrollBar(scrollOffsetY, maxScrollY, 38, 280, COLOR_CYAN);
@@ -1544,100 +1550,101 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
     lcd.setClipRect(0, 36, 460, 284);
 
     // --- การ์ด 1: ข้อมูลเขตรากพืชลึก (Root Zone Metrics & TinyML Box) ---
+    // ขยายความสูงการ์ดเป็น 328px ให้ระยะห่างบรรทัด 1.5 - 1.7 เท่า (32-34px) สบายตา ชัดเจน
     int c1_y = 40 - sy;
-    lcd.fillRoundRect(6, c1_y, 450, 196, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c1_y, 450, 196, 6, 0x07E0);
+    lcd.fillRoundRect(6, c1_y, 450, 328, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c1_y, 450, 328, 6, 0x07E0);
     lcd.setTextSize(1);
     lcd.setTextColor(0x07E0, COLOR_CARD_BG);
     lcd.drawString(L_STR("[Soil 7-in-1] คุณสมบัติเขตรากพืชลึก (Root Zone Physics)",
                          "[Soil 7-in-1] ROOT ZONE MULTI-PHYSICS TELEMETRY",
-                         "[Soil 7合1] 根系深层多参数物理遥测"), 16, c1_y + 7);
+                         "[Soil 7合1] 根系深层多参数物理遥测"), 16, c1_y + 10);
 
-    // Row 1: [ROOT] ชื้นราก + [TEMP] ดิน + [pH] ค่า pH
-    drawBadgeTag(14, c1_y + 24, "ROOT", 0x0A8F, 0xFFFF, 0x3DFF, 42, 16);
+    // Row 1: [ROOT] ชื้นราก + [TEMP] ดิน + [pH] ค่า pH (y: c1_y + 44)
+    drawBadgeTag(14, c1_y + 42, "ROOT", 0x0A8F, 0xFFFF, 0x3DFF, 44, 20);
     snprintf(buf, sizeof(buf), "%s: %.1f %%", L_STR("ชื้นราก", "Moist", "根区湿度"), data.soil7in1.moisture);
     lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
-    lcd.drawString(buf, 60, c1_y + 25);
+    lcd.drawString(buf, 64, c1_y + 44);
 
-    drawBadgeTag(170, c1_y + 24, "TEMP", 0xB222, 0xFFFF, 0xFD20, 42, 16);
+    drawBadgeTag(170, c1_y + 42, "TEMP", 0xB222, 0xFFFF, 0xFD20, 44, 20);
     snprintf(buf, sizeof(buf), "%s: %.1f C", L_STR("ดิน", "Temp", "土壤温度"), data.soil7in1.temperature);
     lcd.setTextColor(0xFD20, COLOR_CARD_BG);
-    lcd.drawString(buf, 216, c1_y + 25);
+    lcd.drawString(buf, 220, c1_y + 44);
 
-    drawBadgeTag(314, c1_y + 24, "pH", 0x8A81, 0xFFFF, 0xEA80, 26, 16);
+    drawBadgeTag(314, c1_y + 42, "pH", 0x8A81, 0xFFFF, 0xEA80, 28, 20);
     snprintf(buf, sizeof(buf), "%.2f (%s)", data.soil7in1.ph,
              (data.soil7in1.ph < 5.5f) ? L_STR("กรด", "Acid", "酸") : ((data.soil7in1.ph > 7.5f) ? L_STR("ด่าง", "Alk", "碱") : L_STR("กลาง", "OK", "适中")));
     lcd.setTextColor(0xEA80, COLOR_CARD_BG);
-    lcd.drawString(buf, 344, c1_y + 25);
+    lcd.drawString(buf, 348, c1_y + 44);
 
-    // Row 2: EC, TDS, Depth
+    // Row 2: EC, TDS, Depth (y: c1_y + 78, delta = 34px)
     snprintf(buf, sizeof(buf), "EC: %.0f uS/cm  |  TDS: %.0f ppm  |  %s",
              data.soil7in1.ec, data.soil7in1.ec * 0.64f,
              L_STR("ระดับความลึกเขตราก: 10 - 30 ซม.", "Root Zone Depth: 10-30cm", "根系深度: 10-30cm"));
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c1_y + 44);
+    lcd.drawString(buf, 14, c1_y + 78);
 
-    // Row 3: NPK ดิบจากหัววัด
+    // Row 3: NPK ดิบจากหัววัด (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("NPK ดิบ (หัววัดเซนเซอร์):", "Raw NPK (Sensor):", "传感器原始 NPK:"), 14, c1_y + 64);
+    lcd.drawString(L_STR("NPK ดิบ (หัววัดเซนเซอร์):", "Raw NPK (Sensor):", "传感器原始 NPK:"), 14, c1_y + 112);
 
     // แคปซูลเล็กแสดง N P K ดิบ
-    lcd.fillRoundRect(166, c1_y + 62, 54, 16, 3, 0x18C3);
+    lcd.fillRoundRect(166, c1_y + 110, 54, 20, 3, 0x18C3);
     snprintf(buf, sizeof(buf), "N: %.0f", data.soil7in1.nitrogen);
     lcd.setTextColor(0xFFFF, 0x18C3);
     lcd.setTextDatum(textdatum_t::middle_center);
-    lcd.drawString(buf, 166 + 27, c1_y + 62 + 8);
+    lcd.drawString(buf, 166 + 27, c1_y + 110 + 10);
 
-    lcd.fillRoundRect(224, c1_y + 62, 54, 16, 3, 0x0A82);
+    lcd.fillRoundRect(224, c1_y + 110, 54, 20, 3, 0x0A82);
     snprintf(buf, sizeof(buf), "P: %.0f", data.soil7in1.phosphorus);
     lcd.setTextColor(0xFFFF, 0x0A82);
-    lcd.drawString(buf, 224 + 27, c1_y + 62 + 8);
+    lcd.drawString(buf, 224 + 27, c1_y + 110 + 10);
 
-    lcd.fillRoundRect(282, c1_y + 62, 54, 16, 3, 0x3180);
+    lcd.fillRoundRect(282, c1_y + 110, 54, 20, 3, 0x3180);
     snprintf(buf, sizeof(buf), "K: %.0f", data.soil7in1.potassium);
     lcd.setTextColor(0xFFFF, 0x3180);
-    lcd.drawString(buf, 282 + 27, c1_y + 62 + 8);
+    lcd.drawString(buf, 282 + 27, c1_y + 110 + 10);
 
     lcd.setTextDatum(textdatum_t::top_left);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString("mg/kg", 342, c1_y + 64);
+    lcd.drawString("mg/kg", 342, c1_y + 112);
 
     // --- Cyber Box: TinyML Edge AI Calibrated (Neural Denoised & Decoupled) ---
-    int ai_box_y = c1_y + 84;
-    lcd.fillRoundRect(12, ai_box_y, 438, 104, 6, 0x0124);
-    lcd.drawRoundRect(12, ai_box_y, 438, 104, 6, 0x07FF);
+    int ai_box_y = c1_y + 148;
+    lcd.fillRoundRect(12, ai_box_y, 438, 168, 6, 0x0124);
+    lcd.drawRoundRect(12, ai_box_y, 438, 168, 6, 0x07FF);
 
-    drawBadgeTag(18, ai_box_y + 6, "AI", 0x059B, 0xFFFF, 0x07FF, 26, 16);
+    drawBadgeTag(18, ai_box_y + 10, "AI", 0x059B, 0xFFFF, 0x07FF, 28, 20);
     lcd.setTextColor(0x07FF, 0x0124);
     lcd.drawString(L_STR("TinyML Edge AI Calibrated (Neural Denoised & Decoupled)",
                          "TinyML Edge AI Calibrated (Neural Denoised & Decoupled)",
-                         "TinyML 边缘AI神经网络校准 (去噪与解耦)"), 48, ai_box_y + 7);
+                         "TinyML 边缘AI神经网络校准 (去噪与解耦)"), 52, ai_box_y + 12);
 
-    // 4 แคปซูล AI-N, AI-P, AI-K, AI-pH สีสันสดใสตาม Mockup
-    lcd.fillRoundRect(18, ai_box_y + 26, 102, 22, 4, 0x18A8);
-    lcd.drawRoundRect(18, ai_box_y + 26, 102, 22, 4, 0x7A7F);
+    // 4 แคปซูล AI-N, AI-P, AI-K, AI-pH สีสันสดใสตาม Mockup (y: ai_box_y + 44)
+    lcd.fillRoundRect(18, ai_box_y + 44, 102, 26, 4, 0x18A8);
+    lcd.drawRoundRect(18, ai_box_y + 44, 102, 26, 4, 0x7A7F);
     snprintf(buf, sizeof(buf), "AI-N: %.1f", data.aiCalibrated.nitrogen);
     lcd.setTextColor(0xFFFF, 0x18A8);
     lcd.setTextDatum(textdatum_t::middle_center);
-    lcd.drawString(buf, 18 + 51, ai_box_y + 26 + 11);
+    lcd.drawString(buf, 18 + 51, ai_box_y + 44 + 13);
 
-    lcd.fillRoundRect(124, ai_box_y + 26, 102, 22, 4, 0x0A83);
-    lcd.drawRoundRect(124, ai_box_y + 26, 102, 22, 4, 0x07E0);
+    lcd.fillRoundRect(124, ai_box_y + 44, 102, 26, 4, 0x0A83);
+    lcd.drawRoundRect(124, ai_box_y + 44, 102, 26, 4, 0x07E0);
     snprintf(buf, sizeof(buf), "AI-P: %.1f", data.aiCalibrated.phosphorus);
     lcd.setTextColor(0xFFFF, 0x0A83);
-    lcd.drawString(buf, 124 + 51, ai_box_y + 26 + 11);
+    lcd.drawString(buf, 124 + 51, ai_box_y + 44 + 13);
 
-    lcd.fillRoundRect(230, ai_box_y + 26, 102, 22, 4, 0x3981);
-    lcd.drawRoundRect(230, ai_box_y + 26, 102, 22, 4, 0xFD00);
+    lcd.fillRoundRect(230, ai_box_y + 44, 102, 26, 4, 0x3981);
+    lcd.drawRoundRect(230, ai_box_y + 44, 102, 26, 4, 0xFD00);
     snprintf(buf, sizeof(buf), "AI-K: %.1f", data.aiCalibrated.potassium);
     lcd.setTextColor(0xFFFF, 0x3981);
-    lcd.drawString(buf, 230 + 51, ai_box_y + 26 + 11);
+    lcd.drawString(buf, 230 + 51, ai_box_y + 44 + 13);
 
-    lcd.fillRoundRect(336, ai_box_y + 26, 106, 22, 4, 0x3842);
-    lcd.drawRoundRect(336, ai_box_y + 26, 106, 22, 4, 0xFA85);
+    lcd.fillRoundRect(336, ai_box_y + 44, 106, 26, 4, 0x3842);
+    lcd.drawRoundRect(336, ai_box_y + 44, 106, 26, 4, 0xFA85);
     snprintf(buf, sizeof(buf), "AI-pH: %.2f", data.aiCalibrated.ph);
     lcd.setTextColor(0xFFFF, 0x3842);
-    lcd.drawString(buf, 336 + 53, ai_box_y + 26 + 11);
+    lcd.drawString(buf, 336 + 53, ai_box_y + 44 + 13);
     lcd.setTextDatum(textdatum_t::top_left);
 
     snprintf(buf, sizeof(buf), "%s: %.1f %%   (%s)",
@@ -1645,112 +1652,112 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
              data.aiCalibrated.moisture,
              L_STR("ชดเชยอุณหภูมิและความชื้นแม่นยำ ไร้การเบี่ยงเบน", "Decoupled & Denoised", "解耦温湿度漂移"));
     lcd.setTextColor(0x07E0, 0x0124);
-    lcd.drawString(buf, 18, ai_box_y + 54);
+    lcd.drawString(buf, 18, ai_box_y + 88);
 
     lcd.setTextColor(0x633C, 0x0124);
     lcd.drawString(L_STR("ML Architecture: Multi-Layer Perceptron (MLP) on-chip inference",
                          "ML Architecture: Multi-Layer Perceptron (MLP) on-chip inference",
-                         "模型架构: 片上轻量级多层感知机 (MLP) 实时去噪解耦推理"), 18, ai_box_y + 74);
+                         "模型架构: 片上轻量级多层感知机 (MLP) 实时去噪解耦推理"), 18, ai_box_y + 124);
 
     // --- การ์ด 2: ธาตุอาหารหลัก NPK & คำแนะนำการใส่ปุ๋ย (Agronomic Advice) ---
-    int c2_y = 244 - sy;
-    lcd.fillRoundRect(6, c2_y, 450, 130, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c2_y, 450, 130, 6, COLOR_YELLOW);
+    int c2_y = c1_y + 340;
+    lcd.fillRoundRect(6, c2_y, 450, 210, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c2_y, 450, 210, 6, COLOR_YELLOW);
     lcd.setTextColor(COLOR_YELLOW, COLOR_CARD_BG);
     lcd.drawString(L_STR("คำแนะนำการใส่ปุ๋ย & ปรับปรุงสภาพดิน:",
                          "AGRONOMIC ADVICE (FERTILIZER & pH MANAGEMENT):",
-                         "土壤改良与精准施肥指导:"), 14, c2_y + 8);
+                         "土壤改良与精准施肥指导:"), 14, c2_y + 10);
 
     float totalNPK = data.aiCalibrated.nitrogen + data.aiCalibrated.phosphorus + data.aiCalibrated.potassium;
     snprintf(buf, sizeof(buf), "Total Available NPK: %.0f mg/kg", totalNPK);
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c2_y + 26);
+    lcd.drawString(buf, 14, c2_y + 44);
 
     if (data.aiCalibrated.ph < 5.5f) {
-        lcd.fillRoundRect(186, c2_y + 22, 260, 22, 4, 0x3180);
-        lcd.drawRoundRect(186, c2_y + 22, 260, 22, 4, 0xFD20);
+        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3180);
+        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0xFD20);
         lcd.setTextColor(0xFD20, 0x3180);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินกรดจัด: เสี่ยงขาดฟอสฟอรัส ]", "[ ACID SOIL ALERT ]", "[ 酸性土: 磷素易被固定 ]"), 186 + 130, c2_y + 22 + 11);
+        lcd.drawString(L_STR("[ ดินกรดจัด: เสี่ยงขาดฟอสฟอรัส ]", "[ ACID SOIL ALERT ]", "[ 酸性土: 磷素易被固定 ]"), 186 + 130, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: pH ต่ำกว่า 5.5 พืชดูดฟอสฟอรัสไม่ได้ แนะนำใส่ปูนขาว/โดโลไมท์",
                              "Advice: Low pH locks phosphorus. Apply agricultural lime/dolomite.",
-                             "指导建议: pH 低于 5.5 导致磷被固化，建议撒施生石灰或白云石粉调节。"), 14, c2_y + 48);
+                             "指导建议: pH 低于 5.5 导致磷被固化，建议撒施生石灰或白云石粉调节。"), 14, c2_y + 80);
     } else if (data.aiCalibrated.ph > 7.5f) {
-        lcd.fillRoundRect(186, c2_y + 22, 260, 22, 4, 0x3180);
-        lcd.drawRoundRect(186, c2_y + 22, 260, 22, 4, 0xFD20);
+        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3180);
+        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0xFD20);
         lcd.setTextColor(0xFD20, 0x3180);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินเป็นด่าง: ขาดจุลธาตุ ]", "[ ALKALINE SOIL ALERT ]", "[ 碱性土: 谨防缺微量元素 ]"), 186 + 130, c2_y + 22 + 11);
+        lcd.drawString(L_STR("[ ดินเป็นด่าง: ขาดจุลธาตุ ]", "[ ALKALINE SOIL ALERT ]", "[ 碱性土: 谨防缺微量元素 ]"), 186 + 130, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ดินด่าง พืชขาดธาตุเหล็กและสังกะสี แนะนำเติมปุ๋ยอินทรีย์/ฮิวมัส",
                              "Advice: Alkaline soil restricts Fe & Zn uptake. Apply organic compost.",
-                             "指导建议: 偏碱性土壤易引发缺铁缺锌，建议施用腐殖酸有机肥改良。"), 14, c2_y + 48);
+                             "指导建议: 偏碱性土壤易引发缺铁缺锌，建议施用腐殖酸有机肥改良。"), 14, c2_y + 80);
     } else if (totalNPK < 100.0f) {
-        lcd.fillRoundRect(186, c2_y + 22, 260, 22, 4, 0x3800);
-        lcd.drawRoundRect(186, c2_y + 22, 260, 22, 4, COLOR_WARN);
+        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3800);
+        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, COLOR_WARN);
         lcd.setTextColor(COLOR_WARN, 0x3800);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ สารอาหารต่ำ: แนะนำเติมปุ๋ย ]", "[ LOW NPK: Fertilize ]", "[ 养分匮乏: 建议补肥 ]"), 186 + 130, c2_y + 22 + 11);
+        lcd.drawString(L_STR("[ สารอาหารต่ำ: แนะนำเติมปุ๋ย ]", "[ LOW NPK: Fertilize ]", "[ 养分匮乏: 建议补肥 ]"), 186 + 130, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ปริมาณธาตุอาหารหลักไม่เพียงพอ แนะนำเติมปุ๋ยสูตรเสมอ หรือน้ำหมัก",
                              "Advice: Nutrient reserve depleted. Apply balanced NPK fertilizer.",
-                             "指导建议: 大量元素储备不足，建议按需追施平衡复合肥或水溶肥。"), 14, c2_y + 48);
+                             "指导建议: 大量元素储备不足，建议按需追施平衡复合肥或水溶肥。"), 14, c2_y + 80);
     } else {
-        lcd.fillRoundRect(186, c2_y + 22, 260, 22, 4, 0x0320);
-        lcd.drawRoundRect(186, c2_y + 22, 260, 22, 4, 0x07E0);
+        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x0320);
+        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0x07E0);
         lcd.setTextColor(0x07E0, 0x0320);
         lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินสมบูรณ์: ธาตุอาหารพร้อม ]", "[ OPTIMAL FERTILITY: OK ]", "[ 土壤肥沃: 养分充足 ]"), 186 + 130, c2_y + 22 + 11);
+        lcd.drawString(L_STR("[ ดินสมบูรณ์: ธาตุอาหารพร้อม ]", "[ OPTIMAL FERTILITY: OK ]", "[ 土壤肥沃: 养分充足 ]"), 186 + 130, c2_y + 40 + 12);
         lcd.setTextDatum(textdatum_t::top_left);
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("คำแนะนำ: ดินมีความสมบูรณ์สูง ค่า pH และความเค็ม EC เหมาะสมกับการเติบโต",
                              "Advice: High soil fertility with optimal pH and EC conductivity balance.",
-                             "指导建议: 土壤理化性质优良，养分储备充足，维持常规管理即可。"), 14, c2_y + 48);
+                             "指导建议: 土壤理化性质优良，养分储备充足，维持常规管理即可。"), 14, c2_y + 80);
     }
 
     lcd.setTextColor(0x633C, COLOR_CARD_BG);
-    lcd.drawString("RS485 MODBUS RTU: UART2 (TX=GPIO40, RX=GPIO41) | Baud: 9600-8-N-1 | Slave: 0x01", 14, c2_y + 70);
+    lcd.drawString("RS485 MODBUS RTU: UART2 (TX=GPIO40, RX=GPIO41) | Baud: 9600-8-N-1 | Slave: 0x01", 14, c2_y + 114);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("ความเค็ม EC: ถ้าเกิน 2000 uS/cm ระวังดินเค็ม พืชจะดูดน้ำลำบาก",
                          "EC Conductivity: High EC (>2000 uS/cm) risks salt stress to rootlets.",
-                         "EC 电导率警示: 若超过 2000 uS/cm 谨防盐渍化导致根系脱水。"), 14, c2_y + 90);
+                         "EC 电导率警示: 若超过 2000 uS/cm 谨防盐渍化导致根系脱水。"), 14, c2_y + 148);
     lcd.drawString(L_STR("สัดส่วน N-P-K: ช่วยตัดสินใจในการให้ปุ๋ยตามช่วงวัยของพืช",
                          "NPK ratio informs precise fertigation schedule matching growth stages.",
-                         "NPK 营养比例可为精准水肥一体化提供科学决策依据。"), 14, c2_y + 108);
+                         "NPK 营养比例可为精准水肥一体化提供科学决策依据。"), 14, c2_y + 180);
 
     // --- การ์ด 3: ข้อมูลสัญญาณอุตสาหกรรม RS485 MODBUS RTU ---
-    int c3_y = 382 - sy;
-    lcd.fillRoundRect(6, c3_y, 450, 110, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c3_y, 450, 110, 6, 0x4208);
+    int c3_y = c2_y + 222;
+    lcd.fillRoundRect(6, c3_y, 450, 176, 6, COLOR_CARD_BG);
+    lcd.drawRoundRect(6, c3_y, 450, 176, 6, 0x4208);
     lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
     lcd.drawString(L_STR("ข้อมูลสัญญาณอุตสาหกรรม RS485 MODBUS RTU:",
                          "INDUSTRIAL RS485 MODBUS RTU TELEMETRY:",
-                         "工业级 RS485 MODBUS RTU 通信遥测:"), 14, c3_y + 8);
+                         "工业级 RS485 MODBUS RTU 通信遥测:"), 14, c3_y + 10);
 
     lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-    lcd.drawString("UART2 Port: TX=GPIO40, RX=GPIO41 | Baud 9600-8-N-1", 14, c3_y + 28);
-    lcd.drawString("Modbus Protocol: Slave ID 0x01 | Function 0x03 (Holding Regs)", 14, c3_y + 48);
+    lcd.drawString("UART2 Port: TX=GPIO40, RX=GPIO41 | Baud 9600-8-N-1", 14, c3_y + 44);
+    lcd.drawString("Modbus Protocol: Slave ID 0x01 | Function 0x03 (Holding Regs)", 14, c3_y + 78);
 
     snprintf(buf, sizeof(buf), "%s: %s | CRC16 Checksum: %s",
              L_STR("สถานะ", "Status", "状态"),
              data.soil7in1.isConnected ? L_STR("ออนไลน์ (ปกติ)", "ONLINE (OK)", "在线 (正常)") : L_STR("ขาดการเชื่อมต่อ", "DISCONNECTED", "断开连接"),
              (data.soil7in1.readErrorCount == 0) ? "PASS" : "RETRY");
     lcd.setTextColor(data.soil7in1.isConnected ? 0x07E0 : COLOR_WARN, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c3_y + 68);
+    lcd.drawString(buf, 14, c3_y + 112);
 
     snprintf(buf, sizeof(buf), "Error Packet Count: %u | Modbus Probe Material: 316L Stainless Steel", data.soil7in1.readErrorCount);
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c3_y + 88);
+    lcd.drawString(buf, 14, c3_y + 144);
 
-    drawDetailBottomNav(sy, PAGE_DETAIL_AIR, 500);
+    drawDetailBottomNav(sy, PAGE_DETAIL_AIR, 790);
 
     lcd.clearClipRect();
     drawScrollBar(scrollOffsetY, maxScrollY, 38, 280, 0x07E0);
@@ -2235,7 +2242,8 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
             }
             // 5. แตะปุ่มนำทางด้านล่างของเนื้อหา (Bottom Nav Bar)
             int contentY = tapY + scrollOffsetY;
-            if (contentY >= 415 && contentY <= 550) {
+            int navBaseY = (currentPage == PAGE_DETAIL_SOIL7) ? 790 : 662;
+            if (contentY >= navBaseY - 10 && contentY <= navBaseY + 50) {
                 // ปุ่ม [< ย้อนกลับหน้าแรก] (x: 8..228)
                 if (tapX >= 8 && tapX <= 228) {
                     Serial.println(">>> [Detail-BottomNav] Back to Home");

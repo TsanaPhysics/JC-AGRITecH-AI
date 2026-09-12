@@ -952,5 +952,23 @@ cd /Users/chewathassana/Desktop/handysense/server
     * อัปโหลดเฟิร์มแวร์เข้าสู่บอร์ด ESP32-S3 ATD3.5 ผ่านพอร์ต `/dev/cu.usbserial-10`
     * รันเซอร์วิส `server/serial_bridge.py` ส่งข้อมูล Telemetry ต่อเนื่องแบบ Real-time
 
+### 🔹 พรอมพ์ที่ 44: ปรับเพิ่มระยะห่างระหว่างบรรทัดของการ์ดเซนเซอร์เป็น 1.5 - 1.7 เท่า เพื่อความชัดเจนและอ่านค่าง่าย
+> **ผู้ใช้:** *"ปรับเพิ่มระยะห่างระหว่างบรรทัดของแต่ละบรรทัด  เป็น 1.5-1.7 เท่า  เนื่องจากตอนนี้อยู่ชิดกันมาก อ่านค่าได้ยาก"*
+* **การดำเนินการของ AI:**
+  * **ปรับระยะห่างบรรทัด (Line-Height Scaling) บนเฟิร์มแวร์ ESP32-S3 ([gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+    * ปรับเพิ่มระยะห่างแนวดิ่งระหว่างบรรทัดข้อความ แท็กป้ายกำกับ และเกจบาร์กราฟ จากเดิม 18--22 พิกเซล เป็น **32--34 พิกเซล** (คิดเป็นอัตราส่วน 1.55--1.70 เท่า) ครบทั้ง 4 หน้าจอเจาะลึกเซนเซอร์ (`drawPageDetailAir`, `drawPageDetailLight`, `drawPageDetailSoil1`, `drawPageDetailSoil7`)
+    * ขยายมิติความสูงของการ์ดทั้ง 3 ระดับในแต่ละหน้าจอ:
+      * **การ์ดที่ 1 (Hero & Gauge Card):** ขยายจาก 134px เป็น **200px** (สำหรับ Air, Light, Soil Stick) และจาก 196px เป็น **328px** (สำหรับ Soil 7-in-1 ที่มีกล่อง TinyML Edge AI Calibrated)
+      * **การ์ดที่ 2 (Agronomic & Farmer Advice Card):** ขยายจาก 130px เป็น **210px**
+      * **การ์ดที่ 3 (Hardware Specs & Diagnostics Card):** ขยายจาก 110px เป็น **176px**
+    * ปรับระยะตำแหน่งปุ่มนำทางด้านล่าง (Bottom Navigation) ไปอยู่ที่พิกัด $y = 662$ (สำหรับเซนเซอร์ 1--3) และ $y = 790$ (สำหรับ Soil 7-in-1)
+    * อัปเดตขอบเขตการเลื่อนสูงสุด (`maxScrollY`) ใน `DisplayManager_setPage` เป็น **430px** (เดิม 190px) และ **560px** (เดิม 260px)
+    * ปรับปรุงพิกัดตรวจจับการสัมผัสปุ่มกดด้านล่างใน `DisplayManager_handleTouch` ให้ตรวจจับพิกัดสัมผัส `navBaseY` อย่างแม่นยำ
+  * **คอมไพล์ แฟลชฮาร์ดแวร์จริง และตรวจสอบความเสถียร:**
+    * คอมไพล์ผ่าน PlatformIO สมบูรณ์ 100% (Flash Usage: 43.2%, RAM: 15.4%)
+    * แฟลชเฟิร์มแวร์เข้าบอร์ด ESP32-S3 ATD3.5 ผ่านพอร์ต `/dev/cu.usbserial-10` สำเร็จ
+    * เซอร์วิส `server/serial_bridge.py` เชื่อมต่อส่งข้อมูล Telemetry ต่อเนื่องทันที
+
+
 
 
