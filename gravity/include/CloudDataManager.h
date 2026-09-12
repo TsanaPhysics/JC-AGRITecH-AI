@@ -27,5 +27,8 @@ String CloudDataManager_getDateString();
 // รับสตริงเวลา เช่น "11:20:45"
 String CloudDataManager_getTimeString();
 
+// ตรวจสอบคำสั่งตั้งเวลาผ่าน Serial จากเครื่องคอมพิวเตอร์ (USB Time Sync)
+void CloudDataManager_checkSerialTimeSync();
+
 // รับค่า Unix Timestamp ปัจจุบัน (วินาที)
 unsigned long CloudDataManager_getEpochTime();

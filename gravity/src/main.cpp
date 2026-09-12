@@ -100,6 +100,9 @@ void loop() {
     // ประมวลผล SoftAP Captive Portal DNS & WebServer หากกำลังเปิดโหมดตั้งค่า
     WiFiConfigManager_loop();
 
+    // ซิงค์เวลาผ่าน USB Serial จากเครื่องคอมพิวเตอร์แบบ Real-time (แม้ไม่มี Wi-Fi)
+    CloudDataManager_checkSerialTimeSync();
+
     unsigned long currentMillis = millis();
 
     // 1. อ่านค่าจากเซนเซอร์ทุกตัวตามรอบเวลา (ทุกๆ 2 วินาที)

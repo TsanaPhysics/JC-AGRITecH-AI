@@ -6,6 +6,7 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <time.h>
+#include <sys/time.h>
 #include <esp_wifi.h>
 
 struct WiFiCandidate {
@@ -71,6 +72,28 @@ String CloudDataManager_getTimeString() {
 
 bool CloudDataManager_isConnected() {
     return (WiFi.status() == WL_CONNECTED);
+}
+
+// ตรวจสอบและประมวลผลคำสั่งตั้งเวลาผ่าน Serial (USB Time Sync จากเครื่องคอมพิวเตอร์)
+void CloudDataManager_checkSerialTimeSync() {
+    while (Serial.available() > 0) {
+        String line = Serial.readStringUntil('\n');
+        line.trim();
+        if (line.startsWith("TIME:") || line.startsWith("SET_TIME:")) {
+            int idx = line.indexOf(':');
+            if (idx >= 0) {
+                unsigned long long epoch = strtoull(line.substring(idx + 1).c_str(), NULL, 10);
+                if (epoch > 1700000000ULL) { // Valid timestamp (> ปี 2023)
+                    struct timeval tv;
+                    tv.tv_sec = (time_t)epoch;
+                    tv.tv_usec = 0;
+                    settimeofday(&tv, NULL);
+                    isNtpSynchronized = true;
+                    Serial.printf("[CloudData] Time Synced via USB Serial: %s (UTC+7)\n", CloudDataManager_getFormattedTime().c_str());
+                }
+            }
+        }
+    }
 }
 
 static void addCandidate(const String &ssid, const String &pass) {

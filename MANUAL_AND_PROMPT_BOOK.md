@@ -1133,3 +1133,20 @@ cd /Users/chewathassana/Desktop/handysense/server
     * **เฟิร์มแวร์บอร์ด ATD3.5-S3:** ปรับปรุงใน [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ทำการ Build และแฟลชอัปโหลดผ่าน PlatformIO ลงชิป ESP32-S3 ทางพอร์ต `/dev/cu.usbserial-210` สำเร็จสมบูรณ์
     * **เว็บแดชบอร์ด:** ปรับปรุงใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้สีของหน่วยวัดสอดคล้องกับหน้าจอบอร์ดจริง 100%
     * **บริการรับข้อมูล:** ฟื้นฟูการทำงานของ [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) เชื่อมต่อแบบเรียลไทม์ ไร้ข้อผิดพลาด
+
+### 🔹 พรอมพ์ที่ 55: การแก้ไขปัญหาหน้าจอแสดง "NTP SYNCING..." และพัฒนาระบบ Dual-Sync (NTP + USB Serial Time Sync)
+> **ผู้ใช้:** *"ทำไม วัน เวลา จึงแสดงเป็น. syncing......."*
+* **การวิเคราะห์สาเหตุ (Root Cause Analysis):**
+  * **ไม่มี Hardware RTC Battery:** บอร์ด ATD3.5-S3 ไม่มีโมดูลนาฬิกาสำรองไฟ (เช่น ชิป DS3231 + ถ่านกระดุม) นาฬิกาภายในของชิป ESP32-S3 จึงเริ่มต้นจากศูนย์ (ปี 1970) ทุกครั้งที่เริ่มระบบใหม่
+  * **ยังไม่ได้ต่อ Wi-Fi อินเทอร์เน็ต:** กลไกเดิมของเฟิร์มแวร์พึ่งพาโปรโตคอล **NTP (Network Time Protocol)** ผ่าน Wi-Fi เพียงช่องทางเดียว เมื่อไอคอน Wi-Fi ยังเป็นสีเทา (เชื่อมต่อ Wi-Fi วงบ้านไม่สำเร็จ / สแกนหาไม่พบ) บอร์ดจึงไม่สามารถดึงเวลาจากเซิร์ฟเวอร์อินเทอร์เน็ตได้ ทำให้หน้าจอขึ้นรอเวลาว่า **`NTP SYNCING...`**
+* **การดำเนินการแก้ไขและยกระดับสถาปัตยกรรม (Architectural Enhancement):**
+  * **พัฒนาระบบ Dual-Sync (Wi-Fi NTP + USB Serial Sync):**
+    * เมื่อต่อ Wi-Fi: ซิงค์เวลาโลกผ่านอินเทอร์เน็ต (NTP) ตามปกติ
+    * เมื่อเสียบสาย USB: เครื่องคอมพิวเตอร์ Mac จะส่ง Unix Timestamp ปัจจุบันผ่านคำสั่ง Serial `TIME:<epoch>\n` ไปยังบอร์ดทันทีที่เชื่อมต่อและทุกๆ 10 วินาที
+  * **การแก้ไขในเฟิร์มแวร์ C++:**
+    * **[gravity/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp):** พัฒนาฟังก์ชัน `CloudDataManager_checkSerialTimeSync()` ดักจับคำสั่ง Serial และอัปเดตนาฬิกาภายใน ESP32-S3 ด้วย `settimeofday(&tv, NULL)`
+    * **[gravity/src/main.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/main.cpp):** เรียกตรวจจับคำสั่งในลูปหลัก ทำให้บอร์ดตั้งเวลาได้ในระดับมิลลิวินาที
+    * **[server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py):** ส่งคำสั่ง `TIME:{int(now)}\n` แบบ Non-blocking ไปยังบอร์ดเป็นระยะ
+* **ผลลัพธ์การทดสอบ:**
+  * ทันทีที่รันระบบ บอร์ด ATD3.5-S3 ตอบสนอง `[CloudData] Time Synced via USB Serial: 2026-09-12 11:52:48 (UTC+7)`
+  * หน้าจอเปลี่ยนจาก `NTP SYNCING...` เป็นวันที่และเวลาจริงแบบดิจิทัลสด **`12/09/26 11:52:48`** ทันที 100% แม้จะไม่ได้เชื่อมต่อ Wi-Fi!

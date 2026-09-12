@@ -160,13 +160,27 @@ def run_bridge():
     
     buffer = ""
     last_record_time = 0
+    last_time_sync = 0
     current_data = {}
     
     while True:
         try:
+            # Sync system time to board every 10 seconds via USB Serial
+            now = time.time()
+            if now - last_time_sync >= 10.0:
+                last_time_sync = now
+                try:
+                    ser.write(f"TIME:{int(now)}\n".encode('utf-8'))
+                    ser.flush()
+                except Exception:
+                    pass
+
             line = ser.readline().decode('utf-8', errors='ignore')
             if not line:
                 continue
+
+            if "Time Synced" in line:
+                print(f"[SerialBridge] {line.strip()}")
                 
             # Regex parsing of sensor values
             m_temp = re.search(r'Temp.*?:\s*([0-9\.]+)\s*°C', line)
