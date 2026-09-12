@@ -1326,19 +1326,21 @@ with tab_overview:
                 <div class="sf-card sf-card-weather">
                     <div class="sf-card-header">
                         <span class="sf-card-title">Microclimate Weather</span>
-                        <span class="sf-pill-badge">VPD {vpd_val:.2f} kPa</span>
+                        <span class="sf-pill-badge" style="color:#38bdf8; border-color:#0284c7;">Dew Point: {air_dp:.1f}°C</span>
                     </div>
-                    <div style="display:flex; align-items:baseline; gap:36px; margin:16px 0;">
-                        <div style="font-size:3.4rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
-                            {air_t:.1f}<span style="font-size:1.8rem; vertical-align:super; color:#e2e8f0; font-weight:600; margin-left:2px;">°C</span>
+                    <div style="display:flex; align-items:baseline; justify-content:space-around; margin:12px 0 6px 0;">
+                        <div style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
+                            {air_t:.1f}<span style="font-size:1.6rem; vertical-align:super; color:#e2e8f0; font-weight:600; margin-left:2px;">°C</span>
                         </div>
-                        <div style="font-size:3.4rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
-                            {air_h:.0f}<span style="font-size:1.7rem; color:#e2e8f0; font-weight:600; margin-left:4px;">%RH</span>
+                        <div style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
+                            {air_h:.0f}<span style="font-size:1.6rem; color:#e2e8f0; font-weight:600; margin-left:4px;">%RH</span>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:#94a3b8; font-family:'JetBrains Mono',monospace;">
-                        <span>Dew Point: <b style="color:#38bdf8;">{air_dp:.1f}°C</b></span>
-                        <span style="color:#00ff87; font-weight:700;">{vpd_status}</span>
+                    <!-- VPD Centered below Temp & RH with font size matching temperature -->
+                    <div style="display:flex; justify-content:center; align-items:baseline; gap:8px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+                        <span style="font-size:1.3rem; font-weight:700; color:#00ff87; font-family:'Outfit',sans-serif;">VPD</span>
+                        <span style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">{vpd_val:.2f}</span>
+                        <span style="font-size:1.3rem; font-weight:600; color:#38bdf8; font-family:'JetBrains Mono',monospace;">kPa</span>
                     </div>
                 </div>
 

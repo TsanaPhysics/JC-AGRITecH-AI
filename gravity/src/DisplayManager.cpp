@@ -958,44 +958,68 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 1: Microclimate Weather
     // ========================================================================
-    // เม็ดแคปซูล VPD ด้านขวาบนของการ์ด 1
-    lcd.fillRoundRect(152, 48, 74, 18, 9, 0x2187);
-    lcd.drawRoundRect(152, 48, 74, 18, 9, 0x3A4E);
-    snprintf(buf, sizeof(buf), "VPD %.2f kPa", data.air.vpd);
-    lcd.setTextColor(0xDEFB, 0x2187);
-    lcd.setTextDatum(textdatum_t::middle_center);
-    lcd.drawString(buf, 152 + 37, 48 + 9, &fonts::Font0);
-    lcd.setTextDatum(textdatum_t::top_left);
+    // ล้างพื้นที่แคปซูลเดิมด้านบนขวา (หากมีค้างอยู่)
+    lcd.fillRect(148, 46, 82, 20, 0x10E4);
 
-    // ตัวเลขอุณหภูมิ (ซ้าย) e.g. 28.5 °C
-    lcd.fillRect(18, 78, 104, 52, 0x10E4);
+    // ล้างพื้นที่แสดงผลแถวที่ 1 (อุณหภูมิ & ความชื้น) และแถวที่ 2 (VPD)
+    lcd.fillRect(14, 66, 216, 34, 0x10E4);
+    lcd.fillRect(14, 106, 216, 44, 0x10E4);
+
+    // เส้นแบ่งระดับชั้นบางเบาอย่างหรูหราระหว่างแถว 1 และแถว 2
+    lcd.drawFastHLine(20, 102, 204, 0x1A4F);
+
+    // --- แถวที่ 1 ด้านบน: ตัวเลขอุณหภูมิ (ซ้าย) e.g. 28.5 °C ---
     if (data.air.isConnected) {
         snprintf(buf, sizeof(buf), "%.1f", data.air.temperature);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 20, 80, &fonts::Font4);
+        lcd.drawString(buf, 24, 68, &fonts::Font4);
         int tW = lcd.textWidth(buf, &fonts::Font4);
         // สัญลักษณ์องศาเซลเซียส °C
-        lcd.drawCircle(20 + tW + 5, 84, 3, 0x8CD7);
+        lcd.drawCircle(24 + tW + 5, 72, 3, 0x8CD7);
         lcd.setTextColor(0x8CD7, 0x10E4);
-        lcd.drawString("C", 20 + tW + 11, 80, &fonts::Font2);
+        lcd.drawString("C", 24 + tW + 11, 68, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--.-", 20, 80, &fonts::Font4);
+        lcd.drawString("--.-", 24, 68, &fonts::Font4);
     }
 
-    // ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 68 %RH
-    lcd.fillRect(124, 78, 106, 52, 0x10E4);
+    // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 68 %RH ---
     if (data.air.isConnected) {
         snprintf(buf, sizeof(buf), "%.0f", data.air.humidity);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 134, 80, &fonts::Font4);
+        lcd.drawString(buf, 136, 68, &fonts::Font4);
         int hW = lcd.textWidth(buf, &fonts::Font4);
         lcd.setTextColor(0x8CD7, 0x10E4);
-        lcd.drawString("%RH", 134 + hW + 4, 94, &fonts::Font2);
+        lcd.drawString("%RH", 136 + hW + 4, 75, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--", 134, 80, &fonts::Font4);
+        lcd.drawString("--", 136, 68, &fonts::Font4);
     }
+
+    // --- แถวที่ 2 ด้านล่าง: ค่า VPD ให้อยู่กึ่งกลาง และฟอนต์ขนาดเท่ากับอุณหภูมิ (Font4) ---
+    if (data.air.isConnected) {
+        snprintf(buf, sizeof(buf), "%.2f", data.air.vpd);
+    } else {
+        snprintf(buf, sizeof(buf), "--.--");
+    }
+
+    int vpdNumW = lcd.textWidth(buf, &fonts::Font4);
+    int vpdPrefixW = lcd.textWidth("VPD ", &fonts::Font2);
+    int vpdUnitW = lcd.textWidth(" kPa", &fonts::Font2);
+    int totalVpdW = vpdPrefixW + vpdNumW + vpdUnitW;
+    int vpdStartX = 122 - (totalVpdW / 2); // จัดกึ่งกลางการ์ด 1 (x: 10 ถึง 234)
+
+    // ป้ายกำกับ "VPD " สีเขียวมรกตนีออน
+    lcd.setTextColor(0x15D3, 0x10E4);
+    lcd.drawString("VPD ", vpdStartX, 118, &fonts::Font2);
+
+    // ตัวเลขค่า VPD สีขาวคมชัด ขนาดเท่ากับอุณหภูมิเป๊ะๆ (&fonts::Font4)
+    lcd.setTextColor(0xFFFF, 0x10E4);
+    lcd.drawString(buf, vpdStartX + vpdPrefixW, 112, &fonts::Font4);
+
+    // หน่วย " kPa" สีฟ้าอ่อนสไตล์วิทยาศาสตร์
+    lcd.setTextColor(0x8CD7, 0x10E4);
+    lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 118, &fonts::Font2);
 
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 2: Solar Dome
