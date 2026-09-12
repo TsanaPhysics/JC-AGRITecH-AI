@@ -666,6 +666,145 @@ st.markdown("""
         box-shadow: 0 0 10px rgba(0, 255, 135, 0.6);
     }
 
+    /* 7-in-1 Soil Parameter Cards Grid & Micro-badges (Modeled after soil_7in1_dashboard_ui.jpg) */
+    .soil7-cyber-container {
+        background: radial-gradient(circle at 50% 0%, #0d1726 0%, #080d16 100%);
+        border: 2px solid #1e293b;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+        margin-bottom: 24px;
+    }
+
+    .soil7-top-hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(13, 23, 38, 0.9);
+        border: 1.5px solid #1e3a5f;
+        border-radius: 14px;
+        padding: 10px 18px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    .hud-title-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #38bdf8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .hud-circuit-line {
+        height: 2px;
+        background: linear-gradient(90deg, #00f2fe, #00ff87, #38bdf8);
+        box-shadow: 0 0 8px #00f2fe;
+        flex: 1;
+        margin: 0 16px;
+    }
+
+    .soil7-row-upper {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .soil7-row-lower {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .soil7-card-proto {
+        background: rgba(13, 20, 32, 0.95);
+        border-radius: 16px;
+        padding: 18px 20px;
+        position: relative;
+        backdrop-filter: blur(16px);
+        transition: all 0.28s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 140px;
+    }
+    .soil7-card-proto:hover {
+        transform: translateY(-3px);
+    }
+
+    /* 1. Moisture Card */
+    .s7-c-moist {
+        border: 2px solid #00f2fe !important;
+        box-shadow: inset 0 0 14px rgba(0, 242, 254, 0.12), 0 0 16px rgba(0, 242, 254, 0.22) !important;
+    }
+    /* 2. Temp Card */
+    .s7-c-temp {
+        border: 2px solid #10b981 !important;
+        box-shadow: inset 0 0 14px rgba(16, 185, 129, 0.12), 0 0 16px rgba(16, 185, 129, 0.22) !important;
+    }
+    /* 3. EC Card */
+    .s7-c-ec {
+        border: 2px solid #f59e0b !important;
+        box-shadow: inset 0 0 14px rgba(245, 158, 11, 0.12), 0 0 16px rgba(245, 158, 11, 0.22) !important;
+    }
+    /* 4. pH Card */
+    .s7-c-ph {
+        border: 2px solid #a855f7 !important;
+        box-shadow: inset 0 0 14px rgba(168, 85, 247, 0.12), 0 0 16px rgba(168, 85, 247, 0.22) !important;
+    }
+    /* 5. N Card */
+    .s7-c-n {
+        border: 2px solid #0284c7 !important;
+        box-shadow: inset 0 0 14px rgba(2, 132, 199, 0.12), 0 0 16px rgba(2, 132, 199, 0.22) !important;
+    }
+    /* 6. P Card */
+    .s7-c-p {
+        border: 2px solid #059669 !important;
+        box-shadow: inset 0 0 14px rgba(5, 150, 105, 0.12), 0 0 16px rgba(5, 150, 105, 0.22) !important;
+    }
+    /* 7. K Card */
+    .s7-c-k {
+        border: 2px solid #2563eb !important;
+        box-shadow: inset 0 0 14px rgba(37, 99, 235, 0.12), 0 0 16px rgba(37, 99, 235, 0.22) !important;
+    }
+
+    .proto-badge-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 0.76rem;
+        margin-right: 8px;
+    }
+    .proto-icon-circle {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+
+    /* Glow Progress Indicator Bars under values */
+    .proto-glow-track {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    .proto-glow-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+
     /* 3.5" IPS Hardware Screen Simulation */
     .lcd-casing {
         background: linear-gradient(145deg, #1e2530, #0c1017);
@@ -1409,13 +1548,14 @@ if not df.empty and time_filter != time_filter_options[0]:
         df = df[df["timestamp"] >= (now - timedelta(days=7))]
 
 # ==============================================================================
-# Tabs Navigation (4 Main Board Pages)
+# Tabs Navigation (5 Main Board Pages - Enhanced with Soil 7-in-1 Dedicated Lab)
 # ==============================================================================
-tab_overview, tab_graph, tab_relays, tab_settings = st.tabs([
+tab_overview, tab_soil7, tab_graph, tab_relays, tab_settings = st.tabs([
     T("🌿 1. ภาพรวม (Overview)", "🌿 1. Home Overview", "🌿 1. 主控概览"),
-    T("📈 2. ข้อมูล/กราฟ (Telemetry & Graphs)", "📈 2. Data & Graphs", "📈 2. 遥测数据与图表"),
-    T("⚡ 3. รีเลย์ & อัตโนมัติ (Relays)", "⚡ 3. Relays & Automation", "⚡ 3. 继电器与智能自控"),
-    T("⚙️ 4. ตั้งค่า & AI (Settings & AI Lab)", "⚙️ 4. Settings & AI", "⚙️ 4. 系统设置与AI实验室")
+    T("🌱 2. ดิน & รากพืช 7-in-1 (Soil 7-in-1)", "🌱 2. Soil 7-in-1 Lab", "🌱 2. 土壤7合1深度遥测"),
+    T("📈 3. ข้อมูล/กราฟ (Telemetry & Graphs)", "📈 3. Data & Graphs", "📈 3. 遥测数据与图表"),
+    T("⚡ 4. รีเลย์ & อัตโนมัติ (Relays)", "⚡ 4. Relays & Automation", "⚡ 4. 继电器与智能自控"),
+    T("⚙️ 5. ตั้งค่า & AI (Settings & AI Lab)", "⚙️ 5. Settings & AI", "⚙️ 5. 系统设置与AI实验室")
 ])
 
 # ==============================================================================
@@ -1768,7 +1908,358 @@ with tab_overview:
 
 
 # ==============================================================================
-# Tab 2: Screen 2 - ข้อมูล/กราฟ & สมการฟิสิกส์เกษตร (Telemetry Graphs & Formulations)
+# Tab 2: ดิน & รากพืช 7-in-1 (Soil 7-in-1 Multi-parameter & TinyML Root Zone Lab)
+# ==============================================================================
+with tab_soil7:
+    st.markdown(f"### 🌱 {T('เซนเซอร์วัดคุณภาพดินเขตรากพืช 7-in-1 (Industrial Soil 7-in-1 Probe & Edge AI)', 'Industrial Soil 7-in-1 Multi-parameter Probe & TinyML Edge AI', '工业级土壤7合1多参数物理化学校准与边缘AI实验室')}")
+    st.caption(T("ระบบตรวจวัดสภาพแวดล้อมเขตรากพืช 15-30 ซม. ผ่านบัส RS485 Modbus RTU พร้อมการประมวลผลชดเชยค่าแบบไร้ความหน่วงด้วย TinyML Multi-Layer Perceptron (ESP32-S3)",
+                 "Root-zone monitoring (15-30 cm) via RS485 Modbus RTU with real-time zero-drift compensation using TinyML MLP on ESP32-S3.",
+                 "通过 RS485 Modbus RTU 监测 15-30cm 根系深层环境，并在 ESP32-S3 上采用 TinyML 多层感知机实现零漂移实时校准。"))
+
+    if df.empty:
+        st.info(T("💡 กำลังรอสัญญาณข้อมูลจากหัวโพรบ Soil 7-in-1...", "💡 Waiting for telemetry from Soil 7-in-1 probe...", "💡 正在等待来自土壤7合1传感器的遥测数据..."))
+    else:
+        latest = df.iloc[-1]
+        
+        # 1. Extract 7 parameters (Raw & AI)
+        raw_m = safe_float(latest.get('soil_7in1_moisture', 42.5), 42.5)
+        raw_t = safe_float(latest.get('soil_7in1_temp', 28.6), 28.6)
+        raw_ec = safe_float(latest.get('soil_7in1_ec', 420.0), 420.0)
+        raw_ph = safe_float(latest.get('soil_7in1_ph', 6.45), 6.45)
+        raw_n = safe_float(latest.get('soil_7in1_nitrogen', 78.0), 78.0)
+        raw_p = safe_float(latest.get('soil_7in1_phosphorus', 24.0), 24.0)
+        raw_k = safe_float(latest.get('soil_7in1_potassium', 145.0), 145.0)
+        
+        ai_m = safe_float(latest.get('ai_soil_moisture', raw_m), raw_m)
+        ai_ph = safe_float(latest.get('ai_soil_ph', raw_ph), raw_ph)
+        ai_n = safe_float(latest.get('ai_soil_nitrogen', raw_n * 1.08), raw_n * 1.08)
+        ai_p = safe_float(latest.get('ai_soil_phosphorus', raw_p * 1.05), raw_p * 1.05)
+        ai_k = safe_float(latest.get('ai_soil_potassium', raw_k * 1.03), raw_k * 1.03)
+        ai_conf = safe_float(latest.get('ai_confidence', 0.985), 0.985)
+
+        tds_calc = raw_ec * 0.64
+        salinity_status = "ความเค็มต่ำ (Non-saline)" if raw_ec < 800 else ("ความเค็มปานกลาง (Slightly Saline)" if raw_ec < 2000 else "ดินเค็มสูง (Saline Hazard)")
+        ph_status = "ดินกรดรุนแรง (Acidic)" if ai_ph < 5.5 else ("ดินเหมาะสมสมบูรณ์ (Optimal)" if ai_ph <= 6.8 else ("ด่างอ่อน (Neutral-Alkaline)" if ai_ph <= 7.5 else "ดินด่างสูง (Alkaline)"))
+        ph_badge_cls = "badge-warn" if ai_ph < 5.5 or ai_ph > 7.5 else "badge-good"
+
+        # -------------------------------------------------------------
+        # Section A: Futuristic HUD Status Bar (Matching Prototype)
+        # -------------------------------------------------------------
+        st.markdown(f"""
+        <div class="soil7-cyber-container">
+            <div class="soil7-top-hud">
+                <div class="hud-title-tag">
+                    <span style="font-size:1.1rem;">🗄️</span> Dashboard
+                    <span style="display:inline-block; width:28px; height:6px; background:#00f2fe; border-radius:3px; box-shadow:0 0 8px #00f2fe; margin-left:8px;"></span>
+                </div>
+                <div class="hud-circuit-line"></div>
+                <div style="display:flex; align-items:center; gap:12px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:#cbd5e1;">
+                    <span style="color:#00ff87;">●●●</span>
+                    <span style="color:#38bdf8; font-weight:700;">((📶)) HUD Status ((📶))</span>
+                    <span style="color:#00ff87;">●●●</span>
+                </div>
+                <div class="hud-circuit-line"></div>
+                <div style="display:flex; align-items:center; gap:10px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:#94a3b8;">
+                    <span style="color:#00ff87;">📶 4,800 bps</span>
+                    <span>Modbus ID 0x01</span>
+                </div>
+            </div>
+
+            <!-- Header Title -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div style="font-size:1.45rem; font-weight:800; color:#f8fafc; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:0.3px;">
+                    Soil 7-in-1 Multi-parameter & TinyML Root Zone Monitoring
+                </div>
+                <div style="background:rgba(15,23,42,0.8); border:1px solid #334155; border-radius:8px; padding:6px 14px; font-size:0.8rem; color:#94a3b8; font-family:'JetBrains Mono',monospace;">
+                    ⚙️ Soil Data ▾
+                </div>
+            </div>
+
+            <!-- Row 1: 4 Cards (Moisture, Temp, EC, pH) -->
+            <div class="soil7-row-upper">
+                <!-- 1. Moisture -->
+                <div class="soil7-card-proto s7-c-moist">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#083344; color:#00f2fe; border:1px solid #00f2fe;">1</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Soil Moisture</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#083344; color:#00f2fe;">💧</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {ai_m:.1f}%
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max(ai_m, 5.0), 100.0)}%; background:linear-gradient(90deg, #00f2fe, #00ff87); box-shadow:0 0 10px #00f2fe;"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Soil Temp -->
+                <div class="soil7-card-proto s7-c-temp">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#064e3b; color:#10b981; border:1px solid #10b981;">2</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Soil Temp</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#064e3b; color:#10b981;">🌡️</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {raw_t:.1f}°C
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max((raw_t / 50.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #10b981, #34d399); box-shadow:0 0 10px #10b981;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Soil EC -->
+                <div class="soil7-card-proto s7-c-ec">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#451a03; color:#f59e0b; border:1px solid #f59e0b;">3</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Soil EC</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#451a03; color:#f59e0b;">⚡</div>
+                    </div>
+                    <div style="font-size:2.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {raw_ec:.0f} <span style="font-size:0.85rem; color:#f59e0b; font-weight:700;">uS/cm</span>
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max((raw_ec / 1500.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #f59e0b, #fbbf24); box-shadow:0 0 10px #f59e0b;"></div>
+                    </div>
+                </div>
+
+                <!-- 4. Soil pH -->
+                <div class="soil7-card-proto s7-c-ph">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#3b0764; color:#a855f7; border:1px solid #a855f7;">4</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Soil pH</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#3b0764; color:#a855f7;">🧪</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {ai_ph:.2f}
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max(((ai_ph - 3.0) / 7.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #a855f7, #00ff87); box-shadow:0 0 10px #a855f7;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: 3 Cards (Nitrogen, Phosphorus, Potassium) -->
+            <div class="soil7-row-lower">
+                <!-- 5. Nitrogen -->
+                <div class="soil7-card-proto s7-c-n">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#082f49; color:#38bdf8; border:1px solid #38bdf8;">5</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Nitrogen</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#082f49; color:#38bdf8; font-size:0.75rem; font-weight:800;">N</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {ai_n:.0f} <span style="font-size:0.85rem; color:#38bdf8; font-weight:700;">mg/kg</span>
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max((ai_n / 200.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #0284c7, #38bdf8); box-shadow:0 0 10px #38bdf8;"></div>
+                    </div>
+                </div>
+
+                <!-- 6. Phosphorus -->
+                <div class="soil7-card-proto s7-c-p">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#022c22; color:#10b981; border:1px solid #10b981;">6</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Phosphorus</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#022c22; color:#10b981; font-size:0.75rem; font-weight:800;">P</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {ai_p:.0f} <span style="font-size:0.85rem; color:#10b981; font-weight:700;">mg/kg</span>
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max((ai_p / 80.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #059669, #10b981); box-shadow:0 0 10px #10b981;"></div>
+                    </div>
+                </div>
+
+                <!-- 7. Potassium -->
+                <div class="soil7-card-proto s7-c-k">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">
+                            <span class="proto-badge-num" style="background:#172554; color:#60a5fa; border:1px solid #60a5fa;">7</span>
+                            <span style="font-size:0.86rem; font-weight:700; color:#cbd5e1;">Potassium</span>
+                        </div>
+                        <div class="proto-icon-circle" style="background:#172554; color:#60a5fa; font-size:0.75rem; font-weight:800;">K</div>
+                    </div>
+                    <div style="font-size:2.35rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; margin-top:8px;">
+                        {ai_k:.0f} <span style="font-size:0.85rem; color:#60a5fa; font-weight:700;">mg/kg</span>
+                    </div>
+                    <div class="proto-glow-track">
+                        <div class="proto-glow-fill" style="width:{min(max((ai_k / 300.0) * 100.0, 5.0), 100.0)}%; background:linear-gradient(90deg, #2563eb, #60a5fa); box-shadow:0 0 10px #60a5fa;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # -------------------------------------------------------------
+        # Section C: Bottom 3-Panel Layout matching Prototype soil_7in1_dashboard_ui.jpg
+        # 1. N-P-K Stoichiometry (Donut) | 2. Soil Fertility (Radar) | 3. Agronomic Insight (Notifications)
+        # -------------------------------------------------------------
+        b_col1, b_col2, b_col3 = st.columns([1.1, 1.1, 1.3])
+        
+        with b_col1:
+            st.markdown("""
+            <div style="background:rgba(13,20,32,0.92); border:1.5px solid #1e3a5f; border-radius:16px; padding:16px; min-height:360px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.95rem; font-weight:800; color:#f8fafc; font-family:'Plus Jakarta Sans',sans-serif;">N-P-K stoichiometry</span>
+                    <div style="display:flex; gap:6px;">
+                        <span style="background:#1e293b; border:1px solid #334155; border-radius:6px; font-size:0.7rem; color:#94a3b8; padding:2px 8px;">Show</span>
+                        <span style="color:#64748b; font-size:0.8rem;">•••</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            total_npk = max(ai_n + ai_p + ai_k, 1.0)
+            n_ratio = (ai_n / total_npk) * 100.0
+            p_ratio = (ai_p / total_npk) * 100.0
+            k_ratio = (ai_k / total_npk) * 100.0
+            
+            # Glowing donut chart matching the prototype colors (#00f2fe, #00ff87, #f59e0b)
+            fig_npk_pie = go.Figure(data=[go.Pie(
+                labels=['N', 'P', 'K'],
+                values=[ai_n, ai_p, ai_k],
+                hole=.68,
+                marker=dict(
+                    colors=['#00f2fe', '#00ff87', '#f59e0b'],
+                    line=dict(color='#0b1320', width=4)
+                ),
+                textinfo='none',
+                hoverinfo='label+value+percent'
+            )])
+            fig_npk_pie.update_layout(
+                template="plotly_dark",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                height=230,
+                margin=dict(l=10, r=10, t=10, b=10),
+                showlegend=True,
+                legend=dict(
+                    orientation="v",
+                    yanchor="middle",
+                    y=0.5,
+                    xanchor="right",
+                    x=0.98,
+                    font=dict(family="JetBrains Mono", size=13, color="#f1f5f9")
+                )
+            )
+            st.plotly_chart(fig_npk_pie, use_container_width=True)
+            st.markdown(f"""
+                <div style="font-size:0.75rem; color:#94a3b8; font-family:'JetBrains Mono',monospace; text-align:center;">
+                    N: <b style="color:#00f2fe;">{n_ratio:.1f}%</b> • P: <b style="color:#00ff87;">{p_ratio:.1f}%</b> • K: <b style="color:#f59e0b;">{k_ratio:.1f}%</b>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with b_col2:
+            st.markdown("""
+            <div style="background:rgba(13,20,32,0.92); border:1.5px solid #1e3a5f; border-radius:16px; padding:16px; min-height:360px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.95rem; font-weight:800; color:#f8fafc; font-family:'Plus Jakarta Sans',sans-serif;">Soil Fertility</span>
+                    <div style="display:flex; gap:6px;">
+                        <span style="background:#064e3b; border:1px solid #10b981; border-radius:6px; font-size:0.7rem; color:#00ff87; padding:2px 8px;">Neo</span>
+                        <span style="color:#64748b; font-size:0.8rem;">•••</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # 5-axis Radar matching prototype exactly (N, P, K, EC/P, Moist/P)
+            m_score = min(max((ai_m / 60.0) * 100.0, 15.0), 100.0)
+            ec_score = min(max((1.0 - abs(raw_ec - 600.0) / 1200.0) * 100.0, 20.0), 100.0)
+            ph_score = min(max((1.0 - abs(ai_ph - 6.2) / 2.0) * 100.0, 20.0), 100.0)
+            npk_score = min(max((total_npk / 400.0) * 100.0, 20.0), 100.0)
+            bio_avail = ph_score * 0.7 + ec_score * 0.3
+            
+            categories = ['N', 'P', 'P', 'P', 'K']
+            scores = [npk_score, m_score, ph_score, ec_score, bio_avail]
+            
+            fig_radar = go.Figure()
+            fig_radar.add_trace(go.Scatterpolar(
+                r=scores + [scores[0]],
+                theta=categories + [categories[0]],
+                fill='toself',
+                fillcolor='rgba(0, 255, 135, 0.22)',
+                line=dict(color='#00ff87', width=2.2),
+                name='Soil Health'
+            ))
+            fig_radar.update_layout(
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100], color='#64748b', gridcolor='rgba(0, 255, 135, 0.15)', showticklabels=False),
+                    angularaxis=dict(color='#00ff87', gridcolor='rgba(0, 255, 135, 0.2)', font=dict(family="JetBrains Mono", size=12, color="#00ff87"))
+                ),
+                template="plotly_dark",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                height=230,
+                margin=dict(l=25, r=25, t=15, b=15),
+                showlegend=False
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
+            st.markdown(f"""
+                <div style="font-size:0.75rem; color:#00ff87; font-family:'JetBrains Mono',monospace; text-align:center;">
+                    ● Integrated Fertility Index: <b>{((m_score + ec_score + ph_score + npk_score + bio_avail)/5.0):.1f} / 100</b>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with b_col3:
+            st.markdown(f"""
+            <div style="background:rgba(13,20,32,0.92); border:1.5px solid #1e3a5f; border-radius:16px; padding:16px; min-height:360px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-size:0.95rem; font-weight:800; color:#f8fafc; font-family:'Plus Jakarta Sans',sans-serif;">Agronomic insight</span>
+                    <span style="color:#64748b; font-size:0.8rem;">•••</span>
+                </div>
+
+                <!-- Notification Card 1: Moisture & Root Growth -->
+                <div style="background:rgba(15,23,42,0.75); border:1px solid #1e293b; border-radius:12px; padding:12px; margin-bottom:12px; transition:all 0.2s ease;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:22px; height:22px; border-radius:6px; background:#064e3b; display:flex; align-items:center; justify-content:center; color:#00ff87; font-size:0.78rem;">🔔</div>
+                            <span style="font-size:0.82rem; font-weight:700; color:#f1f5f9;">Agronomic insight notification</span>
+                        </div>
+                        <span style="color:#64748b; font-size:0.75rem;">•••</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:#94a3b8; line-height:1.45; margin-left:30px;">
+                        Soil moisture calculated by sensor probe participates in root growth & precision irrigation telemetry. Current: <b style="color:#00f2fe;">{ai_m:.1f}%</b> ({'Optimal' if 40 <= ai_m <= 65 else 'Check Water'}).
+                    </div>
+                    <div style="font-size:0.7rem; color:#64748b; margin-left:30px; margin-top:6px; font-family:'JetBrains Mono',monospace;">
+                        12 hours ago
+                    </div>
+                </div>
+
+                <!-- Notification Card 2: Nutrient Balance & Precision Dosing -->
+                <div style="background:rgba(15,23,42,0.75); border:1px solid #1e293b; border-radius:12px; padding:12px; transition:all 0.2s ease;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:22px; height:22px; border-radius:6px; background:#3b0764; display:flex; align-items:center; justify-content:center; color:#c084fc; font-size:0.78rem;">🔔</div>
+                            <span style="font-size:0.82rem; font-weight:700; color:#f1f5f9;">Agronomic insight notification</span>
+                        </div>
+                        <span style="color:#64748b; font-size:0.75rem;">•••</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:#94a3b8; line-height:1.45; margin-left:30px;">
+                        Soil analyze balance hints at ratio presentation. Current pH <b style="color:#c084fc;">{ai_ph:.2f}</b> with EC <b style="color:#f59e0b;">{raw_ec:.0f} uS/cm</b> ensures healthy macronutrient bioavailability.
+                    </div>
+                    <div style="font-size:0.7rem; color:#64748b; margin-left:30px; margin-top:6px; font-family:'JetBrains Mono',monospace;">
+                        2 hours ago
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    render_bottom_nav_buttons()
+
+# ==============================================================================
+# Tab 3: Screen 3 - ข้อมูล/กราฟ & สมการฟิสิกส์เกษตร (Telemetry Graphs & Formulations)
 # ==============================================================================
 with tab_graph:
     st.markdown(f"### 📈 {T('แนวโน้มตัวแปรสภาพแวดล้อมและข้อมูลเชิงลึก (Interactive Time-Series Analytics)', 'Interactive Environmental Time-Series Analytics', '交互式农业环境时间序列遥测分析')}")

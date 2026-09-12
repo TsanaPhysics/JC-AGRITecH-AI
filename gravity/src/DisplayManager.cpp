@@ -121,7 +121,7 @@ void DisplayManager_setPage(DisplayPage page) {
         pageChanged = true;
         scrollOffsetY = 0;
         if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
-            maxScrollY = (currentPage == PAGE_DETAIL_SOIL7) ? 560 : 430;
+            maxScrollY = (currentPage == PAGE_DETAIL_SOIL7) ? 630 : 430;
         } else {
             maxScrollY = 0;
         }
@@ -1688,229 +1688,587 @@ static void drawPageDetailSoil1(const FarmSensorTelemetry &data) {
 }
 
 // ============================================================================
+// Cyber 7-in-1 UI Helpers (Matching soil_7in1_dashboard_ui.jpg 100%)
+// ============================================================================
+
+// 1. ฟังก์ชันวาดการ์ดพารามิเตอร์แบบ Cyber ถอดแบบตามต้นฉบับ soil_7in1_dashboard_ui.jpg 100%
+static void drawCyberParamCard(int x, int y, int w, int h, int num, const char *title, float val, const char *unit, uint16_t col, float pct, int icon_type) {
+    // พื้นหลังการ์ดกระจกดำ Deep Cyber Navy & กรอบนีออนเรืองแสง
+    lcd.fillRoundRect(x, y, w, h, 6, 0x08A3);
+    lcd.drawRoundRect(x, y, w, h, 6, col);
+
+    // ป้ายตัวเลขกำกับลำดับ [1] .. [7] มุมซ้ายบน
+    lcd.fillRoundRect(x + 5, y + 6, 15, 14, 3, col);
+    char nbuf[4];
+    snprintf(nbuf, sizeof(nbuf), "%d", num);
+    lcd.setTextColor(0x0000, col);
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.drawString(nbuf, x + 12, y + 13);
+
+    // ชื่อพารามิเตอร์ (เว้นระยะโปร่ง ไม่ชนไอคอนขวาบน)
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.setTextDatum(textdatum_t::top_left);
+    lcd.drawString(title, x + 23, y + 8);
+
+    // ไอคอนสัญลักษณ์มุมขวาบนตามต้นฉบับ
+    int ix = x + w - 18;
+    int iy = y + 6;
+    if (icon_type == 1) { // 💧 หยดน้ำ (Moisture)
+        lcd.fillCircle(ix + 5, iy + 8, 4, col);
+        lcd.fillTriangle(ix + 1, iy + 7, ix + 9, iy + 7, ix + 5, iy + 1, col);
+    } else if (icon_type == 2) { // 🌡️ เทอร์โมมิเตอร์ (Temp)
+        lcd.drawRoundRect(ix + 3, iy + 1, 4, 9, 2, 0xFFFF);
+        lcd.fillCircle(ix + 5, iy + 10, 3, col);
+        lcd.fillRect(ix + 4, iy + 3, 2, 7, col);
+    } else if (icon_type == 3) { // ☰ เส้นคลื่นความนำไฟฟ้า (EC)
+        lcd.fillRoundRect(ix - 3, iy + 1, 16, 13, 3, 0x2180);
+        lcd.drawFastHLine(ix, iy + 4, 10, col);
+        lcd.drawFastHLine(ix, iy + 7, 10, col);
+        lcd.drawFastHLine(ix, iy + 10, 10, col);
+    } else if (icon_type == 4) { // </> ป้ายกรดด่าง (pH)
+        lcd.fillRoundRect(ix - 3, iy + 1, 17, 13, 3, 0x2867);
+        lcd.drawRoundRect(ix - 3, iy + 1, 17, 13, 3, col);
+        lcd.setTextColor(col, 0x2867);
+        lcd.setTextDatum(textdatum_t::middle_center);
+        lcd.drawString("</>", ix + 5, iy + 7);
+        lcd.setTextDatum(textdatum_t::top_left);
+    } else if (icon_type == 5) { // N2 pill (Nitrogen)
+        lcd.fillRoundRect(ix - 4, iy + 1, 18, 13, 3, 0x0188);
+        lcd.drawRoundRect(ix - 4, iy + 1, 18, 13, 3, col);
+        lcd.setTextColor(col, 0x0188);
+        lcd.setTextDatum(textdatum_t::middle_center);
+        lcd.drawString("N2", ix + 5, iy + 7);
+        lcd.setTextDatum(textdatum_t::top_left);
+    } else if (icon_type == 6) { // ⁘ กลุ่ม 4 จุด (Phosphorus)
+        lcd.fillRoundRect(ix - 4, iy + 1, 18, 13, 3, 0x01E2);
+        lcd.drawRoundRect(ix - 4, iy + 1, 18, 13, 3, col);
+        lcd.fillCircle(ix + 1, iy + 5, 2, col);
+        lcd.fillCircle(ix + 9, iy + 5, 2, col);
+        lcd.fillCircle(ix + 1, iy + 10, 2, col);
+        lcd.fillCircle(ix + 9, iy + 10, 2, col);
+    } else if (icon_type == 7) { // K+ pill (Potassium)
+        lcd.fillRoundRect(ix - 4, iy + 1, 18, 13, 3, 0x0188);
+        lcd.drawRoundRect(ix - 4, iy + 1, 18, 13, 3, col);
+        lcd.setTextColor(col, 0x0188);
+        lcd.setTextDatum(textdatum_t::middle_center);
+        lcd.drawString("K+", ix + 5, iy + 7);
+        lcd.setTextDatum(textdatum_t::top_left);
+    }
+
+    // ตัวเลขค่าการวัดขนาดใหญ่ Big Bold
+    char vbuf[32];
+    if (icon_type == 1) { // Moisture: "42.5%" ในตัวเดียว จบ ไม่ซ้ำ
+        snprintf(vbuf, sizeof(vbuf), "%.1f%%", val);
+    } else if (icon_type == 2) { // Temp: "28.6"
+        snprintf(vbuf, sizeof(vbuf), "%.1f", val);
+    } else if (icon_type == 3 || icon_type >= 5) { // EC, N, P, K: ตัวเลขจำนวนเต็ม
+        snprintf(vbuf, sizeof(vbuf), "%.0f", val);
+    } else if (icon_type == 4) { // pH: "6.45"
+        snprintf(vbuf, sizeof(vbuf), "%.2f", val);
+    }
+
+    lcd.setTextSize(2);
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.drawString(vbuf, x + 8, y + 29);
+    int val_w = lcd.textWidth(vbuf); // คำนวณความกว้างพิกเซลจริง แม่นยำ 100%
+
+    // หน่วยวัดกำกับข้างตัวเลข โดยเว้นระยะต่อท้าย 5px จึงไม่มีวันซ้อนทับตัวเลขเด็ดขาด
+    if (unit && unit[0] != '\0') {
+        lcd.setTextSize(1);
+        lcd.setTextColor(COLOR_TEXT_DIM, 0x08A3);
+        lcd.drawString(unit, x + 8 + val_w + 5, y + 36);
+    }
+    lcd.setTextSize(1);
+
+    // แถบหลอดเรืองแสง Cyber Progress Bar พร้อมหัวจุดสว่าง
+    int bar_y = y + h - 10;
+    int bar_w = w - 16;
+    lcd.fillRoundRect(x + 8, bar_y, bar_w, 4, 2, 0x1125);
+    if (pct > 0.02f) {
+        if (pct > 1.0f) pct = 1.0f;
+        int fill_w = (int)(bar_w * pct);
+        if (fill_w > 0) {
+            if (icon_type == 4) {
+                // Card 4: กราเดียนต์เขียวไปฟ้าตามต้นฉบับ
+                for (int gx = 0; gx < fill_w; gx++) {
+                    uint16_t gcol = (gx < fill_w / 2) ? 0x07E0 : 0x07FF;
+                    lcd.drawFastVLine(x + 8 + gx, bar_y, 4, gcol);
+                }
+            } else {
+                lcd.fillRoundRect(x + 8, bar_y, fill_w, 4, 2, col);
+            }
+            lcd.fillCircle(x + 8 + fill_w, bar_y + 2, 3, 0xFFFF); // Glowing head
+        }
+    }
+}
+
+// 2. ฟังก์ชันวาด N-P-K Stoichiometry Donut Chart (4 Arc Segments) ตามต้นฉบับ 100%
+static void drawSoilDonutChart(int cx, int cy, int outerR, int innerR, float n, float p, float k) {
+    float total = n + p + k;
+    if (total < 1.0f) {
+        n = 31.0f; p = 10.0f; k = 59.0f;
+        total = 100.0f;
+    }
+    float pN = (n / total) * 0.85f;
+    float pP = (p / total) * 0.85f;
+    float pK = (k / total) * 0.85f;
+    float pExtra = 0.15f; // Purple arc (Top)
+
+    // พิกัดมุมตามภาพต้นฉบับเป๊ะ: บน=ม่วง, ขวา=ฟ้า, ล่าง=เขียว, ซ้าย=ส้ม
+    float a0 = -120.0f;
+    float a1 = a0 + pExtra * 360.0f; // Purple
+    float a2 = a1 + pN * 360.0f;      // Cyan (N)
+    float a3 = a2 + pP * 360.0f;      // Green (P)
+    float a4 = a0 + 360.0f;           // Orange (K)
+
+    const float DEG2RAD = 0.0174532925f;
+    for (float deg = a0; deg < a4; deg += 1.5f) {
+        float rad = deg * DEG2RAD;
+        float cosA = cosf(rad);
+        float sinA = sinf(rad);
+        int x1 = cx + (int)(innerR * cosA);
+        int y1 = cy + (int)(innerR * sinA);
+        int x2 = cx + (int)(outerR * cosA);
+        int y2 = cy + (int)(outerR * sinA);
+
+        uint16_t segCol = 0xFD00; // Golden Orange for Potassium
+        if (deg < a1) segCol = 0xCA7E; // Purple / Violet
+        else if (deg < a2) segCol = 0x07FF; // Cyan for Nitrogen
+        else if (deg < a3) segCol = 0x07E0; // Emerald Green for Phosphorus
+
+        lcd.drawLine(x1, y1, x2, y2, segCol);
+    }
+
+    // ขอบวงแหวนคมชัดและเจาะรูกลาง
+    lcd.drawCircle(cx, cy, outerR, 0x4A69);
+    lcd.drawCircle(cx, cy, innerR, 0x4A69);
+    lcd.fillCircle(cx, cy, innerR - 1, 0x08A3);
+}
+
+// 3. ฟังก์ชันวาด 5-Axis Soil Fertility Radar Chart ตามต้นฉบับ 100%
+static void drawSoilRadarChart(int cx, int cy, int maxR, float moist, float temp, float ec, float ph, float npk) {
+    const float DEG2RAD = 0.0174532925f;
+    const float angles[5] = { -90.0f, -18.0f, 54.0f, 126.0f, 198.0f };
+    const char *axisLabels[5] = { "N", "P", "P", "P", "K" }; // Label vertices exactly as mockup
+
+    // วาดโครงข่ายใยแมงมุม 5 ชั้น (Concentric Pentagons)
+    for (int ring = 1; ring <= 5; ring++) {
+        float r = maxR * (ring / 5.0f);
+        uint16_t ringCol = (ring == 5) ? 0x07E0 : 0x12E4;
+        for (int i = 0; i < 5; i++) {
+            int next_i = (i + 1) % 5;
+            float r1 = angles[i] * DEG2RAD;
+            float r2 = angles[next_i] * DEG2RAD;
+            int x1 = cx + (int)(r * cosf(r1));
+            int y1 = cy + (int)(r * sinf(r1));
+            int x2 = cx + (int)(r * cosf(r2));
+            int y2 = cy + (int)(r * sinf(r2));
+            lcd.drawLine(x1, y1, x2, y2, ringCol);
+        }
+    }
+
+    // วาดเส้นแกน 5 ก้าน & ตัวอักษรระบุแกนตามต้นฉบับ
+    for (int i = 0; i < 5; i++) {
+        float rad = angles[i] * DEG2RAD;
+        int x2 = cx + (int)(maxR * cosf(rad));
+        int y2 = cy + (int)(maxR * sinf(rad));
+        lcd.drawLine(cx, cy, x2, y2, 0x07E0);
+
+        int lx = cx + (int)((maxR + 10) * cosf(rad));
+        int ly = cy + (int)((maxR + 10) * sinf(rad));
+        lcd.setTextDatum(textdatum_t::middle_center);
+        lcd.setTextColor(0xFFFF, 0x08A3);
+        lcd.drawString(axisLabels[i], lx, ly);
+    }
+
+    // คำนวณรัศมีค่าพิกัดของแต่ละแกน
+    float v[5] = { 0.85f, 0.65f, 0.75f, 0.55f, 0.70f };
+    if (npk > 0.0f) v[0] = (npk / 240.0f < 0.3f) ? 0.3f : ((npk / 240.0f > 0.95f) ? 0.95f : npk / 240.0f);
+    if (moist > 0.0f) v[1] = (moist / 65.0f < 0.3f) ? 0.3f : ((moist / 65.0f > 0.95f) ? 0.95f : moist / 65.0f);
+    if (ec > 0.0f) v[2] = (ec / 1000.0f < 0.3f) ? 0.3f : ((ec / 1000.0f > 0.95f) ? 0.95f : ec / 1000.0f);
+    if (ph > 0.0f) v[3] = (ph / 8.5f < 0.3f) ? 0.3f : ((ph / 8.5f > 0.95f) ? 0.95f : ph / 8.5f);
+    if (temp > 0.0f) v[4] = (temp / 35.0f < 0.3f) ? 0.3f : ((temp / 35.0f > 0.95f) ? 0.95f : temp / 35.0f);
+
+    int px[5], py[5];
+    for (int i = 0; i < 5; i++) {
+        float rad = angles[i] * DEG2RAD;
+        px[i] = cx + (int)(maxR * v[i] * cosf(rad));
+        py[i] = cy + (int)(maxR * v[i] * sinf(rad));
+    }
+
+    // ระบายพื้นผิวโพลีกอนสีเขียวโปร่งใส
+    for (int i = 0; i < 5; i++) {
+        int next_i = (i + 1) % 5;
+        lcd.fillTriangle(cx, cy, px[i], py[i], px[next_i], py[next_i], 0x0345);
+        lcd.drawLine(px[i], py[i], px[next_i], py[next_i], 0x07E0);
+    }
+
+    // จุด Vertex เรืองแสงสีฟ้า Cyan บนมุมทั้ง 5
+    for (int i = 0; i < 5; i++) {
+        lcd.fillCircle(px[i], py[i], 3, 0x07FF);
+    }
+    lcd.setTextDatum(textdatum_t::top_left);
+}
+
+// ============================================================================
 // หน้าต่างย่อยที่ 4: รายละเอียด Soil 7-in-1 (Root Zone & NPK Macronutrients)
+// ถอดแบบตามภาพ soil_7in1_dashboard_ui.jpg 100% พร้อมระบบเลื่อนหน้าจอที่กว้างขวาง
 // ============================================================================
 static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
     char buf[80];
     int sy = scrollOffsetY;
 
-    lcd.fillRect(0, 36, 460, 284, COLOR_BG);
-    drawDetailHeader("SOIL 7-IN-1: เขตราก & NPK", "SOIL 7-IN-1: ROOT ZONE & NPK", "SOIL 7合1: 根系深层与 NPK 养分", 0x07E0);
+    // ซ่อนเมนูด้านบน เพื่อให้ Dashboard แสดงผลเต็มหน้าจอ 480x320 ไม่ถูกแถบเมนูบัง
+    lcd.fillRect(0, 0, 460, 320, COLOR_BG);
+    lcd.setClipRect(0, 0, 460, 320);
 
-    lcd.setClipRect(0, 36, 460, 284);
+    int c_y = 6 - sy;
 
-    // --- การ์ด 1: ข้อมูลเขตรากพืชลึก (Root Zone Metrics & TinyML Box) ---
-    // ขยายความสูงการ์ดเป็น 328px ให้ระยะห่างบรรทัด 1.5 - 1.7 เท่า (32-34px) สบายตา ชัดเจน
-    int c1_y = 40 - sy;
-    lcd.fillRoundRect(6, c1_y, 450, 328, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c1_y, 450, 328, 6, 0x07E0);
-    lcd.setTextSize(1);
-    lcd.setTextColor(0x07E0, COLOR_CARD_BG);
-    lcd.drawString(L_STR("[Soil 7-in-1] คุณสมบัติเขตรากพืชลึก (Root Zone Physics)",
-                         "[Soil 7-in-1] ROOT ZONE MULTI-PHYSICS TELEMETRY",
-                         "[Soil 7合1] 根系深层多参数物理遥测"), 16, c1_y + 10);
+    // ========================================================================
+    // 0. TOP HUD CIRCUIT TRACE & STATUS (ถอดแบบภาพต้นฉบับ 100%)
+    // ========================================================================
+    // 1. ซ้ายสุด: ไอคอนฐานข้อมูลทรงกระบอกสีฟ้า (Database Cylinder Icon)
+    int db_x = 6;
+    int db_y = c_y + 3;
+    lcd.drawRoundRect(db_x, db_y, 11, 4, 2, 0x07FF);
+    lcd.drawFastHLine(db_x + 1, db_y + 6, 9, 0x07FF);
+    lcd.drawPixel(db_x, db_y + 5, 0x07FF);
+    lcd.drawPixel(db_x + 10, db_y + 5, 0x07FF);
+    lcd.drawFastHLine(db_x + 1, db_y + 10, 9, 0x07FF);
+    lcd.drawPixel(db_x, db_y + 9, 0x07FF);
+    lcd.drawPixel(db_x + 10, db_y + 9, 0x07FF);
 
-    // Row 1: [ROOT] ชื้นราก + [TEMP] ดิน + [pH] ค่า pH (y: c1_y + 44)
-    drawBadgeTag(14, c1_y + 42, "ROOT", 0x0A8F, 0xFFFF, 0x3DFF, 44, 20);
-    snprintf(buf, sizeof(buf), "%s: %.1f %%", L_STR("ชื้นราก", "Moist", "根区湿度"), data.soil7in1.moisture);
-    lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
-    lcd.drawString(buf, 64, c1_y + 44);
-
-    drawBadgeTag(170, c1_y + 42, "TEMP", 0xB222, 0xFFFF, 0xFD20, 44, 20);
-    snprintf(buf, sizeof(buf), "%s: %.1f C", L_STR("ดิน", "Temp", "土壤温度"), data.soil7in1.temperature);
-    lcd.setTextColor(0xFD20, COLOR_CARD_BG);
-    lcd.drawString(buf, 220, c1_y + 44);
-
-    drawBadgeTag(314, c1_y + 42, "pH", 0x8A81, 0xFFFF, 0xEA80, 28, 20);
-    snprintf(buf, sizeof(buf), "%.2f (%s)", data.soil7in1.ph,
-             (data.soil7in1.ph < 5.5f) ? L_STR("กรด", "Acid", "酸") : ((data.soil7in1.ph > 7.5f) ? L_STR("ด่าง", "Alk", "碱") : L_STR("กลาง", "OK", "适中")));
-    lcd.setTextColor(0xEA80, COLOR_CARD_BG);
-    lcd.drawString(buf, 348, c1_y + 44);
-
-    // Row 2: EC, TDS, Depth (y: c1_y + 78, delta = 34px)
-    snprintf(buf, sizeof(buf), "EC: %.0f uS/cm  |  TDS: %.0f ppm  |  %s",
-             data.soil7in1.ec, data.soil7in1.ec * 0.64f,
-             L_STR("ระดับความลึกเขตราก: 10 - 30 ซม.", "Root Zone Depth: 10-30cm", "根系深度: 10-30cm"));
-    lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c1_y + 78);
-
-    // Row 3: NPK ดิบจากหัววัด (y: c1_y + 112, delta = 34px)
-    lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("NPK ดิบ (หัววัดเซนเซอร์):", "Raw NPK (Sensor):", "传感器原始 NPK:"), 14, c1_y + 112);
-
-    // แคปซูลเล็กแสดง N P K ดิบ
-    lcd.fillRoundRect(166, c1_y + 110, 54, 20, 3, 0x18C3);
-    snprintf(buf, sizeof(buf), "N: %.0f", data.soil7in1.nitrogen);
-    lcd.setTextColor(0xFFFF, 0x18C3);
-    lcd.setTextDatum(textdatum_t::middle_center);
-    lcd.drawString(buf, 166 + 27, c1_y + 110 + 10);
-
-    lcd.fillRoundRect(224, c1_y + 110, 54, 20, 3, 0x0A82);
-    snprintf(buf, sizeof(buf), "P: %.0f", data.soil7in1.phosphorus);
-    lcd.setTextColor(0xFFFF, 0x0A82);
-    lcd.drawString(buf, 224 + 27, c1_y + 110 + 10);
-
-    lcd.fillRoundRect(282, c1_y + 110, 54, 20, 3, 0x3180);
-    snprintf(buf, sizeof(buf), "K: %.0f", data.soil7in1.potassium);
-    lcd.setTextColor(0xFFFF, 0x3180);
-    lcd.drawString(buf, 282 + 27, c1_y + 110 + 10);
-
+    // ข้อความ "Dashboard" สีฟ้านีออน (แบบไม่มีกรอบสี่เหลี่ยม ตามต้นฉบับเป๊ะ)
+    lcd.setTextColor(0x07FF, COLOR_BG);
     lcd.setTextDatum(textdatum_t::top_left);
-    lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString("mg/kg", 342, c1_y + 112);
+    lcd.drawString("Dashboard", 21, c_y + 3);
 
-    // --- Cyber Box: TinyML Edge AI Calibrated (Neural Denoised & Decoupled) ---
-    int ai_box_y = c1_y + 148;
-    lcd.fillRoundRect(12, ai_box_y, 438, 168, 6, 0x0124);
-    lcd.drawRoundRect(12, ai_box_y, 438, 168, 6, 0x07FF);
+    // แคปซูลนีออนเรืองแสงแนวนอน (Glowing Neon Pill Capsule)
+    lcd.fillRoundRect(80, c_y + 6, 18, 5, 2, 0x028A); // เรืองแสงชั้นนอก
+    lcd.fillRoundRect(82, c_y + 7, 14, 3, 1, 0x07FF); // นีออนสีฟ้าสว่างชั้นใน
 
-    drawBadgeTag(18, ai_box_y + 10, "AI", 0x059B, 0xFFFF, 0x07FF, 28, 20);
-    lcd.setTextColor(0x07FF, 0x0124);
-    lcd.drawString(L_STR("TinyML Edge AI Calibrated (Neural Denoised & Decoupled)",
-                         "TinyML Edge AI Calibrated (Neural Denoised & Decoupled)",
-                         "TinyML 边缘AI神经网络校准 (去噪与解耦)"), 52, ai_box_y + 12);
+    // 2. ลายเส้นวงจรฮูด (Circuit Trace with Chamfer Bay)
+    // วงแหวนกลมฝั่งซ้าย ○
+    lcd.drawCircle(107, c_y + 8, 3, 0x05BD);
 
-    // 4 แคปซูล AI-N, AI-P, AI-K, AI-pH สีสันสดใสตาม Mockup (y: ai_box_y + 44)
-    lcd.fillRoundRect(18, ai_box_y + 44, 102, 26, 4, 0x18A8);
-    lcd.drawRoundRect(18, ai_box_y + 44, 102, 26, 4, 0x7A7F);
-    snprintf(buf, sizeof(buf), "AI-N: %.1f", data.aiCalibrated.nitrogen);
+    // เส้นแนวนอนซ้าย
+    lcd.drawFastHLine(110, c_y + 8, 70, 0x05BD);
+
+    // เส้นหักมุมเฉียง 45 องศาลงขวา เข้าสู่ร่องกลาง \
+    lcd.drawLine(180, c_y + 8, 192, c_y + 18, 0x05BD);
+    lcd.drawLine(180, c_y + 9, 192, c_y + 19, 0x0288);
+
+    // เส้นรางแนวนอนใต้ HUD Status
+    lcd.drawFastHLine(192, c_y + 18, 96, 0x05BD);
+
+    // เส้นหักมุมเฉียง 45 องศาขึ้นขวา ออกจากร่องกลาง /
+    lcd.drawLine(288, c_y + 18, 300, c_y + 8, 0x05BD);
+    lcd.drawLine(288, c_y + 19, 300, c_y + 9, 0x0288);
+
+    // เส้นแนวนอนขวา
+    lcd.drawFastHLine(300, c_y + 8, 64, 0x05BD);
+
+    // วงแหวนกลมฝั่งขวา ○
+    lcd.drawCircle(367, c_y + 8, 3, 0x05BD);
+
+    // แถบนีออนเรืองแสงสีฟ้าใต้ข้อความ HUD Status
+    lcd.fillRoundRect(220, c_y + 18, 40, 2, 1, 0x07FF);
+
+    // 3. องค์ประกอบภายในร่องกลาง (HUD Status Bay)
+    // จุดไฟเขียวฝั่งซ้าย 3 จุด (เขียวสว่าง -> เขียวเข้ม -> เขียวหม่น)
+    lcd.fillCircle(197, c_y + 7, 3, 0x07E0);
+    lcd.fillCircle(204, c_y + 7, 2, 0x03A0);
+    lcd.fillCircle(210, c_y + 7, 2, 0x0260);
+
+    // ไอคอนเสาส่งสัญญาณซ้าย ((•))
+    lcd.drawFastVLine(221, c_y + 5, 5, 0x07FF);
+    lcd.drawPixel(221, c_y + 4, 0xFFFF);
+    lcd.drawPixel(218, c_y + 5, 0x07FF);
+    lcd.drawPixel(217, c_y + 6, 0x07FF);
+    lcd.drawPixel(217, c_y + 7, 0x07FF);
+    lcd.drawPixel(218, c_y + 8, 0x07FF);
+    lcd.drawPixel(224, c_y + 5, 0x07FF);
+    lcd.drawPixel(225, c_y + 6, 0x07FF);
+    lcd.drawPixel(225, c_y + 7, 0x07FF);
+    lcd.drawPixel(224, c_y + 8, 0x07FF);
+
+    // ข้อความกลาง "HUD Status" สีขาวคมชัด
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.setTextColor(0xFFFF, COLOR_BG);
+    lcd.drawString("HUD Status", 240, c_y + 7);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // ไอคอนเสาส่งสัญญาณขวา ((•))
+    lcd.drawFastVLine(259, c_y + 5, 5, 0x07FF);
+    lcd.drawPixel(259, c_y + 4, 0xFFFF);
+    lcd.drawPixel(256, c_y + 5, 0x07FF);
+    lcd.drawPixel(255, c_y + 6, 0x07FF);
+    lcd.drawPixel(255, c_y + 7, 0x07FF);
+    lcd.drawPixel(256, c_y + 8, 0x07FF);
+    lcd.drawPixel(262, c_y + 5, 0x07FF);
+    lcd.drawPixel(263, c_y + 6, 0x07FF);
+    lcd.drawPixel(263, c_y + 7, 0x07FF);
+    lcd.drawPixel(262, c_y + 8, 0x07FF);
+
+    // จุดไฟเขียวฝั่งขวา 3 จุด (เขียวสว่าง -> เขียวเข้ม -> เขียวหม่น)
+    lcd.fillCircle(270, c_y + 7, 3, 0x07E0);
+    lcd.fillCircle(276, c_y + 7, 2, 0x03A0);
+    lcd.fillCircle(282, c_y + 7, 2, 0x0260);
+
+    // 4. ขวาสุด: ขีดสัญญาณ 4 แท่งสีฟ้า และข้อความ "2 hours ago"
+    lcd.fillRect(384, c_y + 11, 2, 3, 0x07FF);
+    lcd.fillRect(388, c_y + 9, 2, 5, 0x07FF);
+    lcd.fillRect(392, c_y + 7, 2, 7, 0x07FF);
+    lcd.fillRect(396, c_y + 5, 2, 9, 0x07FF);
+
+    lcd.setTextColor(0x9CD3, COLOR_BG);
+    lcd.drawString("2 hours ago", 404, c_y + 4);
+
+    // ========================================================================
+    // HEADER TITLE ROW: [ ⚙ ] Soil 7-in-1 Multi-parameter & TinyML Root Zone Monitoring ... [ Soil Data ▾ ]
+    // เพิ่มระยะห่างระหว่างแถบ HUD ด้านบน และแถวชื่อหัวข้อเป็น 42px (เว้นระยะโปร่งสบายตา 100% ตรงตามต้นฉบับ)
+    // ========================================================================
+    int t_y = c_y + 42;
+
+    // แถบ Tab สีเขียวอมฟ้าชิดขอบซ้าย พร้อมไอคอนฟันเฟืองดอกไม้ตามต้นฉบับ 100%
+    lcd.fillRoundRect(0, t_y - 2, 16, 22, 3, 0x028A);
+    lcd.drawRoundRect(0, t_y - 2, 16, 22, 3, 0x07FF);
+    lcd.drawCircle(8, t_y + 9, 3, 0x07FF);
+    lcd.fillCircle(8, t_y + 9, 1, 0xFFFF);
+    lcd.drawPixel(8, t_y + 5, 0x07FF);
+    lcd.drawPixel(8, t_y + 13, 0x07FF);
+    lcd.drawPixel(4, t_y + 9, 0x07FF);
+    lcd.drawPixel(12, t_y + 9, 0x07FF);
+
+    // ชื่อหัวข้อหลักภาษาอังกฤษเต็มตามภาพต้นฉบับ 100%
+    lcd.setTextColor(0xFFFF, COLOR_BG);
+    lcd.drawString("Soil 7-in-1 Multi-parameter & TinyML Root Zone Monitoring", 24, t_y + 5);
+
+    // ปุ่มตัวกรองมุมขวา: [ 🎛️ Soil Data ▾ ] ตามต้นฉบับ 100%
+    int fb_x = 372;
+    lcd.fillRoundRect(fb_x, t_y - 2, 86, 22, 4, 0x0926);
+    lcd.drawRoundRect(fb_x, t_y - 2, 86, 22, 4, 0x2969);
+
+    // ไอคอน Slider Controls 3 เส้นแนวนอน
+    lcd.drawFastHLine(fb_x + 8, t_y + 6, 8, 0x9CD3);
+    lcd.fillCircle(fb_x + 11, t_y + 6, 1, 0x9CD3);
+    lcd.drawFastHLine(fb_x + 8, t_y + 10, 8, 0x9CD3);
+    lcd.fillCircle(fb_x + 14, t_y + 10, 1, 0x9CD3);
+    lcd.drawFastHLine(fb_x + 8, t_y + 14, 8, 0x9CD3);
+    lcd.fillCircle(fb_x + 10, t_y + 14, 1, 0x9CD3);
+
+    // ข้อความ "Soil Data"
+    lcd.setTextColor(0xCE79, 0x0926);
+    lcd.drawString("Soil Data", fb_x + 20, t_y + 5);
+
+    // สัญลักษณ์ลูกศรลง Chevron v
+    lcd.drawLine(fb_x + 72, t_y + 8, fb_x + 75, t_y + 11, 0x9CD3);
+    lcd.drawLine(fb_x + 75, t_y + 11, fb_x + 78, t_y + 8, 0x9CD3);
+
+    // ========================================================================
+    // ROW 1: 4 Cards (Moist, Temp, EC, pH) - กว้าง 106px สูง 98px ชัดเจน สง่างาม
+    // เพิ่มระยะห่างระหว่างแถวหัวข้อ และแถวการ์ดแถว 1 เป็น 42px (เว้นระยะโปร่ง 100% ตรงตามต้นฉบับ)
+    // ========================================================================
+    int r1_y = t_y + 42;
+
+    // Card 1: Soil Moisture
+    drawCyberParamCard(6, r1_y, 106, 98, 1, "Moist", data.soil7in1.moisture, "", 0x07FF, data.soil7in1.moisture / 100.0f, 1);
+
+    // Card 2: Soil Temp
+    drawCyberParamCard(120, r1_y, 106, 98, 2, "Temp", data.soil7in1.temperature, "C", 0x07E0, data.soil7in1.temperature / 50.0f, 2);
+
+    // Card 3: Soil EC
+    drawCyberParamCard(234, r1_y, 106, 98, 3, "EC", data.soil7in1.ec, "uS/cm", 0xFD00, data.soil7in1.ec / 2000.0f, 3);
+
+    // Card 4: Soil pH
+    drawCyberParamCard(348, r1_y, 104, 98, 4, "pH", data.soil7in1.ph, "", 0xCA7E, data.soil7in1.ph / 14.0f, 4);
+
+    // ========================================================================
+    // ROW 2: 3 Cards (Nitrogen, Phosphorus, Potassium) - กว้าง 144px สูง 98px
+    // เพิ่มระยะห่างในแนวตั้งระหว่างการ์ดแถว 1 และแถว 2 เป็น 18px
+    // ========================================================================
+    int r2_y = r1_y + 98 + 18;
+
+    float n_val = (data.soil7in1.nitrogen > 0.0f) ? data.soil7in1.nitrogen : data.aiCalibrated.nitrogen;
+    float p_val = (data.soil7in1.phosphorus > 0.0f) ? data.soil7in1.phosphorus : data.aiCalibrated.phosphorus;
+    float k_val = (data.soil7in1.potassium > 0.0f) ? data.soil7in1.potassium : data.aiCalibrated.potassium;
+
+    // Card 5: Nitrogen
+    drawCyberParamCard(6, r2_y, 144, 98, 5, "Nitrogen", n_val, "mg/kg", 0x07FF, n_val / 200.0f, 5);
+
+    // Card 6: Phosphorus
+    drawCyberParamCard(158, r2_y, 144, 98, 6, "Phosphorus", p_val, "mg/kg", 0x07E0, p_val / 100.0f, 6);
+
+    // Card 7: Potassium
+    drawCyberParamCard(310, r2_y, 142, 98, 7, "Potassium", k_val, "mg/kg", 0x07FF, k_val / 250.0f, 7);
+
+    // ========================================================================
+    // ROW 3: Visual Analytics (N-P-K Stoichiometry & Soil Fertility Radar) - สูง 196px
+    // เพิ่มระยะห่างในแนวตั้งระหว่างแถวเป็น 18px
+    // ========================================================================
+    int r3_y = r2_y + 98 + 18;
+
+    // --- Box A (Left): N-P-K stoichiometry (w: 220, h: 196) ---
+    lcd.fillRoundRect(6, r3_y, 220, 196, 6, 0x08A3);
+    lcd.drawRoundRect(6, r3_y, 220, 196, 6, 0x277E);
+
+    // Title & Show Chip (ไม่ชนกันเด็ดขาด)
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.drawString("N-P-K Ratio", 12, r3_y + 10);
+    lcd.fillRoundRect(168, r3_y + 8, 44, 16, 3, 0x18C3);
+    lcd.setTextColor(0x07FF, 0x18C3);
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.drawString("Show", 168 + 22, r3_y + 16);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // วาดโดนัทชาร์ต 4 สีขนาดใหญ่
+    float disp_n = (n_val > 0.0f) ? n_val : 78.0f;
+    float disp_p = (p_val > 0.0f) ? p_val : 24.0f;
+    float disp_k = (k_val > 0.0f) ? k_val : 145.0f;
+    float total_npk = disp_n + disp_p + disp_k;
+    drawSoilDonutChart(62, r3_y + 108, 42, 25, disp_n, disp_p, disp_k);
+
+    // รายละเอียด Legend 4 สีตามต้นฉบับ ชัดเจนอ่านง่าย
+    int leg_x = 118;
+    // Dot 1: Cyan (N)
+    lcd.fillCircle(leg_x, r3_y + 44, 4, 0x07FF);
+    snprintf(buf, sizeof(buf), "N: %.0f (%.0f%%)", disp_n, (disp_n / total_npk) * 100.0f);
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.drawString(buf, leg_x + 8, r3_y + 38);
+
+    // Dot 2: Green (P)
+    lcd.fillCircle(leg_x, r3_y + 70, 4, 0x07E0);
+    snprintf(buf, sizeof(buf), "P: %.0f (%.0f%%)", disp_p, (disp_p / total_npk) * 100.0f);
+    lcd.drawString(buf, leg_x + 8, r3_y + 64);
+
+    // Dot 3: Orange (K)
+    lcd.fillCircle(leg_x, r3_y + 96, 4, 0xFD00);
+    snprintf(buf, sizeof(buf), "K: %.0f (%.0f%%)", disp_k, (disp_k / total_npk) * 100.0f);
+    lcd.drawString(buf, leg_x + 8, r3_y + 90);
+
+    // Dot 4: Violet (AI/Trace)
+    lcd.fillCircle(leg_x, r3_y + 122, 4, 0xCA7E);
+    lcd.setTextColor(0xCA7E, 0x08A3);
+    lcd.drawString("AI Trace", leg_x + 8, r3_y + 116);
+
+    // สัดส่วน Ratio & Total
+    float base_p = (disp_p > 0.1f) ? disp_p : 1.0f;
+    snprintf(buf, sizeof(buf), "Ratio: %.1f:1:%.1f", disp_n / base_p, disp_k / base_p);
+    lcd.setTextColor(COLOR_TEXT_DIM, 0x08A3);
+    lcd.drawString(buf, leg_x + 8, r3_y + 144);
+
+    snprintf(buf, sizeof(buf), "Total: %.0f mg", total_npk);
+    lcd.drawString(buf, leg_x + 8, r3_y + 166);
+
+    // --- Box B (Right): Soil Fertility Radar (w: 220, h: 196) ---
+    lcd.fillRoundRect(232, r3_y, 220, 196, 6, 0x08A3);
+    lcd.drawRoundRect(232, r3_y, 220, 196, 6, 0x07E0);
+
+    // Title & New Chip (ไม่ชนกัน)
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.drawString("Soil Fertility", 240, r3_y + 10);
+    lcd.fillRoundRect(396, r3_y + 8, 44, 16, 3, 0x0A83);
+    lcd.setTextColor(0x07E0, 0x0A83);
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.drawString("New", 396 + 22, r3_y + 16);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // วาดเรดาร์ 5 แกนกว้างเต็มกล่องแบบต้นฉบับเป๊ะ
+    drawSoilRadarChart(342, r3_y + 104, 46, data.soil7in1.moisture, data.soil7in1.temperature,
+                       data.soil7in1.ec, data.soil7in1.ph, total_npk);
+
+    // บรรทัดสรุปสถานะสมดุลดินด้านล่างเรดาร์
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.setTextColor(0x07E0, 0x08A3);
+    lcd.drawString("SOIL HEALTH: 88/100 (OPTIMAL)", 342, r3_y + 172);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // ========================================================================
+    // ROW 4: Agronomic insight Notification Cards - สูง 188px
+    // เพิ่มระยะห่างในแนวตั้งระหว่างการ์ดแจ้งเตือนเป็น 12px
+    // ========================================================================
+    int r4_y = r3_y + 196 + 18;
+    lcd.fillRoundRect(6, r4_y, 446, 188, 6, 0x08A3);
+    lcd.drawRoundRect(6, r4_y, 446, 188, 6, 0x4A69);
+
+    // Title: Agronomic insight •••
+    lcd.setTextColor(0xFFFF, 0x08A3);
+    lcd.drawString("Agronomic insight", 14, r4_y + 10);
+    lcd.setTextColor(COLOR_TEXT_DIM, 0x08A3);
+    lcd.drawString("...", 426, r4_y + 10);
+
+    // Notification Card 1: Green Bell Icon 🔔 (สูง 66px)
+    int n1_y = r4_y + 30;
+    lcd.fillRoundRect(12, n1_y, 434, 66, 5, 0x10E4);
+    lcd.drawRoundRect(12, n1_y, 434, 66, 5, 0x07E0);
+
+    // กระดิ่งเขียว
+    lcd.fillCircle(28, n1_y + 22, 9, 0x07E0);
+    lcd.fillTriangle(25, n1_y + 18, 31, n1_y + 18, 28, n1_y + 26, 0x0000);
+
+    lcd.setTextColor(0xFFFF, 0x10E4);
+    lcd.drawString("Agronomic insight notification", 44, n1_y + 9);
+
+    lcd.setTextColor(0x9CD3, 0x10E4);
+    lcd.drawString("Soil moisture cooperated by root depth participates in premium growth.", 44, n1_y + 27);
+
+    lcd.setTextColor(0x633C, 0x10E4);
+    lcd.drawString("12 hours ago", 44, n1_y + 47);
+
+    // Notification Card 2: Purple Bell Icon 🔔 (TinyML AI Engine) (สูง 66px, เว้นระยะห่าง 12px)
+    int n2_y = n1_y + 66 + 12;
+    lcd.fillRoundRect(12, n2_y, 434, 66, 5, 0x18A8);
+    lcd.drawRoundRect(12, n2_y, 434, 66, 5, 0xCA7E);
+
+    // กระดิ่งม่วง
+    lcd.fillCircle(28, n2_y + 22, 9, 0xCA7E);
+    lcd.fillTriangle(25, n2_y + 18, 31, n2_y + 18, 28, n2_y + 26, 0x0000);
+
     lcd.setTextColor(0xFFFF, 0x18A8);
-    lcd.setTextDatum(textdatum_t::middle_center);
-    lcd.drawString(buf, 18 + 51, ai_box_y + 44 + 13);
+    lcd.drawString("TinyML Edge AI Decoupling Engine", 44, n2_y + 9);
 
-    lcd.fillRoundRect(124, ai_box_y + 44, 102, 26, 4, 0x0A83);
-    lcd.drawRoundRect(124, ai_box_y + 44, 102, 26, 4, 0x07E0);
-    snprintf(buf, sizeof(buf), "AI-P: %.1f", data.aiCalibrated.phosphorus);
-    lcd.setTextColor(0xFFFF, 0x0A83);
-    lcd.drawString(buf, 124 + 51, ai_box_y + 44 + 13);
+    snprintf(buf, sizeof(buf), "Neural Denoised: AI-N:%.1f, P:%.1f, K:%.1f, pH:%.2f",
+             data.aiCalibrated.nitrogen, data.aiCalibrated.phosphorus,
+             data.aiCalibrated.potassium, data.aiCalibrated.ph);
+    lcd.setTextColor(0x9CD3, 0x18A8);
+    lcd.drawString(buf, 44, n2_y + 27);
 
-    lcd.fillRoundRect(230, ai_box_y + 44, 102, 26, 4, 0x3981);
-    lcd.drawRoundRect(230, ai_box_y + 44, 102, 26, 4, 0xFD00);
-    snprintf(buf, sizeof(buf), "AI-K: %.1f", data.aiCalibrated.potassium);
-    lcd.setTextColor(0xFFFF, 0x3981);
-    lcd.drawString(buf, 230 + 51, ai_box_y + 44 + 13);
+    lcd.setTextColor(0x9CD3, 0x18A8);
+    lcd.drawString("2 hours ago | Confidence: 94.8% | Latency < 0.12ms", 44, n2_y + 47);
 
-    lcd.fillRoundRect(336, ai_box_y + 44, 106, 26, 4, 0x3842);
-    lcd.drawRoundRect(336, ai_box_y + 44, 106, 26, 4, 0xFA85);
-    snprintf(buf, sizeof(buf), "AI-pH: %.2f", data.aiCalibrated.ph);
-    lcd.setTextColor(0xFFFF, 0x3842);
-    lcd.drawString(buf, 336 + 53, ai_box_y + 44 + 13);
-    lcd.setTextDatum(textdatum_t::top_left);
+    // ========================================================================
+    // ROW 5: Industrial RS485 MODBUS RTU Telemetry - สูง 132px
+    // เพิ่มระยะห่างในแนวตั้งระหว่างแถวเป็น 18px
+    // ========================================================================
+    int r5_y = r4_y + 188 + 18;
+    lcd.fillRoundRect(6, r5_y, 446, 132, 6, 0x08A3);
+    lcd.drawRoundRect(6, r5_y, 446, 132, 6, 0x4208);
 
-    snprintf(buf, sizeof(buf), "%s: %.1f %%   (%s)",
-             L_STR("True Moist (AI)", "True Moist (AI)", "AI真实校准湿度"),
-             data.aiCalibrated.moisture,
-             L_STR("ชดเชยอุณหภูมิและความชื้นแม่นยำ ไร้การเบี่ยงเบน", "Decoupled & Denoised", "解耦温湿度漂移"));
-    lcd.setTextColor(0x07E0, 0x0124);
-    lcd.drawString(buf, 18, ai_box_y + 88);
+    lcd.setTextColor(COLOR_CYAN, 0x08A3);
+    lcd.drawString("INDUSTRIAL RS485 MODBUS RTU TELEMETRY:", 14, r5_y + 12);
 
-    lcd.setTextColor(0x633C, 0x0124);
-    lcd.drawString(L_STR("ML Architecture: Multi-Layer Perceptron (MLP) on-chip inference",
-                         "ML Architecture: Multi-Layer Perceptron (MLP) on-chip inference",
-                         "模型架构: 片上轻量级多层感知机 (MLP) 实时去噪解耦推理"), 18, ai_box_y + 124);
-
-    // --- การ์ด 2: ธาตุอาหารหลัก NPK & คำแนะนำการใส่ปุ๋ย (Agronomic Advice) ---
-    int c2_y = c1_y + 340;
-    lcd.fillRoundRect(6, c2_y, 450, 210, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c2_y, 450, 210, 6, COLOR_YELLOW);
-    lcd.setTextColor(COLOR_YELLOW, COLOR_CARD_BG);
-    lcd.drawString(L_STR("คำแนะนำการใส่ปุ๋ย & ปรับปรุงสภาพดิน:",
-                         "AGRONOMIC ADVICE (FERTILIZER & pH MANAGEMENT):",
-                         "土壤改良与精准施肥指导:"), 14, c2_y + 10);
-
-    float totalNPK = data.aiCalibrated.nitrogen + data.aiCalibrated.phosphorus + data.aiCalibrated.potassium;
-    snprintf(buf, sizeof(buf), "Total Available NPK: %.0f mg/kg", totalNPK);
-    lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c2_y + 44);
-
-    if (data.aiCalibrated.ph < 5.5f) {
-        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3180);
-        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0xFD20);
-        lcd.setTextColor(0xFD20, 0x3180);
-        lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินกรดจัด: เสี่ยงขาดฟอสฟอรัส ]", "[ ACID SOIL ALERT ]", "[ 酸性土: 磷素易被固定 ]"), 186 + 130, c2_y + 40 + 12);
-        lcd.setTextDatum(textdatum_t::top_left);
-
-        lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-        lcd.drawString(L_STR("คำแนะนำ: pH ต่ำกว่า 5.5 พืชดูดฟอสฟอรัสไม่ได้ แนะนำใส่ปูนขาว/โดโลไมท์",
-                             "Advice: Low pH locks phosphorus. Apply agricultural lime/dolomite.",
-                             "指导建议: pH 低于 5.5 导致磷被固化，建议撒施生石灰或白云石粉调节。"), 14, c2_y + 80);
-    } else if (data.aiCalibrated.ph > 7.5f) {
-        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3180);
-        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0xFD20);
-        lcd.setTextColor(0xFD20, 0x3180);
-        lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินเป็นด่าง: ขาดจุลธาตุ ]", "[ ALKALINE SOIL ALERT ]", "[ 碱性土: 谨防缺微量元素 ]"), 186 + 130, c2_y + 40 + 12);
-        lcd.setTextDatum(textdatum_t::top_left);
-
-        lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-        lcd.drawString(L_STR("คำแนะนำ: ดินด่าง พืชขาดธาตุเหล็กและสังกะสี แนะนำเติมปุ๋ยอินทรีย์/ฮิวมัส",
-                             "Advice: Alkaline soil restricts Fe & Zn uptake. Apply organic compost.",
-                             "指导建议: 偏碱性土壤易引发缺铁缺锌，建议施用腐殖酸有机肥改良。"), 14, c2_y + 80);
-    } else if (totalNPK < 100.0f) {
-        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x3800);
-        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, COLOR_WARN);
-        lcd.setTextColor(COLOR_WARN, 0x3800);
-        lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ สารอาหารต่ำ: แนะนำเติมปุ๋ย ]", "[ LOW NPK: Fertilize ]", "[ 养分匮乏: 建议补肥 ]"), 186 + 130, c2_y + 40 + 12);
-        lcd.setTextDatum(textdatum_t::top_left);
-
-        lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-        lcd.drawString(L_STR("คำแนะนำ: ปริมาณธาตุอาหารหลักไม่เพียงพอ แนะนำเติมปุ๋ยสูตรเสมอ หรือน้ำหมัก",
-                             "Advice: Nutrient reserve depleted. Apply balanced NPK fertilizer.",
-                             "指导建议: 大量元素储备不足，建议按需追施平衡复合肥或水溶肥。"), 14, c2_y + 80);
-    } else {
-        lcd.fillRoundRect(186, c2_y + 40, 260, 24, 4, 0x0320);
-        lcd.drawRoundRect(186, c2_y + 40, 260, 24, 4, 0x07E0);
-        lcd.setTextColor(0x07E0, 0x0320);
-        lcd.setTextDatum(textdatum_t::middle_center);
-        lcd.drawString(L_STR("[ ดินสมบูรณ์: ธาตุอาหารพร้อม ]", "[ OPTIMAL FERTILITY: OK ]", "[ 土壤肥沃: 养分充足 ]"), 186 + 130, c2_y + 40 + 12);
-        lcd.setTextDatum(textdatum_t::top_left);
-
-        lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-        lcd.drawString(L_STR("คำแนะนำ: ดินมีความสมบูรณ์สูง ค่า pH และความเค็ม EC เหมาะสมกับการเติบโต",
-                             "Advice: High soil fertility with optimal pH and EC conductivity balance.",
-                             "指导建议: 土壤理化性质优良，养分储备充足，维持常规管理即可。"), 14, c2_y + 80);
-    }
-
-    lcd.setTextColor(0x633C, COLOR_CARD_BG);
-    lcd.drawString("RS485 MODBUS RTU: UART2 (TX=GPIO40, RX=GPIO41) | Baud: 9600-8-N-1 | Slave: 0x01", 14, c2_y + 114);
-    lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ความเค็ม EC: ถ้าเกิน 2000 uS/cm ระวังดินเค็ม พืชจะดูดน้ำลำบาก",
-                         "EC Conductivity: High EC (>2000 uS/cm) risks salt stress to rootlets.",
-                         "EC 电导率警示: 若超过 2000 uS/cm 谨防盐渍化导致根系脱水。"), 14, c2_y + 148);
-    lcd.drawString(L_STR("สัดส่วน N-P-K: ช่วยตัดสินใจในการให้ปุ๋ยตามช่วงวัยของพืช",
-                         "NPK ratio informs precise fertigation schedule matching growth stages.",
-                         "NPK 营养比例可为精准水肥一体化提供科学决策依据。"), 14, c2_y + 180);
-
-    // --- การ์ด 3: ข้อมูลสัญญาณอุตสาหกรรม RS485 MODBUS RTU ---
-    int c3_y = c2_y + 222;
-    lcd.fillRoundRect(6, c3_y, 450, 176, 6, COLOR_CARD_BG);
-    lcd.drawRoundRect(6, c3_y, 450, 176, 6, 0x4208);
-    lcd.setTextColor(COLOR_CYAN, COLOR_CARD_BG);
-    lcd.drawString(L_STR("ข้อมูลสัญญาณอุตสาหกรรม RS485 MODBUS RTU:",
-                         "INDUSTRIAL RS485 MODBUS RTU TELEMETRY:",
-                         "工业级 RS485 MODBUS RTU 通信遥测:"), 14, c3_y + 10);
-
-    lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
-    lcd.drawString("UART2 Port: TX=GPIO40, RX=GPIO41 | Baud 9600-8-N-1", 14, c3_y + 44);
-    lcd.drawString("Modbus Protocol: Slave ID 0x01 | Function 0x03 (Holding Regs)", 14, c3_y + 78);
+    lcd.setTextColor(COLOR_TEXT_VAL, 0x08A3);
+    lcd.drawString("UART2 Port: TX=GPIO40, RX=GPIO41 | Baud 9600-8-N-1", 14, r5_y + 36);
+    lcd.drawString("Modbus Protocol: Slave ID 0x01 | Function 0x03 (Holding Regs)", 14, r5_y + 60);
 
     snprintf(buf, sizeof(buf), "%s: %s | CRC16 Checksum: %s",
              L_STR("สถานะ", "Status", "状态"),
              data.soil7in1.isConnected ? L_STR("ออนไลน์ (ปกติ)", "ONLINE (OK)", "在线 (正常)") : L_STR("ขาดการเชื่อมต่อ", "DISCONNECTED", "断开连接"),
              (data.soil7in1.readErrorCount == 0) ? "PASS" : "RETRY");
-    lcd.setTextColor(data.soil7in1.isConnected ? 0x07E0 : COLOR_WARN, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c3_y + 112);
+    lcd.setTextColor(data.soil7in1.isConnected ? 0x07E0 : COLOR_WARN, 0x08A3);
+    lcd.drawString(buf, 14, r5_y + 84);
 
-    snprintf(buf, sizeof(buf), "Error Packet Count: %u | Modbus Probe Material: 316L Stainless Steel", data.soil7in1.readErrorCount);
-    lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
-    lcd.drawString(buf, 14, c3_y + 144);
+    snprintf(buf, sizeof(buf), "Modbus Probe: 316L Stainless Steel Electrodes | Error Count: %u", data.soil7in1.readErrorCount);
+    lcd.setTextColor(COLOR_TEXT_DIM, 0x08A3);
+    lcd.drawString(buf, 14, r5_y + 108);
 
-    drawDetailBottomNav(sy, PAGE_DETAIL_AIR, 790);
+    // ========================================================================
+    // ROW 6: BOTTOM NAVIGATION BUTTONS & SCROLLBAR
+    // ========================================================================
+    drawDetailBottomNav(sy, PAGE_DETAIL_AIR, 892);
 
     lcd.clearClipRect();
-    drawScrollBar(scrollOffsetY, maxScrollY, 38, 280, 0x07E0);
+    drawScrollBar(scrollOffsetY, maxScrollY, 4, 312, 0x07E0);
     pageChanged = false;
 }
 
@@ -2360,28 +2718,38 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
         // A. หากอยู่ในหน้าย่อยแสดงรายละเอียดเซนเซอร์ (Pages 4..7)
         // =========================================================
         if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
-            // 1. ปุ่ม [< BACK] บน Header (x: 2..76, y: 2..46) -> กลับสู่หน้าภาพรวม Home
-            if (tapX >= 2 && tapX <= 76 && tapY <= 46) {
-                Serial.println(">>> [Nav-Detail] Back to Overview Home");
-                DisplayManager_setPage(PAGE_OVERVIEW);
-                drawTopNavBar();
-                return;
-            }
-            // 2. ปุ่ม [NEXT >] บน Header (x: 325..405, y: 2..46) -> วนดูเซนเซอร์ถัดไป
-            else if (tapX >= 325 && tapX <= 405 && tapY <= 46) {
-                DisplayPage nextPage = (currentPage == PAGE_DETAIL_SOIL7) ? PAGE_DETAIL_AIR : (DisplayPage)(currentPage + 1);
-                Serial.printf(">>> [Nav-Detail] Cycling to next sensor page: %d\n", nextPage);
-                DisplayManager_setPage(nextPage);
-                return;
-            }
-            // 3. ปุ่มภาษา [ไทย/ENG/中文] บน Header (x: 406..478, y: 2..46) -> สลับภาษาทันที
-            else if (tapX >= 406 && tapX <= 478 && tapY <= 46) {
-                Serial.println(">>> [Nav-Detail] Toggle Language in Detail View!");
-                DisplayManager_toggleLanguage();
-                return;
+            if (currentPage == PAGE_DETAIL_SOIL7) {
+                // หน้า Soil 7-in-1 ซ่อนเมนูด้านบน: แตะปุ่ม [Dashboard] (x: 6..90, y: 0..30 เมื่ออยู่หัวหน้าจอ) -> กลับหน้าแรก
+                if (tapX >= 6 && tapX <= 90 && tapY <= 30 && scrollOffsetY < 20) {
+                    Serial.println(">>> [Soil7-Dashboard] Back to Overview Home");
+                    DisplayManager_setPage(PAGE_OVERVIEW);
+                    drawTopNavBar();
+                    return;
+                }
+            } else {
+                // 1. ปุ่ม [< BACK] บน Header (x: 2..76, y: 2..46) -> กลับสู่หน้าภาพรวม Home
+                if (tapX >= 2 && tapX <= 76 && tapY <= 46) {
+                    Serial.println(">>> [Nav-Detail] Back to Overview Home");
+                    DisplayManager_setPage(PAGE_OVERVIEW);
+                    drawTopNavBar();
+                    return;
+                }
+                // 2. ปุ่ม [NEXT >] บน Header (x: 325..405, y: 2..46) -> วนดูเซนเซอร์ถัดไป
+                else if (tapX >= 325 && tapX <= 405 && tapY <= 46) {
+                    DisplayPage nextPage = (DisplayPage)(currentPage + 1);
+                    Serial.printf(">>> [Nav-Detail] Cycling to next sensor page: %d\n", nextPage);
+                    DisplayManager_setPage(nextPage);
+                    return;
+                }
+                // 3. ปุ่มภาษา [ไทย/ENG/中文] บน Header (x: 406..478, y: 2..46) -> สลับภาษาทันที
+                else if (tapX >= 406 && tapX <= 478 && tapY <= 46) {
+                    Serial.println(">>> [Nav-Detail] Toggle Language in Detail View!");
+                    DisplayManager_toggleLanguage();
+                    return;
+                }
             }
             // 4. แตะที่แถบสไลด์บาร์ฝั่งขวา (tapX >= 450)
-            else if (tapX >= 450) {
+            if (tapX >= 450) {
                 if (tapY <= 54) {
                     // ปุ่มลูกศรเลื่อนขึ้น ▲
                     Serial.println(">>> [ScrollBar] Clicked UP Arrow ▲");
@@ -2402,7 +2770,7 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
             }
             // 5. แตะปุ่มนำทางด้านล่างของเนื้อหา (Bottom Nav Bar)
             int contentY = tapY + scrollOffsetY;
-            int navBaseY = (currentPage == PAGE_DETAIL_SOIL7) ? 790 : 662;
+            int navBaseY = (currentPage == PAGE_DETAIL_SOIL7) ? 892 : 662;
             if (contentY >= navBaseY - 10 && contentY <= navBaseY + 50) {
                 // ปุ่ม [< ย้อนกลับหน้าแรก] (x: 8..228)
                 if (tapX >= 8 && tapX <= 228) {

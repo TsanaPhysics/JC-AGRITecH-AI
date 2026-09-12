@@ -47,6 +47,8 @@ latex_book/preview/
 
 # Local archives & unneeded folders
 Claude outputs/
+.claude/
+scratch/
 gallery/
 *.tar.gz
 server/smartfarm.db
