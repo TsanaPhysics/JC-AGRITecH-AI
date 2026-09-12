@@ -14,7 +14,7 @@ struct WiFiCandidate {
     String pass;
 };
 
-static WiFiCandidate candidates[8];
+static WiFiCandidate candidates[16];
 static int totalCandidates = 0;
 static int currentCandidateIdx = 0;
 static unsigned long candidateAttemptTime = 0;
@@ -101,7 +101,7 @@ static void addCandidate(const String &ssid, const String &pass) {
     for (int i = 0; i < totalCandidates; i++) {
         if (candidates[i].ssid == ssid && candidates[i].pass == pass) return;
     }
-    if (totalCandidates < 8) {
+    if (totalCandidates < 16) {
         candidates[totalCandidates].ssid = ssid;
         candidates[totalCandidates].pass = pass;
         totalCandidates++;
@@ -112,8 +112,13 @@ void CloudDataManager_init() {
     Serial.println("\n[CloudData] Initializing Deterministic Multi-Candidate Wi-Fi Engine...");
 
     WiFi.mode(WIFI_STA);
-    delay(500);
+    delay(100);
     WiFi.setSleep(false);
+
+    // กำหนดรหัสประเทศเป็นประเทศไทย (TH: Channels 1 - 13) และเปิดกำลังส่งสูงสุด
+    wifi_country_t country = { .cc = "TH", .schan = 1, .nchan = 13, .max_tx_power = 20, .policy = WIFI_COUNTRY_POLICY_AUTO };
+    esp_wifi_set_country(&country);
+    WiFi.setTxPower(WIFI_POWER_19_5dBm);
 
     // ลงทะเบียน Event Callback เพื่อดูเหตุการณ์เชื่อมต่อสด
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
@@ -134,6 +139,11 @@ void CloudDataManager_init() {
     addCandidate("JC_Home", "JCHome2023");
     addCandidate("JChome", "JChome2023");
     addCandidate("JChome", "JCHome2023");
+    addCandidate("true_home2G_01C", cleanPass);
+    addCandidate("true_home2G_01C", "JChome2023");
+    addCandidate("JC iPhone", cleanPass);
+    addCandidate("TsanaC", cleanPass);
+    addCandidate("TsanaPhysiK", cleanPass);
 
     // 2. โหลดค่า Wi-Fi จาก NVS Flash
     WiFiConfigManager_init();
@@ -157,7 +167,8 @@ void CloudDataManager_init() {
                           i + 1, sc.c_str(), WiFi.channel(i), WiFi.RSSI(i));
             String lower = sc;
             lower.toLowerCase();
-            if (lower.indexOf("jc") >= 0 || lower.indexOf("home") >= 0) {
+            if (lower.indexOf("jc") >= 0 || lower.indexOf("home") >= 0 || lower.indexOf("tsana") >= 0) {
+                addCandidate(sc, cleanPass);
                 addCandidate(sc, "JChome2023");
                 addCandidate(sc, "JCHome2023");
             }

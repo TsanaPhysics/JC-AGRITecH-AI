@@ -179,7 +179,7 @@ def run_bridge():
             if not line:
                 continue
 
-            if "Time Synced" in line:
+            if "Time Synced" in line or "[CloudData]" in line or "[WiFi" in line:
                 print(f"[SerialBridge] {line.strip()}")
                 
             # Regex parsing of sensor values
