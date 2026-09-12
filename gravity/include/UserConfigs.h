@@ -46,12 +46,12 @@
 // 5. การตั้งค่า Wi-Fi, Google Firebase และ Custom Python Server (FastAPI + Streamlit)
 // ============================================================================
 #define WIFI_SSID                   "JC_Home"              // Wi-Fi SSID (2.4GHz)
-#define WIFI_PASSWORD               "JCHome2023"           // รหัสผ่าน Wi-Fi (Capital H)
+#define WIFI_PASSWORD               "JChome2023"           // รหัสผ่าน Wi-Fi (Capital H)
 
 // 5.1 ตัวเลือกส่งเข้า Custom Server ของตนเอง (Python FastAPI + SQLite/PostgreSQL)
 #define ENABLE_CUSTOM_SERVER        true
-// IP Cloud Telemetry Server: http://14.207.141.164:8000/api/telemetry
-#define CUSTOM_SERVER_URL           "http://14.207.141.164:8000/api/telemetry"
+// กำหนดชี้ IP ปลายทางมายังเครื่อง Mac ในวง Wi-Fi เดียวกัน (192.168.0.120:8000)
+#define CUSTOM_SERVER_URL           "http://192.168.0.120:8000/api/telemetry"
 
 // 5.2 ตัวเลือกส่งเข้า Google Firebase Realtime Database
 #define ENABLE_FIREBASE             false

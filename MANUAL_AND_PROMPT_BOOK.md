@@ -1031,5 +1031,38 @@ cd /Users/chewathassana/Desktop/handysense/server
     * นำขอบเส้นสีไล่เฉด (Gradient Borders) ขยายผลไปยังการ์ด KPI ทั้ง 4 การ์ดในแท็บแดชบอร์ดหลัก `tab_monitor` เพื่อความสวยงามต่อเนื่องเป็นเนื้อเดียวกันทั้งเว็บแอพ
   * **การทดสอบและรับรองความถูกต้อง:**
     * คอมไพล์ภาษา Python ผ่าน `python3 -m py_compile server/dashboard_app.py` สำเร็จสมบูรณ์ 0 Errors
-    * รันการตรวจสอบผ่าน Browser Subagent บน `http://localhost:8501/` ยืนยันการแสดงผลครบทุกองค์ประกอบ ทั้งโลโก้ JC, สถานะ Wi-Fi, การ์ด 4 มิติพร้อมไอคอนและเกจโค้ง, และแถบปุ่มนำทาง 4 ปุ่มอย่างสมบูรณ์แบบ
+
+### 🔹 พรอมพ์ที่ 47: การเชื่อมโยงข้อมูลจากบอร์ด ATD3.5-S3 สู่แดชบอร์ด (Data Pipeline Architecture)
+> **ผู้ใช้:** *"ทำอย่างไรให้ข้อมูลจาก ATD3.5-S3  ส่งมายัง  dsahbroad"*
+* **การดำเนินการของ AI:**
+  * นำเสนอสถาปัตยกรรมท่อส่งข้อมูล (Data Pipeline Architecture) 2 ช่องทางหลัก:
+    1. **โหมดสายตรง (USB Serial Bridge):** อาศัยสคริปต์ `server/serial_bridge.py` ดักอ่านสตริงเทเลเมทรีจากพอร์ต USB แปลงเข้า SQLite `agri_telemetry.db` ทันทีโดยไม่ต้องต่อเน็ต
+    2. **โหมดไร้สาย (Wi-Fi REST API Ingestion):** บอร์ดแพ็กข้อมูลเป็น JSON ผ่านฟังก์ชัน `CloudDataManager.cpp` แล้วยิง HTTP POST ไปยัง FastAPI Hub (`POST /api/telemetry`) ที่พอร์ต 8000 จากนั้นแดชบอร์ด Streamlit (:8501) จะคิวรีข้อมูลมาพลอตกราฟและมาตรวัดแบบเรียลไทม์
+
+### 🔹 พรอมพ์ที่ 48: การตรวจสอบความพร้อมการเชื่อมต่อ Wi-Fi และการกำหนด IP เครื่อง Mac
+> **ผู้ใช้:** *"ต้องการเชื่อมต่อ wifi ช่วยตรวจสอบว่าระบบปัจจุบันรองรับหรือยัง"*, *"ต้องการให้ชี้ IP ปลายทางมายังเครื่อง Mac ในวงเดียวกัน"*
+* **การดำเนินการของ AI:**
+  * ตรวจสอบซอร์สโค้ดเฟิร์มแวร์ [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp) และ [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/WiFiConfigManager.cpp) ยืนยันว่าระบบรองรับ Wi-Fi 100% มีระบบ Auto-Rotation 8 คู่รหัสผ่าน และ Captive Portal `192.168.4.1`
+  * ค้นหา IP Address ในวงแลนจริงของเครื่อง Mac (`en0` / `en1`) พบหมายเลข `192.168.0.120`
+  * อัปเดตไฟล์คอนฟิก [gravity/include/UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/UserConfigs.h):
+    ```cpp
+    #define ENABLE_CUSTOM_SERVER        true
+    #define CUSTOM_SERVER_URL           "http://192.168.0.120:8000/api/telemetry"
+    ```
+
+### 🔹 พรอมพ์ที่ 49: การแก้ไข NameError 'is_usb' บนแดชบอร์ด Streamlit
+> **ผู้ใช้:** *"2026-09-12 09:41:16.815 Uncaught app execution ... NameError: name 'is_usb' is not defined"*
+* **การดำเนินการของ AI:**
+  * วิเคราะห์ Root Cause Analysis: ในแท็บ 4 (`⚙️ 4. ตั้งค่า & AI`) มีการเรียกใช้ตัวแปร `is_usb` ในบล็อกแสดงสถานะฮาร์ดแวร์โดยไม่ได้ประกาศตัวแปรไว้ก่อนหน้า
+  * ดำเนินการแก้ไขใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py): เพิ่มการเรียก `is_usb, usb_port = check_board_usb_connected()` ก่อนการเรนเดอร์เมทริกซ์การ์ด
+  * ตรวจสอบความถูกต้องด้วย `python3 -m py_compile` และ Browser Subagent ยืนยันการแสดงผลแท็บ 4 ราบรื่น 100% ไร้ข้อผิดพลาด
+
+### 🔹 พรอมพ์ที่ 50: การแก้ไขปัญหาพอร์ต USB บอร์ด ATD3.5-S3 สำหรับการแฟลชและรับข้อมูลผ่าน Wi-Fi
+> **ผู้ใช้:** *"A fatal error occurred: Could not open /dev/cu.usbserial-110 ... No such file or directory"*, *"ต้องการรับข้อมูลผ่าน wifi"*
+* **การดำเนินการของ AI:**
+  * ตรวจสอบพอร์ตสื่อสารจริงบน macOS ของผู้ใช้ พบพอร์ตของบอร์ด ATD3.5-S3 คือ `/dev/cu.usbserial-210`
+  * ปลดล็อคค่า Hardcoded พอร์ตใน [gravity/platformio.ini](file:///Users/chewathassana/Desktop/handysense/gravity/platformio.ini) ให้ PlatformIO ทำการค้นหาพอร์ตบอร์ดอัตโนมัติ (Auto-Detection)
+  * อัปเดตรายการพอร์ตลำดับแรกใน [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) และ [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้รองรับ `/dev/cu.usbserial-210`
+  * ให้คำแนะนำและคู่มือการรันระบบรับข้อมูล Wi-Fi ไร้สายผ่าน FastAPI Server (`uvicorn main_api:app --host 0.0.0.0 --port 8000`) และ Streamlit Dashboard (:8501) หรือรันผ่านสคริปต์รวม `./run.sh` แบบอัตโนมัติ
+
 

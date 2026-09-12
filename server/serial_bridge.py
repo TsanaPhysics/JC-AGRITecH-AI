@@ -10,7 +10,7 @@ import os
 import sys
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agri_telemetry.db")
-SERIAL_PORTS = ["/dev/cu.usbserial-10", "/dev/cu.usbserial-110", "/dev/cu.wchusbserial"]
+SERIAL_PORTS = ["/dev/cu.usbserial-210", "/dev/cu.usbserial-10", "/dev/cu.usbserial-110", "/dev/cu.wchusbserial"]
 
 def get_serial_module():
     try:
