@@ -893,8 +893,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.loadFont(thai_font_vlw);
         const char *t1 = L_STR("สภาพอากาศรอบแปลง", "Microclimate Weather", "微气候环境");
         lcd.setTextColor(0x07FF, 0x10E4); // สีฟ้าไซแอนนีออนสดใส
-        lcd.drawString(t1, 20, 50);
-        lcd.drawString(t1, 21, 50); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
+        lcd.drawString(t1, 20, 48);
+        lcd.drawString(t1, 21, 48); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
         // -------------------------------------------------------------
         // การ์ด 2: แสงอาทิตย์ โดมตะวัน (x: 246, y: 42, w: 224, h: 114)
@@ -947,10 +947,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         // การ์ด 4: ธาตุอาหารดินลึก & pH (x: 246, y: 164, w: 224, h: 102)
         // -------------------------------------------------------------
         lcd.fillRoundRect(246, 164, 224, 102, 10, 0x10E4);
-        lcd.drawRoundRect(246, 164, 224, 102, 10, 0xBA3E); // ขอบม่วงไวโอเล็ตนีออน
+        lcd.drawRoundRect(246, 164, 224, 102, 10, 0xFFE0); // ขอบเหลืองทองนีออน
         lcd.loadFont(thai_font_vlw);
         const char *t4 = L_STR("ธาตุอาหารดิน & pH", "Deep Soil NPK & pH", "土壤养分与pH");
-        lcd.setTextColor(0xF81F, 0x10E4); // สีม่วงไวโอเล็ต/ชมพูนีออนสว่างสดใส
+        lcd.setTextColor(0xFFE0, 0x10E4); // สีเหลืองทองนีออนสว่างสดใส (Yellow Tone ตามคำขอ)
         lcd.drawString(t4, 258, 172);
         lcd.drawString(t4, 259, 172); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
@@ -972,39 +972,39 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // อัปเดตข้อมูลการ์ด 1: Microclimate Weather
     // ========================================================================
     // ล้างพื้นที่แสดงผลแถวที่ 1 (อุณหภูมิ & ความชื้น) และแถวที่ 2 (VPD)
-    lcd.fillRect(14, 66, 216, 34, 0x10E4);
-    lcd.fillRect(14, 106, 216, 44, 0x10E4);
+    lcd.fillRect(14, 68, 216, 36, 0x10E4);
+    lcd.fillRect(14, 107, 216, 45, 0x10E4);
 
     // เส้นแบ่งระดับชั้นบางเบาอย่างหรูหราระหว่างแถว 1 และแถว 2
-    lcd.drawFastHLine(20, 102, 204, 0x1A4F);
+    lcd.drawFastHLine(20, 105, 204, 0x1A4F);
 
-    // --- แถวที่ 1 ด้านบน: ตัวเลขอุณหภูมิ (ซ้าย) e.g. 28.5 °C ---
+    // --- แถวที่ 1 ด้านบน: ตัวเลขอุณหภูมิ (ซ้าย) e.g. 28.5 °C (เลื่อนลงมาที่ y: 74 เพื่อเว้นระยะจากหัวข้อให้อ่านง่ายขึ้น) ---
     if (data.air.isConnected) {
         snprintf(buf, sizeof(buf), "%.1f", data.air.temperature);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 24, 68, &fonts::Font4);
+        lcd.drawString(buf, 24, 74, &fonts::Font4);
         int tW = lcd.textWidth(buf, &fonts::Font4);
         // สัญลักษณ์องศาเซลเซียส °C (สีฟ้าสว่างสดใส)
-        lcd.drawCircle(24 + tW + 5, 72, 3, 0x07FF);
+        lcd.drawCircle(24 + tW + 5, 78, 3, 0x07FF);
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("C", 24 + tW + 11, 68, &fonts::Font2);
+        lcd.drawString("C", 24 + tW + 11, 74, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--.-", 24, 68, &fonts::Font4);
+        lcd.drawString("--.-", 24, 74, &fonts::Font4);
     }
 
-    // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 68 %RH ---
+    // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 68 %RH (เลื่อนลงมาที่ y: 74) ---
     if (data.air.isConnected) {
         snprintf(buf, sizeof(buf), "%.0f", data.air.humidity);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 136, 68, &fonts::Font4);
+        lcd.drawString(buf, 136, 74, &fonts::Font4);
         int hW = lcd.textWidth(buf, &fonts::Font4);
         // หน่วย %RH (สีฟ้าสว่างสดใส)
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("%RH", 136 + hW + 4, 75, &fonts::Font2);
+        lcd.drawString("%RH", 136 + hW + 4, 81, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--", 136, 68, &fonts::Font4);
+        lcd.drawString("--", 136, 74, &fonts::Font4);
     }
 
     // --- แถวที่ 2 ด้านล่าง: ค่า VPD ให้อยู่กึ่งกลาง และฟอนต์ขนาดเท่ากับอุณหภูมิ (Font4) ---
@@ -1022,15 +1022,15 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
 
     // ป้ายกำกับ "VPD " สีเขียวนีออนสว่างสดใส
     lcd.setTextColor(0x07E0, 0x10E4);
-    lcd.drawString("VPD ", vpdStartX, 118, &fonts::Font2);
+    lcd.drawString("VPD ", vpdStartX, 122, &fonts::Font2);
 
     // ตัวเลขค่า VPD สีขาวสว่างคมชัด ขนาดเท่ากับอุณหภูมิเป๊ะๆ (&fonts::Font4)
     lcd.setTextColor(0xFFFF, 0x10E4);
-    lcd.drawString(buf, vpdStartX + vpdPrefixW, 112, &fonts::Font4);
+    lcd.drawString(buf, vpdStartX + vpdPrefixW, 116, &fonts::Font4);
 
     // หน่วย " kPa" สีฟ้าไซแอนสว่างสดใส
     lcd.setTextColor(0x07FF, 0x10E4);
-    lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 118, &fonts::Font2);
+    lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 122, &fonts::Font2);
 
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 2: Solar Dome

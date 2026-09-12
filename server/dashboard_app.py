@@ -1328,7 +1328,7 @@ with tab_overview:
                         <span class="sf-card-title" style="color:#38bdf8; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🌤️ สภาพอากาศรอบแปลง</span>
                         <span class="sf-pill-badge" style="color:#38bdf8; border-color:#0284c7;">Dew Point: {air_dp:.1f}°C</span>
                     </div>
-                    <div style="display:flex; align-items:baseline; justify-content:space-around; margin:12px 0 6px 0;">
+                    <div style="display:flex; align-items:baseline; justify-content:space-around; margin:22px 0 10px 0;">
                         <div style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
                             {air_t:.1f}<span style="font-size:1.6rem; vertical-align:super; color:#38bdf8; font-weight:600; margin-left:2px;">°C</span>
                         </div>
@@ -1432,7 +1432,7 @@ with tab_overview:
                 <!-- Q4: Deep Soil NPK & pH -->
                 <div class="sf-card sf-card-npk">
                     <div class="sf-card-header">
-                        <span class="sf-card-title" style="color:#c084fc; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🧪 ธาตุอาหารดิน &amp; pH</span>
+                        <span class="sf-card-title" style="color:#fde047; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🧪 ธาตุอาหารดิน &amp; pH</span>
                         <span class="sf-pill-badge" style="background:#064e3b; border-color:#10b981; color:#34d399; font-weight:800;">AI-Edge</span>
                     </div>
                     <div style="display:flex; justify-content:flex-start; gap:36px; font-size:1.45rem; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:2px; margin-bottom:12px;">
