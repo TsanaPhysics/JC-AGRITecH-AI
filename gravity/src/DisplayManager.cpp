@@ -1,5 +1,6 @@
 #include "DisplayManager.h"
 #include "WiFiConfigManager.h"
+#include "CloudDataManager.h"
 #include "PinConfigs.h"
 #include "ThaiFontVLW.h"
 #include <WiFi.h>
@@ -744,18 +745,35 @@ static void drawOverviewTopHeader() {
     lcd.fillCircle(jx + 18, jy + 10, 3, 0x0862); // cutout
     lcd.fillRect(jx + 20, jy + 7, 6, 6, 0x0862); // open mouth of C
 
-    // ข้อความ "JC-AGRITecH +AI   เวอร์ชัน 1.0"
+    // ข้อความ "JC-AGRITecH +AI"
     lcd.loadFont(thai_font_vlw);
     lcd.setTextDatum(textdatum_t::middle_left);
-    int curX = 44;
-    // 1. JC-AGRITecH +AI
     lcd.setTextColor(0xFFFF, 0x0862);
-    lcd.drawString("JC-AGRITecH +AI", curX, 19);
-    curX += lcd.textWidth("JC-AGRITecH +AI") + 12;
+    lcd.drawString("JC-AGRITecH +AI", 42, 19);
 
-    // 2. เวอร์ชัน 1.0 (สีทอง RBRU Gold)
-    lcd.setTextColor(0xFDE0, 0x0862);
-    lcd.drawString("เวอร์ชัน 1.0", curX, 19);
+    // ========================================================================
+    // แคปซูลแสดง วันที่และเวลาเรียลไทม์ (Date & Time Capsule) - Option A
+    // แสดงผล: วันที่/เดือน/ปี และ เวลาสด พร้อมกระพริบจุดวินาที
+    // ========================================================================
+    int timeCapsuleX = 208, timeCapsuleY = 6, timeCapsuleW = 168, timeCapsuleH = 26;
+    lcd.fillRoundRect(timeCapsuleX, timeCapsuleY, timeCapsuleW, timeCapsuleH, 13, 0x0185); // พื้นหลังเข้มหรู
+    lcd.drawRoundRect(timeCapsuleX, timeCapsuleY, timeCapsuleW, timeCapsuleH, 13, 0x15D3); // ขอบเขียวมรกตเรืองแสง
+
+    // ดึงค่าสตริงวันที่และเวลาปัจจุบัน
+    String dateStr = CloudDataManager_getDateString();
+    String timeStr = CloudDataManager_getTimeString();
+    char dtBuf[36];
+    if (dateStr != "--/--/----") {
+        // ตัดปีเป็น 2 หลักท้าย e.g. 12/09/26 11:20:30
+        String yrShort = dateStr.substring(8);
+        snprintf(dtBuf, sizeof(dtBuf), "%s/%s %s", dateStr.substring(0, 5).c_str(), yrShort.c_str(), timeStr.c_str());
+    } else {
+        snprintf(dtBuf, sizeof(dtBuf), "NTP SYNCING...");
+    }
+
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.setTextColor(0x07FF, 0x0185); // ฟ้าไซแอนสไตล์ดิจิทัล
+    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13, &fonts::Font2);
 
     // ไอคอน Wi-Fi: คลื่น 3 ระดับสีเขียวนีออน + จุดศูนย์กลาง
     bool wifiOk = (WiFi.status() == WL_CONNECTED);
@@ -783,6 +801,36 @@ static void drawOverviewTopHeader() {
     lcd.setTextDatum(textdatum_t::middle_left);
     lcd.drawString("TH", px + 25, py + 13, &fonts::Font2);
     lcd.setTextDatum(textdatum_t::top_left);
+}
+
+// อัปเดตเฉพาะแคปซูลเวลาด้านบนทุกวินาทีโดยไม่ทำให้หน้าจอกระพริบ
+static void updateTopHeaderClock() {
+    int timeCapsuleX = 208, timeCapsuleY = 6, timeCapsuleW = 168, timeCapsuleH = 26;
+    
+    String dateStr = CloudDataManager_getDateString();
+    String timeStr = CloudDataManager_getTimeString();
+    char dtBuf[36];
+    if (dateStr != "--/--/----") {
+        String yrShort = dateStr.substring(8);
+        snprintf(dtBuf, sizeof(dtBuf), "%s/%s %s", dateStr.substring(0, 5).c_str(), yrShort.c_str(), timeStr.c_str());
+    } else {
+        snprintf(dtBuf, sizeof(dtBuf), "NTP SYNCING...");
+    }
+
+    lcd.fillRoundRect(timeCapsuleX + 2, timeCapsuleY + 2, timeCapsuleW - 4, timeCapsuleH - 4, 11, 0x0185);
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.setTextColor(0x07FF, 0x0185);
+    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13, &fonts::Font2);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // อัปเดตไอคอน Wi-Fi ทุกวินาที
+    bool wifiOk = (WiFi.status() == WL_CONNECTED);
+    uint16_t wifiCol = wifiOk ? 0x15D3 : 0x52AA;
+    int wx = 392, wy = 26;
+    lcd.fillCircle(wx, wy, 2, wifiCol);
+    lcd.fillArc(wx, wy, 5, 7, 225, 315, wifiCol);
+    lcd.fillArc(wx, wy, 9, 11, 225, 315, wifiCol);
+    lcd.fillArc(wx, wy, 13, 15, 225, 315, wifiCol);
 }
 
 // ============================================================================
@@ -1062,6 +1110,9 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     lcd.setTextDatum(textdatum_t::middle_left);
     lcd.drawString("mg/kg", 416, 226 + 11, &fonts::Font0);
     lcd.setTextDatum(textdatum_t::top_left);
+
+    // อัปเดตแคปซูลเวลาและไอคอน Wi-Fi ด้านบนสดๆ ทุกวินาที
+    updateTopHeaderClock();
 }
 
 static void drawPageBigNumbers(const FarmSensorTelemetry &data) {

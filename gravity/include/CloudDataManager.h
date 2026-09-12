@@ -21,5 +21,11 @@ bool CloudDataManager_isConnected();
 // รับค่าเวลาปัจจุบันในรูปแบบสตริง "YYYY-MM-DD HH:MM:SS" (UTC+7)
 String CloudDataManager_getFormattedTime();
 
+// รับสตริงวันที่ เช่น "12/09/2026" หรือ "12 ก.ย. 69"
+String CloudDataManager_getDateString();
+
+// รับสตริงเวลา เช่น "11:20:45"
+String CloudDataManager_getTimeString();
+
 // รับค่า Unix Timestamp ปัจจุบัน (วินาที)
 unsigned long CloudDataManager_getEpochTime();

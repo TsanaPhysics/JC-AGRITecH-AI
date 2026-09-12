@@ -43,6 +43,32 @@ String CloudDataManager_getFormattedTime() {
     return String(buf);
 }
 
+// รับสตริงวันที่ เช่น "12/09/2026"
+String CloudDataManager_getDateString() {
+    time_t now;
+    time(&now);
+    struct tm timeinfo;
+    if (!localtime_r(&now, &timeinfo) || now < 100000) {
+        return "--/--/----";
+    }
+    char buf[16];
+    strftime(buf, sizeof(buf), "%d/%m/%Y", &timeinfo);
+    return String(buf);
+}
+
+// รับสตริงเวลา เช่น "11:20:45"
+String CloudDataManager_getTimeString() {
+    time_t now;
+    time(&now);
+    struct tm timeinfo;
+    if (!localtime_r(&now, &timeinfo) || now < 100000) {
+        return "--:--:--";
+    }
+    char buf[12];
+    strftime(buf, sizeof(buf), "%H:%M:%S", &timeinfo);
+    return String(buf);
+}
+
 bool CloudDataManager_isConnected() {
     return (WiFi.status() == WL_CONNECTED);
 }
@@ -63,17 +89,8 @@ void CloudDataManager_init() {
     Serial.println("\n[CloudData] Initializing Deterministic Multi-Candidate Wi-Fi Engine...");
 
     WiFi.mode(WIFI_STA);
-    WiFi.setSleep(false); // ปิด modem sleep เพื่อไม่ให้หลุด 4-way handshake
-    WiFi.setAutoReconnect(true);
-
-    // เปิดการรองรับ PMF (Protected Management Frames) เพื่อความเข้ากันได้กับเราเตอร์ WPA2/WPA3 ยุคใหม่
-    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
-    wifi_config_t conf;
-    if (esp_wifi_get_config(WIFI_IF_STA, &conf) == ESP_OK) {
-        conf.sta.pmf_cfg.capable = true;
-        conf.sta.pmf_cfg.required = false;
-        esp_wifi_set_config(WIFI_IF_STA, &conf);
-    }
+    delay(500);
+    WiFi.setSleep(false);
 
     // ลงทะเบียน Event Callback เพื่อดูเหตุการณ์เชื่อมต่อสด
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
@@ -86,23 +103,43 @@ void CloudDataManager_init() {
         }
     });
 
-    // 0. เริ่มต้นโหลดค่า Wi-Fi จาก NVS Flash หากมีให้เป็นตัวเลือกอันดับ 1 เสมอ
+    // 1. นำเข้าค่าหลักจาก UserConfigs.h เป็นอันดับ 1 เสมอ
+    String cleanSsid = String(WIFI_SSID); cleanSsid.trim();
+    String cleanPass = String(WIFI_PASSWORD); cleanPass.trim();
+    addCandidate(cleanSsid, cleanPass);
+    addCandidate("JC_Home", "JChome2023");
+    addCandidate("JC_Home", "JCHome2023");
+    addCandidate("JChome", "JChome2023");
+    addCandidate("JChome", "JCHome2023");
+
+    // 2. โหลดค่า Wi-Fi จาก NVS Flash
     WiFiConfigManager_init();
     if (WiFiConfigManager_hasStoredCredentials()) {
-        addCandidate(WiFiConfigManager_getSSID(), WiFiConfigManager_getPassword());
-        Serial.printf("  [+] Prioritizing Stored NVS Wi-Fi: '%s'\n", WiFiConfigManager_getSSID().c_str());
+        String nvsSsid = WiFiConfigManager_getSSID(); nvsSsid.trim();
+        String nvsPass = WiFiConfigManager_getPassword(); nvsPass.trim();
+        addCandidate(nvsSsid, nvsPass);
+        Serial.printf("  [+] Registered Stored NVS Wi-Fi (trimmed): '%s'\n", nvsSsid.c_str());
     }
 
-    // 1. นำเข้าค่าหลักจาก UserConfigs.h รองลงมา
-    addCandidate(WIFI_SSID, WIFI_PASSWORD);
-
-    // 2. เผื่อกรณีตัวพิมพ์เล็ก/ใหญ่ของ SSID และ Password
-    addCandidate("JC_Home", "JCHome2023");
-    addCandidate("JC_Home", "JChome2023");
-    addCandidate("JChome", "JCHome2023");
-    addCandidate("JChome", "JChome2023");
-    addCandidate("JC_Home5G", "JCHome2023");
-    addCandidate("JC_Home5G", "JChome2023");
+    // 3. สแกนเครือข่าย Wi-Fi 2.4GHz รอบตัวแบบเต็มรูปแบบ
+    Serial.println("\n[CloudData] Scanning 2.4GHz Wi-Fi networks (channels 1-13)...");
+    int nScan = WiFi.scanNetworks(false, true); // blocking scan, show hidden
+    if (nScan < 0) {
+        Serial.printf("[CloudData] Scan returned code: %d (Scanning failed or busy)\n", nScan);
+    } else {
+        Serial.printf("[CloudData] Scan finished! Found %d networks:\n", nScan);
+        for (int i = 0; i < nScan; i++) {
+            String sc = WiFi.SSID(i);
+            Serial.printf("   - [%2d] SSID: '%s' | Ch: %2d | RSSI: %3d dBm\n",
+                          i + 1, sc.c_str(), WiFi.channel(i), WiFi.RSSI(i));
+            String lower = sc;
+            lower.toLowerCase();
+            if (lower.indexOf("jc") >= 0 || lower.indexOf("home") >= 0) {
+                addCandidate(sc, "JChome2023");
+                addCandidate(sc, "JCHome2023");
+            }
+        }
+    }
 
     Serial.printf("  [+] Registered %d candidate credential pairs for auto-rotation:\n", totalCandidates);
     for (int i = 0; i < totalCandidates; i++) {

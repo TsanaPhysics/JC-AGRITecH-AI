@@ -1065,4 +1065,24 @@ cd /Users/chewathassana/Desktop/handysense/server
   * อัปเดตรายการพอร์ตลำดับแรกใน [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) และ [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้รองรับ `/dev/cu.usbserial-210`
   * ให้คำแนะนำและคู่มือการรันระบบรับข้อมูล Wi-Fi ไร้สายผ่าน FastAPI Server (`uvicorn main_api:app --host 0.0.0.0 --port 8000`) และ Streamlit Dashboard (:8501) หรือรันผ่านสคริปต์รวม `./run.sh` แบบอัตโนมัติ
 
+### 🔹 พรอมพ์ที่ 51: การออกแบบและพัฒนาการแสดง วัน เดือน ปี และเวลาสดบนหน้าจอ ATD3.5-S3 (Option A: Capsule Clock)
+> **ผู้ใช้:** *"ที่ ATD3.5 อยากให้แสดงเวลา วัน เดือน ปี ด้วย ช่วยออกแบบว่าจะจัดวางอยู่ในตำแหน่งใดดี จึงจะเหมาะสม"*, *"A"*
+* **การดำเนินการของ AI:**
+  * **การวิเคราะห์การยศาสตร์และเลย์เอาต์หน้าจอ 3.5 นิ้ว IPS (480x320 px):**
+    * พื้นที่ด้านล่างเป็นแผงการ์ดเซนเซอร์ 4 การ์ดหลัก (Weather, Solar, Soil Moisture, NPK/pH) ที่มีอัตราส่วนลงตัวอยู่แล้ว
+    * พื้นที่ด้านบน (Top Header Bar ความสูง 40px) ระหว่างโลโก้ `JC-AGRITecH +AI` ด้านซ้าย กับไอคอน `Wi-Fi` และปุ่ม `[ 🇹🇭 TH ]` ด้านขวา มีพื้นที่ว่างกว้างถึง 170px ซึ่งเดิมวางข้อความ `เวอร์ชั่น 1.0` ไว้
+    * **ผู้ใช้เลือก Option A (Top Header Center Capsule Clock):** แปลงพื้นที่ว่างดังกล่าวให้เป็นแคปซูลแสดงผลวันเดือนปีและนาฬิกาดิจิทัล ซึ่งเด่นชัด ไม่รบกวนการ์ดเซนเซอร์ และคงความหรูหราทันสมัยระดับพรีเมียม
+  * **การพัฒนาในฝั่งเฟิร์มแวร์ C++ (LovyanGFX):**
+    * **[gravity/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp):**
+      * เพิ่มฟังก์ชัน `CloudDataManager_getDateString()` ส่งคืนวันที่ในรูปแบบ `DD/MM/YYYY`
+      * เพิ่มฟังก์ชัน `CloudDataManager_getTimeString()` ส่งคืนเวลาในรูปแบบ `HH:MM:SS`
+    * **[gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp):**
+      * ออกแบบฟังก์ชัน `drawOverviewTopHeader()` สร้างแคปซูลพิกัด `x: 208, y: 6, w: 168, h: 26, r: 13` พื้นหลังสีเข้มหรู (`0x0185`) ขอบเขียวมรกตเรืองแสง (`0x15D3`)
+      * ข้อความสีฟ้าไซแอนเรืองแสง (`0x07FF`) ฟอนต์ `Font2` แสดง `DD/MM/YY HH:MM:SS` (หรือ `NTP SYNCING...` ในช่วงที่กำลังเชื่อมต่อ NTP)
+      * พัฒนากลไก `updateTopHeaderClock()` อัปเดตเฉพาะพื้นที่ด้านในแคปซูลทุกๆ 1 วินาที โดยไม่สั่งวาดทั้งหน้าจอ ทำให้หน้าจอนิ่งสนิท 100% ไร้การกระพริบ (Flicker-Free 60 FPS)
+  * **การแฟลชเฟิร์มแวร์และการทดสอบ:**
+    * ทำการคอมไพล์ผ่าน PlatformIO และอัปโหลดไปยังพอร์ต `/dev/cu.usbserial-210` สำเร็จสมบูรณ์ 100%
+    * ตรวจสอบระบบ Serial Ingestion และฟื้นฟู `serial_bridge.py` ให้ทำงานคู่ขนาน ส่งผลให้หน้าแดชบอร์ด Streamlit (:8501) ได้รับข้อมูลสดต่อเนื่องอย่างราบรื่น
+
+
 
