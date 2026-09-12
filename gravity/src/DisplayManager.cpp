@@ -885,20 +885,27 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         drawOverviewTopHeader();
 
         // -------------------------------------------------------------
-        // การ์ด 1: สภาพอากาศ Microclimate Weather (x: 10, y: 42, w: 224, h: 114)
+        // -------------------------------------------------------------
+        // การ์ด 1: สภาพอากาศรอบแปลง (x: 10, y: 42, w: 224, h: 114)
         // -------------------------------------------------------------
         lcd.fillRoundRect(10, 42, 224, 114, 10, 0x10E4);
-        lcd.drawRoundRect(10, 42, 224, 114, 10, 0x2255); // ขอบเทาอมฟ้าหม่น
-        lcd.setTextColor(0xDEFB, 0x10E4);
-        lcd.drawString("Microclimate Weather", 20, 52, &fonts::Font2);
+        lcd.drawRoundRect(10, 42, 224, 114, 10, 0x03FF); // ขอบฟ้านีออนเรืองแสง
+        lcd.loadFont(thai_font_vlw);
+        const char *t1 = L_STR("สภาพอากาศรอบแปลง", "Microclimate Weather", "微气候环境");
+        lcd.setTextColor(0x07FF, 0x10E4); // สีฟ้าไซแอนนีออนสดใส
+        lcd.drawString(t1, 20, 50);
+        lcd.drawString(t1, 21, 50); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
         // -------------------------------------------------------------
-        // การ์ด 2: แสงอาทิตย์ Solar Dome (x: 246, y: 42, w: 224, h: 114)
+        // การ์ด 2: แสงอาทิตย์ โดมตะวัน (x: 246, y: 42, w: 224, h: 114)
         // -------------------------------------------------------------
         lcd.fillRoundRect(246, 42, 224, 114, 10, 0x10E4);
-        lcd.drawRoundRect(246, 42, 224, 114, 10, 0x3A2A); // ขอบเทาอมส้มหม่น
-        lcd.setTextColor(0xDEFB, 0x10E4);
-        lcd.drawString("Solar Dome", 258, 52, &fonts::Font2);
+        lcd.drawRoundRect(246, 42, 224, 114, 10, 0xFD20); // ขอบส้มทองนีออน
+        lcd.loadFont(thai_font_vlw);
+        const char *t2 = L_STR("ความเข้มแสงโดมตะวัน", "Solar Dome Light", "太阳辐射强度");
+        lcd.setTextColor(0xFFE0, 0x10E4); // สีเหลืองทองนีออนสว่างสดใส
+        lcd.drawString(t2, 258, 50);
+        lcd.drawString(t2, 259, 50); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
         // ดวงอาทิตย์สีทองเรืองแสง (Hollow ring + 8 rays)
         int cx = 292, cy = 104;
@@ -919,12 +926,15 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.drawLine(cx + 11, cy + 12, cx + 16, cy + 17, 0xFD20);
 
         // -------------------------------------------------------------
-        // การ์ด 3: ดินตื้น Soil Moisture (x: 10, y: 164, w: 224, h: 102)
+        // การ์ด 3: ความชื้นในดินผิวดิน (x: 10, y: 164, w: 224, h: 102)
         // -------------------------------------------------------------
         lcd.fillRoundRect(10, 164, 224, 102, 10, 0x10E4);
-        lcd.drawRoundRect(10, 164, 224, 102, 10, 0x1A4F);
-        lcd.setTextColor(0xDEFB, 0x10E4);
-        lcd.drawString("Soil Moisture", 20, 174, &fonts::Font2);
+        lcd.drawRoundRect(10, 164, 224, 102, 10, 0x1FE6); // ขอบเขียวมรกตนีออน
+        lcd.loadFont(thai_font_vlw);
+        const char *t3 = L_STR("ความชื้นในดิน (ผิวดิน)", "Soil Moisture", "土壤水分");
+        lcd.setTextColor(0x07E0, 0x10E4); // สีเขียวมรกตนีออนสว่างสดใส
+        lcd.drawString(t3, 20, 172);
+        lcd.drawString(t3, 21, 172); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
         // ไอคอนต้นกล้าผิวดินสไตล์มินิมอลโมเดิร์น
         int sx = 26, sy = 212;
@@ -934,12 +944,15 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.fillCircle(sx + 21, sy + 14, 5, 0x15D3);
 
         // -------------------------------------------------------------
-        // การ์ด 4: ดินลึก Deep Soil NPK & pH (x: 246, y: 164, w: 224, h: 102)
+        // การ์ด 4: ธาตุอาหารดินลึก & pH (x: 246, y: 164, w: 224, h: 102)
         // -------------------------------------------------------------
         lcd.fillRoundRect(246, 164, 224, 102, 10, 0x10E4);
-        lcd.drawRoundRect(246, 164, 224, 102, 10, 0x3A2A);
-        lcd.setTextColor(0xDEFB, 0x10E4);
-        lcd.drawString("Deep Soil NPK & pH", 258, 174, &fonts::Font2);
+        lcd.drawRoundRect(246, 164, 224, 102, 10, 0xBA3E); // ขอบม่วงไวโอเล็ตนีออน
+        lcd.loadFont(thai_font_vlw);
+        const char *t4 = L_STR("ธาตุอาหารดิน & pH", "Deep Soil NPK & pH", "土壤养分与pH");
+        lcd.setTextColor(0xF81F, 0x10E4); // สีม่วงไวโอเล็ต/ชมพูนีออนสว่างสดใส
+        lcd.drawString(t4, 258, 172);
+        lcd.drawString(t4, 259, 172); // วาดซ้ำเยื้อง 1px เพื่อให้ตัวหนา คมชัด (Bold)
 
         // ป้ายสัญลักษณ์ AI-Edge แสดงว่าใช้ TinyML ชดเชยอุณหภูมิและความชื้นแล้ว
         lcd.fillRoundRect(396, 172, 64, 16, 4, 0x0320);
@@ -958,9 +971,6 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 1: Microclimate Weather
     // ========================================================================
-    // ล้างพื้นที่แคปซูลเดิมด้านบนขวา (หากมีค้างอยู่)
-    lcd.fillRect(148, 46, 82, 20, 0x10E4);
-
     // ล้างพื้นที่แสดงผลแถวที่ 1 (อุณหภูมิ & ความชื้น) และแถวที่ 2 (VPD)
     lcd.fillRect(14, 66, 216, 34, 0x10E4);
     lcd.fillRect(14, 106, 216, 44, 0x10E4);

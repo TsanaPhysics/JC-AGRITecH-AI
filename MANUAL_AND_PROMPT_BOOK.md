@@ -1097,6 +1097,23 @@ cd /Users/chewathassana/Desktop/handysense/server
     * **บอร์ด ATD3.5-S3:** แก้ไขใน [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ทำการคอมไพล์และแฟลชอัปโหลดลงบอร์ดผ่าน `/dev/cu.usbserial-210` สำเร็จ
     * **เว็บแดชบอร์ด Streamlit:** แก้ไขใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ปรับโครงสร้าง HTML/CSS ของการ์ด Microclimate Weather ให้ VPD อยู่กึ่งกลางด้านล่างด้วยฟอนต์ `3.2rem` เทียบเท่าอุณหภูมิ
 
+### 🔹 พรอมพ์ที่ 53: ปรับหัวข้อการ์ด 4 มิติหลักเป็นภาษาไทย ตัวหนา คมชัด พร้อมคู่สีนีออนสดใสแยกตามหมวดหมู่
+> **ผู้ใช้:** *"ปรับข้อความ microclimate weather. Solar Dome Soil Moisture Deep Soil NPK pH ให้มีสีสัน ตัวหนา อ่านง่าย ถ้าเป็นไปได้ ปรับเป็นภาษาไทย"*
+* **การดำเนินการของ AI:**
+  * **การออกแบบคู่สีและไทโปกราฟีภาษาไทย (Thai Typography & Color Coding):**
+    * **การ์ด 1 (Microclimate Weather):** เปลี่ยนเป็น **`สภาพอากาศรอบแปลง`** ใช้คู่สี **ฟ้าเทอร์ควอยซ์นีออน (`0x07FF`)** สื่อถึงสภาพบรรยากาศและละอองน้ำ
+    * **การ์ด 2 (Solar Dome):** เปลี่ยนเป็น **`ความเข้มแสงโดมตะวัน`** ใช้คู่สี **ส้มทอง / เหลืองนีออน (`0xFFE0` / `0xFD20`)** สื่อถึงพลังงานแสงอาทิตย์
+    * **การ์ด 3 (Soil Moisture):** เปลี่ยนเป็น **`ความชื้นในดิน (ผิวดิน)`** ใช้คู่สี **เขียวมรกตนีออน (`0x07E0` / `0x1FE6`)** สื่อถึงความชุ่มชื้นและต้นกล้า
+    * **การ์ด 4 (Deep Soil NPK & pH):** เปลี่ยนเป็น **`ธาตุอาหารดิน & pH`** ใช้คู่สี **ม่วงไวโอเล็ต / ชมพูนีออน (`0xF81F` / `0xBA3E`)** สื่อถึงแร่ธาตุเคมีและค่ากรด-ด่างดิน
+  * **เทคนิคเรนเดอร์ตัวหนาคมชัด (Double-Strike Bold Rendering):**
+    * โหลดฟอนต์เวกเตอร์ภาษาไทย `thai_font_vlw` ลงแรมจอ
+    * ใช้วิธีพิมพ์ข้อความสองครั้งเหลื่อมพิกเซลแกน X ทีละ 1px (`drawString(t, x, y)` และ `drawString(t, x+1, y)`) ส่งผลให้ตัวอักษรภาษาไทยหนา คมกริบ ไร้รอยแตกบนจอ ST7796 IPS
+    * ผูกฟังก์ชัน `L_STR(...)` รองรับการสลับภาษาแบบ Multi-language (TH / EN / ZH) ผ่านปุ่มสลับภาษาด้านบน
+  * **อัปเดตระบบควบคู่:**
+    * อัปเดตเฟิร์มแวร์บอร์ด [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) คอมไพล์และแฟลชอัปโหลดสำเร็จ
+    * อัปเดตเว็บแดชบอร์ด [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ปรับแต่งป้ายหัวการ์ดทั้ง 4 เป็นภาษาไทยสีสันสดใสตัวหนา 800 สวยงามระดับมืออาชีพ
+
+
 
 
 

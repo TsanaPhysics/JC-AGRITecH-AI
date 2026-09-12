@@ -1325,7 +1325,7 @@ with tab_overview:
                 <!-- Q1: Microclimate Weather -->
                 <div class="sf-card sf-card-weather">
                     <div class="sf-card-header">
-                        <span class="sf-card-title">Microclimate Weather</span>
+                        <span class="sf-card-title" style="color:#38bdf8; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🌤️ สภาพอากาศรอบแปลง</span>
                         <span class="sf-pill-badge" style="color:#38bdf8; border-color:#0284c7;">Dew Point: {air_dp:.1f}°C</span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-around; margin:12px 0 6px 0;">
@@ -1347,7 +1347,7 @@ with tab_overview:
                 <!-- Q2: Solar Dome -->
                 <div class="sf-card sf-card-solar">
                     <div class="sf-card-header">
-                        <span class="sf-card-title">Solar Dome</span>
+                        <span class="sf-card-title" style="color:#fbbf24; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">☀️ ความเข้มแสงโดมตะวัน</span>
                         <span class="sf-pill-badge" style="color:#fde047; border-color:#f59e0b;">PAR ~{rad_val * 2.1:.0f} µmol</span>
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:0 12px; margin:10px 0;">
@@ -1394,7 +1394,7 @@ with tab_overview:
                 <!-- Q3: Soil Moisture -->
                 <div class="sf-card sf-card-soil">
                     <div class="sf-card-header">
-                        <span class="sf-card-title">Soil Moisture</span>
+                        <span class="sf-card-title" style="color:#00ff87; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🌱 ความชื้นในดิน (ผิวดิน)</span>
                         <span class="sf-pill-badge" style="color:#00ff87; border-color:#00ff87;">ADC {stick_adc}</span>
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px;">
@@ -1432,7 +1432,7 @@ with tab_overview:
                 <!-- Q4: Deep Soil NPK & pH -->
                 <div class="sf-card sf-card-npk">
                     <div class="sf-card-header">
-                        <span class="sf-card-title">Deep Soil NPK &amp; pH</span>
+                        <span class="sf-card-title" style="color:#c084fc; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🧪 ธาตุอาหารดิน &amp; pH</span>
                         <span class="sf-pill-badge" style="background:#064e3b; border-color:#10b981; color:#34d399; font-weight:800;">AI-Edge</span>
                     </div>
                     <div style="display:flex; justify-content:flex-start; gap:36px; font-size:1.45rem; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:2px; margin-bottom:12px;">
