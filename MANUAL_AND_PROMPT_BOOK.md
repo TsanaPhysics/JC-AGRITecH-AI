@@ -932,4 +932,25 @@ cd /Users/chewathassana/Desktop/handysense/server
     * จัดวางตารางภาพเดี่ยวทั้ง 4 ภาพใน [README.md](file:///Users/chewathassana/Desktop/handysense/README.md)
     * สำเนาไฟล์ภาพลงใน [latex_book/figures/](file:///Users/chewathassana/Desktop/handysense/latex_book/figures/) เพื่อรองรับการนำเข้าเอกสารวิชาการ
 
+### 🔹 พรอมพ์ที่ 43: ปรับแต่งหน้าจอแสดงผลทั้ง 4 การ์ดในบอร์ดจริงให้ตรงกับภาพออกแบบ 100% พร้อมระบบสัมผัสเลื่อนหน้าจอและสไลด์บาร์ (Interactive Scrollbar)
+> **ผู้ใช้:** *"หน้าจอแสดงผลในบอร์ดของทั้งสี่การ์ด ยังไม่เหมือนกับภาพทั้งสี่ที่ได้ออกแบบไว้ ช่วยปรับแก้ๆข โดยถ้าข้อมูลล้นหน้าจอให้สามารถสไลด์ได้โดยอาจมีสไลด์บาร์"*
+* **การดำเนินการของ AI:**
+  * **ปรับปรุงสถาปัตยกรรม UI บนเฟิร์มแวร์ ESP32-S3 ([gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+    * ปรับแต่งเลย์เอาต์ของการ์ดเซนเซอร์ทั้ง 4 หน้าจอ (`drawPageDetailAir`, `drawPageDetailLight`, `drawPageDetailSoil1`, `drawPageDetailSoil7`) ให้สอดคล้องกับภาพออกแบบ Master Render (`figure_sensor_01_soil_stick.jpg`, `figure_sensor_02_soil_7in1.jpg`, `figure_sensor_03_sht45.jpg`, `figure_sensor_04_bh1750.jpg`) 100%
+    * เพิ่มฟังก์ชันวาด Cyber Badge Tags ระดับพรีเมียม `drawBadgeTag(...)` สำหรับแท็กระบุหมวดหมู่ค่าตรวจวัด เช่น `[TEMP]`, `[RH%]`, `[SOLAR]`, `[LUX]`, `[SOIL]`, `[ADC]`, `[ROOT]`, `[pH]`, `[AI]`
+    * ออกแบบการ์ดเขตรากลึก Soil 7-in-1 ให้มีบล็อกกรอบนีออนไซแอน (`0x07FF`) พื้นหลัง Dark Teal (`0x0124`) สำหรับ **TinyML Edge AI Calibrated** พร้อม 4 แคปซูลสีแยกชัดเจน (`AI-N`, `AI-P`, `AI-K`, `AI-pH`) และค่าความชื้นแท้จริงพยากรณ์ True Moist AI
+    * ปรับระยะการ์ดด้านบน (Card 1 และ Card 2) ให้อยู่ในช่วงพิกัด $y = 40 \dots 308$ เพื่อให้แสดงผลข้อมูลหลักครบถ้วนทั้ง 2 การ์ดตั้งแต่เริ่มต้นเปิดหน้าจอ ($sy = 0$)
+  * **พัฒนาระบบสไลด์บาร์และระบบสัมผัสเลื่อนหน้าจอขั้นสูง (Modern Interactive Scrollbar & Touch Engine):**
+    * สร้างแถบสไลด์บาร์แนวตั้งกว้าง 16 พิกเซล ทางฝั่งขวาของหน้าจอ ($x = 462 \dots 478$) พร้อมปุ่มลูกศรเลื่อนขึ้น `▲` ($y = 40 \dots 54$) และเลื่อนลง `▼` ($y = 302 \dots 316$)
+    * คำนวณขนาดและตำแหน่งตัวเลื่อน (Slider Thumb) ตามสัดส่วนของเนื้อหาจริง พร้อมลายหยักแทร็กสัมผัส (Tactile Grip Lines) สไตล์โมเดิร์นแท็บเล็ต
+    * พัฒนาระบบรองรับการสัมผัส 3 รูปแบบใน `DisplayManager_handleTouch`:
+      1. แตะหรือลากบนแทร็กสไลด์บาร์โดยตรง ($tx \ge 450$) เพื่อขยับหน้าจอตามตำแหน่งนิ้วทันที (Direct Slider Tracking)
+      2. แตะปุ่ม `▲` เลื่อนขึ้นทีละ 80 พิกเซล หรือแตะปุ่ม `▼` เลื่อนลงทีละ 80 พิกเซล
+      3. ปัด/ลากนิ้วบนพื้นที่เนื้อหา ($tx < 450, ty > 36$) เพื่อเลื่อนขึ้น-ลงอย่างนุ่มนวล (Smooth Viewport Drag/Swipe)
+  * **คอมไพล์ แฟลชเฟิร์มแวร์ และทดสอบฮาร์ดแวร์จริง:**
+    * คอมไพล์ผ่าน PlatformIO สำเร็จ 100% (Flash Usage: 43.2%, RAM: 15.4%)
+    * อัปโหลดเฟิร์มแวร์เข้าสู่บอร์ด ESP32-S3 ATD3.5 ผ่านพอร์ต `/dev/cu.usbserial-10`
+    * รันเซอร์วิส `server/serial_bridge.py` ส่งข้อมูล Telemetry ต่อเนื่องแบบ Real-time
+
+
 
