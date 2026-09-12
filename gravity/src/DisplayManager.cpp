@@ -859,11 +859,11 @@ static void drawOverviewBottomNav() {
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_graph, 126 + 53, 274 + 19);
 
-    // ปุ่ม 3: รีเลย์ (พื้น 0x28A3, ขอบชมพูม่วงหนา 2 ชั้น คมกริบ)
-    lcd.fillRoundRect(242, 274, 106, 38, 8, 0x28A3);
-    lcd.drawRoundRect(242, 274, 106, 38, 8, 0xF81F);
-    lcd.drawRoundRect(243, 275, 104, 36, 7, 0xB887);
-    lcd.setTextColor(0xFCD7, 0x28A3);
+    // ปุ่ม 3: รีเลย์ (พื้นสีทับทิมเข้ม 0x4002, ขอบแดงทับทิมนีออนหนา 2 ชั้น สว่างคมกริบ, ตัวหนังสือขาวสว่างชัดเจน)
+    lcd.fillRoundRect(242, 274, 106, 38, 8, 0x4002);
+    lcd.drawRoundRect(242, 274, 106, 38, 8, 0xF948); // ขอบแดงทับทิมนีออนสว่างสดใส (Vibrant Ruby Coral)
+    lcd.drawRoundRect(243, 275, 104, 36, 7, 0xFD20); // ชั้นในส้มแสดนีออนเรืองแสง
+    lcd.setTextColor(0xFFFF, 0x4002); // ข้อความสีขาวสว่างคมชัด
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_relay, 242 + 53, 274 + 19);
 
@@ -1997,58 +1997,68 @@ static void drawPageRelays(bool pumpState, bool mistingState) {
     }
 
     lcd.setTextSize(1);
-    lcd.setTextColor(COLOR_ACCENT, COLOR_BG);
+    lcd.setTextColor(0xFFE0, COLOR_BG); // หัวข้อสีเหลืองทองนีออนสว่างสดใส
     lcd.drawString(L_STR("แผงควบคุมสวิตช์รีเลย์ & ระบบอัตโนมัติ", "MANUAL & AUTOMATIC RELAY CONTROL", "继电器手动与智能自控面板"), 14, 42);
 
-    int r1_bg = pumpState ? 0x0320 : COLOR_CARD_BG;
-    int r1_border = pumpState ? 0x07E0 : COLOR_TEXT_DIM;
-    lcd.fillRoundRect(14, 60, 218, 70, 6, r1_bg);
-    lcd.drawRoundRect(14, 60, 218, 70, 6, r1_border);
+    // Relay 1: ปั๊มน้ำ 1
+    int r1_bg = pumpState ? 0x0320 : 0x10E4;
+    uint16_t r1_border = pumpState ? 0x07E0 : 0xF948; // เปิด = เขียวนีออน / ปิด = แดงทับทิมนีออนสว่าง
+    lcd.fillRoundRect(14, 60, 218, 70, 8, r1_bg);
+    lcd.drawRoundRect(14, 60, 218, 70, 8, r1_border);
+    lcd.drawRoundRect(15, 61, 216, 68, 7, pumpState ? 0x15D3 : 0xFD20); // ขอบหนา 2 ชั้น คมกริบ
     lcd.setTextSize(1);
-    lcd.setTextColor(pumpState ? 0x07E0 : COLOR_TEXT_VAL, r1_bg);
+    lcd.setTextColor(0xFFFF, r1_bg); // ข้อความสีขาวสว่าง ชัดเจน คอนทราสต์สูง
     lcd.drawString(pumpState ? L_STR("ปั๊มน้ำ 1: เปิด [ทำงาน]", "PUMP 1: ON [RUNNING]", "水泵 1: 开启 [运行中]") : L_STR("ปั๊มน้ำ 1: ปิด [สแตนด์บาย]", "PUMP 1: OFF [STANDBY]", "水泵 1: 关闭 [待机]"), 24, 72);
-    lcd.setTextColor(COLOR_TEXT_DIM, r1_bg);
+    lcd.setTextColor(pumpState ? 0x15D3 : 0x3DFF, r1_bg);
     lcd.drawString("Relay O1 (GPIO 39) | Safety Cutoff 5m", 24, 98);
 
+    // Relay 2: ปั๊มน้ำ 2
     bool r2_state = (digitalRead(RELAY_2_PIN) == HIGH);
-    int r2_bg = r2_state ? 0x0320 : COLOR_CARD_BG;
-    int r2_border = r2_state ? 0x07E0 : COLOR_TEXT_DIM;
-    lcd.fillRoundRect(248, 60, 218, 70, 6, r2_bg);
-    lcd.drawRoundRect(248, 60, 218, 70, 6, r2_border);
-    lcd.setTextColor(r2_state ? 0x07E0 : COLOR_TEXT_VAL, r2_bg);
+    int r2_bg = r2_state ? 0x0320 : 0x10E4;
+    uint16_t r2_border = r2_state ? 0x07E0 : 0xF948;
+    lcd.fillRoundRect(248, 60, 218, 70, 8, r2_bg);
+    lcd.drawRoundRect(248, 60, 218, 70, 8, r2_border);
+    lcd.drawRoundRect(249, 61, 216, 68, 7, r2_state ? 0x15D3 : 0xFD20);
+    lcd.setTextColor(0xFFFF, r2_bg);
     lcd.drawString(r2_state ? L_STR("ปั๊มน้ำ 2: เปิด [ทำงาน]", "PUMP 2: ON [RUNNING]", "水泵 2: 开启 [运行中]") : L_STR("ปั๊มน้ำ 2: ปิด [สแตนด์บาย]", "PUMP 2: OFF [STANDBY]", "水泵 2: 关闭 [待机]"), 258, 72);
-    lcd.setTextColor(COLOR_TEXT_DIM, r2_bg);
+    lcd.setTextColor(r2_state ? 0x15D3 : 0x3DFF, r2_bg);
     lcd.drawString("Relay O2 (GPIO 38) | Solenoid Valve", 258, 98);
 
+    // Relay 3: วาล์วน้ำ
     bool r3_state = (digitalRead(RELAY_3_PIN) == HIGH);
-    int r3_bg = r3_state ? 0x0320 : COLOR_CARD_BG;
-    int r3_border = r3_state ? 0x07E0 : COLOR_TEXT_DIM;
-    lcd.fillRoundRect(14, 140, 218, 70, 6, r3_bg);
-    lcd.drawRoundRect(14, 140, 218, 70, 6, r3_border);
-    lcd.setTextColor(r3_state ? 0x07E0 : COLOR_TEXT_VAL, r3_bg);
+    int r3_bg = r3_state ? 0x0320 : 0x10E4;
+    uint16_t r3_border = r3_state ? 0x07E0 : 0xF948;
+    lcd.fillRoundRect(14, 140, 218, 70, 8, r3_bg);
+    lcd.drawRoundRect(14, 140, 218, 70, 8, r3_border);
+    lcd.drawRoundRect(15, 141, 216, 68, 7, r3_state ? 0x15D3 : 0xFD20);
+    lcd.setTextColor(0xFFFF, r3_bg);
     lcd.drawString(r3_state ? L_STR("วาล์วน้ำ: เปิด [ไหล]", "VALVE: ON [OPEN]", "电磁阀: 开启 [通水]") : L_STR("วาล์วน้ำ: ปิด [ปิดสนิท]", "VALVE: OFF [CLOSED]", "电磁阀: 关闭 [切断]"), 24, 152);
-    lcd.setTextColor(COLOR_TEXT_DIM, r3_bg);
+    lcd.setTextColor(r3_state ? 0x15D3 : 0x3DFF, r3_bg);
     lcd.drawString("Relay O3 (GPIO 7)  | Surface Valve", 24, 178);
 
-    int r4_bg = mistingState ? 0x0320 : COLOR_CARD_BG;
-    int r4_border = mistingState ? 0x07E0 : COLOR_TEXT_DIM;
-    lcd.fillRoundRect(248, 140, 218, 70, 6, r4_bg);
-    lcd.drawRoundRect(248, 140, 218, 70, 6, r4_border);
-    lcd.setTextColor(mistingState ? 0x07E0 : COLOR_TEXT_VAL, r4_bg);
+    // Relay 4: พ่นหมอก
+    int r4_bg = mistingState ? 0x0320 : 0x10E4;
+    uint16_t r4_border = mistingState ? 0x07E0 : 0xF948;
+    lcd.fillRoundRect(248, 140, 218, 70, 8, r4_bg);
+    lcd.drawRoundRect(248, 140, 218, 70, 8, r4_border);
+    lcd.drawRoundRect(249, 141, 216, 68, 7, mistingState ? 0x15D3 : 0xFD20);
+    lcd.setTextColor(0xFFFF, r4_bg);
     lcd.drawString(mistingState ? L_STR("พ่นหมอก: เปิด [ทำงาน]", "MISTING: ON [ACTIVE]", "喷雾: 开启 [降温中]") : L_STR("พ่นหมอก: ปิด [สแตนด์บาย]", "MISTING: OFF [STANDBY]", "喷雾: 关闭 [待机]"), 258, 152);
-    lcd.setTextColor(COLOR_TEXT_DIM, r4_bg);
+    lcd.setTextColor(mistingState ? 0x15D3 : 0x3DFF, r4_bg);
     lcd.drawString("Relay O4 (GPIO 6)  | Misting Cooler", 258, 178);
 
-    lcd.fillRoundRect(14, 222, 452, 60, 6, 0x0184);
-    lcd.drawRoundRect(14, 222, 452, 60, 6, COLOR_CYAN);
+    // กล่องแสดงกฎ Smart Automation
+    lcd.fillRoundRect(14, 222, 452, 60, 8, 0x0184);
+    lcd.drawRoundRect(14, 222, 452, 60, 8, 0x07FF);
+    lcd.drawRoundRect(15, 223, 450, 58, 7, 0x03FF);
     lcd.setTextSize(1);
-    lcd.setTextColor(COLOR_CYAN, 0x0184);
+    lcd.setTextColor(0xFFE0, 0x0184); // หัวข้อกฎสีเหลืองทองนีออน
     lcd.drawString(L_STR("เงื่อนไขการทำงานอัตโนมัติ (Smart Rules):", "SMART AUTOMATION RULES:", "智能自控联动规则:"), 24, 230);
-    lcd.setTextColor(COLOR_TEXT_VAL, 0x0184);
+    lcd.setTextColor(0xFFFF, 0x0184); // เนื้อหากฎสีขาวสว่าง ชัดเจน
     lcd.drawString(L_STR("1. ปั๊มน้ำ: เปิดเมื่อดิน < 40%, ปิดเมื่อดิน >= 65%", "1. Water Pump: Auto ON < 40%, OFF >= 65%", "1. 水泵: 土壤湿度<40%启动，>=65%关闭"), 24, 246);
     lcd.drawString(L_STR("2. พ่นหมอก: เปิดเมื่อ อุณหภูมิ > 35C และ ความชื้น < 70%", "2. Misting: Auto ON Temp > 35C & RH < 70%", "2. 喷雾: 气温>35℃且空气湿度<70%启动"), 24, 262);
 
-    lcd.setTextColor(COLOR_YELLOW, COLOR_BG);
+    lcd.setTextColor(0x07FF, COLOR_BG);
     lcd.drawString(L_STR("แตะที่กล่องเพื่อสลับสถานะเปิด/ปิด", "TAP BOX TO TOGGLE RELAY STATE", "点击方块切换开关状态"), 135, 298);
 }
 

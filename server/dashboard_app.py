@@ -952,9 +952,12 @@ st.markdown("""
         color: #38bdf8;
     }
     .sf-btn-relay {
-        background: #3b1216;
-        border: 2px solid #b91c1c;
-        color: #f87171;
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.25) 0%, rgba(159, 18, 57, 0.35) 100%) !important;
+        border: 2.5px solid #ff2d55 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 0 16px rgba(255, 45, 85, 0.45) !important;
+        text-shadow: 0 0 8px rgba(255, 45, 85, 0.7);
     }
     .sf-btn-setup {
         background: #3b2304;
@@ -1839,13 +1842,13 @@ with tab_relays:
     r_col1, r_col2, r_col3, r_col4 = st.columns(4)
     with r_col1:
         st.markdown(f"""
-        <div style="background:{'#064e3b' if p1_state else '#1e293b'}; border:2px solid {'#00ff87' if p1_state else '#475569'}; border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,0.4);">
-            <div style="font-size:0.75rem; font-weight:800; color:#94a3b8; font-family:'JetBrains Mono',monospace;">OUTPUT 1 (GPIO 39)</div>
-            <div style="font-size:1.4rem; font-weight:900; color:{'#00ff87' if p1_state else '#cbd5e1'}; margin:8px 0; font-family:'JetBrains Mono',monospace;">
+        <div style="background:{'linear-gradient(135deg, #064e3b 0%, #022c22 100%)' if p1_state else 'linear-gradient(135deg, #2a0812 0%, #160408 100%)'}; border:3px solid {'#00ff87' if p1_state else '#ff2d55'}; border-radius:14px; padding:16px; text-align:center; box-shadow:{'0 0 20px rgba(0,255,135,0.45)' if p1_state else '0 0 16px rgba(255,45,85,0.35)'};">
+            <div style="font-size:0.75rem; font-weight:800; color:{'#6ee7b7' if p1_state else '#fda4af'}; font-family:'JetBrains Mono',monospace;">OUTPUT 1 (GPIO 39)</div>
+            <div style="font-size:1.45rem; font-weight:900; color:{'#00ff87' if p1_state else '#ff3366'}; margin:8px 0; font-family:'JetBrains Mono',monospace; text-shadow:0 0 10px {'rgba(0,255,135,0.5)' if p1_state else 'rgba(255,51,102,0.5)'};">
                 {'PUMP 1: ON' if p1_state else 'PUMP 1: OFF'}
             </div>
-            <div style="font-size:0.78rem; color:#e2e8f0;">ปั๊มน้ำหลัก (Drip Irrigation)</div>
-            <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">Safety Cutoff: 5 นาที</div>
+            <div style="font-size:0.82rem; font-weight:700; color:#ffffff;">ปั๊มน้ำหลัก (Drip Irrigation)</div>
+            <div style="font-size:0.72rem; color:{'#a7f3d0' if p1_state else '#fecdd3'}; margin-top:4px;">Safety Cutoff: 5 นาที</div>
         </div>
         """, unsafe_allow_html=True)
         if st.button("สลับสถานะ PUMP 1", key="btn_toggle_p1", use_container_width=True):
@@ -1853,13 +1856,13 @@ with tab_relays:
 
     with r_col2:
         st.markdown(f"""
-        <div style="background:{'#064e3b' if p2_state else '#1e293b'}; border:2px solid {'#00ff87' if p2_state else '#475569'}; border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,0.4);">
-            <div style="font-size:0.75rem; font-weight:800; color:#94a3b8; font-family:'JetBrains Mono',monospace;">OUTPUT 2 (GPIO 38)</div>
-            <div style="font-size:1.4rem; font-weight:900; color:{'#00ff87' if p2_state else '#cbd5e1'}; margin:8px 0; font-family:'JetBrains Mono',monospace;">
+        <div style="background:{'linear-gradient(135deg, #064e3b 0%, #022c22 100%)' if p2_state else 'linear-gradient(135deg, #2a0812 0%, #160408 100%)'}; border:3px solid {'#00ff87' if p2_state else '#ff2d55'}; border-radius:14px; padding:16px; text-align:center; box-shadow:{'0 0 20px rgba(0,255,135,0.45)' if p2_state else '0 0 16px rgba(255,45,85,0.35)'};">
+            <div style="font-size:0.75rem; font-weight:800; color:{'#6ee7b7' if p2_state else '#fda4af'}; font-family:'JetBrains Mono',monospace;">OUTPUT 2 (GPIO 38)</div>
+            <div style="font-size:1.45rem; font-weight:900; color:{'#00ff87' if p2_state else '#ff3366'}; margin:8px 0; font-family:'JetBrains Mono',monospace; text-shadow:0 0 10px {'rgba(0,255,135,0.5)' if p2_state else 'rgba(255,51,102,0.5)'};">
                 {'MIST: ON' if p2_state else 'MIST: OFF'}
             </div>
-            <div style="font-size:0.78rem; color:#e2e8f0;">ระบบพ่นหมอกลดความร้อน</div>
-            <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">Auto VPD & Temp Rule</div>
+            <div style="font-size:0.82rem; font-weight:700; color:#ffffff;">ระบบพ่นหมอกลดความร้อน</div>
+            <div style="font-size:0.72rem; color:{'#a7f3d0' if p2_state else '#fecdd3'}; margin-top:4px;">Auto VPD & Temp Rule</div>
         </div>
         """, unsafe_allow_html=True)
         if st.button("สลับสถานะ MIST 2", key="btn_toggle_p2", use_container_width=True):
@@ -1867,13 +1870,13 @@ with tab_relays:
 
     with r_col3:
         st.markdown(f"""
-        <div style="background:{'#064e3b' if p3_state else '#1e293b'}; border:2px solid {'#00ff87' if p3_state else '#475569'}; border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,0.4);">
-            <div style="font-size:0.75rem; font-weight:800; color:#94a3b8; font-family:'JetBrains Mono',monospace;">OUTPUT 3 (GPIO 7)</div>
-            <div style="font-size:1.4rem; font-weight:900; color:{'#00ff87' if p3_state else '#cbd5e1'}; margin:8px 0; font-family:'JetBrains Mono',monospace;">
+        <div style="background:{'linear-gradient(135deg, #064e3b 0%, #022c22 100%)' if p3_state else 'linear-gradient(135deg, #2a0812 0%, #160408 100%)'}; border:3px solid {'#00ff87' if p3_state else '#ff2d55'}; border-radius:14px; padding:16px; text-align:center; box-shadow:{'0 0 20px rgba(0,255,135,0.45)' if p3_state else '0 0 16px rgba(255,45,85,0.35)'};">
+            <div style="font-size:0.75rem; font-weight:800; color:{'#6ee7b7' if p3_state else '#fda4af'}; font-family:'JetBrains Mono',monospace;">OUTPUT 3 (GPIO 7)</div>
+            <div style="font-size:1.45rem; font-weight:900; color:{'#00ff87' if p3_state else '#ff3366'}; margin:8px 0; font-family:'JetBrains Mono',monospace; text-shadow:0 0 10px {'rgba(0,255,135,0.5)' if p3_state else 'rgba(255,51,102,0.5)'};">
                 {'VALVE: ON' if p3_state else 'VALVE: OFF'}
             </div>
-            <div style="font-size:0.78rem; color:#e2e8f0;">โซลินอยด์วาล์วแปลง 1</div>
-            <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">12V DC Solenoid Valve</div>
+            <div style="font-size:0.82rem; font-weight:700; color:#ffffff;">โซลินอยด์วาล์วแปลง 1</div>
+            <div style="font-size:0.72rem; color:{'#a7f3d0' if p3_state else '#fecdd3'}; margin-top:4px;">12V DC Solenoid Valve</div>
         </div>
         """, unsafe_allow_html=True)
         if st.button("สลับสถานะ VALVE 3", key="btn_toggle_p3", use_container_width=True):
@@ -1881,13 +1884,13 @@ with tab_relays:
 
     with r_col4:
         st.markdown(f"""
-        <div style="background:{'#064e3b' if p4_state else '#1e293b'}; border:2px solid {'#00ff87' if p4_state else '#475569'}; border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,0.4);">
-            <div style="font-size:0.75rem; font-weight:800; color:#94a3b8; font-family:'JetBrains Mono',monospace;">OUTPUT 4 (GPIO 6)</div>
-            <div style="font-size:1.4rem; font-weight:900; color:{'#00ff87' if p4_state else '#cbd5e1'}; margin:8px 0; font-family:'JetBrains Mono',monospace;">
+        <div style="background:{'linear-gradient(135deg, #064e3b 0%, #022c22 100%)' if p4_state else 'linear-gradient(135deg, #2a0812 0%, #160408 100%)'}; border:3px solid {'#00ff87' if p4_state else '#ff2d55'}; border-radius:14px; padding:16px; text-align:center; box-shadow:{'0 0 20px rgba(0,255,135,0.45)' if p4_state else '0 0 16px rgba(255,45,85,0.35)'};">
+            <div style="font-size:0.75rem; font-weight:800; color:{'#6ee7b7' if p4_state else '#fda4af'}; font-family:'JetBrains Mono',monospace;">OUTPUT 4 (GPIO 6)</div>
+            <div style="font-size:1.45rem; font-weight:900; color:{'#00ff87' if p4_state else '#ff3366'}; margin:8px 0; font-family:'JetBrains Mono',monospace; text-shadow:0 0 10px {'rgba(0,255,135,0.5)' if p4_state else 'rgba(255,51,102,0.5)'};">
                 {'FAN: ON' if p4_state else 'FAN: OFF'}
             </div>
-            <div style="font-size:0.78rem; color:#e2e8f0;">พัดลมระบายอากาศโรงเรือน</div>
-            <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">Exhaust Ventilation Fan</div>
+            <div style="font-size:0.82rem; font-weight:700; color:#ffffff;">พัดลมระบายอากาศโรงเรือน</div>
+            <div style="font-size:0.72rem; color:{'#a7f3d0' if p4_state else '#fecdd3'}; margin-top:4px;">Exhaust Ventilation Fan</div>
         </div>
         """, unsafe_allow_html=True)
         if st.button("สลับสถานะ FAN 4", key="btn_toggle_p4", use_container_width=True):
