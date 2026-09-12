@@ -1057,7 +1057,7 @@ def safe_float(val, default=0.0):
     except Exception:
         return default
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=1)
 def load_telemetry_data(limit=1000):
     if not os.path.exists(DB_PATH):
         return pd.DataFrame()
@@ -2091,3 +2091,12 @@ class AgriLSTMForecaster(nn.Module):
         return self.fc(out[:, -1, :])
 """
         st.code(pytorch_code, language="python")
+
+# ==============================================================================
+# Live Telemetry Real-time Auto-Refresh Loop
+# ==============================================================================
+if auto_refresh:
+    import time
+    time.sleep(3)
+    st.rerun()
+
