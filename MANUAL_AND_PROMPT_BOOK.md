@@ -1113,7 +1113,23 @@ cd /Users/chewathassana/Desktop/handysense/server
     * อัปเดตเฟิร์มแวร์บอร์ด [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) คอมไพล์และแฟลชอัปโหลดสำเร็จ
     * อัปเดตเว็บแดชบอร์ด [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ปรับแต่งป้ายหัวการ์ดทั้ง 4 เป็นภาษาไทยสีสันสดใสตัวหนา 800 สวยงามระดับมืออาชีพ
 
-
-
-
-
+### 🔹 พรอมพ์ที่ 54: ปรับสีของ VPD และสีของหน่วยปริมาณการวัดต่างๆ ให้เป็นสีสว่างสดใส อ่านง่ายชัดเจน
+> **ผู้ใช้:** *"ปรับสีของ VPD. และสีของหน่วยของปริมาณต่างๆ ให้เป็นสีสว่าง"*
+* **การดำเนินการของ AI:**
+  * **การวิเคราะห์การมองเห็นและความคมชัด (High-Contrast Color Palette):**
+    * สีเดิมของหน่วยวัดบางค่าใช้โทนเทาตุ่นหรือสีเข้ม (`0x8CD7`, `0x8410`, `0x7BEF`) ซึ่งมองเห็นได้ยากในระยะไกลหรือในสภาพแสงกลางแจ้ง
+    * ดำเนินการยกระดับทุกหน่วยวัดและป้ายกำกับ VPD ให้เป็นเฉดสีสว่างสดใส (Vibrant Neon & High-Luminance Colors) แบบ 16-bit RGB565 บนจอ LCD และ Hex Code บน Web Dashboard:
+      1. **ป้ายกำกับ VPD:** ปรับเป็น **เขียวนีออนสว่างสดใส (`0x07E0` / `#00ff87`)**
+      2. **หน่วย VPD (`kPa`):** ปรับเป็น **ฟ้าไซแอนสว่างสดใส (`0x07FF` / `#38bdf8`)**
+      3. **หน่วยอุณหภูมิ (`°C`) & ความชื้น (`%RH`):** ปรับเป็น **ฟ้าสว่างสดใส (`0x07FF` / `#38bdf8`)**
+      4. **หน่วยความเข้มแสง (`kLux`) & รังสีดวงอาทิตย์ (`W/m²`):** ปรับเป็น **เหลืองทองนีออนสว่าง (`0xFFE0` / `#fef08a`)**
+      5. **หน่วยความชื้นในดิน (`%`):** ปรับเป็น **เขียวมรกตนีออนสว่าง (`0x07E0` / `#00ff87`)**
+      6. **ป้ายและหน่วยดินลึก & pH:**
+         * ป้าย **`pH`**: ปรับเป็น **เขียวนีออนสว่าง (`0x07E0` / `#00ff87`)**
+         * ป้าย **`EC`**: ปรับเป็น **ฟ้าไซแอนนีออนสว่าง (`0x07FF` / `#00f2fe`)**
+         * หน่วย **`uS/cm`**: ปรับเป็น **ฟ้าสกายบลูสว่างสดใส (`0x3DFF` / `#38bdf8`)**
+         * หน่วย **`mg/kg`** (NPK): ปรับเป็น **เหลืองทองสว่างชัดเจน (`0xFFE0` / `#fde047`)**
+  * **การพัฒนาและติดตั้งจริง (End-to-End Implementation):**
+    * **เฟิร์มแวร์บอร์ด ATD3.5-S3:** ปรับปรุงใน [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ทำการ Build และแฟลชอัปโหลดผ่าน PlatformIO ลงชิป ESP32-S3 ทางพอร์ต `/dev/cu.usbserial-210` สำเร็จสมบูรณ์
+    * **เว็บแดชบอร์ด:** ปรับปรุงใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้สีของหน่วยวัดสอดคล้องกับหน้าจอบอร์ดจริง 100%
+    * **บริการรับข้อมูล:** ฟื้นฟูการทำงานของ [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) เชื่อมต่อแบบเรียลไทม์ ไร้ข้อผิดพลาด

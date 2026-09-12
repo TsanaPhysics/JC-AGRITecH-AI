@@ -984,9 +984,9 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 24, 68, &fonts::Font4);
         int tW = lcd.textWidth(buf, &fonts::Font4);
-        // สัญลักษณ์องศาเซลเซียส °C
-        lcd.drawCircle(24 + tW + 5, 72, 3, 0x8CD7);
-        lcd.setTextColor(0x8CD7, 0x10E4);
+        // สัญลักษณ์องศาเซลเซียส °C (สีฟ้าสว่างสดใส)
+        lcd.drawCircle(24 + tW + 5, 72, 3, 0x07FF);
+        lcd.setTextColor(0x07FF, 0x10E4);
         lcd.drawString("C", 24 + tW + 11, 68, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
@@ -999,7 +999,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 136, 68, &fonts::Font4);
         int hW = lcd.textWidth(buf, &fonts::Font4);
-        lcd.setTextColor(0x8CD7, 0x10E4);
+        // หน่วย %RH (สีฟ้าสว่างสดใส)
+        lcd.setTextColor(0x07FF, 0x10E4);
         lcd.drawString("%RH", 136 + hW + 4, 75, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
@@ -1019,16 +1020,16 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     int totalVpdW = vpdPrefixW + vpdNumW + vpdUnitW;
     int vpdStartX = 122 - (totalVpdW / 2); // จัดกึ่งกลางการ์ด 1 (x: 10 ถึง 234)
 
-    // ป้ายกำกับ "VPD " สีเขียวมรกตนีออน
-    lcd.setTextColor(0x15D3, 0x10E4);
+    // ป้ายกำกับ "VPD " สีเขียวนีออนสว่างสดใส
+    lcd.setTextColor(0x07E0, 0x10E4);
     lcd.drawString("VPD ", vpdStartX, 118, &fonts::Font2);
 
-    // ตัวเลขค่า VPD สีขาวคมชัด ขนาดเท่ากับอุณหภูมิเป๊ะๆ (&fonts::Font4)
+    // ตัวเลขค่า VPD สีขาวสว่างคมชัด ขนาดเท่ากับอุณหภูมิเป๊ะๆ (&fonts::Font4)
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, vpdStartX + vpdPrefixW, 112, &fonts::Font4);
 
-    // หน่วย " kPa" สีฟ้าอ่อนสไตล์วิทยาศาสตร์
-    lcd.setTextColor(0x8CD7, 0x10E4);
+    // หน่วย " kPa" สีฟ้าไซแอนสว่างสดใส
+    lcd.setTextColor(0x07FF, 0x10E4);
     lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 118, &fonts::Font2);
 
     // ========================================================================
@@ -1041,7 +1042,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 342, 74, &fonts::Font4);
         int lW = lcd.textWidth(buf, &fonts::Font4);
-        lcd.setTextColor(0xDEFB, 0x10E4);
+        // หน่วย kLux สีเหลืองทองสว่างสดใส
+        lcd.setTextColor(0xFFE0, 0x10E4);
         lcd.drawString("kLux", 342 + lW + 4, 78, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
@@ -1055,7 +1057,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 350, 110, &fonts::Font4);
         int sW = lcd.textWidth(buf, &fonts::Font4);
-        drawUnitW_m2(350 + sW + 4, 112, 0xDEFB, 0x10E4);
+        // หน่วย W/m² สีเหลืองทองสว่างสดใส
+        drawUnitW_m2(350 + sW + 4, 112, 0xFFE0, 0x10E4);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
         lcd.drawString("---", 350, 110, &fonts::Font4);
@@ -1090,7 +1093,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_right);
     lcd.drawString(buf, gcx + 18, gcy - 8, &fonts::Font4);
-    lcd.setTextColor(0x07FF, 0x10E4);
+    // หน่วย % สีเขียวมรกตนีออนสว่างสดใส
+    lcd.setTextColor(0x07E0, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_left);
     lcd.drawString("%", gcx + 22, gcy - 4, &fonts::Font2);
     lcd.setTextDatum(textdatum_t::top_left);
@@ -1100,20 +1104,23 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // ========================================================================
     // แถวที่ 1: pH (ชดเชยด้วยโมเดล AI) และ EC
     lcd.fillRect(256, 192, 210, 30, 0x10E4);
+    // ป้าย pH สีเขียวนีออนสว่าง
     lcd.setTextColor(0x07E0, 0x10E4);
     lcd.drawString("pH", 256, 197, &fonts::Font2);
     snprintf(buf, sizeof(buf), "%.1f", (data.aiCalibrated.ph > 0.1f) ? data.aiCalibrated.ph : data.soil7in1.ph);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, 282, 194, &fonts::Font4);
 
-    lcd.setTextColor(0x9CD3, 0x10E4);
+    // ป้าย EC สีฟ้าไซแอนนีออนสว่าง
+    lcd.setTextColor(0x07FF, 0x10E4);
     lcd.drawString("EC", 338, 197, &fonts::Font2);
     snprintf(buf, sizeof(buf), "%.0f", data.soil7in1.ec);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, 364, 194, &fonts::Font4);
     int ecW = lcd.textWidth(buf, &fonts::Font4);
-    lcd.setTextColor(0x7BEF, 0x10E4);
-    lcd.drawString("uS/cm", 364 + ecW + 3, 202, &fonts::Font0);
+    // หน่วย uS/cm สีฟ้าสว่างสดใส
+    lcd.setTextColor(0x3DFF, 0x10E4);
+    lcd.drawString("uS/cm", 364 + ecW + 3, 200, &fonts::Font2);
 
     // แถวที่ 2: แคปซูลเม็ดยาสามสี N, P, K (ค่าคำนวณจาก Deep Learning TinyML) + mg/kg
     lcd.fillRect(252, 224, 214, 28, 0x10E4);
@@ -1139,8 +1146,8 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     snprintf(buf, sizeof(buf), "K %d", dispK);
     lcd.drawString(buf, 358 + 26, 226 + 11);
 
-    // หน่วย mg/kg
-    lcd.setTextColor(0x8410, 0x10E4);
+    // หน่วย mg/kg สีเหลืองทองสว่างสดใส ชัดเจน
+    lcd.setTextColor(0xFFE0, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_left);
     lcd.drawString("mg/kg", 416, 226 + 11, &fonts::Font0);
     lcd.setTextDatum(textdatum_t::top_left);

@@ -1330,10 +1330,10 @@ with tab_overview:
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-around; margin:12px 0 6px 0;">
                         <div style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
-                            {air_t:.1f}<span style="font-size:1.6rem; vertical-align:super; color:#e2e8f0; font-weight:600; margin-left:2px;">°C</span>
+                            {air_t:.1f}<span style="font-size:1.6rem; vertical-align:super; color:#38bdf8; font-weight:600; margin-left:2px;">°C</span>
                         </div>
                         <div style="font-size:3.2rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
-                            {air_h:.0f}<span style="font-size:1.6rem; color:#e2e8f0; font-weight:600; margin-left:4px;">%RH</span>
+                            {air_h:.0f}<span style="font-size:1.6rem; color:#38bdf8; font-weight:600; margin-left:4px;">%RH</span>
                         </div>
                     </div>
                     <!-- VPD Centered below Temp & RH with font size matching temperature -->
@@ -1436,8 +1436,8 @@ with tab_overview:
                         <span class="sf-pill-badge" style="background:#064e3b; border-color:#10b981; color:#34d399; font-weight:800;">AI-Edge</span>
                     </div>
                     <div style="display:flex; justify-content:flex-start; gap:36px; font-size:1.45rem; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:2px; margin-bottom:12px;">
-                        <span><span style="color:#c084fc;">pH</span> <b style="color:#ffffff;">{ph_val:.1f}</b></span>
-                        <span><span style="color:#38bdf8;">EC</span> <b style="color:#ffffff;">{ec_val:.0f}</b> <span style="font-size:0.92rem; color:#94a3b8; font-weight:600;">µS/cm</span></span>
+                        <span><span style="color:#00ff87;">pH</span> <b style="color:#ffffff;">{ph_val:.1f}</b></span>
+                        <span><span style="color:#00f2fe;">EC</span> <b style="color:#ffffff;">{ec_val:.0f}</b> <span style="font-size:0.95rem; color:#38bdf8; font-weight:700;">µS/cm</span></span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div class="sf-npk-capsule" style="background:#181c3a; border:1.5px solid #4f46e5;">
@@ -1452,7 +1452,7 @@ with tab_overview:
                             <div class="sf-circle-badge" style="background:#f59e0b;">K</div>
                             <span style="font-size:1.25rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace;">{k_val:.0f}</span>
                         </div>
-                        <span style="color:#64748b; font-size:0.88rem; font-weight:600; font-family:'JetBrains Mono',monospace; margin-left:6px;">mg/kg</span>
+                        <span style="color:#fde047; font-size:0.92rem; font-weight:700; font-family:'JetBrains Mono',monospace; margin-left:6px;">mg/kg</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:#94a3b8; font-family:'JetBrains Mono',monospace; margin-top:10px;">
                         <span>เขตรากพืช 7-in-1 (RS485)</span>
