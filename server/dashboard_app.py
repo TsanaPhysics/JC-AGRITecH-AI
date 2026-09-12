@@ -389,11 +389,33 @@ st.markdown("""
         box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
     }
 
+    /* Master UI Gradient Borders from smart_farm_ui_overview.jpg */
+    .card-air {
+        border: 2px solid transparent !important;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #00ff87 0%, #00f2fe 50%, #8b5cf6 100%) border-box !important;
+    }
+    .card-light {
+        border: 2px solid transparent !important;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #f59e0b 0%, #ec4899 100%) border-box !important;
+    }
+    .card-soil {
+        border: 2px solid transparent !important;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #00f2fe 0%, #8b5cf6 100%) border-box !important;
+    }
+    .card-fertility {
+        border: 2px solid transparent !important;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #f59e0b 0%, #b45309 100%) border-box !important;
+    }
+
     /* Distinct Card Glows on Hover */
-    .card-air:hover { border-color: rgba(0, 242, 254, 0.5); box-shadow: 0 14px 36px rgba(0, 242, 254, 0.18); }
-    .card-light:hover { border-color: rgba(255, 183, 3, 0.5); box-shadow: 0 14px 36px rgba(255, 183, 3, 0.18); }
-    .card-soil:hover { border-color: rgba(0, 255, 135, 0.5); box-shadow: 0 14px 36px rgba(0, 255, 135, 0.18); }
-    .card-fertility:hover { border-color: rgba(192, 132, 252, 0.5); box-shadow: 0 14px 36px rgba(192, 132, 252, 0.18); }
+    .card-air:hover { box-shadow: 0 16px 36px rgba(0, 242, 254, 0.28); }
+    .card-light:hover { box-shadow: 0 16px 36px rgba(255, 183, 3, 0.28); }
+    .card-soil:hover { box-shadow: 0 16px 36px rgba(0, 255, 135, 0.28); }
+    .card-fertility:hover { box-shadow: 0 16px 36px rgba(192, 132, 252, 0.28); }
 
     .kpi-accent-bar {
         position: absolute;
@@ -811,6 +833,142 @@ st.markdown("""
     .ai-capsule-p { background: #052e16; border: 1.5px solid #00ff87; color: #fff; }
     .ai-capsule-k { background: #3b2005; border: 1.5px solid #f59e0b; color: #fff; }
     .ai-capsule-ph { background: #2e1065; border: 1.5px solid #c084fc; color: #fff; }
+
+    /* =========================================================================
+       Smart Farm UI Overview (smart_farm_ui_overview.jpg replica)
+       ========================================================================= */
+    .sf-overview-container {
+        background: #090e17;
+        border-radius: 12px;
+        padding: 16px;
+        box-sizing: border-box;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .sf-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 14px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .sf-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 768px) {
+        .sf-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .sf-card {
+        border-radius: 18px;
+        padding: 18px 20px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 165px;
+    }
+    .sf-card-weather {
+        border: 2px solid transparent;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #00ff87 0%, #00f2fe 50%, #8b5cf6 100%) border-box;
+    }
+    .sf-card-solar {
+        border: 2px solid transparent;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #f59e0b 0%, #ec4899 100%) border-box;
+    }
+    .sf-card-soil {
+        border: 2px solid transparent;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #00f2fe 0%, #8b5cf6 100%) border-box;
+    }
+    .sf-card-npk {
+        border: 2px solid transparent;
+        background: linear-gradient(#111722, #111722) padding-box,
+                    linear-gradient(135deg, #f59e0b 0%, #b45309 100%) border-box;
+    }
+    .sf-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .sf-card-title {
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+    }
+    .sf-pill-badge {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        padding: 3px 10px;
+        font-size: 0.82rem;
+        color: #f1f5f9;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .sf-nav-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    .sf-nav-btn {
+        padding: 12px 6px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.98rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .sf-btn-overview {
+        background: #053828;
+        border: 2px solid #00ff87;
+        color: #00ff87;
+        box-shadow: 0 0 16px rgba(0, 255, 135, 0.35);
+    }
+    .sf-btn-graph {
+        background: #0c2a38;
+        border: 2px solid #0284c7;
+        color: #38bdf8;
+    }
+    .sf-btn-relay {
+        background: #3b1216;
+        border: 2px solid #b91c1c;
+        color: #f87171;
+    }
+    .sf-btn-setup {
+        background: #3b2304;
+        border: 2px solid #b45309;
+        color: #fbbf24;
+    }
+    .sf-npk-capsule {
+        border-radius: 20px;
+        padding: 4px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .sf-circle-badge {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.78rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
     /* Math and Section Cards */
     .math-card {
@@ -1589,6 +1747,49 @@ with tab_board:
             <div style="padding:6px 14px; border-radius:8px; font-size:0.82rem; font-weight:800; background:rgba(0,242,254,0.06); border:1.5px solid #00f2fe; color:#38bdf8;">ไทย</div>
         </div>
         """
+    elif is_p1:
+        # Screen 1: Smart Farm UI Overview - Replicating smart_farm_ui_overview.jpg
+        top_tabs_html = f"""
+        <div class="sf-top-bar" style="background:#0b0f17; border-bottom:1px solid rgba(255,255,255,0.08); padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+                    <rect width="36" height="36" rx="8" fill="#141d2b"/>
+                    <path d="M12 10 V22 C12 25 14 27 17 27 C20 27 21 25 21 24" stroke="url(#jcGrad1)" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M26 12 C24 10 20 10 18 13 C16 16 16 20 18 23 C20 26 24 26 26 24" stroke="url(#jcGrad2)" stroke-width="3.5" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="jcGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00ff87"/>
+                            <stop offset="100%" stop-color="#00f2fe"/>
+                        </linearGradient>
+                        <linearGradient id="jcGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f2fe"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div style="font-size:1.15rem; font-weight:900; color:#ffffff; letter-spacing:0.4px; font-family:'Inter',sans-serif;">
+                    JC-AGRITecH +AI
+                </div>
+                <div style="font-size:0.85rem; font-weight:700; color:#fbbf24; margin-left:6px; font-family:'Inter',sans-serif;">
+                    เวอร์ชัน 1.0
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <!-- Glowing Green Wi-Fi Icon -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00ff87" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px #00ff87);">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                    <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                    <line x1="12" y1="20" x2="12.01" y2="20"/>
+                </svg>
+                <!-- Country badge TH -->
+                <div style="display:flex; align-items:center; gap:6px; background:#141c28; border:1px solid #334155; padding:4px 10px; border-radius:14px;">
+                    <span style="font-size:0.95rem;">🇹🇭</span>
+                    <span style="color:#ffffff; font-size:0.82rem; font-weight:800; font-family:'Inter',sans-serif;">TH</span>
+                </div>
+            </div>
+        </div>
+        """
     else:
         top_tabs_html = f"""
         <div class="lcd-top-bar" style="background:#000000; border-bottom:1px solid #1e293b; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
@@ -1610,87 +1811,143 @@ with tab_board:
         """
 
     if is_p1:
-        # Screen 1: ภาพรวม 4 Quadrants ตรงตาม LovyanGFX Board
+        # Screen 1: Master UI 4 Quadrants from smart_farm_ui_overview.jpg
+        mst_val = max(0.0, min(100.0, s_mst))
+        arc_offset = 173.0 * (1.0 - (mst_val / 100.0))
+        
         screen_body = f"""
-            <div class="lcd-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:14px; background:#000000;">
-                <!-- Q1: Air SHT45 -->
-                <div class="lcd-card" style="background:#080d14; border:1.5px solid #00ff87; border-radius:8px; padding:12px; box-shadow:0 0 14px rgba(0,255,135,0.15); min-height:135px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="badge-tag badge-tag-rh">[AIR SHT45]</span>
-                        <span style="font-size:0.7rem; color:#00ff87; font-weight:700;">I2C 0x44 OK</span>
+            <div style="background:#090e17; padding:14px;">
+                <div class="sf-card-grid">
+                    <!-- Q1: Microclimate Weather -->
+                    <div class="sf-card sf-card-weather">
+                        <div class="sf-card-header">
+                            <span class="sf-card-title">Microclimate Weather</span>
+                            <span class="sf-pill-badge">VPD {air_vpd:.2f} kPa</span>
+                        </div>
+                        <div style="display:flex; align-items:baseline; gap:26px; margin:12px 0;">
+                            <div style="font-size:2.85rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
+                                {air_t:.1f}<span style="font-size:1.6rem; vertical-align:super; color:#e2e8f0; font-weight:600; margin-left:2px;">°C</span>
+                            </div>
+                            <div style="font-size:2.85rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace; letter-spacing:-0.5px;">
+                                {air_h:.0f}<span style="font-size:1.45rem; color:#e2e8f0; font-weight:600; margin-left:4px;">%RH</span>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-                        <span style="color:#fd2020; font-size:1.55rem; font-weight:900; font-family:'JetBrains Mono',monospace;">{air_t:.1f} °C</span>
-                        <span style="color:#38bdf8; font-size:1.55rem; font-weight:900; font-family:'JetBrains Mono',monospace;">{air_h:.1f} %RH</span>
+
+                    <!-- Q2: Solar Dome -->
+                    <div class="sf-card sf-card-solar">
+                        <div class="sf-card-header">
+                            <span class="sf-card-title">Solar Dome</span>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px; margin:4px 0;">
+                            <!-- Glowing Sun SVG -->
+                            <svg width="68" height="68" viewBox="0 0 72 72">
+                                <defs>
+                                    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#fef08a"/>
+                                        <stop offset="50%" stop-color="#f59e0b"/>
+                                        <stop offset="100%" stop-color="#ea580c"/>
+                                    </linearGradient>
+                                    <filter id="sunGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="3" result="glow"/>
+                                        <feMerge>
+                                            <feMergeNode in="glow"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <circle cx="36" cy="36" r="16" fill="url(#sunGrad)" filter="url(#sunGlow)"/>
+                                <line x1="36" y1="8" x2="36" y2="15" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="36" y1="57" x2="36" y2="64" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="8" y1="36" x2="15" y2="36" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="57" y1="36" x2="64" y2="36" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="16" y1="16" x2="21" y2="21" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="51" y1="51" x2="56" y2="56" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="56" y1="16" x2="51" y2="21" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="21" y1="51" x2="16" y2="56" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                            <div style="display:flex; flex-direction:column; gap:4px; text-align:right;">
+                                <div style="font-size:1.65rem; font-weight:800; color:#fde047; font-family:'JetBrains Mono',monospace;">
+                                    {l_klux:.1f} <span style="font-size:1.1rem; color:#fef08a; font-weight:700;">kLux</span>
+                                </div>
+                                <div style="font-size:1.65rem; font-weight:800; color:#f59e0b; font-family:'JetBrains Mono',monospace;">
+                                    {l_rad:.0f} <span style="font-size:1.1rem; color:#fed7aa; font-weight:700;">W/m²</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="font-size:0.76rem; color:#94a3b8; line-height:1.6; font-family:'JetBrains Mono',monospace;">
-                        Dew Point: <b style="color:#67e8f9;">{air_dp:.1f} °C</b> &nbsp;|&nbsp; Margin: <b style="color:#fde047;">{dew_margin:.1f} °C</b><br>
-                        VPD: <b style="color:#38bdf8;">{air_vpd:.2f} kPa</b> &nbsp; <span style="background:#064e3b; color:#00ff87; border:1px solid #00ff87; padding:1px 6px; border-radius:4px; font-size:0.68rem;">[{vpd_status}]</span>
+
+                    <!-- Q3: Soil Moisture -->
+                    <div class="sf-card sf-card-soil">
+                        <div class="sf-card-header">
+                            <span class="sf-card-title">Soil Moisture</span>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:0 6px;">
+                            <!-- Sprout Icon -->
+                            <svg width="60" height="60" viewBox="0 0 60 60">
+                                <defs>
+                                    <linearGradient id="sproutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00ff87"/>
+                                        <stop offset="100%" stop-color="#00f2fe"/>
+                                    </linearGradient>
+                                </defs>
+                                <ellipse cx="30" cy="50" rx="22" ry="5" fill="#1e293b" opacity="0.8"/>
+                                <path d="M30 50 Q30 32 30 22" stroke="url(#sproutGrad)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                <path d="M30 32 Q14 26 16 16 Q26 18 30 28" fill="url(#sproutGrad)"/>
+                                <path d="M30 26 Q46 20 44 10 Q34 12 30 22" fill="url(#sproutGrad)"/>
+                            </svg>
+                            <!-- Half-Circle Arc Gauge -->
+                            <svg width="150" height="85" viewBox="0 0 140 80">
+                                <defs>
+                                    <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#00ff87"/>
+                                        <stop offset="50%" stop-color="#00f2fe"/>
+                                        <stop offset="100%" stop-color="#8b5cf6"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 15 72 A 55 55 0 0 1 125 72" fill="none" stroke="#1e293b" stroke-width="10" stroke-linecap="round"/>
+                                <path d="M 15 72 A 55 55 0 0 1 125 72" fill="none" stroke="url(#arcGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="173" stroke-dashoffset="{arc_offset:.1f}" style="filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.6));"/>
+                                <text x="70" y="68" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="900" fill="#ffffff">{s_mst:.1f}%</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Q4: Deep Soil NPK & pH -->
+                    <div class="sf-card sf-card-npk">
+                        <div class="sf-card-header">
+                            <span class="sf-card-title">Deep Soil NPK &amp; pH</span>
+                        </div>
+                        <div style="display:flex; justify-content:flex-start; gap:26px; font-size:1.3rem; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:2px; margin-bottom:10px;">
+                            <span><span style="color:#c084fc;">pH</span> <b style="color:#ffffff;">{ph_val:.1f}</b></span>
+                            <span><span style="color:#38bdf8;">EC</span> <b style="color:#ffffff;">{ec_val:.0f}</b> <span style="font-size:0.85rem; color:#94a3b8; font-weight:600;">µS/cm</span></span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <!-- N Capsule -->
+                            <div class="sf-npk-capsule" style="background:#181c3a; border:1.5px solid #4f46e5;">
+                                <div class="sf-circle-badge" style="background:#4f46e5;">N</div>
+                                <span style="font-size:1.15rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace;">{n_val:.0f}</span>
+                            </div>
+                            <!-- P Capsule -->
+                            <div class="sf-npk-capsule" style="background:#0d281e; border:1.5px solid #10b981;">
+                                <div class="sf-circle-badge" style="background:#10b981;">P</div>
+                                <span style="font-size:1.15rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace;">{p_val:.0f}</span>
+                            </div>
+                            <!-- K Capsule -->
+                            <div class="sf-npk-capsule" style="background:#331d0d; border:1.5px solid #f59e0b;">
+                                <div class="sf-circle-badge" style="background:#f59e0b;">K</div>
+                                <span style="font-size:1.15rem; font-weight:900; color:#ffffff; font-family:'JetBrains Mono',monospace;">{k_val:.0f}</span>
+                            </div>
+                            <span style="color:#64748b; font-size:0.82rem; font-weight:600; font-family:'JetBrains Mono',monospace; margin-left:4px;">mg/kg</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Q2: Light BH1750 -->
-                <div class="lcd-card" style="background:#080d14; border:1.5px solid #fde047; border-radius:8px; padding:12px; box-shadow:0 0 14px rgba(253,224,71,0.15); min-height:135px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="badge-tag badge-tag-solar">[SUN DOME]</span>
-                        <span style="font-size:0.7rem; color:#fde047; font-weight:700;">I2C 0x23 OK</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-                        <span style="color:#fde047; font-size:1.55rem; font-weight:900; font-family:'JetBrains Mono',monospace;">{l_rad:.1f} <span style="font-size:0.95rem;">W/m²</span></span>
-                        <span style="color:#fef08a; font-size:1.15rem; font-weight:800; font-family:'JetBrains Mono',monospace;">{l_klux:.2f} kLux</span>
-                    </div>
-                    <div style="font-size:0.76rem; color:#94a3b8; line-height:1.6; font-family:'JetBrains Mono',monospace;">
-                        Raw Light: <b style="color:#fff;">{l_lux:,.0f} Lux</b><br>
-                        PAR PPFD: <b style="color:#38bdf8;">~{ppfd:.0f} µmol/m²·s</b> &nbsp; <span style="background:#3b2005; color:#fde047; border:1px solid #fde047; padding:1px 6px; border-radius:4px; font-size:0.68rem;">[{sun_badge}]</span>
-                    </div>
-                </div>
-
-                <!-- Q3: Soil Stick A1 -->
-                <div class="lcd-card" style="background:#080d14; border:1.5px solid #06b6d4; border-radius:8px; padding:12px; box-shadow:0 0 14px rgba(6,182,212,0.15); min-height:135px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="badge-tag badge-tag-soil">[SOIL STICK]</span>
-                        <span style="font-size:0.7rem; color:#06b6d4; font-weight:700;">GPIO 1 (A1)</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
-                        <span style="color:#67e8f9; font-size:1.55rem; font-weight:900; font-family:'JetBrains Mono',monospace;">{s_mst:.1f} %</span>
-                        <span style="color:#06b6d4; font-size:0.82rem; font-weight:700;">{soil1_status}</span>
-                    </div>
-                    <div class="lcd-progress-track" style="background:#020617; border:1px solid #334155; height:10px; border-radius:3px; overflow:hidden; margin-bottom:6px;">
-                        <div style="width:{bar_pct}%; height:100%; background:linear-gradient(90deg, #06b6d4, #00ff87);"></div>
-                    </div>
-                    <div style="font-size:0.76rem; color:#94a3b8; font-family:'JetBrains Mono',monospace;">
-                        ADC Raw: <b style="color:#fff;">{s_adc} / 4095</b> ({v_in:.2f} V)
-                    </div>
-                </div>
-
-                <!-- Q4: Soil 7-in-1 Modbus -->
-                <div class="lcd-card" style="background:#080d14; border:1.5px solid #00ff87; border-radius:8px; padding:12px; box-shadow:0 0 14px rgba(0,255,135,0.15); min-height:135px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="badge-tag badge-tag-root">[SOIL 7-IN-1]</span>
-                        <span style="font-size:0.7rem; color:#00ff87; font-weight:700;">Modbus 9600 OK</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:800; font-family:'JetBrains Mono',monospace; margin-bottom:6px;">
-                        <span style="color:#c084fc;">pH: {ph_val:.2f}</span>
-                        <span style="color:#a78bfa;">EC: {ec_val:.0f}</span>
-                        <span style="color:#fbbf24;">Temp: {s_temp:.1f}°C</span>
-                    </div>
-                    <div style="font-size:0.76rem; color:#94a3b8; line-height:1.6; font-family:'JetBrains Mono',monospace;">
-                        Root Moist: <b style="color:#38bdf8;">{s_deep_mst:.1f}%</b> &nbsp;|&nbsp; NPK: <b style="color:#f472b6;">{n_val:.0f}:{p_val:.0f}:{k_val:.0f}</b><br>
-                        <span style="color:#07ffff; background:#012420; border:1px solid #07ffff; padding:1px 6px; border-radius:3px; font-size:0.68rem;">[ TinyML AI: Decoupled & Denoised ]</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Navigation Bar (Page 1) -->
-            <div class="lcd-footer-bar" style="background:#000000; border-top:1px solid #1e293b; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; gap:6px; flex:1;">
-                    <div style="padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:800; {tab1_style}">{t1_lbl}</div>
-                    <div style="padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:800; {tab2_style}">{t2_lbl}</div>
-                    <div style="padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:800; {tab3_style}">{t3_lbl}</div>
-                    <div style="padding:6px 14px; border-radius:6px; font-size:0.8rem; font-weight:800; {tab4_style}">{t4_lbl}</div>
-                </div>
-                <div style="padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid {lang_chip_col}; color:{lang_chip_col}; background:#0f172a;">
-                    {lang_chip_lbl}
+                <!-- Bottom Navigation Bar (4 Touch Buttons) -->
+                <div class="sf-nav-bar">
+                    <div class="sf-nav-btn sf-btn-overview">ภาพรวม</div>
+                    <div class="sf-nav-btn sf-btn-graph">ข้อมูล/กราฟ</div>
+                    <div class="sf-nav-btn sf-btn-relay">รีเลย์</div>
+                    <div class="sf-nav-btn sf-btn-setup">ตั้งค่า</div>
                 </div>
             </div>
         """
