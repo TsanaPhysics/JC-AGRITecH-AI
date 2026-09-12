@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -16,6 +17,110 @@ def clean_html(s: str) -> str:
     if not s:
         return ""
     return "\n".join(line.strip() for line in s.splitlines() if line.strip())
+
+def render_bottom_nav_buttons():
+    """Renders 4 interactive 3D push buttons with active tab switching logic."""
+    components.html("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Plus Jakarta Sans", sans-serif; }
+        .sf-nav-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 4px 2px;
+        }
+        .sf-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.96rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-width: 2.5px;
+            border-style: solid;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+        .sf-nav-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.22);
+        }
+        .sf-nav-btn:active {
+            transform: translateY(2px) scale(0.97);
+            filter: brightness(0.92);
+        }
+        .sf-btn-overview {
+            background: linear-gradient(145deg, #054530 0%, #02261a 100%);
+            border-color: #00ff87;
+            color: #00ff87;
+            box-shadow: 0 0 16px rgba(0, 255, 135, 0.35);
+        }
+        .sf-btn-overview:hover { box-shadow: 0 0 26px rgba(0, 255, 135, 0.65); }
+        
+        .sf-btn-graph {
+            background: linear-gradient(145deg, #0c3e56 0%, #062433 100%);
+            border-color: #00f2fe;
+            color: #38bdf8;
+            box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+        }
+        .sf-btn-graph:hover { box-shadow: 0 0 26px rgba(0, 242, 254, 0.65); }
+
+        .sf-btn-relay {
+            background: linear-gradient(145deg, #9f1239 0%, #4c0519 100%);
+            border-color: #ff2d55;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 0 18px rgba(255, 45, 85, 0.45);
+            text-shadow: 0 0 8px rgba(255, 45, 85, 0.7);
+        }
+        .sf-btn-relay:hover { box-shadow: 0 0 30px rgba(255, 45, 85, 0.75); }
+
+        .sf-btn-setup {
+            background: linear-gradient(145deg, #5e3707 0%, #301701 100%);
+            border-color: #fde047;
+            color: #fde047;
+            box-shadow: 0 0 16px rgba(253, 224, 71, 0.35);
+        }
+        .sf-btn-setup:hover { box-shadow: 0 0 26px rgba(253, 224, 71, 0.65); }
+    </style>
+    </head>
+    <body>
+    <div class="sf-nav-bar">
+        <button type="button" class="sf-nav-btn sf-btn-overview" onclick="navToTab(0)">🌿 1. ภาพรวม (Overview)</button>
+        <button type="button" class="sf-nav-btn sf-btn-graph" onclick="navToTab(1)">📈 2. ข้อมูล/กราฟ (Graphs)</button>
+        <button type="button" class="sf-nav-btn sf-btn-relay" onclick="navToTab(2)">⚡ 3. รีเลย์ (Relays)</button>
+        <button type="button" class="sf-nav-btn sf-btn-setup" onclick="navToTab(3)">⚙️ 4. ตั้งค่า (Settings)</button>
+    </div>
+    <script>
+    function navToTab(idx) {
+        try {
+            const doc = window.parent.document;
+            const tabs = doc.querySelectorAll('button[role="tab"]');
+            if (tabs && tabs[idx]) {
+                tabs[idx].click();
+                window.parent.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        } catch(e) {
+            console.error("Tab switch error:", e);
+        }
+    }
+    </script>
+    </body>
+    </html>
+    """, height=65)
 
 # ==============================================================================
 # Wi-Fi Provisioning & Hardware Control Helpers
@@ -928,41 +1033,78 @@ st.markdown("""
     .sf-nav-bar {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
+        gap: 14px;
+        margin-top: 14px;
     }
     .sf-nav-btn {
-        padding: 12px 6px;
-        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px 8px;
+        border-radius: 12px;
         text-align: center;
-        font-size: 0.98rem;
+        font-size: 1.02rem;
         font-weight: 800;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.4px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        outline: none;
+        user-select: none;
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        border-width: 2.5px;
+        border-style: solid;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif;
+    }
+    .sf-nav-btn:hover {
+        transform: translateY(-3px);
+        filter: brightness(1.22);
+    }
+    .sf-nav-btn:active {
+        transform: translateY(2px) scale(0.97);
+        filter: brightness(0.92);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 3px 8px rgba(0, 0, 0, 0.5) !important;
     }
     .sf-btn-overview {
-        background: #053828;
-        border: 2px solid #00ff87;
+        background: linear-gradient(145deg, #054530 0%, #02261a 100%);
+        border-color: #00ff87;
         color: #00ff87;
-        box-shadow: 0 0 16px rgba(0, 255, 135, 0.35);
+        box-shadow: 0 0 18px rgba(0, 255, 135, 0.4), 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    .sf-btn-overview:hover {
+        box-shadow: 0 0 28px rgba(0, 255, 135, 0.7), 0 6px 16px rgba(0, 0, 0, 0.6);
     }
     .sf-btn-graph {
-        background: #0c2a38;
-        border: 2px solid #0284c7;
+        background: linear-gradient(145deg, #0c3e56 0%, #062433 100%);
+        border-color: #00f2fe;
         color: #38bdf8;
+        box-shadow: 0 0 18px rgba(0, 242, 254, 0.35), 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    .sf-btn-graph:hover {
+        box-shadow: 0 0 28px rgba(0, 242, 254, 0.7), 0 6px 16px rgba(0, 0, 0, 0.6);
     }
     .sf-btn-relay {
-        background: linear-gradient(135deg, rgba(244, 63, 94, 0.25) 0%, rgba(159, 18, 57, 0.35) 100%) !important;
-        border: 2.5px solid #ff2d55 !important;
+        background: linear-gradient(145deg, #9f1239 0%, #4c0519 100%) !important;
+        border-color: #ff2d55 !important;
         color: #ffffff !important;
         font-weight: 800 !important;
-        box-shadow: 0 0 16px rgba(255, 45, 85, 0.45) !important;
-        text-shadow: 0 0 8px rgba(255, 45, 85, 0.7);
+        box-shadow: 0 0 20px rgba(255, 45, 85, 0.5), 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+        text-shadow: 0 0 10px rgba(255, 45, 85, 0.8);
+    }
+    .sf-btn-relay:hover {
+        box-shadow: 0 0 32px rgba(255, 45, 85, 0.85), 0 6px 18px rgba(0, 0, 0, 0.6) !important;
     }
     .sf-btn-setup {
-        background: #3b2304;
-        border: 2px solid #b45309;
-        color: #fbbf24;
+        background: linear-gradient(145deg, #5e3707 0%, #301701 100%);
+        border-color: #fde047;
+        color: #fde047;
+        box-shadow: 0 0 18px rgba(253, 224, 71, 0.35), 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    .sf-btn-setup:hover {
+        box-shadow: 0 0 28px rgba(253, 224, 71, 0.7), 0 6px 16px rgba(0, 0, 0, 0.6);
     }
     .sf-npk-capsule {
         border-radius: 20px;
@@ -1171,8 +1313,11 @@ board_top_header_html = f"""
                 </linearGradient>
             </defs>
         </svg>
-        <div style="font-size:1.45rem; font-weight:900; color:#ffffff; letter-spacing:0.4px; font-family:'Plus Jakarta Sans',sans-serif;">
-            JC-AGRITecH +AI
+        <div style="display:flex; align-items:center; gap:2px; font-size:1.52rem; font-weight:900; letter-spacing:0.5px; font-family:'Plus Jakarta Sans',sans-serif;">
+            <span style="color:#00f2fe; text-shadow:0 0 14px rgba(0,242,254,0.7);">JC</span><span style="color:#64748b; margin:0 1px;">-</span><span style="color:#00ff87; text-shadow:0 0 14px rgba(0,255,135,0.7);">AGRI</span><span style="color:#fde047; text-shadow:0 0 14px rgba(253,224,71,0.7);">TecH</span>
+            <span style="margin-left:8px; display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:8px; background:linear-gradient(135deg, #a855f7 0%, #ec4899 100%); color:#ffffff; font-size:0.75em; font-weight:900; letter-spacing:0.8px; box-shadow:0 0 16px rgba(236,72,153,0.6), inset 0 1px 1px rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.35);">
+                ✨ +AI
+            </span>
         </div>
         <div style="font-size:1.0rem; font-weight:700; color:#fbbf24; margin-left:8px; font-family:'Plus Jakarta Sans',sans-serif;">
             {T("เวอร์ชัน 1.0", "Version 1.0", "版本 1.0")}
@@ -1467,17 +1612,10 @@ with tab_overview:
                     </div>
                 </div>
             </div>
-
-            <!-- Bottom Navigation Bar (Matching the 4 Screen Buttons of the Board) -->
-            <div class="sf-nav-bar" style="margin-top:10px;">
-                <div class="sf-nav-btn sf-btn-overview">🌿 1. ภาพรวม (Overview)</div>
-                <div class="sf-nav-btn sf-btn-graph">📈 2. ข้อมูล/กราฟ (Graphs)</div>
-                <div class="sf-nav-btn sf-btn-relay">⚡ 3. รีเลย์ (Relays)</div>
-                <div class="sf-nav-btn sf-btn-setup">⚙️ 4. ตั้งค่า (Settings)</div>
-            </div>
         </div>
         """
         st.markdown(clean_html(overview_master_html), unsafe_allow_html=True)
+        render_bottom_nav_buttons()
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1819,6 +1957,8 @@ with tab_graph:
                 use_container_width=True
             )
 
+    render_bottom_nav_buttons()
+
 
 # ==============================================================================
 # Tab 3: Screen 3 - แผงควบคุมรีเลย์ & ระบบอัตโนมัติ (Relays Control & Automation)
@@ -1907,6 +2047,8 @@ with tab_relays:
         <b>💨 กฎข้อที่ 3 (การระบายอากาศและไล่ความชื้นจัด):</b> สั่งเปิดพัดลมระบายอากาศ (Relay O4) เมื่อความชื้นอากาศ <b>&gt; 85%</b> นานเกิน 15 นาที เพื่อป้องกันโรคราน้ำค้าง
     </div>
     """, unsafe_allow_html=True)
+
+    render_bottom_nav_buttons()
 
 
 # ==============================================================================
@@ -2100,6 +2242,8 @@ class AgriLSTMForecaster(nn.Module):
         return self.fc(out[:, -1, :])
 """
         st.code(pytorch_code, language="python")
+
+    render_bottom_nav_buttons()
 
 # ==============================================================================
 # Live Telemetry Real-time Auto-Refresh Loop

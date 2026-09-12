@@ -745,11 +745,43 @@ static void drawOverviewTopHeader() {
     lcd.fillCircle(jx + 18, jy + 10, 3, 0x0862); // cutout
     lcd.fillRect(jx + 20, jy + 7, 6, 6, 0x0862); // open mouth of C
 
-    // ข้อความ "JC-AGRITecH +AI"
+    // ========================================================================
+    // ข้อความ "JC-AGRITecH +AI" หลายสีสัน ทันสมัย โดเด่น (Cyber Tech Branding)
+    // ========================================================================
     lcd.loadFont(thai_font_vlw);
     lcd.setTextDatum(textdatum_t::middle_left);
-    lcd.setTextColor(0xFFFF, 0x0862);
-    lcd.drawString("JC-AGRITecH +AI", 42, 19);
+    int brandX = 42;
+    int brandY = 19;
+
+    // "JC": ฟ้าไซแอนนีออน (Electric Cyan 0x07FF)
+    lcd.setTextColor(0x07FF, 0x0862);
+    lcd.drawString("JC", brandX, brandY);
+    brandX += lcd.textWidth("JC");
+
+    // "-": เทาสเตนเลส (Muted Slate 0x9CF3)
+    lcd.setTextColor(0x9CF3, 0x0862);
+    lcd.drawString("-", brandX, brandY);
+    brandX += lcd.textWidth("-");
+
+    // "AGRI": เขียวมรกตนีออน (Neon Emerald 0x07E0)
+    lcd.setTextColor(0x07E0, 0x0862);
+    lcd.drawString("AGRI", brandX, brandY);
+    brandX += lcd.textWidth("AGRI");
+
+    // "TecH": ทองนีออน (Solar Amber Gold 0xFFE0)
+    lcd.setTextColor(0xFFE0, 0x0862);
+    lcd.drawString("TecH", brandX, brandY);
+    brandX += lcd.textWidth("TecH") + 4;
+
+    // "+AI": แคปซูลไซเบอร์ม่วงมาเจนต้านีออนเรืองแสง (Cyber Violet Pill Badge)
+    int aiW = 28, aiH = 18;
+    int aiY = brandY - (aiH / 2);
+    lcd.fillRoundRect(brandX, aiY, aiW, aiH, 4, 0x780F); // ม่วงเข้มไวโอเล็ต
+    lcd.drawRoundRect(brandX, aiY, aiW, aiH, 4, 0xF81F); // ขอบชมพูมาเจนต้านีออน
+    lcd.setTextDatum(textdatum_t::middle_center);
+    lcd.setTextColor(0xFFFF, 0x780F); // ตัวอักษรสีขาวสว่าง
+    lcd.drawString("+AI", brandX + (aiW / 2), brandY);
+    lcd.setTextDatum(textdatum_t::middle_left);
 
     // ========================================================================
     // แคปซูลแสดง วันที่และเวลาเรียลไทม์ (Date & Time Capsule) - Option A
@@ -838,39 +870,47 @@ static void updateTopHeaderClock() {
 // แถบปุ่มนำทาง 4 ปุ่มด้านล่างสำหรับหน้าภาพรวม (Bottom Navigation Bar)
 // ============================================================================
 static void drawOverviewBottomNav() {
-    const char *lbl_home  = L_STR("ภาพรวม", "HOME", "主页");
-    const char *lbl_graph = L_STR("ข้อมูล/กราฟ", "GRAPH", "图表");
-    const char *lbl_relay = L_STR("รีเลย์", "RELAYS", "继电器");
-    const char *lbl_setup = L_STR("ตั้งค่า", "SETUP", "设置");
+    const char *lbl_home  = L_STR("1. ภาพรวม", "1. HOME", "1.主页");
+    const char *lbl_graph = L_STR("2. กราฟ", "2. GRAPH", "2.图表");
+    const char *lbl_relay = L_STR("3. รีเลย์", "3. RELAYS", "3.继电器");
+    const char *lbl_setup = L_STR("4. ตั้งค่า", "4. SETUP", "4.设置");
 
-    // ปุ่ม 1: ภาพรวม (Active: พื้นเขียวมรกต 0x0320, ขอบเขียวสดหนา 2 ชั้น คมกริบ)
+    // ปุ่ม 1: ภาพรวม (Active: พื้นเขียวมรกต 0x0320, ขอบเขียวสดหนา 2 ชั้น คมกริบ + ไฮไลต์ 3D)
     lcd.fillRoundRect(10, 274, 106, 38, 8, 0x0320);
     lcd.drawRoundRect(10, 274, 106, 38, 8, 0x07E0);
     lcd.drawRoundRect(11, 275, 104, 36, 7, 0x15D3);
+    lcd.drawFastHLine(14, 276, 98, 0x3FE0); // ไฮไลต์แสงตกกระทบขอบบน 3D Bevel
+    lcd.drawFastHLine(14, 274 + 36, 98, 0x0180); // เงาล่าง
     lcd.setTextColor(0xFFFF, 0x0320);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_home, 10 + 53, 274 + 19);
 
-    // ปุ่ม 2: ข้อมูล/กราฟ (พื้น 0x0926, ขอบฟ้าหนา 2 ชั้น คมกริบ)
+    // ปุ่ม 2: ข้อมูล/กราฟ (พื้น 0x0926, ขอบฟ้าหนา 2 ชั้น คมกริบ + ไฮไลต์ 3D)
     lcd.fillRoundRect(126, 274, 106, 38, 8, 0x0926);
     lcd.drawRoundRect(126, 274, 106, 38, 8, 0x07FF);
     lcd.drawRoundRect(127, 275, 104, 36, 7, 0x0471);
+    lcd.drawFastHLine(130, 276, 98, 0x5FFF); // ไฮไลต์ฟ้าสว่าง
+    lcd.drawFastHLine(130, 274 + 36, 98, 0x0185); // เงาล่าง
     lcd.setTextColor(0x9E7F, 0x0926);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_graph, 126 + 53, 274 + 19);
 
-    // ปุ่ม 3: รีเลย์ (พื้นสีทับทิมเข้ม 0x4002, ขอบแดงทับทิมนีออนหนา 2 ชั้น สว่างคมกริบ, ตัวหนังสือขาวสว่างชัดเจน)
+    // ปุ่ม 3: รีเลย์ (พื้นสีทับทิมเข้ม 0x4002, ขอบแดงทับทิมนีออนหนา 2 ชั้น สว่างคมกริบ + ไฮไลต์ 3D)
     lcd.fillRoundRect(242, 274, 106, 38, 8, 0x4002);
     lcd.drawRoundRect(242, 274, 106, 38, 8, 0xF948); // ขอบแดงทับทิมนีออนสว่างสดใส (Vibrant Ruby Coral)
     lcd.drawRoundRect(243, 275, 104, 36, 7, 0xFD20); // ชั้นในส้มแสดนีออนเรืองแสง
+    lcd.drawFastHLine(246, 276, 98, 0xFBAE); // ไฮไลต์ชมพูส้มสว่าง
+    lcd.drawFastHLine(246, 274 + 36, 98, 0x2000); // เงาล่าง
     lcd.setTextColor(0xFFFF, 0x4002); // ข้อความสีขาวสว่างคมชัด
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_relay, 242 + 53, 274 + 19);
 
-    // ปุ่ม 4: ตั้งค่า (พื้น 0x2902, ขอบเหลืองทองหนา 2 ชั้น คมกริบ)
+    // ปุ่ม 4: ตั้งค่า (พื้น 0x2902, ขอบเหลืองทองหนา 2 ชั้น คมกริบ + ไฮไลต์ 3D)
     lcd.fillRoundRect(358, 274, 106, 38, 8, 0x2902);
     lcd.drawRoundRect(358, 274, 106, 38, 8, 0xFFE0);
     lcd.drawRoundRect(359, 275, 104, 36, 7, 0xB2A1);
+    lcd.drawFastHLine(362, 276, 98, 0xFFFA); // ไฮไลต์เหลืองทองสว่าง
+    lcd.drawFastHLine(362, 274 + 36, 98, 0x1800); // เงาล่าง
     lcd.setTextColor(0xFDE8, 0x2902);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.drawString(lbl_setup, 358 + 53, 274 + 19);
@@ -2451,26 +2491,26 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
 
             // 6. แตะ 4 ปุ่มนำทางหลักที่ Bottom Nav Bar (y >= 270)
             else if (tapY >= 270) {
-                // ปุ่ม 1: ภาพรวม (x: 8..118)
-                if (tapX >= 8 && tapX <= 118) {
+                // ปุ่ม 1: ภาพรวม (x: 6..120)
+                if (tapX >= 6 && tapX <= 120) {
                     Serial.println(">>> [BottomNav] Already on HOME/OVERVIEW");
                     pageChanged = true;
                     return;
                 }
-                // ปุ่ม 2: กราฟ (x: 126..236)
-                else if (tapX >= 126 && tapX <= 236) {
+                // ปุ่ม 2: กราฟ (x: 122..238)
+                else if (tapX >= 122 && tapX <= 238) {
                     Serial.println(">>> [BottomNav] Switching to GRAPHS");
                     DisplayManager_setPage(PAGE_GRAPHS);
                     return;
                 }
-                // ปุ่ม 3: รีเลย์ (x: 244..354)
-                else if (tapX >= 244 && tapX <= 354) {
+                // ปุ่ม 3: รีเลย์ (x: 240..354)
+                else if (tapX >= 240 && tapX <= 354) {
                     Serial.println(">>> [BottomNav] Switching to RELAYS");
                     DisplayManager_setPage(PAGE_RELAYS);
                     return;
                 }
-                // ปุ่ม 4: ตั้งค่า (x: 362..472)
-                else if (tapX >= 362 && tapX <= 472) {
+                // ปุ่ม 4: ตั้งค่า (x: 356..474)
+                else if (tapX >= 356 && tapX <= 474) {
                     Serial.println(">>> [BottomNav] Switching to SETTINGS");
                     DisplayManager_setPage(PAGE_WIFI_SETUP);
                     return;
