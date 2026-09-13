@@ -1266,3 +1266,103 @@ cd /Users/chewathassana/Desktop/handysense/server
     * คอมไพล์และแฟลชเฟิร์มแวร์ผ่าน PlatformIO ลงบอร์ด ATD3.5-S3 สำเร็จ 100%
     * รันการทดสอบเบราว์เซอร์อัตโนมัติ ยืนยันการสลับแท็บด้วยการคลิกปุ่มกดทั้ง 4 อย่างสมบูรณ์แบบ
 
+---
+
+### 🔹 พรอมพ์ที่ 61: การสืบค้นและบูรณาการแถบสีเทียบปริมาณ NPK และ pH ในดินตามมาตรฐานวิชาการ สู่ระบบแสดงผลแบบ Dual Visual UI (ค่าตัวเลข mg/kg ควบคู่แถบสีมาตรฐาน)
+> **ผู้ใช้:** *"ในการตรวจวัด NPK pH ในดิน ด้วยน้ำยาหรือผงเคมีในหลายบริษัทมักจะแสดงเป็นแถบสีที่ใช้ในการบอกระดับของ NPK pH คุณสามารถสืบค้นข้อมูลของการใช้แถบสีเทียบกับปริมาณ NPK pH ในดิน มาจัดทำเป็นตาราง ได้หรือไม่ โดยข้อมูลที่นำมานั้นต้องมาจากแหล่งอ้างอิงทางวิชาการเท่านั้น เพราะว่าต้องการจะพัฒนาหน้าแสดงผลด้วย นอกเหนือจากค่าในหน่วย mg/kg"*
+
+* **การดำเนินการของ AI:**
+  * **1. การสืบค้นและสังเคราะห์ข้อมูลจากแหล่งอ้างอิงทางวิชาการและคู่มือมาตรฐานสากล:**
+    * **กรมพัฒนาที่ดิน กระทรวงเกษตรและสหกรณ์ (Land Development Department: LDD Thailand):** คู่มือชุดตรวจสอบดินภาคสนาม (Soil Test Kit - LDD Test Kit) พัฒนาโดยกลุ่มวิจัยและพัฒนาการจัดการดินและปุ๋ย สำหรับเกษตรกรไทยและดินเขตร้อนชื้น
+    * **LaMotte Company (สหรัฐอเมริกา):** คู่มือ *Soil Handbook and STH Series Combination Soil Testing Outfits* (เช่น Model STH-14, Model 5934) ซึ่งอ้างอิงระเบียบวิธีวิเคราะห์ตามมาตรฐานของสมาคมวิทยาศาสตร์ทางดินแห่งสหรัฐอเมริกา (Soil Science Society of America: SSSA) และคู่มือห้องปฏิบัติการ Morgan / Bray
+    * **Luster Leaf Products / Rapitest Soil Test Kit:** มาตรฐานชุดทดสอบเคมีสีดินภาคสนามแบบแคปซูลสารเคมีสำหรับวัดไนโตรเจน ฟอสฟอรัส โพแทสเซียม และกรด-ด่างดิน (pH)
+    * **ตำรามาตรฐาน:** *Methods of Soil Analysis (Part 3: Chemical Methods)* โดย D.L. Sparks et al. (SSSA Book Series 5) และ *USDA Soil Survey Laboratory Methods Manual* (SSIR No. 42)
+
+  * **2. กลไกปฏิกิริยาเคมีวิเคราะห์และการเกิดสี (Chemical Reaction Mechanisms):**
+    * **ความเป็นกรด-ด่างของดิน (Soil pH):**
+      * **หลักการเคมี:** ใช้อินดิเคเตอร์ผสมแบบกว้าง (Wide-range Mixed Acid-Base Indicators) ได้แก่ โบรโมครีซอลกรีน (Bromocresol Green), เมทิลเรด (Methyl Red), และโบรโมไทมอลบลู (Bromothymol Blue)
+      * **สมการสมดุลเคมี:**
+        $$\text{HIn} \rightleftharpoons \text{H}^+ + \text{In}^-$$
+      * **การเปลี่ยนสี:** ดินกรดจัด ($\text{pH} \le 4.5$) แสดงสีแดงส้มหรือส้มเหลือง $\to$ ดินกรดปานกลาง ($\text{pH } 5.5 - 6.5$) แสดงสีเหลืองอมเขียว $\to$ ดินเป็นกลาง ($\text{pH } 6.5 - 7.5$) แสดงสีเขียวมรกต $\to$ ดินด่าง ($\text{pH } \ge 8.0$) แสดงสีน้ำเงินเข้มหรือม่วงน้ำเงิน
+    * **ไนโตรเจนในดินในรูปไนเตรต ($\text{NO}_3^--\text{N}$):**
+      * **หลักการเคมี:** ปฏิกิริยากรีสส์ประยุกต์ (Modified Griess Reaction / Cadmium or Zinc Reduction Method)
+      * **กลไก:** รีดิวซ์ไนเตรตไอออนให้เป็นไนไตรต์ด้วยผงโลหะสังกะสี ($\text{Zn}$) หรือแคดเมียม ($\text{Cd}$) ในสารละลายกรด จากนั้นเกิดปฏิกิริยาไดอะโซไทเซชัน (Diazotization) กับกรดซัลฟานิลิก (Sulfanilic Acid) แล้วเกิดปฏิกิริยาคัปปลิงกับสารเชื่อม (NED: N-(1-Naphthyl)ethylenediamine dihydrochloride) ได้สารประกอบสีย้อมเอโซ (Azo Dye)
+      * **สมการเคมี:**
+        $$\text{NO}_3^- + \text{Zn} + 2\text{H}^+ \longrightarrow \text{NO}_2^- + \text{Zn}^{2+} + \text{H}_2\text{O}$$
+        $$\text{NO}_2^- + \text{Ar-NH}_2 + 2\text{H}^+ \longrightarrow [\text{Ar-N}^+\equiv\text{N}] + 2\text{H}_2\text{O}$$
+        $$[\text{Ar-N}^+\equiv\text{N}] + \text{Ar}'\text{-NH(CH}_2)_2\text{NH}_2 \longrightarrow \text{Ar-N=N-Ar}'\text{-NH(CH}_2)_2\text{NH}_2 \quad (\text{สีย้อมสีชมพูแดง}, \lambda_{\max} \approx 540\text{ nm})$$
+      * **การเปลี่ยนสี:** ไนโตรเจนต่ำมากเป็นสีเหลืองอ่อนใส $\to$ ปานกลางเป็นสีชมพูอ่อน $\to$ สูงมากเป็นสีแดงอมม่วงเข้ม (Deep Magenta Pink)
+    * **ฟอสฟอรัสที่เป็นประโยชน์ในดิน (Available Phosphorus: P):**
+      * **หลักการเคมี:** ปฏิกิริยาโมลิบดีนัมบลู (Molybdenum Blue Method / Bray II / Murphy & Riley Method)
+      * **กลไก:** ฟอสเฟตไอออน ($\text{H}_2\text{PO}_4^-$) ทำปฏิกิริยากับแอมโมเนียมโมลิบเดต $[(\text{NH}_4)_6\text{Mo}_7\text{O}_{24}]$ และโพแทสเซียมแอนติโมนีลทาร์เทรตในสารละลายกรดซัลฟิวริก เกิดเป็นกรดฟอสโฟโมลิบดิก จากนั้นถูกรีดิวซ์ด้วยกรดแอสคอร์บิก (Ascorbic Acid) หรือดีบุกคลอไรด์ ($\text{SnCl}_2$) เกิดสารเชิงซ้อนไฮเทอโรโพลีแอนไอออนสีน้ำเงินเข้ม (Phosphomolybdenum Blue Complex)
+      * **สมการเคมี:**
+        $$\text{H}_2\text{PO}_4^- + 12\text{MoO}_4^{2-} + 22\text{H}^+ \longrightarrow [\text{H}_2\text{P}(\text{Mo}_{12}\text{O}_{40})]^{-} + 10\text{H}_2\text{O}$$
+        $$[\text{H}_2\text{P}(\text{Mo}_{12}\text{O}_{40})]^{-} + \text{Ascorbic Acid} \longrightarrow \text{Molybdenum Blue Complex} \quad (\lambda_{\max} \approx 660\text{ และ } 882\text{ nm})$$
+      * **การเปลี่ยนสี:** ฟอสฟอรัสต่ำมากเป็นสีเหลืองอ่อนใสหรือฟ้าจางมาก $\to$ ปานกลางเป็นสีฟ้าสว่าง $\to$ สูงมากเป็นสีน้ำเงินเข้มปรัสเซียนบลู (Prussian / Deep Blue)
+    * **โพแทสเซียมที่แลกเปลี่ยนได้ในดิน (Exchangeable Potassium: K):**
+      * **หลักการเคมี:** ปฏิกิริยาตกตะกอนเตตระฟีนิลโบรอน (Sodium Tetraphenylboron Method) หรือโซเดียมโคบอลตินิไตรต์ (Sodium Cobaltinitrite Method)
+      * **กลไก:** โพแทสเซียมไอออน ($\text{K}^+$) ทำปฏิกิริยากับโซเดียมเตตระฟีนิลโบรอน $[\text{NaB}(\text{C}_6\text{H}_5)_4]$ เกิดตะกอนสีขาวละเอียด หรือทำปฏิกิริยากับโซเดียมโคบอลตินิไตรต์ $[\text{Na}_3\text{Co}(\text{NO}_2)_6]$ เกิดสารแขวนลอย/ตะกอนสีเหลืองอำพันขุ่น $(\text{K}_2\text{Na}[\text{Co}(\text{NO}_2)_6])$
+      * **สมการเคมี:**
+        $$\text{K}^+ + [\text{B}(\text{C}_6\text{H}_5)_4]^- \longrightarrow \text{KB}(\text{C}_6\text{H}_5)_4 \downarrow \quad (\text{White Turbid Precipitate})$$
+        $$2\text{K}^+ + \text{Na}^+ + [\text{Co}(\text{NO}_2)_6]^{3-} \longrightarrow \text{K}_2\text{Na}[\text{Co}(\text{NO}_2)_6] \downarrow \quad (\text{Yellow Amber Precipitate})$$
+      * **การเปลี่ยนสี/ความขุ่น:** ต่ำมากเป็นสารละลายใสไม่มีตะกอน $\to$ ปานกลางเริ่มมีฝ้าขุ่นส้มทอง $\to$ สูงมากเป็นตะกอนขุ่นทึบแสงสีน้ำตาลทองหรือตะกอนขาวหนาแน่น
+
+  * **3. ตารางมาตรฐานเปรียบเทียบค่าความเข้มข้นเชิงปริมาณ ระดับคุณภาพ และรหัสสีดิจิทัล (HEX / RGB):**
+
+| พารามิเตอร์ | ระดับคุณภาพ (Tier) | ช่วงค่าเชิงปริมาณ (mg/kg หรือ pH) | มาตรฐานอ้างอิง | คำอธิบายสีทางเคมี | รหัสสี HEX | ค่า RGB ดิจิทัล |
+| :--- | :--- | :--- | :--- | :--- | :---: | :---: |
+| **ความเป็นกรด-ด่าง (Soil pH)** | กรดจัดรุนแรง (Extremely Acid) | $\text{pH} < 4.5$ | LDD / USDA | แดงส้มสดใส (Red-Orange) | `#e63946` | (230, 57, 70) |
+| | กรดจัด (Very Strongly Acid) | $\text{pH } 4.5 - 5.2$ | LDD / USDA | ส้มอมเหลือง (Orange-Amber) | `#f4a261` | (244, 162, 97) |
+| | กรดปานกลาง (Moderately Acid) | $\text{pH } 5.3 - 6.0$ | LDD / USDA | เหลืองอมเขียว (Yellow-Green) | `#e9c46a` | (233, 196, 106) |
+| | เป็นกรดเล็กน้อย (Slightly Acid) | $\text{pH } 6.1 - 6.8$ | LDD / USDA | เขียวมะนาวอ่อน (Light Lime) | `#a7c957` | (167, 201, 87) |
+| | เป็นกลาง (Neutral - เหมาะสมที่สุด) | $\text{pH } 6.9 - 7.5$ | LDD / USDA | เขียวมรกตธรรมชาติ (Emerald) | `#2a9d8f` | (42, 157, 143) |
+| | ด่างปานกลาง (Moderately Alkaline) | $\text{pH } 7.6 - 8.4$ | LDD / USDA | ฟ้าครามแกมเขียว (Cyan-Teal) | `#457b9d` | (69, 123, 157) |
+| | ด่างรุนแรง (Strongly Alkaline) | $\text{pH} > 8.4$ | LDD / USDA | น้ำเงินม่วงเข้ม (Deep Indigo) | `#1d3557` | (29, 53, 87) |
+| **ไนโตรเจนที่ใช้ประโยชน์ ($\text{NO}_3^--\text{N}$)** | ต่ำมาก (Depleted / Very Low) | $< 10\text{ mg/kg}$ | LDD / LaMotte STH | เหลืองซีดโปร่งใส (Pale Yellow) | `#fefae0` | (254, 250, 224) |
+| | ต่ำ (Deficient / Low) | $10 - 25\text{ mg/kg}$ | LDD / LaMotte STH | ชมพูโอลด์โรสอ่อน (Light Coral) | `#f4a261` | (244, 162, 97) |
+| | ปานกลาง (Adequate / Medium) | $26 - 50\text{ mg/kg}$ | LDD / LaMotte STH | ชมพูสดใส (Vibrant Pink) | `#e76f51` | (231, 111, 81) |
+| | สูง (Sufficient / High) | $51 - 80\text{ mg/kg}$ | LDD / LaMotte STH | แดงกุหลาบสด (Rose Red) | `#d62828` | (214, 40, 40) |
+| | สูงมาก (Surplus / Very High) | $> 80\text{ mg/kg}$ | LDD / LaMotte STH | ม่วงแดงมาเจนต้าเข้ม (Deep Magenta) | `#7209b7` | (114, 9, 183) |
+| **ฟอสฟอรัสที่เป็นประโยชน์ (Available P)** | ต่ำมาก (Depleted / Very Low) | $< 5\text{ mg/kg}$ | LDD Bray II / SSSA | เหลืองใสอมเขียวจาง (Pale Clear) | `#faf0ca` | (250, 240, 202) |
+| | ต่ำ (Deficient / Low) | $5 - 15\text{ mg/kg}$ | LDD Bray II / SSSA | ฟ้าอ่อนใส (Pale Sky Blue) | `#a2d2ff` | (162, 210, 255) |
+| | ปานกลาง (Adequate / Medium) | $16 - 30\text{ mg/kg}$ | LDD Bray II / SSSA | ฟ้าครามมิดเดิลบลู (Cyan Blue) | `#3a86ff` | (58, 134, 255) |
+| | สูง (Sufficient / High) | $31 - 60\text{ mg/kg}$ | LDD Bray II / SSSA | น้ำเงินเข้มรอยัลบลู (Royal Blue) | `#003049` | (0, 48, 73) |
+| | สูงมาก (Surplus / Very High) | $> 60\text{ mg/kg}$ | LDD Bray II / SSSA | น้ำเงินมิดไนท์บลู (Midnight Navy) | `#03045e` | (3, 4, 94) |
+| **โพแทสเซียมที่แลกเปลี่ยนได้ (Exch. K)** | ต่ำมาก (Depleted / Very Low) | $< 40\text{ mg/kg}$ | LDD / SSSA | ใสไม่มีตะกอน (Clear Solution) | `#edf2f4` | (237, 242, 244) |
+| | ต่ำ (Deficient / Low) | $40 - 80\text{ mg/kg}$ | LDD / SSSA | ขุ่นมัวฝ้าจางๆ (Hazy Amber) | `#ffd166` | (255, 209, 102) |
+| | ปานกลาง (Adequate / Medium) | $81 - 150\text{ mg/kg}$ | LDD / SSSA | ขุ่นส้มทองคำ (Golden Orange) | `#f3722c` | (243, 114, 44) |
+| | สูง (Sufficient / High) | $151 - 250\text{ mg/kg}$ | LDD / SSSA | ตะกอนส้มแดงขุ่น (Dense Orange) | `#d90429` | (217, 4, 41) |
+| | สูงมาก (Surplus / Very High) | $> 250\text{ mg/kg}$ | LDD / SSSA | ตะกอนทึบแสงหนาแน่น (Opaque Deep) | `#6a040f` | (106, 4, 15) |
+
+  * **4. การออกแบบสถาปัตยกรรมแสดงผลคู่ขนาน Dual Visual UI (mg/kg + แบดจ์แถบสีเทียบเคียง):**
+    * **การแสดงผลบนเว็บแดชบอร์ด ([dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py)):**
+      * ใช้คอมโพเนนต์ CSS Badge Chip แสดงแถบสีขนาดเล็ก (`border-radius: 9999px`, ขอบเงา Glow `box-shadow: 0 0 10px ...`) เคียงข้างตัวเลขความเข้มข้นเชิงวิศวกรรม
+      * ตัวอย่างโค้ดสไตล์:
+        ```css
+        .soil-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .soil-chip-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid #ffffff;
+        }
+        ```
+    * **การแสดงผลบนหน้าจอฮาร์ดแวร์ LCD ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+      * กำหนดค่าสี 16-bit RGB565 ในตารางอาร์เรย์สำหรับแต่ละระดับ:
+        * pH Neutral `#2a9d8f` $\to$ `0x2CEE`
+        * Nitrate Adequate `#e76f51` $\to$ `0xE36A`
+        * Phosphorus Adequate `#3a86ff` $\to$ `0x3C3F`
+        * Potassium Adequate `#f3722c` $\to$ `0xF385`
+      * วาดแถบแท่งสีไล่ระดับและแคปซูลแสดงผล (Color Bar Gauge) เคียงข้างตัวเลขอ่านค่า ทำให้เกษตรกรเข้าใจสภาพดินได้ทันทีโดยไม่ต้องเปิดคู่มือเทียบสี
+

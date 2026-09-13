@@ -35,3 +35,7 @@ Thassana, C., Chanthamalee, J., & Rujiranukul, P. (2023). การศึกษ�
 Viscarra Rossel, R. A., Behrens, T., Ben-Dor, E., Brown, D. J., Demattê, J. A. M., Shepherd, K. D., Shi, Z., Stenberg, B., Stevens, A., Adamchuk, V., Aïchi, H., Barthès, B. G., Bartholomeus, H. M., Caridad Cancela, R., Choudhury, R., Csorba, A., Dotto, A. C., Du, C., Doetterl, S., … Ji, W. (2016). A global spectral library to characterize the world's soil. *Earth-Science Reviews*, *155*, 198–230. https://doi.org/10.1016/j.earscirev.2016.01.012
 
 Zarychta, R., & Gródek, M. (2024). In-situ soil macronutrient estimation using embedded multispectral sensors and TinyML edge intelligence. *Precision Agriculture*, *25*(2), 785–804. https://doi.org/10.1007/s11119-023-10089-1
+
+กรมพัฒนาที่ดิน. (2563). *คู่มือการใช้ชุดตรวจสอบดินภาคสนาม (Soil Test Kit - LDD)*. กลุ่มวิจัยและพัฒนาการจัดการดินและปุ๋ย กองวิจัยและพัฒนาการจัดการที่ดิน กรมพัฒนาที่ดิน กระทรวงเกษตรและสหกรณ์.
+
+LaMotte Company. (2020). *The LaMotte Soil Handbook: A guide to soil testing and fertilizer management*. LaMotte Chemical Products Company. Chestertown, MD.

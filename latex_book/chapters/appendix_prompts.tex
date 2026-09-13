@@ -83,9 +83,22 @@
 \end{enumerate}
 \end{promptbox}
 
-\section{สารบบลำดับพรอมพ์การพัฒนาจริง (Prompt Trajectory: Prompts 1--46)}
+\subsection{พรอมพ์สืบค้นแถบสีมาตรฐาน NPK/pH และการออกแบบ Dual Visual UI}
 
-ตารางที่ \ref{tab:prompt_trajectory_matrix} สรุปภาพรวมลำดับพรอมพ์ทั้งหมด 46 ลำดับ ตลอดระยะเวลาการดำเนินโครงการ โดยแบ่งตามระยะและขอบเขตงานวิศวกรรม
+\begin{promptbox}{พรอมพ์สืบค้นแถบสีมาตรฐาน NPK/pH และการออกแบบ Dual Visual UI (Prompt 61)}
+\small
+\textbf{บริบท:} ในการตรวจวัด NPK และ pH ในดิน เกษตรกรและนักวิชาการในพื้นที่ใช้ชุดตรวจเคมีภาคสนามที่แสดงผลเป็นแถบสี (Color Chart) นอกเหนือจากการแสดงผลตัวเลขวิศวกรรมในหน่วย $\text{mg/kg}$ จึงต้องการตารางเทียบสีตามแหล่งอ้างอิงวิชาการเพื่อนำไปพัฒนาหน้าจอ UI \\
+\textbf{โจทย์คำสั่ง:}
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item สืบค้นข้อมูลเกณฑ์มาตรฐานแถบสีจากเอกสารวิชาการ: กรมพัฒนาที่ดิน (LDD Thailand), LaMotte STH Series, และ Rapitest/SSSA
+    \item สรุปกลไกปฏิกิริยาเคมีวิเคราะห์: Modified Griess Reaction (ไนเตรต $\to$ สีย้อมเอโซสีชมพูแดง), Molybdenum Blue (ฟอสเฟต $\to$ สารเชิงซ้อนสีน้ำเงิน), Tetraphenylboron (โพแทสเซียม $\to$ ตะกอนขุ่นสีส้มอำพัน), และ Wide-range Mixed Indicator สำหรับ pH
+    \item จัดทำตารางเปรียบเทียบมาตรฐานเชิงปริมาณ (mg/kg, pH), ระดับคุณภาพ (Tier), พร้อมรหัสสีดิจิทัล HEX และ RGB สำหรับประยุกต์ใช้ใน UI แดชบอร์ดและหน้าจอ TFT LCD
+\end{enumerate}
+\end{promptbox}
+
+\section{สารบบลำดับพรอมพ์การพัฒนาจริง (Prompt Trajectory: Prompts 1--61)}
+
+ตารางที่ \ref{tab:prompt_trajectory_matrix} สรุปภาพรวมลำดับพรอมพ์ทั้งหมดตลอดระยะเวลาการดำเนินโครงการ โดยแบ่งตามระยะและขอบเขตงานวิศวกรรม
 
 \begin{table}[htbp]
 \centering
@@ -112,12 +125,16 @@
 43 & Touch Scrollbar \& UI Match & ปรับหน้าจอทั้ง 4 การ์ดให้ตรงกับภาพ 100\% พร้อมสไลด์บาร์สัมผัส & ฟังก์ชัน \texttt{drawScrollBar}, สัมผัสเลื่อนหน้าจอ, แท็กป้ายกำกับ \\
 44 & Line-Height Spacing Scale & ปรับเพิ่มระยะห่างบรรทัดเป็น 1.5--1.7 เท่า เพื่อความชัดเจนในการอ่าน & ระยะห่าง 32--34px, ขยายการ์ดเป็น 200--328px, \texttt{maxScrollY} 560px \\
 45 & Web Board Display Sync & ปรับเว็บแดชบอร์ด \texttt{localhost:8501} ให้ตรงกับหน้าจอบอร์ดจริง 100\% & สลับแท็บบอร์ดขึ้นแรก, จำลอง UI LovyanGFX, Cyber Badges, Scrollbar \\
-46 & UI Overview Blueprint Sync & นำภาพ \texttt{smart\_farm\_ui\_overview.jpg} เป็นต้นแบบแดชบอร์ด 1:1 & โลโก้ JC, 4 การ์ดนีออนขอบ Gradient, เกจโค้ง 180°, ปุ่มนำทาง 4 สี \\
+46--50 & UI Blueprint \& Detail Modals & นำภาพต้นแบบแดชบอร์ด 1:1, เพิ่มหน้าต่าง Modal เจาะลึกเซนเซอร์ & หน้ารายละเอียด SHT45, BH1750, ดิน 7-in-1, แผงควบคุมรีเลย์ \\
+51--55 & Research Report Architect & สกัดและเรียบเรียงรายงานวิจัย 4 บทตามแนว ผศ.ดร.ชีวะ ทัศนา & สกิล \texttt{chewa-research-writing-skill}, เล่มรายงาน 4 บท DOCX \\
+56--60 & 3D Tactile Nav Buttons & เปลี่ยนการ์ดล่าง 4 ใบเป็นปุ่มกด 3D พร้อมสีสันแบรนด์ระดับ Cyberpunk & โลโก้ 4 สี, ปุ่มสลับแท็บอัตโนมัติ, ขอบเรืองแสงรีเลย์ ON/OFF \\
+61 & Soil Colorimetric Standards & สืบค้นแถบสีเคมีดิน NPK/pH (LDD, LaMotte) และออกแบบ Dual UI & กลไก Griess/Moly-blue/Cobalt, ตาราง HEX/RGB, Badge Chips \\
 \bottomrule
 \end{tabularx}
-\caption{เมทริกซ์การจำแนกประเภทและประวัติวิวัฒนาการของพรอมพ์ตลอดโครงการ}
+\caption{เมทริกซ์การจำแนกประเภทและประวัติวิวัฒนาการของพรอมพ์ตลอดโครงการ (Prompts 1--61)}
 \label{tab:prompt_trajectory_matrix}
 \end{table}
+
 
 \section{บทสรุปและข้อเสนอแนะด้านวิศวกรรมพรอมพ์}
 

@@ -304,3 +304,97 @@ public:
     \item \textbf{การส่งข้อมูลคลาวด์ (CloudDataManager.cpp):} ข้อมูล \texttt{ai\_calibrated} จะถูกบรรจุลงในโครงสร้าง JSON ส่งตรงเข้าสู่ FastAPI และ Firebase Realtime Database แบบเรียลไทม์
 \end{itemize}
 
+\section{มาตรฐานแถบสีเทียบค่าเคมีดิน NPK และ pH สู่สถาปัตยกรรมการแสดงผลคู่ขนาน}
+\label{sec:soil_colorimetric_standards}
+
+นอกเหนือจากการตรวจวัดความเข้มข้นเชิงตัวเลขในหน่วย $\text{mg/kg}$ (หรือ ppm) ผ่านเซนเซอร์ไฟฟ้าและโครงข่ายประสาทเทียม TinyML แล้ว ในภาคสนามเกษตรกรและนักปฐพีวิทยานิยมใช้ชุดตรวจสอบดินภาคสนามทางเคมี (Chemical Soil Test Kits) ซึ่งแสดงผลการประเมินระดับธาตุอาหารและความเป็นกรด-ด่างผ่าน \textbf{แถบสีเทียบมาตรฐาน (Colorimetric Comparison Chart)} เพื่อการตัดสินใจใส่ปุ๋ยอย่างรวดเร็ว ระบบ JC -AGRITecH + AI จึงได้บูรณาการมาตรฐานแถบสีทางวิชาการและกลไกปฏิกิริยาเคมีวิเคราะห์เข้าสู่ระบบการแสดงผลแบบคู่ขนาน (Dual-Mode UI: Quantitative Engineering Value \& Categorical Visual Color Badge)
+
+\subsection{การวิเคราะห์กลไกปฏิกิริยาเคมีและการเกิดสี (Analytical Chemistry Reaction Mechanisms)}
+
+การเปลี่ยนแปลงสีของชุดทดสอบดินทางเคมีมาตรฐาน (เช่น กรมพัฒนาที่ดิน LDD Thailand, LaMotte STH Series, Rapitest SSSA) เกิดจากปฏิกิริยาเคมีวิเคราะห์ 4 ประเภทหลัก:
+
+\begin{enumerate}
+    \item \textbf{ความเป็นกรด-ด่างของดิน (Soil pH) -- ปฏิกิริยาสมดุลกรด-ด่างอินดิเคเตอร์ผสม:}
+    ชุดทดสอบใช้สารละลายอินดิเคเตอร์ผสมช่วงกว้าง (Wide-range Mixed Indicators) เช่น โบรโมครีซอลกรีน (Bromocresol Green), เมทิลเรด (Methyl Red), และโบรโมไทมอลบลู (Bromothymol Blue) เพื่อสร้างการเปลี่ยนสีอย่างต่อเนื่องตามสมการการแตกตัวของอินดิเคเตอร์:
+    \begin{equation}
+        \text{HIn} \rightleftharpoons \text{H}^+ + \text{In}^-
+        \label{eq:ph_indicator_equilibrium}
+    \end{equation}
+    สารละลายจะเปลี่ยนจากสีแดงส้มในสภาวะกรดจัดรุนแรง ($\text{pH} < 4.5$), สีส้มอมเหลือง ($\text{pH } 4.5 - 5.2$), สีเหลืองอมเขียว ($\text{pH } 5.3 - 6.0$), สีเขียวมรกตในดินเป็นกลาง ($\text{pH } 6.5 - 7.5$), จนถึงสีน้ำเงินอมม่วงเข้มในดินด่าง ($\text{pH} > 8.0$)
+
+    \item \textbf{ไนโตรเจนที่ใช้ประโยชน์ได้ ($\text{NO}_3^--\text{N}$) -- ปฏิกิริยากรีสส์ประยุกต์ (Modified Griess Reaction):}
+    ไนเตรตไอออนในสารละลายสกัดดินจะถูกรีดิวซ์เป็นไนไตรต์ด้วยผงสังกะสี ($\text{Zn}$) หรือแคดเมียม ($\text{Cd}$) ในสภาวะกรด จากนั้นไนไตรต์จะทำปฏิกิริยาไดอะโซไทเซชัน (Diazotization) กับกรดซัลฟานิลิก (Sulfanilic Acid) เกิดเป็นเกลือไดอะโซเนียม แล้วเกิดปฏิกิริยาคัปปลิงกับ N-(1-Naphthyl)ethylenediamine dihydrochloride (NED) เกิดเป็นสีย้อมเอโซ (Azo Dye) สีชมพูแดงที่มีการดูดกลืนแสงสูงสุดที่ $\lambda_{\max} \approx 540\,\text{nm}$:
+    \begin{align}
+        \text{NO}_3^- + \text{Zn} + 2\text{H}^+ &\longrightarrow \text{NO}_2^- + \text{Zn}^{2+} + \text{H}_2\text{O} \\
+        \text{NO}_2^- + \text{Ar-NH}_2 + 2\text{H}^+ &\longrightarrow [\text{Ar-N}^+\equiv\text{N}] + 2\text{H}_2\text{O} \\
+        [\text{Ar-N}^+\equiv\text{N}] + \text{Ar}'\text{-NH(CH}_2)_2\text{NH}_2 &\longrightarrow \text{Ar-N=N-Ar}'\text{-NH(CH}_2)_2\text{NH}_2 \quad (\text{สีย้อมสีชมพูแดง})
+    \end{align}
+    ความเข้มของสีชมพูจะแปรผันตรงกับปริมาณไนเตรต ตั้งแต่สีเหลืองใสโปร่งแสง ($< 10\,\text{mg/kg}$) จนถึงสีแดงอมม่วงมาเจนต้าเข้ม ($> 80\,\text{mg/kg}$)
+
+    \item \textbf{ฟอสฟอรัสที่เป็นประโยชน์ (Available P) -- ปฏิกิริยาโมลิบดีนัมบลู (Molybdenum Blue Method):}
+    ฟอสเฟตไอออน ($\text{H}_2\text{PO}_4^-$) ในสารสกัดดิน (Bray II หรือ Mehlich-3) ทำปฏิกิริยากับแอมโมเนียมโมลิบเดต $[(\text{NH}_4)_6\text{Mo}_7\text{O}_{24}]$ ภายใต้กรดกำมะถันและมีโพแทสเซียมแอนติโมนีลทาร์เทรตเป็นตัวเร่ง เกิดเป็นกรดฟอสโฟโมลิบดิก จากนั้นถูกรีดิวซ์ด้วยกรดแอสคอร์บิก (Ascorbic Acid) เกิดสารประกอบเชิงซ้อนเฮเทอโรโพลีแอนไอออนสีน้ำเงินเข้ม (Phosphomolybdenum Blue) ซึ่งดูดกลืนแสงที่ $\lambda_{\max} \approx 660\,\text{nm}$ และ $882\,\text{nm}$:
+    \begin{align}
+        \text{H}_2\text{PO}_4^- + 12\text{MoO}_4^{2-} + 22\text{H}^+ &\longrightarrow [\text{H}_2\text{P}(\text{Mo}_{12}\text{O}_{40})]^{-} + 10\text{H}_2\text{O} \\
+        [\text{H}_2\text{P}(\text{Mo}_{12}\text{O}_{40})]^{-} + \text{Ascorbic Acid} &\longrightarrow \text{Molybdenum Blue Complex}
+    \end{align}
+    สารละลายจะเปลี่ยนจากสีเหลืองใสอมเขียวจาง ($< 5\,\text{mg/kg}$) สู่สีฟ้าสว่าง ($16 - 30\,\text{mg/kg}$) และสีน้ำเงินมิดไนท์บลูเข้มทึบแสง ($> 60\,\text{mg/kg}$)
+
+    \item \textbf{โพแทสเซียมที่แลกเปลี่ยนได้ (Exchangeable K) -- ปฏิกิริยาตกตะกอนเตตระฟีนิลโบรอน:}
+    โพแทสเซียมไอออน ($\text{K}^+$) ทำปฏิกิริยากับโซเดียมเตตระฟีนิลโบรอน $[\text{NaB}(\text{C}_6\text{H}_5)_4]$ หรือโซเดียมโคบอลตินิไตรต์ $[\text{Na}_3\text{Co}(\text{NO}_2)_6]$ เกิดตะกอนแขวนลอยที่ไม่ละลายน้ำ:
+    \begin{align}
+        \text{K}^+ + [\text{B}(\text{C}_6\text{H}_5)_4]^- &\longrightarrow \text{KB}(\text{C}_6\text{H}_5)_4 \downarrow \quad (\text{ตะกอนสีขาวขุ่น}) \\
+        2\text{K}^+ + \text{Na}^+ + [\text{Co}(\text{NO}_2)_6]^{3-} &\longrightarrow \text{K}_2\text{Na}[\text{Co}(\text{NO}_2)_6] \downarrow \quad (\text{ตะกอนขุ่นสีเหลืองอำพัน})
+    \end{align}
+    ความขุ่นและการสะท้อนแสงจะเพิ่มขึ้นตามความเข้มข้น จากสารละลายใส ($< 40\,\text{mg/kg}$) สู่ความขุ่นปานกลางสีส้มทอง ($81 - 150\,\text{mg/kg}$) จนถึงตะกอนขุ่นทึบแสงหนาแน่น ($> 250\,\text{mg/kg}$)
+\end{enumerate}
+
+\subsection{ตารางมาตรฐานแถบสีเทียบเคียงและช่วงความเข้มข้นเชิงปริมาณ}
+
+ตารางที่ \ref{tab:soil_color_chart_standards} แสดงการจับคู่ระหว่างระดับคุณภาพดิน ช่วงความเข้มข้นเชิงปริมาณตามมาตรฐานกรมพัฒนาที่ดิน (LDD Thailand) และมาตรฐาน SSSA สหรัฐอเมริกา กับรหัสสีดิจิทัลมาตรฐาน (HEX และ RGB) สำหรับนำไปใช้ในระบบคอมพิวเตอร์และส่วนติดต่อผู้ใช้งาน
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{p{3.2cm} p{3.4cm} c c Y}
+\toprule
+\textbf{พารามิเตอร์} & \textbf{ระดับคุณภาพ (Tier)} & \textbf{ช่วงค่าเชิงปริมาณ} & \textbf{รหัสสี HEX} & \textbf{คำอธิบายสีเชิงเคมี} \\
+\midrule
+\textbf{ความเป็นกรด-ด่าง} & กรดจัดรุนแรง & $< 4.5\,\text{pH}$ & \texttt{\#e63946} & แดงส้มสดใส \\
+(Soil pH) & กรดจัด & $4.5 - 5.2\,\text{pH}$ & \texttt{\#f4a261} & ส้มอมเหลือง \\
+& กรดปานกลาง & $5.3 - 6.0\,\text{pH}$ & \texttt{\#e9c46a} & เหลืองอมเขียว \\
+& เป็นกรดเล็กน้อย & $6.1 - 6.8\,\text{pH}$ & \texttt{\#a7c957} & เขียวมะนาวอ่อน \\
+& เป็นกลาง (เหมาะสม) & $6.9 - 7.5\,\text{pH}$ & \texttt{\#2a9d8f} & เขียวมรกตธรรมชาติ \\
+& ด่างปานกลาง & $7.6 - 8.4\,\text{pH}$ & \texttt{\#457b9d} & ฟ้าครามแกมเขียว \\
+& ด่างรุนแรง & $> 8.4\,\text{pH}$ & \texttt{\#1d3557} & น้ำเงินม่วงเข้ม \\
+\midrule
+\textbf{ไนโตรเจนที่ใช้ประโยชน์} & ต่ำมาก (Depleted) & $< 10\,\text{mg/kg}$ & \texttt{\#fefae0} & เหลืองซีดโปร่งใส \\
+($\text{NO}_3^--\text{N}$) & ต่ำ (Deficient) & $10 - 25\,\text{mg/kg}$ & \texttt{\#f4a261} & ชมพูโอลด์โรสอ่อน \\
+& ปานกลาง (Adequate) & $26 - 50\,\text{mg/kg}$ & \texttt{\#e76f51} & ชมพูสดใส \\
+& สูง (Sufficient) & $51 - 80\,\text{mg/kg}$ & \texttt{\#d62828} & แดงกุหลาบสด \\
+& สูงมาก (Surplus) & $> 80\,\text{mg/kg}$ & \texttt{\#7209b7} & ม่วงแดงมาเจนต้าเข้ม \\
+\midrule
+\textbf{ฟอสฟอรัสที่เป็นประโยชน์} & ต่ำมาก (Depleted) & $< 5\,\text{mg/kg}$ & \texttt{\#faf0ca} & เหลืองใสอมเขียวจาง \\
+(Available P) & ต่ำ (Deficient) & $5 - 15\,\text{mg/kg}$ & \texttt{\#a2d2ff} & ฟ้าอ่อนใส \\
+& ปานกลาง (Adequate) & $16 - 30\,\text{mg/kg}$ & \texttt{\#3a86ff} & ฟ้าครามสดใส \\
+& สูง (Sufficient) & $31 - 60\,\text{mg/kg}$ & \texttt{\#003049} & น้ำเงินเข้มรอยัลบลู \\
+& สูงมาก (Surplus) & $> 60\,\text{mg/kg}$ & \texttt{\#03045e} & น้ำเงินมิดไนท์บลู \\
+\midrule
+\textbf{โพแทสเซียมที่แลกเปลี่ยนได้} & ต่ำมาก (Depleted) & $< 40\,\text{mg/kg}$ & \texttt{\#edf2f4} & สารละลายใสไร้ตะกอน \\
+(Exchangeable K) & ต่ำ (Deficient) & $40 - 80\,\text{mg/kg}$ & \texttt{\#ffd166} & ขุ่นมัวฝ้าจางๆ \\
+& ปานกลาง (Adequate) & $81 - 150\,\text{mg/kg}$ & \texttt{\#f3722c} & ขุ่นส้มทองคำ \\
+& สูง (Sufficient) & $151 - 250\,\text{mg/kg}$ & \texttt{\#d90429} & ตะกอนส้มแดงขุ่น \\
+& สูงมาก (Surplus) & $> 250\,\text{mg/kg}$ & \texttt{\#6a040f} & ตะกอนทึบแสงหนาแน่น \\
+\bottomrule
+\end{tabularx}
+\caption{เกณฑ์มาตรฐานแถบสีเทียบเคียงและช่วงความเข้มข้นเชิงปริมาณของธาตุอาหารในดิน NPK และ pH}
+\label{tab:soil_color_chart_standards}
+\end{table}
+
+\subsection{สถาปัตยกรรมแสดงผลคู่ขนานแบบ Dual-Mode UI}
+
+ระบบ JC -AGRITecH + AI ได้นำค่าสีมาตรฐานข้างต้นไปประยุกต์ใช้ในการแสดงผลแบบ 2 ช่องทาง:
+\begin{enumerate}
+    \item \textbf{เว็บแดชบอร์ด Streamlit (dashboard\_app.py):} นำรหัสสี HEX ไปสร้างแคปซูลแสดงผล (Badge Chips) ประกอบด้วยจุดสีเรืองแสง (Glowing Dot Indicator) เคียงคู่กับค่าตัวเลขเชิงวิศวกรรมในหน่วย $\text{mg/kg}$ พร้อมคำแนะนำปุ๋ยเฉพาะแปลง
+    \item \textbf{หน้าจอฮาร์ดแวร์จริง ATD3.5-S3 LCD (DisplayManager.cpp):} นำรหัสสีแปลงเป็นค่า 16-bit RGB565 เช่น สีเขียวเป็นกลาง (\texttt{0x2CEE}), สีไนโตรเจนสมบูรณ์ (\texttt{0xE36A}), สีฟอสฟอรัสสมบูรณ์ (\texttt{0x3C3F}) วาดเป็นแถบมิเตอร์สี (Color Strip Bar) ประกอบข้อความ ช่วยให้ผู้ปฏิบัติงานในแปลงเกษตรประเมินสถานะความอุดมสมบูรณ์ของดินได้ทันทีโดยไม่ต้องพกพาแผ่นเทียบสี
+\end{enumerate}
+
