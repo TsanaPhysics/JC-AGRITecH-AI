@@ -164,25 +164,53 @@ static bool readBH1750(float &lux) {
     return true;
 }
 
-// --- 3. Soil Stick เกษตรไทย IoT (Capacitive Analog) ---
-static void readSoilStick(uint16_t &rawAdc, float &moisturePercent) {
-    // ทำ Multi-sampling 10 ครั้ง เพื่อกำจัดสัญญาณรบกวน (Noise Reduction)
-    uint32_t adcSum = 0;
-    const int SAMPLES = 10;
-    for (int i = 0; i < SAMPLES; i++) {
-        adcSum += analogRead(SOIL_STICK_PIN);
+// --- 3. เซนเซอร์วัดผิวดิน (Soil Stick Moisture & Surface Soil pH) ---
+static void readSoilStick(SoilStickData &data, float ambientTempC) {
+    // 3.1 อ่านความชื้นผิวดินจากลายทองแดงคาปาซิทีฟ (ADC A1)
+    uint32_t adcSumMoist = 0;
+    const int MOIST_SAMPLES = 10;
+    for (int i = 0; i < MOIST_SAMPLES; i++) {
+        adcSumMoist += analogRead(SOIL_STICK_PIN);
         delayMicroseconds(200);
     }
-    rawAdc = adcSum / SAMPLES;
+    data.rawAdc = adcSumMoist / MOIST_SAMPLES;
 
     // แปลงค่าเชิงเส้นตามช่วง Calibration (แห้งในอากาศ -> เปียกในน้ำ)
-    // สำหรับเซนเซอร์ Capacitive: ค่า ADC ในอากาศจะ "สูง" และในน้ำจะ "ต่ำ"
-    float calculated = ((float)(SOIL_STICK_ADC_AIR - rawAdc) / (float)(SOIL_STICK_ADC_AIR - SOIL_STICK_ADC_WATER)) * 100.0f;
+    float calculated = ((float)(SOIL_STICK_ADC_AIR - data.rawAdc) / (float)(SOIL_STICK_ADC_AIR - SOIL_STICK_ADC_WATER)) * 100.0f;
+    data.moisture = constrain(calculated, 0.0f, 100.0f);
+    data.isConnected = true;
 
-    if (calculated < 0.0f) calculated = 0.0f;
-    if (calculated > 100.0f) calculated = 100.0f;
+    // 3.2 อ่านแรงดันไฟฟ้าเคมี pH ผิวดินผ่านช่อง ADC A2 (GPIO2)
+#if defined(ENABLE_SURFACE_SOIL_PH) && ENABLE_SURFACE_SOIL_PH == true
+    uint32_t adcSumPH = 0;
+    for (int i = 0; i < SOIL_PH_READ_SAMPLES; i++) {
+        adcSumPH += analogRead(SOIL_PH_PIN);
+        delayMicroseconds(150);
+    }
+    float meanAdc = (float)adcSumPH / (float)SOIL_PH_READ_SAMPLES;
+    data.rawPhVoltage = meanAdc * (3.3f / 4095.0f);
 
-    moisturePercent = calculated;
+    // ตรวจสอบความถูกต้องของแรงดันหัววัด (ถ้าต่อหัววัดจริง ค่าจะอยู่ในช่วง 0.20V - 3.10V)
+    if (data.rawPhVoltage >= 0.20f && data.rawPhVoltage <= 3.10f) {
+        // Two-Point Linear Interpolation (Nernst Slope)
+        float slope = (7.00f - 4.01f) / (SOIL_PH_CALIB_PH7_VOLT - SOIL_PH_CALIB_PH4_VOLT);
+        float rawPh = 7.00f + (data.rawPhVoltage - SOIL_PH_CALIB_PH7_VOLT) * slope;
+
+        // การชดเชยอุณหภูมิทางเคมีไฟฟ้าตามสมการเนิร์นสต์ (Nernstian Temperature Compensation)
+        float tempKelvin = (ambientTempC > 0.0f ? ambientTempC : 25.0f) + 273.15f;
+        float compensatedPh = 7.00f + (rawPh - 7.00f) * (298.15f / tempKelvin);
+
+        data.ph = constrain(compensatedPh, 3.0f, 9.5f);
+        data.isPhConnected = true;
+    } else {
+        data.ph = 0.0f;
+        data.isPhConnected = false;
+    }
+#else
+    data.rawPhVoltage = 0.0f;
+    data.ph = 0.0f;
+    data.isPhConnected = false;
+#endif
 }
 
 // --- 4. Soil Multi-parameter 7-in-1 (RS485 Modbus RTU) ---
@@ -354,11 +382,14 @@ void AgriSensors_init() {
         telemetryData.light.isConnected = false;
     }
 
-    // 2. ตั้งค่า Analog Pin สำหรับ Soil Stick เกษตรไทย IoT
+    // 2. ตั้งค่า Analog Pin สำหรับ Soil Stick เกษตรไทย IoT และ Surface Soil pH
     pinMode(SOIL_STICK_PIN, INPUT);
+#if defined(ENABLE_SURFACE_SOIL_PH) && ENABLE_SURFACE_SOIL_PH == true
+    pinMode(SOIL_PH_PIN, INPUT);
+#endif
     analogReadResolution(12); // ESP32-S3 12-bit ADC (0-4095)
     analogSetAttenuation(ADC_11db); // รองรับแรงดัน Input สูงสุด ~3.1V
-    Serial.println("[AgriSensors] Soil Stick เกษตรไทย IoT (ADC A1) Initialized [OK]");
+    Serial.println("[AgriSensors] Soil Stick (ADC A1) & Surface pH (ADC A2) Initialized [OK]");
 
     // 3. เริ่มต้นพอร์ต RS485 สำหรับ Soil Multi-parameter Sensor 7-in-1
     rs485Serial.begin(SOIL_7IN1_BAUDRATE, SERIAL_8N1, RS485_RX_PIN, RS485_TX_PIN);
@@ -397,9 +428,8 @@ void AgriSensors_update() {
         telemetryData.light.isConnected = false;
     }
 
-    // 3. อ่านค่าความชื้นดิน Soil Stick เกษตรไทย IoT (Analog)
-    readSoilStick(telemetryData.soilStick.rawAdc, telemetryData.soilStick.moisture);
-    telemetryData.soilStick.isConnected = true;
+    // 3. อ่านค่าความชื้นและ pH ผิวดิน Soil Stick (Analog A1 & A2)
+    readSoilStick(telemetryData.soilStick, telemetryData.air.temperature);
 
     // 4. หน่วงสลับบัสเล็กน้อยแล้วอ่านค่า Soil Multi-parameter 7-in-1 (RS485)
     delay(MODBUS_QUERY_DELAY_MS);
@@ -454,10 +484,16 @@ void AgriSensors_printDashboard() {
         Serial.println("  [!] ไม่สามารถเชื่อมต่อโดมตะวัน (ตรวจสอบสาย I2C)");
     }
 
-    // ความชื้นดิน (Soil Stick)
-    Serial.println("\n[ความชื้นในดิน - Soil Stick เกษตรไทย IoT (Capacitive)]");
-    Serial.printf("  - สัญญาณดิบ ADC (0-4095)    : %u\n", telemetryData.soilStick.rawAdc);
+    // ความชื้นและกรด-ด่างผิวดิน (Soil Stick & Surface pH)
+    Serial.println("\n[ผิวดินชั้นตื้น (0-10 ซม.) - Soil Stick & Surface pH (A1 & A2)]");
+    Serial.printf("  - สัญญาณดิบความชื้น ADC A1  : %u\n", telemetryData.soilStick.rawAdc);
     Serial.printf("  - ปริมาณความชื้นในดิน       : %.1f %%\n", telemetryData.soilStick.moisture);
+    if (telemetryData.soilStick.isPhConnected) {
+        Serial.printf("  - กรด-ด่างผิวดิน (Surface pH): %.2f pH (%.3f V, ชดเชยเนิร์นสต์แล้ว)\n", 
+                      telemetryData.soilStick.ph, telemetryData.soilStick.rawPhVoltage);
+    } else {
+        Serial.println("  - กรด-ด่างผิวดิน (Surface pH): ไม่ได้ต่อโพรบ (ADC A2)");
+    }
 
     // ดิน 7-in-1
     Serial.println("\n[คุณสมบัติดินเชิงลึก - Soil Multi-parameter Sensor 7-in-1 (RS485)]");

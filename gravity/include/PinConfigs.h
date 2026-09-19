@@ -20,8 +20,9 @@
 #define RS485_RX_PIN        41      // GPIO41 -> RO (Receiver Output ของ RS485)
 #define RS485_TX_PIN        40      // GPIO40 -> DI (Driver Input ของ RS485)
 
-// --- Analog Soil Moisture Input สำหรับ Soil Stick เกษตรไทย IoT ---
-#define SOIL_STICK_ADC_PIN  1       // GPIO1 (ช่อง A1 บนบอร์ด Farm1 Shield)
+// --- Analog Soil Inputs สำหรับเซนเซอร์วัดดินบนบอร์ด Farm1 Shield ---
+#define SOIL_STICK_ADC_PIN  1       // GPIO1 (ช่อง A1 บนบอร์ด Farm1 Shield): สัญญาณความชื้น (Capacitive)
+#define SOIL_PH_ADC_PIN     2       // GPIO2 (ช่อง A2 บนบอร์ด Farm1 Shield): สัญญาณกรด-ด่างดินผิวดิน (Surface pH Analog)
 
 // --- Relay Control Outputs (พอร์ต O1, O2, O3, O4 บนบอร์ด Farm1 Shield) ---
 #define RELAY_1_PIN         39      // O1: Pump 1

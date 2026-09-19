@@ -86,6 +86,26 @@ void executeAgronomyControl(const FarmSensorTelemetry &data) {
             Serial.println(">>> [ACTION] อุณหภูมิลดลงปกติ -> สั่งปิดระบบพ่นหมอก (Relay 3 OFF)");
         }
     }
+
+    // กฎที่ 3: ตรวจสอบและบริหารจัดการค่าความเป็นกรด-ด่างของดิน (Soil pH Management & Liming Rule)
+    // สำหรับไม้ผลเศรษฐกิจภาคตะวันออก (เช่น ทุเรียน มังคุด) ช่วง pH ที่เหมาะสมคือ 5.5 - 6.5
+    float effectivePh = (data.soilStick.isPhConnected && data.soilStick.ph > 3.0f) ? 
+                        data.soilStick.ph : data.aiCalibrated.ph;
+
+    // ตรวจสอบความสอดคล้องระหว่างผิวดินชั้นตื้น (0-10 ซม.) กับเขตรากลึก (15-30 ซม.)
+    if (data.soilStick.isPhConnected && data.soil7in1.isConnected) {
+        float phDiff = fabs(data.soilStick.ph - data.soil7in1.ph);
+        if (phDiff > 1.2f) {
+            Serial.printf("[AGRONOMY WARNING] พบความชัน pH ข้ามชั้นดิน (ผิวดิน A2: %.2f vs รากลึก: %.2f, Diff: %.2f) ส่อการตกค้างของปุ๋ยเคมีผิวดิน\n",
+                          data.soilStick.ph, data.soil7in1.ph, phDiff);
+        }
+    }
+
+    if (effectivePh < 5.0f && effectivePh > 3.0f) {
+        Serial.printf("[AGRONOMY ALERT] ดินมีความเป็นกรดรุนแรง (pH = %.2f < 5.0) ฟอสฟอรัสถูกตรึง เสี่ยงรากเน่า แนะนำปรับปรุงด้วยโดโลไมต์/ปูนขาว\n", effectivePh);
+    } else if (effectivePh > 7.5f) {
+        Serial.printf("[AGRONOMY ALERT] ดินมีความเป็นด่างจัด (pH = %.2f > 7.5) พืชเสี่ยงต่อการขาดธาตุเหล็ก สังกะสี และแมงกานีส\n", effectivePh);
+    }
 }
 
 void loop() {

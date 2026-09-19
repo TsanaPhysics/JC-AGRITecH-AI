@@ -1581,6 +1581,9 @@ with tab_overview:
         
         stick_m = safe_float(latest.get('soil_stick_moisture', 62.5), 62.5)
         stick_adc = safe_int(latest.get('soil_stick_adc', 2040), 2040)
+        stick_ph_raw = latest.get('soil_stick_ph')
+        stick_ph = safe_float(stick_ph_raw, None) if stick_ph_raw is not None else None
+        stick_badge = f"pH {stick_ph:.2f} | ADC {stick_adc}" if (stick_ph is not None and stick_ph > 0) else f"ADC {stick_adc}"
         deep_m = safe_float(latest.get('soil_7in1_moisture', 55.0), 55.0)
         soil_status = "ความชื้นสมบูรณ์" if 40 <= stick_m <= 75 else ("ดินแห้ง (ควรให้น้ำ)" if stick_m < 40 else "ดินแฉะมาก")
         
@@ -1687,7 +1690,7 @@ with tab_overview:
                 <div class="sf-card sf-card-soil">
                     <div class="sf-card-header">
                         <span class="sf-card-title" style="color:#00ff87; font-weight:800; font-size:1.12rem; letter-spacing:0.2px;">🌱 ความชื้นในดิน (ผิวดิน)</span>
-                        <span class="sf-pill-badge" style="color:#00ff87; border-color:#00ff87;">ADC {stick_adc}</span>
+                        <span class="sf-pill-badge" style="color:#00ff87; border-color:#00ff87;">{stick_badge}</span>
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px;">
                         <svg width="70" height="70" viewBox="0 0 60 60">

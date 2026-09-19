@@ -27,11 +27,14 @@ struct LightEnvironmentData {
     bool isConnected;       // สถานะการเชื่อมต่อโดมตะวัน
 };
 
-// ข้อมูลความชื้นดินจาก Soil Stick เกษตรไทย IoT (Capacitive Analog)
+// ข้อมูลความชื้นและกรด-ด่างผิวดิน (Surface Soil Telemetry: Soil Stick + Surface pH)
 struct SoilStickData {
-    uint16_t rawAdc;        // ค่าสัญญาณดิบจาก ADC (0 - 4095)
+    uint16_t rawAdc;        // ค่าสัญญาณดิบความชื้นจาก ADC A1 (0 - 4095)
     float moisture;         // ความชื้นในดินคำนวณเป็นเปอร์เซ็นต์ (0 - 100%)
-    bool isConnected;       // สถานะเซนเซอร์
+    float rawPhVoltage;     // แรงดันไฟฟ้าแอนะล็อกของ pH จาก ADC A2 (V)
+    float ph;               // ค่าความเป็นกรด-ด่างผิวดินที่ชดเชยอุณหภูมิเนิร์นสต์แล้ว
+    bool isConnected;       // สถานะเซนเซอร์ความชื้น
+    bool isPhConnected;     // สถานะการเชื่อมต่อหัววัด pH ผิวดิน
 };
 
 // ข้อมูลดินเชิงลึก 7 พารามิเตอร์ จาก Soil Multi-parameter Sensor (RS485 Modbus RTU)

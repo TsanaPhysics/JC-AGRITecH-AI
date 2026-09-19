@@ -41,6 +41,8 @@ class TelemetryRecord(Base):
     # 3. ข้อมูลความชื้นดินผิวดิน (Soil Stick เกษตรไทย IoT)
     soil_stick_adc = Column(Integer, nullable=True)   # สัญญาณดิบ ADC (0 - 4095)
     soil_stick_moisture = Column(Float, nullable=True)# ความชื้นผิวดิน (%)
+    soil_stick_ph = Column(Float, nullable=True)      # ค่ากรด-ด่างผิวดิน (pH)
+    soil_stick_ph_connected = Column(Boolean, default=False) # สถานะหัววัด pH ผิวดิน
 
     # 4. ข้อมูลคุณสมบัติดินเชิงลึกเขตรากพืช (Soil Multi-parameter 7-in-1 Modbus RTU)
     soil_7in1_moisture = Column(Float, nullable=True) # ความชื้นดินลึก (%)
@@ -88,7 +90,9 @@ def init_db():
                 ("ai_calibrated_k", "REAL"),
                 ("ai_calibrated_ph", "REAL"),
                 ("ai_calibrated_moisture", "REAL"),
-                ("ai_confidence", "REAL")
+                ("ai_confidence", "REAL"),
+                ("soil_stick_ph", "REAL"),
+                ("soil_stick_ph_connected", "INTEGER")
             ]
             for col_name, col_type in new_columns:
                 if col_name not in existing_cols:

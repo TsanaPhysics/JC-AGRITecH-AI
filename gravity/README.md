@@ -5,8 +5,9 @@
 
 1. **อุณหภูมิและความชื้นสัมพัทธ์ในอากาศ (Air Temp & RH)** — เซนเซอร์ **Sensirion SHT45** (โพรบสแตนเลสกรองฝุ่นและละอองน้ำ Sintered Metal)
 2. **ความเข้มแสงสว่างและรังสีดวงอาทิตย์ (Light & Solar Radiation)** — เซนเซอร์ **โดมตะวันกันน้ำ (BH1750)**
-3. **ความชื้นในดินตัวเดี่ยว (Soil Moisture)** — เซนเซอร์ **Soil Stick เกษตรไทย IoT** (Capacitive Analog 0-3.3V)
-4. **คุณสมบัติดินเชิงลึกรอบด้าน (Soil 7-in-1)** — เซนเซอร์ **Soil Multi-parameter Sensor** ผ่านบัสอุตสาหกรรม **RS485 Modbus RTU** (วัดความชื้น, อุณหภูมิดิน, EC ความเค็ม, pH กรด-ด่าง, และธาตุอาหาร N-P-K)
+3. **ความชื้นและกรด-ด่างผิวดินชั้นตื้น 0-10 ซม. (Surface Soil Moisture & pH)** — เซนเซอร์ **Soil Stick เกษตรไทย IoT** (Capacitive Analog A1: GPIO1) ร่วมกับหัววัด **Surface Soil pH** (Analog A2: GPIO2) พร้อมการชดเชยอุณหภูมิเนิร์นสต์
+4. **คุณสมบัติดินเชิงลึกเขตรากพืช 15-30 ซม. (Soil 7-in-1)** — เซนเซอร์ **Soil Multi-parameter Sensor** ผ่านบัสอุตสาหกรรม **RS485 Modbus RTU** (วัดความชื้น, อุณหภูมิดิน, EC ความเค็ม, pH กรด-ด่าง, และธาตุอาหาร N-P-K)
+5. **สมองกลปัญญาประดิษฐ์ระดับอุปกรณ์ (On-Device TinyML Engine)** — โมเดลโครงข่ายประสาทเทียม **SoilNeuralCalibrator** ชดเชยความคลาดเคลื่อนทางฟิสิกส์เคมีดินและให้คะแนนความเชื่อมั่นแบบไดนามิก
 
 ---
 
@@ -14,16 +15,20 @@
 
 ```
 gravity/
-├── platformio.ini         # การตั้งค่า PlatformIO สำหรับ ESP32-S3 (16MB Flash, PSRAM)
-├── WIRING_DIAGRAM.md      # คู่มือการต่อสายไฟของเซนเซอร์ทุกตัวอย่างละเอียด
+├── platformio.ini         # การตั้งค่า PlatformIO สำหรับ ESP32-S3 (8MB Flash, No PSRAM)
+├── WIRING_DIAGRAM.md      # คู่มือการต่อสายไฟของเซนเซอร์ทุกตัวอย่างละเอียด (รวมช่อง A1 และ A2)
+├── SOIL_PH_FEASIBILITY_STUDY.md # รายงานการศึกษาความเป็นไปได้เชิงวิศวกรรมการวัด Soil pH
 ├── README.md              # คำอธิบายภาพรวมและคู่มือการใช้งาน
 ├── include/
-│   ├── PinConfigs.h       # กำหนด Pinout (I2C SDA/SCL, RS485 RX/TX, ADC, Relay)
+│   ├── PinConfigs.h       # กำหนด Pinout (I2C SDA/SCL, RS485 RX/TX, ADC A1/A2, Relay)
 │   ├── SensorSupport.h    # รหัสระบุประเภทเซนเซอร์ (Sensor Model IDs)
-│   ├── UserConfigs.h      # จุดตั้งค่าและสวิตช์เลือกเซนเซอร์ / ค่า Calibrate
+│   ├── UserConfigs.h      # จุดตั้งค่าและสวิตช์เลือกเซนเซอร์ / ค่า Calibrate (pH 4.01, 7.00)
+│   ├── SoilNeuralCalibrator.h # TinyML MLP Inference Engine พร้อม Dynamic Confidence
 │   └── AgriSensors.h      # สถาปัตยกรรมข้อมูล (Data Structs) และคำนวณค่าดัชนีทางพืช (VPD, DewPoint)
 └── src/
-    ├── AgriSensors.cpp    # ไดรเวอร์อ่านค่า I2C SHT45, BH1750, ADC, และ RS485 Modbus RTU
+    ├── AgriSensors.cpp    # ไดรเวอร์อ่านค่า I2C SHT45, BH1750, ADC A1/A2, และ RS485 Modbus RTU
+    ├── CloudDataManager.cpp # สตรีมข้อมูลโทรมาตรขึ้น FastAPI Server และ Firebase
+    ├── DisplayManager.cpp # ส่วนต่อประสานหน้าจอ 3.5 นิ้ว TFT (ST7796 LovyanGFX)
     └── main.cpp           # วงรอบการทำงานหลัก (Telemetry Acquisition & Smart Automation Rules)
 ```
 
@@ -32,13 +37,17 @@ gravity/
 ## 2. คุณสมบัติเด่นของเฟิร์มแวร์ (Technical Highlights)
 
 - **I2C Non-blocking Driver พร้อม CRC8 Validation:** อ่านค่าจากชิป Sensirion SHT45 โดยตรวจสอบความถูกต้องของไบต์ข้อมูลด้วยอัลกอริทึม CRC8 ตามมาตรฐานโรงงาน ป้องกันข้อมูลเพี้ยนจากสายไฟยาว
-- **Multi-sampling Digital Filter:** อ่านค่าสัญญาณอนาล็อกจากเซนเซอร์ Soil Stick เกษตรไทย IoT แบบ Oversampling 10 ตัวอย่าง เพื่อตัดสัญญาณรบกวน (Noise/Spikes)
+- **Surface Dual-Parameter Soil Sensing (A1 & A2):** อ่านค่าความชื้นผิวดินแบบความจุไฟฟ้า (A1) และแรงดันไฟฟ้าเคมี pH ผิวดิน (A2) แบบ Oversampling 16 ตัวอย่าง พร้อมระบบ Two-Point Calibration (pH 4.01 และ 7.00)
+- **Nernstian Temperature Compensation:** นำอุณหภูมิอากาศความแม่นยำสูงจาก SHT45 มาชดเชยความชันของปฏิกิริยาเคมีไฟฟ้าแบบเรียลไทม์:
+  $$\text{pH}_{\text{comp}} = 7.00 + (\text{pH}_{\text{raw}} - 7.00) \times \left(\frac{298.15}{T_{\text{kelvin}}}\right)$$
 - **Modbus RTU Engine พร้อม CRC16:** สื่อสารกับเซ็นเซอร์วัดดิน 7-in-1 ด้วย Hardware UART2 (GPIO40/GPIO41) พร้อมตรวจสอบผลรวมตรวจสอบ CRC16 Polynomial 0xA001 อย่างเข้มงวด และมีระบบ Flush Buffer อัตโนมัติป้องกันบัสค้าง
+- **TinyML Dynamic Physics-Aware Confidence Index:** ระบบ AI บนบอร์ดคอยประเมินสภาวะดินแห้งจัด ($\theta < 20\%$) หรืออุณหภูมิผันผวน เพื่อลดความเชื่อมั่น (Penalty) และตัดการพึ่งพาขั้ววัดที่ไม่เสถียร
+- **Dual-Depth Soil Acidity Management:** เปรียบเทียบความชันของ pH ระหว่างผิวดิน (0-10 ซม.) และเขตรากลึก (15-30 ซม.) แจ้งเตือนสภาวะดินกรดรุนแรง ($\text{pH} < 5.0$) และการสะสมปุ๋ยเคมีผิวดินเพื่อการใส่ปูนโดโลไมต์ปรับสภาพดินอย่างตรงจุด
 - **Agronomy Scientific Metrics:** คำนวณค่าทางปฐพีวิทยาและอุตุนิยมวิทยาการเกษตรเพิ่มเติมอัตโนมัติ:
   - **จุดน้ำค้าง (Dew Point):** ประเมินความเสี่ยงของการเกิดหยดน้ำเกาะใบพืช
   - **แรงดึงระเหยน้ำ (Vapor Pressure Deficit - VPD):** ดัชนีบอกการคายน้ำและการเปิดปากใบของพืช (Optimal: 0.8 - 1.2 kPa)
   - **รังสีดวงอาทิตย์ (Estimated Solar Radiation):** แปลงจาก Lux เป็น W/m² สำหรับการวิเคราะห์การสะสมพลังงานแสงของแปลง
-- **Smart Agronomy Decision Automation:** มีอัลกอริทึม Hysteresis คอยควบคุมปั๊มน้ำ (Relay 1) และระบบลดความร้อนพ่นหมอก (Relay 3) อัตโนมัติตามความต้องการของพืช
+- **Smart Agronomy Decision Automation:** มีอัลกอริทึม Hysteresis คอยควบคุมปั๊มน้ำ (Relay 1), ระบบลดความร้อนพ่นหมอก (Relay 3) และระบบแจ้งเตือนสภาพดินกรด-ด่างตามความต้องการของพืช
 
 ---
 

@@ -29,6 +29,14 @@
 #define SOIL_STICK_ADC_AIR          2950    // ค่า ADC ขณะหัววัดอยู่ในอากาศแห้ง (ความชื้น 0%)
 #define SOIL_STICK_ADC_WATER        1450    // ค่า ADC ขณะหัววัดจุ่มในน้ำ (ความชื้น 100%)
 
+// 3.1 เซนเซอร์วัดค่าความเป็นกรด-ด่างผิวดิน (Surface Soil pH Sensor: Analog A2)
+// รองรับโพรบพลวงสถานะของแข็ง (Antimony Solid-State) หรือโมดูลบัฟเฟอร์ pH อิมพีแดนซ์สูง
+#define ENABLE_SURFACE_SOIL_PH      true
+#define SOIL_PH_PIN                 SOIL_PH_ADC_PIN    // ขา A2_PIN (GPIO2 บน Farm1 Shield)
+#define SOIL_PH_CALIB_PH4_VOLT      2.120f  // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 4.01
+#define SOIL_PH_CALIB_PH7_VOLT      1.500f  // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 7.00
+#define SOIL_PH_READ_SAMPLES        16      // จำนวนตัวอย่าง Oversampling เพื่อกรองสัญญาณรบกวน
+
 // 4. เซนเซอร์วัดคุณสมบัติดินรอบด้าน (Soil Multi-parameter 7-in-1: RS485 Modbus RTU)
 // รุ่นที่ใช้งาน: SN-3002-TR-ECTHNPKPH-N01
 // สายไฟ: น้ำตาล=VCC(12V), ดำ=GND, เหลือง=485-A, น้ำเงิน=485-B

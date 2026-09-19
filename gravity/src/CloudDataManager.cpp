@@ -223,10 +223,13 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     light["solar_radiation"] = round(telemetry.light.solarRadiation * 100.0f) / 100.0f;
     light["connected"]       = telemetry.light.isConnected;
 
-    // ข้อมูลความชื้นในดิน Soil Stick เกษตรไทย IoT (ผิวดิน)
+    // ข้อมูลความชื้นและกรด-ด่างผิวดิน Soil Stick (ผิวดิน 0-10 ซม.)
     JsonObject soilStick = doc.createNestedObject("soil_stick");
     soilStick["adc_raw"]          = telemetry.soilStick.rawAdc;
     soilStick["moisture_percent"] = round(telemetry.soilStick.moisture * 10.0f) / 10.0f;
+    soilStick["ph"]               = round(telemetry.soilStick.ph * 100.0f) / 100.0f;
+    soilStick["ph_raw_voltage"]   = round(telemetry.soilStick.rawPhVoltage * 1000.0f) / 1000.0f;
+    soilStick["ph_connected"]     = telemetry.soilStick.isPhConnected;
 
     // ข้อมูลคุณสมบัติดินเชิงลึก 7-in-1 Modbus RTU (เขตรากพืช)
     JsonObject soil7in1 = doc.createNestedObject("soil_7in1");

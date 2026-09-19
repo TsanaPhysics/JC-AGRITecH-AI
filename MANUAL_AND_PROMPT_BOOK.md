@@ -1366,3 +1366,26 @@ cd /Users/chewathassana/Desktop/handysense/server
         * Potassium Adequate `#f3722c` $\to$ `0xF385`
       * วาดแถบแท่งสีไล่ระดับและแคปซูลแสดงผล (Color Bar Gauge) เคียงข้างตัวเลขอ่านค่า ทำให้เกษตรกรเข้าใจสภาพดินได้ทันทีโดยไม่ต้องเปิดคู่มือเทียบสี
 
+### 🔹 พรอมพ์ที่ 40: การบูรณาการเซนเซอร์กรด-ด่างผิวดิน (Surface Soil pH on ADC A2) และยกระดับ TinyML Full-Stack (แผน ค)
+> **ผู้ใช้:** *"จากข้อมูลการพัฒนา" -> "ตัวเลือกที่ 2" -> "แผน ค"*
+* **การดำเนินการของ AI:**
+  * **1. ฮาร์ดแวร์และการปรับสภาพสัญญาณแอนะล็อก ([PinConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/PinConfigs.h) & [UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/UserConfigs.h)):**
+    * กำหนดขา `#define SOIL_PH_ADC_PIN 2` (GPIO2 / ช่อง A2 บน Farm1 Shield)
+    * ตั้งค่าระบบ Two-Point Calibration สำหรับหัววัดกรด-ด่างแอนะล็อก (บัฟเฟอร์ pH 4.01 = 2.120V และ pH 7.00 = 1.500V) พร้อมดิจิทัลฟิลเตอร์ Oversampling 16 ตัวอย่าง
+  * **2. กลไกฟิสิกส์เคมีและการชดเชยอุณหภูมิเนิร์นสต์ ([AgriSensors.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/AgriSensors.h) & [AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/AgriSensors.cpp)):**
+    * ขยายโครงสร้างข้อมูล `SoilStickData` ให้บันทึก `rawPhVoltage`, `ph`, และ `isPhConnected`
+    * คำนวณชดเชยความชันของปฏิกิริยาเคมีไฟฟ้าแบบ Nernstian Temperature Compensation โดยดึงอุณหภูมิอากาศความแม่นยำสูงจาก Sensirion SHT45:
+      $$\text{pH}_{\text{comp}} = 7.00 + (\text{pH}_{\text{raw}} - 7.00) \times \left(\frac{298.15}{T_{\text{kelvin}}}\right)$$
+  * **3. ยกระดับ TinyML On-Device Neural Calibrator ([SoilNeuralCalibrator.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/SoilNeuralCalibrator.h)):**
+    * พัฒนาระบบประเมินความเชื่อมั่นอัจฉริยะ **Dynamic Physics-Aware Confidence Index** หักลดค่าความเชื่อมั่น (Penalty) อัตโนมัติเมื่อเกิดสภาวะ Dry-Junction Error (ความชื้น < 20%) หรือสภาวะอุณหภูมิวิกฤต (> 40°C หรือ < 12°C) เพื่อให้ระบบหันมาพึ่งพาโมเดล AI ที่ผ่านการฝึกสอนแทน
+  * **4. ตรรกะควบคุมและเตือนภัยทางปฐพีวิทยา ([main.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/main.cpp)):**
+    * เพิ่ม Rule 3: ตรวจจับสภาวะกรดรุนแรง (pH < 5.0) เตือนการตรึงฟอสฟอรัสและแนะนำให้ใส่ปูนโดโลไมต์ปรับสภาพดิน
+    * ตรวจสอบความชัน pH ข้ามชั้นดิน (Dual-Depth Gradient): เปรียบเทียบผิวดิน 0-10 ซม. (A2) กับเขตรากลึก 15-30 ซม. (7-in-1) หากต่างกันเกิน 1.2 pH จะแจ้งเตือนการตกค้างของปุ๋ยเคมีผิวดิน
+  * **5. การขยายระบบคลาวด์และแดชบอร์ด (Full-Stack Data Flow):**
+    * อัปเดต [`CloudDataManager.cpp`](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp) ให้สตรีมค่า `ph`, `ph_raw_voltage`, และ `ph_connected` ขึ้นเซิร์ฟเวอร์
+    * ขยายฐานข้อมูล [`database.py`](file:///Users/chewathassana/Desktop/handysense/server/database.py) (เพิ่มคอลัมน์ `soil_stick_ph`, `soil_stick_ph_connected` พร้อม Auto-migration)
+    * ปรับปรุง REST API ใน [`main_api.py`](file:///Users/chewathassana/Desktop/handysense/server/main_api.py) (รองรับ Telemetry Insert, History, และ CSV Export)
+    * ปรับปรุงหน้าจอเว็บแดชบอร์ด [`dashboard_app.py`](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้แสดงผลป้าย Badge `pH X.XX | ADC XXXX` บนการ์ด Q3 ผิวดิน
+  * **6. การคอมไพล์และทดสอบสมบูรณ์:**
+    * คอมไพล์ผ่าน PlatformIO (`pio run`) สำเร็จ 100% (Flash 43.5%, RAM 15.4%) ปราศจากข้อผิดพลาด
+

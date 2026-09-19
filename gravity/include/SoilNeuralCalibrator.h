@@ -202,7 +202,22 @@ public:
         out.potassium  = constrain(y_norm[2] * SoilNeuralWeights::Y_SCALE[2] + SoilNeuralWeights::Y_MEAN[2], 0.0f, 2000.0f);
         out.ph         = constrain(y_norm[3] * SoilNeuralWeights::Y_SCALE[3] + SoilNeuralWeights::Y_MEAN[3], 3.5f, 9.5f);
         out.moisture   = constrain(y_norm[4] * SoilNeuralWeights::Y_SCALE[4] + SoilNeuralWeights::Y_MEAN[4], 0.0f, 100.0f);
-        out.confidence = 0.985f; // ดัชนีความเชื่อมั่นของโมเดล TinyML
+
+        // 7. Dynamic Physics-Aware Confidence Index (ดัชนีความเชื่อมั่นตามสภาวะกายภาพดิน)
+        float conf = 0.985f;
+        if (rawMoisture < 20.0f) {
+            // ดินแห้ง ประจุขาดตอน (Dry Junction Penalty)
+            conf -= (20.0f - rawMoisture) * 0.012f;
+        }
+        if (soilTemp > 40.0f || soilTemp < 12.0f) {
+            // อุณหภูมิเบี่ยงเบนสูง (Thermal Drift Penalty)
+            conf -= 0.045f;
+        }
+        if (rawEC > 4500.0f) {
+            // ความเค็มสูงจัดรบกวนสัญญาณไดอิเล็กทริก
+            conf -= 0.040f;
+        }
+        out.confidence = (conf > 0.50f) ? ((conf < 0.99f) ? conf : 0.99f) : 0.50f;
 
         return out;
     }

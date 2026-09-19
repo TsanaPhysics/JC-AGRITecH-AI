@@ -73,6 +73,8 @@ async def receive_telemetry(payload: dict, db: Session = Depends(get_db)):
             # ดินผิวดิน Soil Stick
             soil_stick_adc=soil_stick.get("adc_raw", soil_stick.get("adc")),
             soil_stick_moisture=soil_stick.get("moisture_percent", soil_stick.get("moisture")),
+            soil_stick_ph=soil_stick.get("ph"),
+            soil_stick_ph_connected=soil_stick.get("ph_connected", False),
             # ดินลึกเขตรากพืช 7-in-1 Modbus
             soil_7in1_moisture=soil_7in1.get("moisture_percent", soil_7in1.get("moisture")),
             soil_7in1_temp=soil_7in1.get("temperature", soil_7in1.get("temp")),
@@ -133,7 +135,9 @@ def get_latest_telemetry(db: Session = Depends(get_db)):
         },
         "soil_stick": {
             "adc_raw": record.soil_stick_adc,
-            "moisture_percent": record.soil_stick_moisture
+            "moisture_percent": record.soil_stick_moisture,
+            "ph": record.soil_stick_ph,
+            "ph_connected": record.soil_stick_ph_connected
         },
         "soil_7in1": {
             "moisture_percent": record.soil_7in1_moisture,
@@ -186,6 +190,7 @@ def get_telemetry_history(
             "light_lux": r.light_lux,
             "light_solar_radiation": r.light_solar_radiation,
             "soil_stick_moisture": r.soil_stick_moisture,
+            "soil_stick_ph": r.soil_stick_ph,
             "soil_7in1_moisture": r.soil_7in1_moisture,
             "soil_7in1_temp": r.soil_7in1_temp,
             "soil_7in1_ph": r.soil_7in1_ph,
@@ -223,6 +228,7 @@ def export_telemetry_csv(db: Session = Depends(get_db)):
             "light_lux": r.light_lux,
             "light_solar_radiation": r.light_solar_radiation,
             "soil_stick_moisture": r.soil_stick_moisture,
+            "soil_stick_ph": r.soil_stick_ph,
             "soil_7in1_moisture": r.soil_7in1_moisture,
             "soil_7in1_temp": r.soil_7in1_temp,
             "soil_7in1_ph": r.soil_7in1_ph,
