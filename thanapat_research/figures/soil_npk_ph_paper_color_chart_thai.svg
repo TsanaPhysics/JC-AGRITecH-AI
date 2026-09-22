@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" width="100%" height="100%" style="background:#0b0f19; font-family:'Sarabun', 'Inter', sans-serif;">
+  <defs>
+    <!-- Card Gradients -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Title Header -->
+  <rect x="40" y="25" width="1120" height="70" rx="10" fill="#111827" stroke="#38bdf8" stroke-width="1.5" />
+  <text x="65" y="56" fill="#38bdf8" font-size="20" font-weight="bold">แถบสีมาตรฐานสำหรับกระดาษและชุดทดสอบทางเคมีดิน (Soil pH, N, P, K Color Chart)</text>
+  <text x="65" y="79" fill="#94a3b8" font-size="13">มาตรฐานการเทียบสีทางปฐพีวิทยา กรมพัฒนาที่ดิน (LDD) และวิธีทดสอบมาตรฐานสากล (CIE D65 Illuminant)</text>
+  <rect x="990" y="40" width="150" height="38" rx="6" fill="#0369a1" />
+  <text x="1005" y="64" fill="#ffffff" font-size="13" font-weight="bold">ระดับสีดินมาตรฐาน</text>
+
+  <!-- ================= 1. SOIL pH (แถบสีค่าความเป็นกรด-ด่าง) ================= -->
+  <g transform="translate(50, 120)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1100" height="150" rx="10" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Label -->
+    <rect x="20" y="15" width="220" height="30" rx="5" fill="#1e293b" />
+    <text x="30" y="36" fill="#f8fafc" font-size="14" font-weight="bold">1. ค่าความเป็นกรด-ด่าง (Soil pH)</text>
+    <text x="260" y="35" fill="#94a3b8" font-size="12">ปฏิกิริยายูนิเวอร์แซลอินดิเคเตอร์ (Universal Indicator Reagent)</text>
+
+    <!-- Color Swatches (pH 4.0, 5.0, 6.0, 6.5, 7.0, 8.0, 9.0) -->
+    <!-- pH 4.0 กรดรุนแรงมาก -->
+    <g transform="translate(20, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#dc2626" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="30" fill="#ffffff" font-size="16" font-weight="bold">pH 4.0</text>
+      <text x="20" y="65" fill="#fca5a5" font-size="11.5" font-weight="bold">กรดรุนแรงมาก</text>
+      <text x="25" y="80" fill="#94a3b8" font-size="10.5">สีแดงส้มเข้ม</text>
+    </g>
+
+    <!-- pH 5.0 กรดจัด -->
+    <g transform="translate(175, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#ea580c" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="30" fill="#ffffff" font-size="16" font-weight="bold">pH 5.0</text>
+      <text x="40" y="65" fill="#fdba74" font-size="11.5" font-weight="bold">กรดจัด</text>
+      <text x="42" y="80" fill="#94a3b8" font-size="10.5">สีส้มสด</text>
+    </g>
+
+    <!-- pH 6.0 กรดปานกลาง -->
+    <g transform="translate(330, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#eab308" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="30" fill="#000000" font-size="16" font-weight="bold">pH 6.0</text>
+      <text x="30" y="65" fill="#fde047" font-size="11.5" font-weight="bold">กรดปานกลาง</text>
+      <text x="35" y="80" fill="#94a3b8" font-size="10.5">สีเหลืองสด</text>
+    </g>
+
+    <!-- pH 6.5 กรดเล็กน้อย เหมาะสมที่สุดสำหรับทุเรียน -->
+    <g transform="translate(485, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#84cc16" stroke="#38bdf8" stroke-width="2.5" />
+      <text x="45" y="30" fill="#000000" font-size="16" font-weight="bold">pH 6.5</text>
+      <text x="20" y="65" fill="#bef264" font-size="11.5" font-weight="bold">เหมาะสม (ทุเรียน)</text>
+      <text x="30" y="80" fill="#94a3b8" font-size="10.5">สีเหลืองอมเขียว</text>
+    </g>
+
+    <!-- pH 7.0 สภาพเป็นกลาง -->
+    <g transform="translate(640, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#16a34a" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="30" fill="#ffffff" font-size="16" font-weight="bold">pH 7.0</text>
+      <text x="45" y="65" fill="#86efac" font-size="11.5" font-weight="bold">เป็นกลาง</text>
+      <text x="45" y="80" fill="#94a3b8" font-size="10.5">สีเขียวสด</text>
+    </g>
+
+    <!-- pH 8.0 ด่างปานกลาง -->
+    <g transform="translate(795, 58)">
+      <rect x="0" y="0" width="135" height="48" rx="6" fill="#0d9488" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="30" fill="#ffffff" font-size="16" font-weight="bold">pH 8.0</text>
+      <text x="35" y="65" fill="#5eead4" font-size="11.5" font-weight="bold">ด่างปานกลาง</text>
+      <text x="40" y="80" fill="#94a3b8" font-size="10.5">สีเขียวอมฟ้า</text>
+    </g>
+
+    <!-- pH 9.0 ด่างจัด -->
+    <g transform="translate(950, 58)">
+      <rect x="0" y="0" width="130" height="48" rx="6" fill="#1d4ed8" stroke="#ffffff" stroke-width="1" />
+      <text x="40" y="30" fill="#ffffff" font-size="16" font-weight="bold">pH 9.0</text>
+      <text x="42" y="65" fill="#93c5fd" font-size="11.5" font-weight="bold">ด่างจัด</text>
+      <text x="40" y="80" fill="#94a3b8" font-size="10.5">สีน้ำเงินคราม</text>
+    </g>
+  </g>
+
+  <!-- ================= 2. NITROGEN (N) (แถบสีไนโตรเจนในดิน) ================= -->
+  <g transform="translate(50, 295)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1100" height="155" rx="10" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Label -->
+    <rect x="20" y="15" width="220" height="30" rx="5" fill="#1e293b" />
+    <text x="30" y="36" fill="#f43f5e" font-size="14" font-weight="bold">2. ไนโตรเจน (Available N)</text>
+    <text x="260" y="35" fill="#94a3b8" font-size="12">ปฏิกิริยากริสส์รีเอเจนต์ (Griess Reagent Azo Dye Method)</text>
+
+    <!-- N Color Swatches (0, 10, 25, 50, 100+ mg/kg) -->
+    <!-- 0 mg/kg ต่ำมาก -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#fdf2f8" stroke="#f472b6" stroke-width="1" />
+      <text x="65" y="32" fill="#be185d" font-size="16" font-weight="bold">0 mg/kg</text>
+      <text x="75" y="68" fill="#fda4af" font-size="12" font-weight="bold">ต่ำมาก</text>
+      <text x="60" y="84" fill="#94a3b8" font-size="11">ชมพูจางเกือบขาว</text>
+    </g>
+
+    <!-- 10 mg/kg ต่ำ -->
+    <g transform="translate(240, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#fbcfe8" stroke="#f472b6" stroke-width="1" />
+      <text x="60" y="32" fill="#be185d" font-size="16" font-weight="bold">10 mg/kg</text>
+      <text x="85" y="68" fill="#f472b6" font-size="12" font-weight="bold">ต่ำ</text>
+      <text x="65" y="84" fill="#94a3b8" font-size="11">สีชมพูอ่อนใส</text>
+    </g>
+
+    <!-- 25 mg/kg ปานกลาง เหมาะสม -->
+    <g transform="translate(460, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#f472b6" stroke="#38bdf8" stroke-width="2.5" />
+      <text x="60" y="32" fill="#ffffff" font-size="16" font-weight="bold">25 mg/kg</text>
+      <text x="60" y="68" fill="#38bdf8" font-size="12" font-weight="bold">ปานกลาง เหมาะสม</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีชมพูปานกลาง</text>
+    </g>
+
+    <!-- 50 mg/kg สูง -->
+    <g transform="translate(680, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#db2777" stroke="#ffffff" stroke-width="1" />
+      <text x="60" y="32" fill="#ffffff" font-size="16" font-weight="bold">50 mg/kg</text>
+      <text x="85" y="68" fill="#f472b6" font-size="12" font-weight="bold">สูง</text>
+      <text x="65" y="84" fill="#94a3b8" font-size="11">สีชมพูเข้มสด</text>
+    </g>
+
+    <!-- 100+ mg/kg สูงมาก -->
+    <g transform="translate(900, 60)">
+      <rect x="0" y="0" width="180" height="50" rx="6" fill="#9d174d" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="32" fill="#ffffff" font-size="16" font-weight="bold">100+ mg/kg</text>
+      <text x="68" y="68" fill="#fda4af" font-size="12" font-weight="bold">สูงมาก</text>
+      <text x="50" y="84" fill="#94a3b8" font-size="11">สีแดงอมม่วงเข้ม</text>
+    </g>
+  </g>
+
+  <!-- ================= 3. PHOSPHORUS (P) (แถบสีฟอสฟอรัสในดิน) ================= -->
+  <g transform="translate(50, 475)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1100" height="155" rx="10" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Label -->
+    <rect x="20" y="15" width="220" height="30" rx="5" fill="#1e293b" />
+    <text x="30" y="36" fill="#38bdf8" font-size="14" font-weight="bold">3. ฟอสฟอรัส (Available P)</text>
+    <text x="260" y="35" fill="#94a3b8" font-size="12">ปฏิกิริยาโมลิบดินัมบลู (Molybdenum Blue Method / Bray II)</text>
+
+    <!-- P Color Swatches (0, 10, 25, 50, 100+ mg/kg) -->
+    <!-- 0 mg/kg ต่ำมาก -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" />
+      <text x="65" y="32" fill="#475569" font-size="16" font-weight="bold">0 mg/kg</text>
+      <text x="75" y="68" fill="#cbd5e1" font-size="12" font-weight="bold">ต่ำมาก</text>
+      <text x="65" y="84" fill="#94a3b8" font-size="11">ใส ไม่มีสี (Clear)</text>
+    </g>
+
+    <!-- 10 mg/kg ต่ำ -->
+    <g transform="translate(240, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#bae6fd" stroke="#38bdf8" stroke-width="1" />
+      <text x="60" y="32" fill="#0369a1" font-size="16" font-weight="bold">10 mg/kg</text>
+      <text x="85" y="68" fill="#38bdf8" font-size="12" font-weight="bold">ต่ำ</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีฟ้าจางสว่าง</text>
+    </g>
+
+    <!-- 25 mg/kg ปานกลาง เหมาะสม -->
+    <g transform="translate(460, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#38bdf8" stroke="#34d399" stroke-width="2.5" />
+      <text x="60" y="32" fill="#ffffff" font-size="16" font-weight="bold">25 mg/kg</text>
+      <text x="60" y="68" fill="#34d399" font-size="12" font-weight="bold">ปานกลาง เหมาะสม</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีฟ้าครามสด</text>
+    </g>
+
+    <!-- 50 mg/kg สูง -->
+    <g transform="translate(680, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#0284c7" stroke="#ffffff" stroke-width="1" />
+      <text x="60" y="32" fill="#ffffff" font-size="16" font-weight="bold">50 mg/kg</text>
+      <text x="85" y="68" fill="#38bdf8" font-size="12" font-weight="bold">สูง</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีน้ำเงินคราม</text>
+    </g>
+
+    <!-- 100+ mg/kg สูงมาก -->
+    <g transform="translate(900, 60)">
+      <rect x="0" y="0" width="180" height="50" rx="6" fill="#0c4a6e" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="32" fill="#ffffff" font-size="16" font-weight="bold">100+ mg/kg</text>
+      <text x="68" y="68" fill="#7dd3fc" font-size="12" font-weight="bold">สูงมาก</text>
+      <text x="55" y="84" fill="#94a3b8" font-size="11">สีน้ำเงินเข้มจัด</text>
+    </g>
+  </g>
+
+  <!-- ================= 4. POTASSIUM (K) (แถบสีโพแทสเซียมในดิน) ================= -->
+  <g transform="translate(50, 655)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1100" height="155" rx="10" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Label -->
+    <rect x="20" y="15" width="220" height="30" rx="5" fill="#1e293b" />
+    <text x="30" y="36" fill="#fbbf24" font-size="14" font-weight="bold">4. โพแทสเซียม (Exchangeable K)</text>
+    <text x="260" y="35" fill="#94a3b8" font-size="12">ปฏิกิริยาโซเดียมเตตระฟีนิลโบเรต (Sodium Tetraphenylborate Turbidity)</text>
+
+    <!-- K Color Swatches (0, 100, 200, 300, 400+ mg/kg) -->
+    <!-- 0 mg/kg ต่ำมาก -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#fef08a" stroke="#ca8a04" stroke-width="1" />
+      <text x="65" y="32" fill="#854d0e" font-size="16" font-weight="bold">0 mg/kg</text>
+      <text x="75" y="68" fill="#fde047" font-size="12" font-weight="bold">ต่ำมาก</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีเหลืองอ่อนใส</text>
+    </g>
+
+    <!-- 100 mg/kg ต่ำ -->
+    <g transform="translate(240, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#fed7aa" stroke="#ea580c" stroke-width="1" />
+      <text x="55" y="32" fill="#9a3412" font-size="16" font-weight="bold">100 mg/kg</text>
+      <text x="85" y="68" fill="#fdba74" font-size="12" font-weight="bold">ต่ำ</text>
+      <text x="70" y="84" fill="#94a3b8" font-size="11">สีส้มอ่อน</text>
+    </g>
+
+    <!-- 200 mg/kg ปานกลาง เหมาะสม -->
+    <g transform="translate(460, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#f97316" stroke="#34d399" stroke-width="2.5" />
+      <text x="55" y="32" fill="#ffffff" font-size="16" font-weight="bold">200 mg/kg</text>
+      <text x="60" y="68" fill="#34d399" font-size="12" font-weight="bold">ปานกลาง เหมาะสม</text>
+      <text x="68" y="84" fill="#94a3b8" font-size="11">สีส้มอมน้ำตาล</text>
+    </g>
+
+    <!-- 300 mg/kg สูง -->
+    <g transform="translate(680, 60)">
+      <rect x="0" y="0" width="195" height="50" rx="6" fill="#c2410c" stroke="#ffffff" stroke-width="1" />
+      <text x="55" y="32" fill="#ffffff" font-size="16" font-weight="bold">300 mg/kg</text>
+      <text x="85" y="68" fill="#fb923c" font-size="12" font-weight="bold">สูง</text>
+      <text x="65" y="84" fill="#94a3b8" font-size="11">สีน้ำตาลแดง</text>
+    </g>
+
+    <!-- 400+ mg/kg สูงมาก -->
+    <g transform="translate(900, 60)">
+      <rect x="0" y="0" width="180" height="50" rx="6" fill="#7c2d12" stroke="#ffffff" stroke-width="1" />
+      <text x="45" y="32" fill="#ffffff" font-size="16" font-weight="bold">400+ mg/kg</text>
+      <text x="68" y="68" fill="#fed7aa" font-size="12" font-weight="bold">สูงมาก</text>
+      <text x="55" y="84" fill="#94a3b8" font-size="11">สีอิฐแดงเข้มจัด</text>
+    </g>
+  </g>
+
+  <!-- Footer -->
+  <text x="50" y="830" fill="#64748b" font-size="11">มหาวิทยาลัยราชภัฏรำไพพรรณี | โครงการวิจัยชุดทดสอบค่าความเป็นกรด-ด่างและธาตุอาหารในดินด้วยปัญญาประดิษฐ์</text>
+</svg>

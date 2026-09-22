@@ -18,21 +18,39 @@
 ```
 thanapat_research/
 ├── README.md                                 # รายละเอียดโครงการ และคู่มือโครงสร้างไฟล์
+├── FIGURES_CATALOGUE.md                      # แค็ตตาล็อกและรายละเอียดภาพอุปกรณ์จริงประกอบรายงานวิจัย
 ├── 3-วิจัย อ ธนพัฒน์  2569-Complete.docx      # ข้อเสนอโครงการวิจัยฉบับเดิม (Full Proposal)
 ├── extracted_full.md                         # ข้อมูลข้อความดิบที่สกัดจากไฟล์ต้นฉบับ
+├── figures/                                  # โฟลเดอร์จัดเก็บภาพอุปกรณ์จริงและภาพการทดลองความละเอียดสูง
+│   ├── fig3_1_atd35_s3_main_board.jpg       # ภาพที่ 3.1 บอร์ดควบคุมหลัก ATD3.5-S3 (ESP32-S3)
+│   ├── fig3_2_farm1_shield.jpg              # ภาพที่ 3.2 แผงวงจร Farm1 Shield
+│   ├── fig3_3_terminal_wiring.jpg           # ภาพที่ 3.3 การเข้าสายเทอร์มินัลบล็อก Farm1 Shield
+│   ├── fig3_4_modbus_soil_probe_actual.jpg  # ภาพที่ 3.4 โพรบวัดดิน 7-in-1 Modbus RS485 ตัวจริง
+│   ├── fig3_5_soil_probe_electrodes_macro.jpg # ภาพที่ 3.5 เข็มวัดสแตนเลสสตีล 316L โพรบวัดดิน 7-in-1
+│   ├── fig3_6_sht45_precision_sensor.jpg    # ภาพที่ 3.6 เซนเซอร์อุณหภูมิอ้างอิง Sensirion SHT45
+│   ├── fig3_7_lab_waterbath_calibration.jpg # ภาพที่ 3.7 ชุดทดลองในห้องแล็บ (Water Bath + NIST Buffers)
+│   ├── fig4_1_handheld_kit_prototype.jpg    # ภาพที่ 4.1 ชุดทดสอบค่า Soil pH ภาคสนามต้นแบบสมบูรณ์
+│   ├── fig4_2_cyber_dashboard_display.png   # ภาพที่ 4.2 หน้าจอ Cyber Dashboard UI บนจอ IPS 3.5 นิ้ว
+│   └── fig4_3_durian_field_testing.jpg      # ภาพที่ 4.3 การทดสอบวัดค่าดินในสวนทุเรียนจริงภาคสนาม
 ├── chapters/                                 # โฟลเดอร์จัดเก็บเนื้อหารายบท (แยกไฟล์)
+│   ├── ch00_acknowledgements.md             # กิตติกรรมประกาศ (Acknowledgements)
+│   ├── ch00_preface.md                      # คำนำ (Preface)
+│   ├── ch00_table_of_contents.md            # สารบัญเนื้อหา สารบัญตาราง และสารบัญภาพ
 │   ├── ch01_introduction.md                 # บทที่ 1 บทนำ (ความเป็นมา, วัตถุประสงค์, ขอบเขต, ประโยชน์)
 │   ├── ch02_literature_review.md            # บทที่ 2 วรรณกรรมและงานวิจัยที่เกี่ยวข้อง (ทฤษฎี Nernst, ANN, ดินทุเรียน)
 │   ├── ch03_methodology.md                  # บทที่ 3 วิธีดำเนินการวิจัย (ฮาร์ดแวร์, บัฟเฟอร์, Dataset, โมเดล AI)
 │   ├── ch04_results_discussion.md           # บทที่ 4 ผลการวิจัยและการอภิปรายผล (ต้นแบบ, UI, ผล AI, ทดสอบแปลงจริง)
+│   ├── ch00_acknowledgements.docx           # กิตติกรรมประกาศในรูปแบบไฟล์ Word DOCX
+│   ├── ch00_preface.docx                    # คำนำในรูปแบบไฟล์ Word DOCX
+│   ├── ch00_table_of_contents.docx          # สารบัญในรูปแบบไฟล์ Word DOCX
 │   ├── ch01_introduction.docx               # บทที่ 1 ในรูปแบบไฟล์ Word DOCX
 │   ├── ch02_literature_review.docx          # บทที่ 2 ในรูปแบบไฟล์ Word DOCX
-│   ├── ch03_methodology.docx                # บทที่ 3 ในรูปแบบไฟล์ Word DOCX
-│   └── ch04_results_discussion.docx         # บทที่ 4 ในรูปแบบไฟล์ Word DOCX
+│   ├── ch03_methodology.docx                # บทที่ 3 ในรูปแบบไฟล์ Word DOCX (ฝังภาพอุปกรณ์จริง 3.1 - 3.7)
+│   └── ch04_results_discussion.docx         # บทที่ 4 ในรูปแบบไฟล์ Word DOCX (ฝังภาพอุปกรณ์จริง 4.1 - 4.3)
 ├── references/                               # โฟลเดอร์จัดเก็บรายการเอกสารอ้างอิง
 │   └── references.md                        # บรรณานุกรมและเอกสารอ้างอิงทางวิชาการ (APA Style)
 ├── รายงานวิจัย_4บท_ธนพัฒน์_2569.md           # ไฟล์รวมเล่มรายงานวิจัยบทที่ 1-4 ฉบับสมบูรณ์ (Master Markdown)
-└── รายงานวิจัย_4บท_ธนพัฒน์_2569.docx          # ไฟล์รวมเล่มรายงานวิจัยบทที่ 1-4 ฉบับสมบูรณ์ (Word DOCX พร้อมส่ง)
+└── รายงานวิจัย_4บท_ธนพัฒน์_2569.docx          # ไฟล์รวมเล่มรายงานวิจัยบทที่ 1-4 ฉบับสมบูรณ์ (Word DOCX ฝังภาพจริงครบถ้วน)
 ```
 
 ---

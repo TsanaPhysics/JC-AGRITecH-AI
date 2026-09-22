@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%" style="background:#0f172a; font-family:'Sarabun', 'Inter', sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.2" />
+    </linearGradient>
+    <linearGradient id="nirGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#881337" stop-opacity="0.3" />
+    </linearGradient>
+    <linearGradient id="soilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78350f" />
+      <stop offset="100%" stop-color="#451a03" />
+    </linearGradient>
+    <!-- Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.75" />
+    </pattern>
+  </defs>
+
+  <!-- Background Grid -->
+  <rect width="1000" height="700" fill="url(#grid)" />
+
+  <!-- Header Banner -->
+  <rect x="30" y="25" width="940" height="60" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+  <text x="50" y="55" fill="#38bdf8" font-size="18" font-weight="bold">แบบแปลนโครงสร้างวิศวกรรมกล่องวัดแบบทึบแสง (Optical Dark Chamber 45°/0° Spec)</text>
+  <text x="50" y="73" fill="#94a3b8" font-size="12">ชุดวิเคราะห์ N-P ดินแบบพกพา มรภ.รำไพพรรณี (กว้าง 120 มม. ยาว 80 มม. สูง 65 มม. โฟกัส 50 มม.)</text>
+  <rect x="820" y="38" width="130" height="32" rx="6" fill="#0369a1" />
+  <text x="835" y="59" fill="#ffffff" font-size="12" font-weight="bold">PETG 100% Infill</text>
+
+  <!-- SECTION 1: CROSS-SECTION DIAGRAM (Left Side) -->
+  <g transform="translate(50, 110)">
+    <!-- Outer Chamber Shell (W: 420px ~ 120mm, H: 380px ~ 65mm scale) -->
+    <rect x="0" y="40" width="440" height="380" rx="10" fill="#090d16" stroke="#475569" stroke-width="4" />
+    <rect x="12" y="52" width="416" height="356" rx="6" fill="#020617" stroke="#1e293b" stroke-width="2" />
+
+    <!-- Matt Black Coating indication -->
+    <text x="25" y="75" fill="#64748b" font-size="11">ผิวเคลือบดูดกลืนแสงสีดำด้าน (Reflectance &lt; 1%)</text>
+
+    <!-- Top Lid & Smartphone Mount -->
+    <rect x="-10" y="30" width="460" height="22" rx="4" fill="#1e293b" stroke="#0ea5e9" stroke-width="2" />
+    <!-- Smartphone Outline -->
+    <rect x="110" y="-30" width="220" height="55" rx="8" fill="#334155" stroke="#94a3b8" stroke-width="2" />
+    <circle cx="220" cy="-2" r="14" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+    <circle cx="220" cy="-2" r="7" fill="#0284c7" />
+    <!-- EVA Foam Gasket Seal -->
+    <rect x="195" y="24" width="50" height="8" rx="2" fill="#e11d48" filter="url(#glow)" />
+    <text x="260" y="22" fill="#fda4af" font-size="11" font-weight="bold">ปะเก็นยาง EVA กันแสงเล็ดลอด 100%</text>
+    <text x="130" y="-12" fill="#cbd5e1" font-size="12" font-weight="bold">สมาร์ทโฟน / โมดูลกล้อง</text>
+
+    <!-- Viewing Aperture & Optical Baffle Cone (0 deg vertical axis) -->
+    <polygon points="200,52 240,52 232,150 208,150" fill="#0f172a" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="3,3" />
+    <line x1="220" y1="52" x2="220" y2="350" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="225" y="100" fill="#38bdf8" font-size="11">แกนรับแสงสะท้อน 0° (Normal View)</text>
+
+    <!-- 45° LED Ring Baffle Mounts (Left & Right) -->
+    <!-- Left LED (45 deg) -->
+    <g transform="translate(100, 180) rotate(-45)">
+      <rect x="-8" y="-15" width="16" height="30" rx="3" fill="#f59e0b" stroke="#d97706" stroke-width="1.5" />
+      <polygon points="-6,15 6,15 15,100 -15,100" fill="url(#laserGrad)" />
+      <line x1="0" y1="15" x2="0" y2="130" stroke="#38bdf8" stroke-width="1.5" />
+    </g>
+    <text x="45" y="165" fill="#f59e0b" font-size="11" font-weight="bold">LED Array (45° Incident)</text>
+    <text x="45" y="180" fill="#94a3b8" font-size="10">465, 525, 660 nm</text>
+
+    <!-- Right LED (45 deg) -->
+    <g transform="translate(340, 180) rotate(45)">
+      <rect x="-8" y="-15" width="16" height="30" rx="3" fill="#e11d48" stroke="#be123c" stroke-width="1.5" />
+      <polygon points="-6,15 6,15 15,100 -15,100" fill="url(#nirGrad)" />
+      <line x1="0" y1="15" x2="0" y2="130" stroke="#f43f5e" stroke-width="1.5" />
+    </g>
+    <text x="315" y="165" fill="#f43f5e" font-size="11" font-weight="bold">NIR Array (45° Incident)</text>
+    <text x="315" y="180" fill="#94a3b8" font-size="10">720, 850, 940 nm</text>
+
+    <!-- Optical Working Distance Dimension Arrow (50 mm) -->
+    <line x1="280" y1="52" x2="280" y2="350" stroke="#10b981" stroke-width="2" />
+    <polygon points="277,55 283,55 280,48" fill="#10b981" />
+    <polygon points="277,347 283,347 280,354" fill="#10b981" />
+    <rect x="290" y="190" width="115" height="24" rx="4" fill="#064e3b" />
+    <text x="296" y="206" fill="#34d399" font-size="11" font-weight="bold">ระยะโฟกัสคงที่ 50 mm</text>
+
+    <!-- Sample Drawer Base & Double Labyrinth Seal -->
+    <!-- Drawer Slide Track -->
+    <rect x="80" y="340" width="280" height="60" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="2" />
+    <!-- Soil Sample Cup (Dia 35 mm, Depth 8 mm) -->
+    <rect x="140" y="348" width="160" height="28" rx="2" fill="url(#soilGrad)" stroke="#d97706" stroke-width="2" />
+    <text x="165" y="366" fill="#fef3c7" font-size="12" font-weight="bold">ตัวอย่างดิน (7.5 cm³)</text>
+    <text x="175" y="392" fill="#94a3b8" font-size="10">Ø 35 mm × ลึก 8 mm</text>
+
+    <!-- Double Labyrinth Light-trap Teeth (Left & Right of Drawer) -->
+    <path d="M 75 345 L 85 345 L 85 375 L 75 375 Z" fill="#0284c7" />
+    <path d="M 68 340 L 78 340 L 78 380 L 68 380 Z" fill="#0369a1" />
+    <path d="M 355 345 L 365 345 L 365 375 L 355 375 Z" fill="#0284c7" />
+    <path d="M 362 340 L 372 340 L 372 380 L 362 380 Z" fill="#0369a1" />
+    <text x="12" y="415" fill="#38bdf8" font-size="11" font-weight="bold">เขี้ยวดักแสงสองชั้น (Labyrinth Seal) ตัดแสงภายนอก &gt; 99.9%</text>
+
+    <!-- Drawer Pull Handle -->
+    <rect x="180" y="405" width="80" height="14" rx="4" fill="#475569" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="198" y="416" fill="#ffffff" font-size="10">มือจับลิ้นชัก</text>
+  </g>
+
+  <!-- SECTION 2: SPECIFICATIONS & FEATURES PANEL (Right Side) -->
+  <g transform="translate(540, 110)">
+    <!-- Specs Container -->
+    <rect x="0" y="0" width="420" height="550" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" />
+
+    <!-- Title Card -->
+    <rect x="15" y="15" width="390" height="38" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+    <text x="30" y="39" fill="#38bdf8" font-size="14" font-weight="bold">ข้อกำหนดวิศวกรรมการพิมพ์ 3 มิติ (3D Specs)</text>
+
+    <!-- Table of Parameters -->
+    <g transform="translate(20, 70)" font-size="12">
+      <!-- Item 1 -->
+      <rect x="0" y="0" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="22" fill="#94a3b8">เส้นใยพอลิเมอร์ (Filament)</text>
+      <text x="210" y="22" fill="#f8fafc" font-weight="bold">PETG สีดำทึบแสง (Black)</text>
+
+      <!-- Item 2 -->
+      <rect x="0" y="44" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="66" fill="#94a3b8">ความหนาแน่นภายใน (Infill)</text>
+      <text x="210" y="66" fill="#38bdf8" font-weight="bold">100% Solid (หรือ Gyroid 50%)</text>
+
+      <!-- Item 3 -->
+      <rect x="0" y="88" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="110" fill="#94a3b8">ความหนาผนัง (Perimeters)</text>
+      <text x="210" y="110" fill="#f8fafc" font-weight="bold">5 ลูป (หนา 2.0 - 2.4 มม.)</text>
+
+      <!-- Item 4 -->
+      <rect x="0" y="132" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="154" fill="#94a3b8">ความสูงชั้นพิมพ์ (Layer Height)</text>
+      <text x="210" y="154" fill="#f8fafc" font-weight="bold">0.16 - 0.20 มม. (ผิวเรียบ)</text>
+
+      <!-- Item 5 -->
+      <rect x="0" y="176" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="198" fill="#94a3b8">อุณหภูมิหัวฉีด / ฐานพิมพ์</text>
+      <text x="210" y="198" fill="#f8fafc" font-weight="bold">240°C / 75°C - 80°C</text>
+
+      <!-- Item 6 -->
+      <rect x="0" y="220" width="380" height="36" rx="4" fill="#0f172a" />
+      <text x="12" y="242" fill="#94a3b8">ผิวภายใน (Internal Coating)</text>
+      <text x="210" y="242" fill="#fbbf24" font-weight="bold">Matt Black (การสะท้อน &lt; 1%)</text>
+    </g>
+
+    <!-- Key Optical Advantages Card -->
+    <g transform="translate(15, 345)">
+      <rect x="0" y="0" width="390" height="185" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5" />
+      <text x="15" y="26" fill="#34d399" font-size="13" font-weight="bold">จุดเด่นของระบบควบคุมแสงสะท้อน (Optical Advantages)</text>
+
+      <circle cx="22" cy="52" r="4" fill="#34d399" />
+      <text x="35" y="56" fill="#cbd5e1" font-size="11.5">เรขาคณิต 45°/0° ขจัดแสงเงาสะท้อนหน้าผิวดิน (Specular)</text>
+
+      <circle cx="22" cy="80" r="4" fill="#34d399" />
+      <text x="35" y="84" fill="#cbd5e1" font-size="11.5">ตัดแสงรบกวนภายนอก 99.94% (ภายนอก 85,000 lx ภายใน &lt; 0.05 lx)</text>
+
+      <circle cx="22" cy="108" r="4" fill="#34d399" />
+      <text x="35" y="112" fill="#cbd5e1" font-size="11.5">โมดูลาร์ปรับเปลี่ยนได้ ทั้งสมาร์ทโฟน หรือบอร์ดเซนเซอร์ ESP32-CAM</text>
+
+      <circle cx="22" cy="136" r="4" fill="#34d399" />
+      <text x="35" y="140" fill="#cbd5e1" font-size="11.5">ระยะทางทัศนศาสตร์คงที่ 50 mm ให้ค่าสเปกตรัมซ้ำได้เสถียร 98.2%</text>
+
+      <circle cx="22" cy="164" r="4" fill="#34d399" />
+      <text x="35" y="168" fill="#cbd5e1" font-size="11.5">น้ำหนักรวมเบาเพียง 380 กรัม พกพาตรวจวัดในแปลงทุเรียนสะดวก</text>
+    </g>
+  </g>
+
+  <!-- Footer Info -->
+  <text x="50" y="680" fill="#64748b" font-size="11">มหาวิทยาลัยราชภัฏรำไพพรรณี | โครงการวิจัยชุดวิเคราะห์ N-P ดินแบบพกพา สัญญาเลขที่ 2251/2569 | หัวหน้าโครงการ ผศ.ดร.ชีวะ ทัศนา</text>
+</svg>

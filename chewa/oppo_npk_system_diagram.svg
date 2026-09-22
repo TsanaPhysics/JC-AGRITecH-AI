@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" width="100%" height="100%" style="background:#0b0f19; font-family:'Sarabun', 'Inter', sans-serif;">
+  <defs>
+    <!-- Linear Gradients -->
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="oppoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="ledGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+    </marker>
+  </defs>
+
+  <!-- Title Banner -->
+  <rect x="40" y="25" width="1020" height="65" rx="10" fill="#111827" stroke="#38bdf8" stroke-width="1.5" />
+  <text x="65" y="55" fill="#38bdf8" font-size="19" font-weight="bold">แผนผังระบบตรวจวัด NPK ในดินแบบพกพาเชื่อมต่อสมาร์ทโฟน OPPO</text>
+  <text x="65" y="75" fill="#94a3b8" font-size="12.5">สถาปัตยกรรมทางเดินแสง 45°/0° การเชื่อมโยงฮาร์ดแวร์ ESP32-S3 และการประมวลผลปัญญาประดิษฐ์บนสมาร์ทโฟน</text>
+  <rect x="900" y="38" width="140" height="36" rx="6" fill="#047857" />
+  <text x="918" y="61" fill="#ffffff" font-size="13" font-weight="bold">OPPO AI Mobile</text>
+
+  <!-- ================= LEFT COLUMN: HARDWARE DARK CHAMBER ================= -->
+  <g transform="translate(50, 110)">
+    <!-- Container Box -->
+    <rect x="0" y="0" width="460" height="570" rx="12" fill="url(#boxGrad)" stroke="#334155" stroke-width="2" />
+    
+    <!-- Header -->
+    <rect x="15" y="15" width="430" height="35" rx="6" fill="#1e293b" />
+    <text x="30" y="38" fill="#38bdf8" font-size="14" font-weight="bold">ชุดกล่องวัดแบบทึบแสง (Optical Dark Chamber)</text>
+
+    <!-- Sub-block 1: Optical Enclosure & Sample Tray -->
+    <rect x="25" y="65" width="410" height="150" rx="8" fill="#090d16" stroke="#475569" stroke-width="1.5" />
+    <text x="40" y="90" fill="#f8fafc" font-size="13" font-weight="bold">ห้องมืดเชิงแสงและลิ้นชักถาดดิน (CIE 45°/0°)</text>
+    
+    <rect x="40" y="105" width="175" height="40" rx="4" fill="#1e293b" stroke="#f59e0b" stroke-width="1" />
+    <text x="50" y="125" fill="#fbbf24" font-size="11" font-weight="bold">LED Array 45 องศา</text>
+    <text x="50" y="139" fill="#94a3b8" font-size="10">6 ย่านคลื่น 465-940 nm</text>
+
+    <rect x="245" y="105" width="175" height="40" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
+    <text x="255" y="125" fill="#38bdf8" font-size="11" font-weight="bold">ช่องรับแสงสะท้อน 0 องศา</text>
+    <text x="255" y="139" fill="#94a3b8" font-size="10">FOV ตั้งฉาก โฟกัส 50 มม.</text>
+
+    <!-- Double Labyrinth Indicator -->
+    <rect x="40" y="155" width="380" height="45" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1" />
+    <text x="50" y="174" fill="#34d399" font-size="11.5" font-weight="bold">เขี้ยวดักแสงสองชั้น (Double Labyrinth Seal)</text>
+    <text x="50" y="190" fill="#cbd5e1" font-size="10.5">ตัดแสงภายนอก 99.94% ภายนอก 85,000 lx ภายใน &lt; 0.05 lx</text>
+
+    <!-- Sub-block 2: Electronic Controller -->
+    <rect x="25" y="230" width="410" height="175" rx="8" fill="#090d16" stroke="#475569" stroke-width="1.5" />
+    <text x="40" y="255" fill="#f8fafc" font-size="13" font-weight="bold">วงจรขับแสงและควบคุมหลัก (ESP32-S3 Controller)</text>
+
+    <!-- Flow Steps inside Hardware -->
+    <g transform="translate(40, 270)" font-size="11">
+      <rect x="0" y="0" width="380" height="30" rx="4" fill="#1e293b" />
+      <text x="12" y="20" fill="#e2e8f0">• วงจรจ่ายกระแสคงที่ (Constant Current PWM Driver)</text>
+
+      <rect x="0" y="38" width="380" height="30" rx="4" fill="#1e293b" />
+      <text x="12" y="58" fill="#e2e8f0">• ลำดับแสงพัลส์ 100 ms สลับความมืด 50 ms ขจัด Crosstalk</text>
+
+      <rect x="0" y="76" width="380" height="30" rx="4" fill="#1e293b" />
+      <text x="12" y="96" fill="#e2e8f0">• แบตเตอรี่ Li-ion 2,000 mAh ใช้งานภาคสนามต่อเนื่อง &gt; 8.5 ชม.</text>
+    </g>
+
+    <!-- Sub-block 3: Physical Mount Interface -->
+    <rect x="25" y="420" width="410" height="130" rx="8" fill="#090d16" stroke="#059669" stroke-width="1.5" />
+    <text x="40" y="445" fill="#34d399" font-size="13" font-weight="bold">แท่นสวมยึดสมาร์ทโฟน OPPO เฉพาะทาง (OPPO Cradle)</text>
+    
+    <text x="40" y="475" fill="#e2e8f0" font-size="11">• รางประกบความกว้าง 73 ถึง 76 มม. ล็อกขอบเครื่อง OPPO กระชับแน่น</text>
+    <text x="40" y="497" fill="#e2e8f0" font-size="11">• ปะเก็นยางโฟม EVA สีดำซีลรอบโมดูลกล้องนูน (Camera Bump) 100%</text>
+    <text x="40" y="519" fill="#e2e8f0" font-size="11">• ขั้วต่อ Type-C OTG และเสาส่งสัญญาณ Bluetooth BLE 5.0</text>
+  </g>
+
+  <!-- ================= MIDDLE: DUAL CONNECTION CHANNELS ================= -->
+  <g transform="translate(525, 230)">
+    <!-- Channel 1: BLE 5.0 Wireless -->
+    <rect x="0" y="0" width="60" height="110" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" filter="url(#glowEffect)" />
+    <text x="12" y="35" fill="#38bdf8" font-size="11" font-weight="bold">BLE</text>
+    <text x="13" y="52" fill="#38bdf8" font-size="11" font-weight="bold">5.0</text>
+    <text x="9" y="80" fill="#94a3b8" font-size="9">ไร้สาย</text>
+    <text x="6" y="94" fill="#94a3b8" font-size="9">ไร้กังวล</text>
+
+    <!-- Connection Arrow Right -->
+    <line x1="60" y1="55" x2="80" y2="55" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrowhead)" />
+    <!-- Connection Arrow Left -->
+    <line x1="0" y1="55" x2="-15" y2="55" stroke="#38bdf8" stroke-width="3" />
+
+    <!-- Channel 2: USB-C OTG Cable -->
+    <rect x="0" y="150" width="60" height="110" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+    <text x="10" y="185" fill="#10b981" font-size="11" font-weight="bold">USB</text>
+    <text x="14" y="202" fill="#10b981" font-size="11" font-weight="bold">OTG</text>
+    <text x="11" y="230" fill="#94a3b8" font-size="9">สายตรง</text>
+    <text x="7" y="244" fill="#94a3b8" font-size="9">เสถียรสูง</text>
+
+    <!-- Connection Arrow Right -->
+    <line x1="60" y1="205" x2="80" y2="205" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)" />
+    <!-- Connection Arrow Left -->
+    <line x1="0" y1="205" x2="-15" y2="205" stroke="#10b981" stroke-width="3" />
+  </g>
+
+  <!-- ================= RIGHT COLUMN: OPPO SMARTPHONE & AI APP ================= -->
+  <g transform="translate(605, 110)">
+    <!-- Container Box -->
+    <rect x="0" y="0" width="445" height="570" rx="12" fill="url(#boxGrad)" stroke="#059669" stroke-width="2" />
+    
+    <!-- Header -->
+    <rect x="15" y="15" width="415" height="35" rx="6" fill="#064e3b" />
+    <text x="30" y="38" fill="#34d399" font-size="14" font-weight="bold">สมาร์ทโฟน OPPO และแอปพลิเคชันปัญญาประดิษฐ์</text>
+
+    <!-- Sub-block 1: Optical Sensing & Preprocessing -->
+    <rect x="25" y="65" width="395" height="150" rx="8" fill="#090d16" stroke="#475569" stroke-width="1.5" />
+    <text x="40" y="90" fill="#f8fafc" font-size="13" font-weight="bold">การจับภาพและแปลงสัญญาณเคมีเมตริกส์</text>
+
+    <g transform="translate(40, 105)" font-size="11">
+      <rect x="0" y="0" width="365" height="28" rx="4" fill="#1e293b" />
+      <text x="10" y="18" fill="#cbd5e1">1. ถ่ายภาพความเข้มแสงสะท้อนสัมพัทธ์ (Relative Reflectance)</text>
+
+      <rect x="0" y="34" width="365" height="28" rx="4" fill="#1e293b" />
+      <text x="10" y="52" fill="#cbd5e1">2. แปลงฟังก์ชันคูเบลกา-มังก์ F(R) = (1-R)² / 2R</text>
+
+      <rect x="0" y="68" width="365" height="28" rx="4" fill="#1e293b" />
+      <text x="10" y="86" fill="#cbd5e1">3. ชดเชยความชื้นด้วยอัตราส่วนแถบดูดกลืนน้ำ 940 nm</text>
+    </g>
+
+    <!-- Sub-block 2: AI Neural Network Inference -->
+    <rect x="25" y="230" width="395" height="145" rx="8" fill="#090d16" stroke="#6366f1" stroke-width="1.5" />
+    <text x="40" y="255" fill="#818cf8" font-size="13" font-weight="bold">แบบจำลองโครงข่ายประสาทเทียม (ANN / SVR)</text>
+    
+    <text x="40" y="280" fill="#e2e8f0" font-size="11">• สถาปัตยกรรมโครงข่าย MLP 6-16-8-1 รันบนมือถือแบบ On-Device</text>
+    <text x="40" y="302" fill="#e2e8f0" font-size="11">• คำนวณรวดเร็วไม่เกิน 200 มิลลิวินาที ไม่ต้องพึ่งสัญญาณอินเทอร์เน็ต</text>
+    <text x="40" y="324" fill="#e2e8f0" font-size="11">• ค่าความแม่นยำ R² ไนโตรเจน 0.916 และ ฟอสฟอรัส 0.993</text>
+    <text x="40" y="346" fill="#34d399" font-size="11" font-weight="bold">• ประเมินสถานะ โพแทสเซียม (K) ควบคู่จากสเปกตรัมสัมพันธ์</text>
+
+    <!-- Sub-block 3: User Interface & Decision Support -->
+    <rect x="25" y="390" width="395" height="160" rx="8" fill="#090d16" stroke="#10b981" stroke-width="1.5" />
+    <text x="40" y="415" fill="#34d399" font-size="13" font-weight="bold">หน้าจอ Cyber Dashboard แสดงผลลัพธ์ N-P-K ทันที</text>
+
+    <!-- Mockup Gauges inside App UI -->
+    <g transform="translate(40, 430)">
+      <!-- N Gauge -->
+      <rect x="0" y="0" width="115" height="50" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
+      <text x="12" y="22" fill="#38bdf8" font-size="13" font-weight="bold">ไนโตรเจน N</text>
+      <text x="12" y="42" fill="#f8fafc" font-size="15" font-weight="bold">1.82 g/kg</text>
+
+      <!-- P Gauge -->
+      <rect x="125" y="0" width="115" height="50" rx="6" fill="#1e293b" stroke="#fbbf24" stroke-width="1" />
+      <text x="137" y="22" fill="#fbbf24" font-size="13" font-weight="bold">ฟอสฟอรัส P</text>
+      <text x="137" y="42" fill="#f8fafc" font-size="15" font-weight="bold">42.5 mg/kg</text>
+
+      <!-- K Gauge -->
+      <rect x="250" y="0" width="115" height="50" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1" />
+      <text x="262" y="22" fill="#f43f5e" font-size="13" font-weight="bold">โพแทสเซียม K</text>
+      <text x="262" y="42" fill="#f8fafc" font-size="15" font-weight="bold">128 mg/kg</text>
+
+      <!-- Recommendation line -->
+      <rect x="0" y="60" width="365" height="42" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1" />
+      <text x="12" y="80" fill="#a7f3d0" font-size="11" font-weight="bold">คำแนะนำปุ๋ยทุเรียนอัตโนมัติ</text>
+      <text x="12" y="95" fill="#ffffff" font-size="10.5">ดินอุดมสมบูรณ์ปานกลาง ปรับลดแม่ปุ๋ยไนโตรเจน เสริมโพแทสเซียมช่วงติดผล</text>
+    </g>
+  </g>
+
+  <!-- Bottom Footer -->
+  <text x="50" y="702" fill="#64748b" font-size="11">มหาวิทยาลัยราชภัฏรำไพพรรณี | แผนงานวิจัยปัญญาประดิษฐ์เกษตรแม่นยำ ผศ.ดร.ชีวะ ทัศนา และคณะ</text>
+</svg>

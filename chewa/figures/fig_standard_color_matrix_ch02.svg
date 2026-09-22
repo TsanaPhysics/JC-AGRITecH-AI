@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 950" width="100%" height="100%" style="background:#0f172a; font-family:'Sarabun', 'Inter', sans-serif;">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <filter id="boxShadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Title Header -->
+  <rect x="30" y="20" width="1140" height="75" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+  <text x="55" y="52" fill="#38bdf8" font-size="19" font-weight="bold">เกณฑ์มาตรฐานแถบสีเทียบเคียงและช่วงความเข้มข้นเชิงปริมาณของธาตุอาหารในดิน NPK และ pH</text>
+  <text x="55" y="75" fill="#94a3b8" font-size="13">ถอดรหัสตามตารางที่ 2.3 ของรายงานวิจัย มาตรฐานกรมพัฒนาที่ดิน (LDD Thailand), LaMotte STH, SSSA และ USDA</text>
+  <rect x="1000" y="35" width="150" height="42" rx="6" fill="#0369a1" />
+  <text x="1015" y="61" fill="#ffffff" font-size="13" font-weight="bold">ตารางที่ 2.3 ฉบับจริง</text>
+
+  <!-- ================= 1. SOIL pH (7 TIERS) ================= -->
+  <g transform="translate(40, 115)" filter="url(#boxShadow)">
+    <rect x="0" y="0" width="1120" height="185" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+    <text x="25" y="28" fill="#f8fafc" font-size="15" font-weight="bold">1. ความเป็นกรด-ด่างของดิน (Soil pH)</text>
+    <text x="450" y="27" fill="#94a3b8" font-size="12">วิธีอินดิเคเตอร์สากล LDD / USDA (Universal Indicator Reagent)</text>
+
+    <!-- 7 Swatches -->
+    <!-- #e63946 -->
+    <g transform="translate(25, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#e63946" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#ffffff" font-size="12" font-weight="bold">#E63946</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#fca5a5" font-size="12" font-weight="bold">กรดจัดรุนแรง</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">&lt; 4.5 pH</text>
+    </g>
+    <!-- #f4a261 -->
+    <g transform="translate(180, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#f4a261" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#000000" font-size="12" font-weight="bold">#F4A261</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#fed7aa" font-size="12" font-weight="bold">กรดจัด</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">4.5 - 5.2 pH</text>
+    </g>
+    <!-- #e9c46a -->
+    <g transform="translate(335, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#e9c46a" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#000000" font-size="12" font-weight="bold">#E9C46A</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#fef08a" font-size="12" font-weight="bold">กรดปานกลาง</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">5.3 - 6.0 pH</text>
+    </g>
+    <!-- #a7c957 -->
+    <g transform="translate(490, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#a7c957" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#000000" font-size="12" font-weight="bold">#A7C957</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#d9f99d" font-size="12" font-weight="bold">กรดเล็กน้อย</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">6.1 - 6.8 pH</text>
+    </g>
+    <!-- #2a9d8f (OPTIMUM) -->
+    <g transform="translate(645, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#2a9d8f" stroke="#38bdf8" stroke-width="2.5" />
+      <text x="12" y="60" fill="#ffffff" font-size="12" font-weight="bold">#2A9D8F</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" stroke="#2a9d8f" stroke-width="1" />
+      <text x="8" y="96" fill="#a7f3d0" font-size="12" font-weight="bold">เป็นกลาง (เหมาะสม)</text>
+      <text x="8" y="114" fill="#34d399" font-size="12" font-weight="bold">6.9 - 7.5 pH</text>
+    </g>
+    <!-- #457b9d -->
+    <g transform="translate(800, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#457b9d" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#ffffff" font-size="12" font-weight="bold">#457B9D</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#bae6fd" font-size="12" font-weight="bold">ด่างปานกลาง</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">7.6 - 8.4 pH</text>
+    </g>
+    <!-- #1d3557 -->
+    <g transform="translate(955, 45)">
+      <rect x="0" y="0" width="140" height="70" rx="6" fill="#1d3557" stroke="#ffffff" stroke-width="1" />
+      <text x="12" y="60" fill="#ffffff" font-size="12" font-weight="bold">#1D3557</text>
+      <rect x="0" y="76" width="140" height="48" rx="4" fill="#0f172a" />
+      <text x="8" y="96" fill="#93c5fd" font-size="12" font-weight="bold">ด่างรุนแรง</text>
+      <text x="8" y="114" fill="#38bdf8" font-size="12">&gt; 8.4 pH</text>
+    </g>
+  </g>
+
+  <!-- ================= 2. NITROGEN (N) (5 TIERS) ================= -->
+  <g transform="translate(40, 320)" filter="url(#boxShadow)">
+    <rect x="0" y="0" width="1120" height="185" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+    <text x="25" y="28" fill="#f8fafc" font-size="15" font-weight="bold">2. ไนโตรเจนที่ใช้ประโยชน์ได้ (Available Nitrogen - NO3-N)</text>
+    <text x="500" y="27" fill="#94a3b8" font-size="12">วิธีเทียบสีย้อมเอโซ LDD / LaMotte STH (Griess Reagent Azo Dye)</text>
+
+    <!-- 5 Swatches -->
+    <!-- #fefae0 -->
+    <g transform="translate(25, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#fefae0" stroke="#f472b6" stroke-width="1" />
+      <text x="15" y="60" fill="#854d0e" font-size="13" font-weight="bold">#FEFAE0</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#cbd5e1" font-size="12" font-weight="bold">ต่ำมาก (Depleted)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&lt; 10 mg/kg</text>
+    </g>
+    <!-- #f4a261 -->
+    <g transform="translate(250, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#f4a261" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#000000" font-size="13" font-weight="bold">#F4A261</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#fed7aa" font-size="12" font-weight="bold">ต่ำ (Deficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">10 - 25 mg/kg</text>
+    </g>
+    <!-- #e76f51 (OPTIMUM) -->
+    <g transform="translate(475, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#e76f51" stroke="#38bdf8" stroke-width="2.5" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#E76F51</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" stroke="#e76f51" stroke-width="1" />
+      <text x="10" y="96" fill="#fca5a5" font-size="12" font-weight="bold">ปานกลาง (Adequate / เหมาะสม)</text>
+      <text x="10" y="114" fill="#34d399" font-size="12" font-weight="bold">26 - 50 mg/kg</text>
+    </g>
+    <!-- #d62828 -->
+    <g transform="translate(700, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#d62828" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#D62828</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#f87171" font-size="12" font-weight="bold">สูง (Sufficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">51 - 80 mg/kg</text>
+    </g>
+    <!-- #7209b7 -->
+    <g transform="translate(925, 45)">
+      <rect x="0" y="0" width="170" height="70" rx="6" fill="#7209b7" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#7209B7</text>
+      <rect x="0" y="76" width="170" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#e879f9" font-size="12" font-weight="bold">สูงมาก (Surplus)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&gt; 80 mg/kg</text>
+    </g>
+  </g>
+
+  <!-- ================= 3. PHOSPHORUS (P) (5 TIERS) ================= -->
+  <g transform="translate(40, 525)" filter="url(#boxShadow)">
+    <rect x="0" y="0" width="1120" height="185" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+    <text x="25" y="28" fill="#f8fafc" font-size="15" font-weight="bold">3. ฟอสฟอรัสที่เป็นประโยชน์ (Available Phosphorus)</text>
+    <text x="480" y="27" fill="#94a3b8" font-size="12">วิธีโมลิบดินัมบลู LDD Bray II / SSSA (Molybdenum Blue Complex)</text>
+
+    <!-- 5 Swatches -->
+    <!-- #faf0ca -->
+    <g transform="translate(25, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#faf0ca" stroke="#94a3b8" stroke-width="1" />
+      <text x="15" y="60" fill="#854d0e" font-size="13" font-weight="bold">#FAF0CA</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#cbd5e1" font-size="12" font-weight="bold">ต่ำมาก (Depleted)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&lt; 5 mg/kg</text>
+    </g>
+    <!-- #a2d2ff -->
+    <g transform="translate(250, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#a2d2ff" stroke="#38bdf8" stroke-width="1" />
+      <text x="15" y="60" fill="#0369a1" font-size="13" font-weight="bold">#A2D2FF</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#7dd3fc" font-size="12" font-weight="bold">ต่ำ (Deficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">5 - 15 mg/kg</text>
+    </g>
+    <!-- #3a86ff (OPTIMUM) -->
+    <g transform="translate(475, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#3a86ff" stroke="#34d399" stroke-width="2.5" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#3A86FF</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" stroke="#3a86ff" stroke-width="1" />
+      <text x="10" y="96" fill="#93c5fd" font-size="12" font-weight="bold">ปานกลาง (Adequate / เหมาะสม)</text>
+      <text x="10" y="114" fill="#34d399" font-size="12" font-weight="bold">16 - 30 mg/kg</text>
+    </g>
+    <!-- #003049 -->
+    <g transform="translate(700, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#003049" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#003049</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#38bdf8" font-size="12" font-weight="bold">สูง (Sufficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">31 - 60 mg/kg</text>
+    </g>
+    <!-- #03045e -->
+    <g transform="translate(925, 45)">
+      <rect x="0" y="0" width="170" height="70" rx="6" fill="#03045e" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#03045E</text>
+      <rect x="0" y="76" width="170" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#0ea5e9" font-size="12" font-weight="bold">สูงมาก (Surplus)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&gt; 60 mg/kg</text>
+    </g>
+  </g>
+
+  <!-- ================= 4. POTASSIUM (K) (5 TIERS) ================= -->
+  <g transform="translate(40, 730)" filter="url(#boxShadow)">
+    <rect x="0" y="0" width="1120" height="185" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+    <text x="25" y="28" fill="#f8fafc" font-size="15" font-weight="bold">4. โพแทสเซียมที่แลกเปลี่ยนได้ (Exchangeable Potassium)</text>
+    <text x="500" y="27" fill="#94a3b8" font-size="12">วิธีตกตะกอนโซเดียมเตตระฟีนิลโบรอน LDD / SSSA (Na-Tetraphenylboron Turbidity)</text>
+
+    <!-- 5 Swatches -->
+    <!-- #edf2f4 -->
+    <g transform="translate(25, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#edf2f4" stroke="#94a3b8" stroke-width="1" />
+      <text x="15" y="60" fill="#475569" font-size="13" font-weight="bold">#EDF2F4</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#cbd5e1" font-size="12" font-weight="bold">ต่ำมาก (Depleted)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&lt; 40 mg/kg</text>
+    </g>
+    <!-- #ffd166 -->
+    <g transform="translate(250, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#ffd166" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#000000" font-size="13" font-weight="bold">#FFD166</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#fde047" font-size="12" font-weight="bold">ต่ำ (Deficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">40 - 80 mg/kg</text>
+    </g>
+    <!-- #f3722c (OPTIMUM) -->
+    <g transform="translate(475, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#f3722c" stroke="#34d399" stroke-width="2.5" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#F3722C</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" stroke="#f3722c" stroke-width="1" />
+      <text x="10" y="96" fill="#fdba74" font-size="12" font-weight="bold">ปานกลาง (Adequate / เหมาะสม)</text>
+      <text x="10" y="114" fill="#34d399" font-size="12" font-weight="bold">81 - 150 mg/kg</text>
+    </g>
+    <!-- #d90429 -->
+    <g transform="translate(700, 45)">
+      <rect x="0" y="0" width="200" height="70" rx="6" fill="#d90429" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#D90429</text>
+      <rect x="0" y="76" width="200" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#f87171" font-size="12" font-weight="bold">สูง (Sufficient)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">151 - 250 mg/kg</text>
+    </g>
+    <!-- #6a040f -->
+    <g transform="translate(925, 45)">
+      <rect x="0" y="0" width="170" height="70" rx="6" fill="#6a040f" stroke="#ffffff" stroke-width="1" />
+      <text x="15" y="60" fill="#ffffff" font-size="13" font-weight="bold">#6A040F</text>
+      <rect x="0" y="76" width="170" height="48" rx="4" fill="#0f172a" />
+      <text x="10" y="96" fill="#fca5a5" font-size="12" font-weight="bold">สูงมาก (Surplus)</text>
+      <text x="10" y="114" fill="#38bdf8" font-size="12">&gt; 250 mg/kg</text>
+    </g>
+  </g>
+
+  <!-- Footer Info -->
+  <text x="50" y="935" fill="#64748b" font-size="11.5">มหาวิทยาลัยราชภัฏรำไพพรรณี | แผนงานวิจัยปัญญาประดิษฐ์และเซนเซอร์การเกษตรแม่นยำ ผศ.ดร.ชีวะ ทัศนา และคณะ</text>
+</svg>
