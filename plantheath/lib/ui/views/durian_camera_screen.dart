@@ -60,6 +60,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
   ScaleMode _scaleMode = ScaleMode.spad;
   double _fps = 30.0;
   Offset? _roiCenter;
+  bool _useMgKgUnit = true; // Default to mg/kg (ppm) as requested
 
   // Live Analysis State
   DiseaseDiagnosis _liveDisease = DiseaseDiagnosis.empty();
@@ -1116,11 +1117,11 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
 
                             const SizedBox(width: 8),
 
-                            // Col 2: Macronutrients N-P-K
+                            // Col 2: Macronutrients N-P-K (mg/kg or %) with Confidence %
                             Expanded(
                               flex: 6,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF131B2E),
                                   borderRadius: BorderRadius.circular(8),
@@ -1129,20 +1130,54 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('ธาตุอาหารหลัก N - P - K (%)', style: TextStyle(fontSize: 8.5, color: Colors.white60)),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'ธาตุอาหาร (${_useMgKgUnit ? "mg/kg" : "%"}) • AI ${_liveNutrition.overallConfidence.toStringAsFixed(1)}%',
+                                          style: const TextStyle(fontSize: 8.5, color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                                        ),
+                                        InkWell(
+                                          onTap: () => setState(() => _useMgKgUnit = !_useMgKgUnit),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white12,
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(color: Colors.white24, width: 0.8),
+                                            ),
+                                            child: Text(
+                                              _useMgKgUnit ? 'ppm' : '%',
+                                              style: const TextStyle(fontSize: 8, color: Colors.amberAccent, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     const SizedBox(height: 3),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('N: ${_liveNutrition.nitrogenPct.toStringAsFixed(2)}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFFF7043))),
-                                        Text('P: ${_liveNutrition.phosphorusPct.toStringAsFixed(2)}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF42A5F5))),
-                                        Text('K: ${_liveNutrition.potassiumPct.toStringAsFixed(2)}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFAB47BC))),
+                                        Text(
+                                          'N: ${_useMgKgUnit ? _liveNutrition.nitrogenMgKg.toStringAsFixed(0) : "${_liveNutrition.nitrogenPct.toStringAsFixed(2)}%"}',
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFFF7043)),
+                                        ),
+                                        Text(
+                                          'P: ${_useMgKgUnit ? _liveNutrition.phosphorusMgKg.toStringAsFixed(0) : "${_liveNutrition.phosphorusPct.toStringAsFixed(2)}%"}',
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF42A5F5)),
+                                        ),
+                                        Text(
+                                          'K: ${_useMgKgUnit ? _liveNutrition.potassiumMgKg.toStringAsFixed(0) : "${_liveNutrition.potassiumPct.toStringAsFixed(2)}%"}',
+                                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFAB47BC)),
+                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Mg: ${_liveNutrition.magnesiumPct.toStringAsFixed(2)}% | Ca: ${_liveNutrition.calciumPct.toStringAsFixed(2)}% | Fe: ${_liveNutrition.ironPpm.toStringAsFixed(0)} ppm',
-                                      style: const TextStyle(fontSize: 8, color: Colors.white54),
+                                      _useMgKgUnit
+                                          ? 'Mg: ${_liveNutrition.magnesiumMgKg.toStringAsFixed(0)} | Ca: ${_liveNutrition.calciumMgKg.toStringAsFixed(0)} | Fe: ${_liveNutrition.ironPpm.toStringAsFixed(0)} ppm'
+                                          : 'Mg: ${_liveNutrition.magnesiumPct.toStringAsFixed(2)}% | Ca: ${_liveNutrition.calciumPct.toStringAsFixed(2)}% | Fe: ${_liveNutrition.ironPpm.toStringAsFixed(0)} ppm',
+                                      style: const TextStyle(fontSize: 7.8, color: Colors.white60),
                                     ),
                                   ],
                                 ),

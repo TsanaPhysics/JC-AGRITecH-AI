@@ -50,5 +50,36 @@ void main() {
       expect(metric.potassiumPct, lessThan(1.5));
       expect(metric.potassiumStatus.contains('ต่ำ') || metric.potassiumStatus.contains('แห้ง'), isTrue);
     });
+
+    test('Computes nutrients in mg/kg (ppm) and calculates AI confidence %', () {
+      final metric = PlantNutritionService.analyzeFromColor(46, 125, 50);
+
+      // Verify mg/kg conversions (1% = 10,000 mg/kg)
+      expect(metric.nitrogenMgKg, closeTo(metric.nitrogenPct * 10000.0, 0.1));
+      expect(metric.phosphorusMgKg, closeTo(metric.phosphorusPct * 10000.0, 0.1));
+      expect(metric.potassiumMgKg, closeTo(metric.potassiumPct * 10000.0, 0.1));
+      expect(metric.magnesiumMgKg, closeTo(metric.magnesiumPct * 10000.0, 0.1));
+      expect(metric.calciumMgKg, closeTo(metric.calciumPct * 10000.0, 0.1));
+
+      // Aliases for ppm
+      expect(metric.nitrogenPpm, equals(metric.nitrogenMgKg));
+      expect(metric.ironMgKg, equals(metric.ironPpm));
+
+      // Micronutrients in ppm
+      expect(metric.copperPpm, greaterThan(0.0));
+      expect(metric.manganesePpm, greaterThan(0.0));
+
+      // Statistical confidence %
+      expect(metric.overallConfidence, inInclusiveRange(70.0, 99.0));
+      expect(metric.nitrogenConfidence, inInclusiveRange(70.0, 99.0));
+      expect(metric.phosphorusConfidence, inInclusiveRange(65.0, 99.0));
+      expect(metric.potassiumConfidence, inInclusiveRange(65.0, 99.0));
+      expect(metric.spadConfidence, inInclusiveRange(70.0, 99.5));
+
+      // Non-leaf target returns 0.0 confidence and 0.0 nutrients
+      final noLeafMetric = PlantNutritionService.analyzeFromColor(245, 245, 245);
+      expect(noLeafMetric.overallConfidence, equals(0.0));
+      expect(noLeafMetric.nitrogenMgKg, equals(0.0));
+    });
   });
 }

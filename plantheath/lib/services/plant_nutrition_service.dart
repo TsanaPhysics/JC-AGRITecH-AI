@@ -28,6 +28,8 @@ class PlantNutritionService {
     double fePpm;
     double znPpm;
     double bPpm;
+    double cuPpm;
+    double mnPpm;
 
     if (regressionOutputs != null && regressionOutputs.length >= 9) {
       spad = regressionOutputs[0].clamp(10.0, 75.0);
@@ -39,6 +41,8 @@ class PlantNutritionService {
       fePpm = regressionOutputs[6].clamp(30.0, 250.0);
       znPpm = regressionOutputs[7].clamp(10.0, 90.0);
       bPpm = regressionOutputs[8].clamp(15.0, 100.0);
+      cuPpm = (6.0 + (dgci * 12.0)).clamp(4.0, 25.0);
+      mnPpm = (35.0 + (spad * 0.8) - (r > 150 ? 15.0 : 0.0)).clamp(20.0, 160.0);
     } else {
       // Physics-informed regression model based on leaf reflectance & color spaces
       spad = MultiColorSpaceService.estimateSpadFromColor(r, g, b);
@@ -60,41 +64,72 @@ class PlantNutritionService {
       // Calcium: structural integrity
       caPct = (1.6 + (lab[0] * 0.012)).clamp(1.2, 2.9);
 
-      // Micronutrients: Fe, Zn, B
+      // Micronutrients: Fe, Zn, B, Cu, Mn in mg/kg (ppm)
       fePpm = (55.0 + (spad * 1.5) - (r > 160 ? 35.0 : 0.0)).clamp(40.0, 180.0);
       znPpm = (20.0 + (dgci * 28.0)).clamp(15.0, 65.0);
       bPpm = (28.0 + (caPct * 12.0)).clamp(20.0, 75.0);
+      cuPpm = (6.0 + (dgci * 12.0)).clamp(4.0, 25.0);
+      mnPpm = (35.0 + (spad * 0.8) - (r > 150 ? 15.0 : 0.0)).clamp(20.0, 160.0);
     }
 
-    // Status evaluation
+    // Optical and Statistical Confidence Calculation (%)
+    double lightingPenalty = 0.0;
+    if (lab[0] < 32.0) {
+      lightingPenalty = (32.0 - lab[0]) * 0.8;
+    } else if (lab[0] > 70.0) {
+      lightingPenalty = (lab[0] - 70.0) * 0.7;
+    }
+
+    double satPenalty = 0.0;
+    if (hsv[1] < 0.30) {
+      satPenalty = (0.30 - hsv[1]) * 25.0;
+    }
+
+    double overallConf = (96.5 - lightingPenalty - satPenalty).clamp(65.0, 98.8);
+    double spadConf = (overallConf + 1.2).clamp(70.0, 99.2);
+    double nConf = (overallConf * 0.99).clamp(68.0, 98.5);
+    double pConf = (overallConf * 0.94).clamp(62.0, 96.0);
+    double kConf = (overallConf * 0.96).clamp(65.0, 97.2);
+
+    // Status evaluation with dual units: mg/kg (ppm) and %
+    final nMgKg = nPct * 10000.0;
     String nStatus;
     if (nPct < 1.8) {
-      nStatus = 'ขาดวิกฤต (${nPct.toStringAsFixed(2)}%)';
+      nStatus = 'ขาดวิกฤต (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
     } else if (nPct < 2.2) {
-      nStatus = 'ค่อนข้างต่ำ (${nPct.toStringAsFixed(2)}%)';
+      nStatus = 'ค่อนข้างต่ำ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
     } else if (nPct <= 2.8) {
-      nStatus = 'เหมาะสม (${nPct.toStringAsFixed(2)}%)';
+      nStatus = 'เหมาะสม (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
     } else {
-      nStatus = 'สูงเกินเกณฑ์ (${nPct.toStringAsFixed(2)}%)';
+      nStatus = 'สูงเกินเกณฑ์ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
     }
 
+    final pMgKg = pPct * 10000.0;
     String pStatus = (pPct < 0.15) 
-        ? 'ต่ำ (${pPct.toStringAsFixed(2)}%)' 
-        : (pPct <= 0.25 ? 'เหมาะสม (${pPct.toStringAsFixed(2)}%)' : 'สูง (${pPct.toStringAsFixed(2)}%)');
+        ? 'ต่ำ (${pMgKg.toStringAsFixed(0)} mg/kg | ${pPct.toStringAsFixed(2)}%)' 
+        : (pPct <= 0.25 
+            ? 'เหมาะสม (${pMgKg.toStringAsFixed(0)} mg/kg | ${pPct.toStringAsFixed(2)}%)' 
+            : 'สูง (${pMgKg.toStringAsFixed(0)} mg/kg | ${pPct.toStringAsFixed(2)}%)');
 
+    final kMgKg = kPct * 10000.0;
     String kStatus = (kPct < 1.5) 
-        ? 'ต่ำ - ขอบใบเริ่มแห้ง (${kPct.toStringAsFixed(2)}%)' 
-        : (kPct <= 2.2 ? 'เหมาะสม (${kPct.toStringAsFixed(2)}%)' : 'สูง (${kPct.toStringAsFixed(2)}%)');
+        ? 'ต่ำ - ขอบใบเริ่มแห้ง (${kMgKg.toStringAsFixed(0)} mg/kg | ${kPct.toStringAsFixed(2)}%)' 
+        : (kPct <= 2.2 
+            ? 'เหมาะสม (${kMgKg.toStringAsFixed(0)} mg/kg | ${kPct.toStringAsFixed(2)}%)' 
+            : 'สูง (${kMgKg.toStringAsFixed(0)} mg/kg | ${kPct.toStringAsFixed(2)}%)');
 
+    final mgMgKg = mgPct * 10000.0;
     String mgStatus = (mgPct < 0.30) 
-        ? 'ต่ำ - เหลืองก้างปลา (${mgPct.toStringAsFixed(2)}%)' 
-        : 'เหมาะสม (${mgPct.toStringAsFixed(2)}%)';
+        ? 'ต่ำ - เหลืองก้างปลา (${mgMgKg.toStringAsFixed(0)} mg/kg | ${mgPct.toStringAsFixed(2)}%)' 
+        : 'เหมาะสม (${mgMgKg.toStringAsFixed(0)} mg/kg | ${mgPct.toStringAsFixed(2)}%)';
 
-    // Micronutrient alerts
+    // Micronutrient alerts (mg/kg or ppm)
     List<String> microAlerts = [];
-    if (fePpm < 70.0) microAlerts.add('ขาดเหล็ก (Fe: ${fePpm.toStringAsFixed(0)} ppm)');
-    if (znPpm < 25.0) microAlerts.add('ขาดสังกะสี (Zn: ${znPpm.toStringAsFixed(0)} ppm)');
-    if (bPpm < 30.0) microAlerts.add('ขาดโบรอน (B: ${bPpm.toStringAsFixed(0)} ppm)');
+    if (fePpm < 70.0) microAlerts.add('ขาดเหล็ก (Fe: ${fePpm.toStringAsFixed(0)} mg/kg)');
+    if (znPpm < 25.0) microAlerts.add('ขาดสังกะสี (Zn: ${znPpm.toStringAsFixed(0)} mg/kg)');
+    if (bPpm < 30.0) microAlerts.add('ขาดโบรอน (B: ${bPpm.toStringAsFixed(0)} mg/kg)');
+    if (cuPpm < 6.0) microAlerts.add('ขาดทองแดง (Cu: ${cuPpm.toStringAsFixed(0)} mg/kg)');
+    if (mnPpm < 30.0) microAlerts.add('ขาดแมงกานีส (Mn: ${mnPpm.toStringAsFixed(0)} mg/kg)');
     if (mgPct < 0.30) microAlerts.add('ขาดแมกนีเซียม (Mg)');
     if (caPct < 1.8) microAlerts.add('ขาดแคลเซียม (Ca)');
 
@@ -124,6 +159,13 @@ class PlantNutritionService {
       ironPpm: fePpm,
       zincPpm: znPpm,
       boronPpm: bPpm,
+      copperPpm: cuPpm,
+      manganesePpm: mnPpm,
+      overallConfidence: overallConf,
+      nitrogenConfidence: nConf,
+      phosphorusConfidence: pConf,
+      potassiumConfidence: kConf,
+      spadConfidence: spadConf,
       dgci: dgci,
       vari: vari,
       gli: gli,

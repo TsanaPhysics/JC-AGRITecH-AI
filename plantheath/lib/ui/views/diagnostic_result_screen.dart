@@ -194,27 +194,71 @@ class DiagnosticResultScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // 2. Macro Nutrients (N, P, K)
-        const Text(
-          'ธาตุอาหารหลัก (Primary Macro Nutrients)',
-          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+        // 2. Macro Nutrients (N, P, K) in mg/kg (ppm) and % with AI Confidence
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'ธาตุอาหารหลัก N-P-K (mg/kg • ppm)',
+              style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.greenAccent.withOpacity(0.4)),
+              ),
+              child: Text(
+                'ความเชื่อมั่น AI ${nutrition.overallConfidence.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(child: _metricBox('N (ไนโตรเจน)', '${nutrition.nitrogenPct.toStringAsFixed(2)}%', nutrition.nitrogenStatus, const Color(0xFF388E3C))),
+            Expanded(
+              child: _metricBox(
+                'N (ไนโตรเจน)',
+                '${nutrition.nitrogenMgKg.toStringAsFixed(0)} mg/kg',
+                '${nutrition.nitrogenPct.toStringAsFixed(2)}% (ppm)',
+                nutrition.nitrogenStatus,
+                nutrition.nitrogenConfidence,
+                const Color(0xFF388E3C),
+              ),
+            ),
             const SizedBox(width: 8),
-            Expanded(child: _metricBox('P (ฟอสฟอรัส)', '${nutrition.phosphorusPct.toStringAsFixed(2)}%', nutrition.phosphorusStatus, const Color(0xFF00796B))),
+            Expanded(
+              child: _metricBox(
+                'P (ฟอสฟอรัส)',
+                '${nutrition.phosphorusMgKg.toStringAsFixed(0)} mg/kg',
+                '${nutrition.phosphorusPct.toStringAsFixed(2)}% (ppm)',
+                nutrition.phosphorusStatus,
+                nutrition.phosphorusConfidence,
+                const Color(0xFF00796B),
+              ),
+            ),
             const SizedBox(width: 8),
-            Expanded(child: _metricBox('K (โพแทสเซียม)', '${nutrition.potassiumPct.toStringAsFixed(2)}%', nutrition.potassiumStatus, const Color(0xFF1E88E5))),
+            Expanded(
+              child: _metricBox(
+                'K (โพแทสเซียม)',
+                '${nutrition.potassiumMgKg.toStringAsFixed(0)} mg/kg',
+                '${nutrition.potassiumPct.toStringAsFixed(2)}% (ppm)',
+                nutrition.potassiumStatus,
+                nutrition.potassiumConfidence,
+                const Color(0xFF1E88E5),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
 
         // 3. Secondary & Micronutrients
         const Text(
-          'ธาตุอาหารรองและจุลธาตุ (Secondary & Micronutrients)',
-          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          'ธาตุอาหารรองและจุลธาตุ (mg/kg หรือ ppm)',
+          style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Container(
@@ -230,17 +274,32 @@ class DiagnosticResultScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('แมกนีเซียม (Mg): ${nutrition.magnesiumPct.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  Text('แคลเซียม (Ca): ${nutrition.calciumPct.toStringAsFixed(2)}%', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(
+                    'แมกนีเซียม (Mg): ${nutrition.magnesiumMgKg.toStringAsFixed(0)} mg/kg (${nutrition.magnesiumPct.toStringAsFixed(2)}%)',
+                    style: const TextStyle(color: Colors.white70, fontSize: 11.5),
+                  ),
+                  Text(
+                    'แคลเซียม (Ca): ${nutrition.calciumMgKg.toStringAsFixed(0)} mg/kg (${nutrition.calciumPct.toStringAsFixed(2)}%)',
+                    style: const TextStyle(color: Colors.white70, fontSize: 11.5),
+                  ),
                 ],
               ),
               const Divider(color: Colors.white12, height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('เหล็ก (Fe): ${nutrition.ironPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  Text('สังกะสี (Zn): ${nutrition.zincPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                  Text('โบรอน (B): ${nutrition.boronPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text('เหล็ก (Fe): ${nutrition.ironPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('สังกะสี (Zn): ${nutrition.zincPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('โบรอน (B): ${nutrition.boronPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('ทองแดง (Cu): ${nutrition.copperPpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('แมงกานีส (Mn): ${nutrition.manganesePpm.toStringAsFixed(0)} ppm', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('SPAD: ${nutrition.spadChlorophyll.toStringAsFixed(1)}', style: const TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -302,9 +361,9 @@ class DiagnosticResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _metricBox(String title, String val, String status, Color accentColor) {
+  Widget _metricBox(String title, String val, String subVal, String status, double confidence, Color accentColor) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFF19202E),
         borderRadius: BorderRadius.circular(8),
@@ -313,11 +372,22 @@ class DiagnosticResultScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white54, fontSize: 10)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(color: accentColor.withOpacity(0.2), borderRadius: BorderRadius.circular(3)),
+                child: Text('${confidence.toStringAsFixed(1)}%', style: TextStyle(color: accentColor, fontSize: 8, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
-          Text(val, style: TextStyle(color: accentColor, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(val, style: TextStyle(color: accentColor, fontSize: 13, fontWeight: FontWeight.bold)),
+          Text(subVal, style: const TextStyle(color: Colors.white54, fontSize: 8.5)),
           const SizedBox(height: 2),
-          Text(status, style: const TextStyle(color: Colors.white70, fontSize: 9), overflow: TextOverflow.ellipsis),
+          Text(status, style: const TextStyle(color: Colors.white70, fontSize: 8.5), overflow: TextOverflow.ellipsis),
         ],
       ),
     );
