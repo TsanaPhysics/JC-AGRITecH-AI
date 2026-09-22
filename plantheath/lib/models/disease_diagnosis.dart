@@ -50,4 +50,19 @@ class DiseaseDiagnosis {
     'treatment': treatment,
     'lesion_area_percentage': lesionAreaPercentage,
   };
+
+  factory DiseaseDiagnosis.fromJson(Map<String, dynamic> json) {
+    return DiseaseDiagnosis(
+      id: json['id'] ?? 'healthy',
+      nameTh: json['name_th'] ?? 'ใบปกติสมบูรณ์',
+      nameEn: json['name_en'] ?? 'Healthy Leaf',
+      scientificName: json['scientific_name'] ?? 'Normal Foliage',
+      pathogenType: json['pathogen_type'] ?? 'None',
+      severityLevel: json['severity_level'] ?? 'None',
+      confidence: (json['confidence'] as num?)?.toDouble() ?? 1.0,
+      description: json['description'] ?? '',
+      treatment: json['treatment'] ?? '',
+      lesionAreaPercentage: (json['lesion_area_percentage'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
 }

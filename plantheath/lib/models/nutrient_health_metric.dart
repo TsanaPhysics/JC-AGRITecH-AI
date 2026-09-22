@@ -103,4 +103,31 @@ class NutrientHealthMetric {
     'micronutrient_alert': micronutrientAlert,
     'fertilizer_recommendation': fertilizerRecommendation,
   };
+
+  factory NutrientHealthMetric.fromJson(Map<String, dynamic> json) {
+    return NutrientHealthMetric(
+      spadChlorophyll: (json['spad_chlorophyll'] as num?)?.toDouble() ?? 48.5,
+      nitrogenPct: (json['nitrogen_pct'] as num?)?.toDouble() ?? 2.5,
+      phosphorusPct: (json['phosphorus_pct'] as num?)?.toDouble() ?? 0.18,
+      potassiumPct: (json['potassium_pct'] as num?)?.toDouble() ?? 1.85,
+      magnesiumPct: (json['magnesium_pct'] as num?)?.toDouble() ?? 0.42,
+      calciumPct: (json['calcium_pct'] as num?)?.toDouble() ?? 2.15,
+      ironPpm: (json['iron_ppm'] as num?)?.toDouble() ?? 110.0,
+      zincPpm: (json['zinc_ppm'] as num?)?.toDouble() ?? 38.0,
+      boronPpm: (json['boron_ppm'] as num?)?.toDouble() ?? 45.0,
+      dgci: (json['dgci'] as num?)?.toDouble() ?? 0.62,
+      vari: (json['vari'] as num?)?.toDouble() ?? 0.35,
+      gli: (json['gli'] as num?)?.toDouble() ?? 0.22,
+      exg: (json['exg'] as num?)?.toDouble() ?? 42.0,
+      rgb: (json['rgb'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [46, 125, 50],
+      hsv: (json['hsv'] as List<dynamic>?)?.map((e) => (e as num).toDouble()).toList() ?? [123.0, 0.63, 0.49],
+      lab: (json['lab'] as List<dynamic>?)?.map((e) => (e as num).toDouble()).toList() ?? [46.8, -38.5, 32.1],
+      nitrogenStatus: json['nitrogen_status'] ?? 'เหมาะสม',
+      phosphorusStatus: json['phosphorus_status'] ?? 'เหมาะสม',
+      potassiumStatus: json['potassium_status'] ?? 'เหมาะสม',
+      magnesiumStatus: json['magnesium_status'] ?? 'เหมาะสม',
+      micronutrientAlert: json['micronutrient_alert'] ?? '',
+      fertilizerRecommendation: json['fertilizer_recommendation'] ?? '',
+    );
+  }
 }
