@@ -860,58 +860,16 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  // HandySense Microclimate Telemetry Pill
-                  GestureDetector(
-                    onTap: _showHandySenseDetailsSheet,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _latestTelemetry.isStressCondition
-                            ? Colors.amber.shade900.withOpacity(0.85)
-                            : Colors.black.withOpacity(0.72),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: _latestTelemetry.isStressCondition
-                              ? Colors.amberAccent
-                              : const Color(0xFF00E5FF).withOpacity(0.4),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _latestTelemetry.isStressCondition ? Icons.warning_amber_rounded : Icons.sensors,
-                            size: 13,
-                            color: _latestTelemetry.isStressCondition ? Colors.amberAccent : const Color(0xFF00E5FF),
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            'HandySense | ${_latestTelemetry.temperatureC.toStringAsFixed(1)}°C  ${_latestTelemetry.relativeHumidity.toStringAsFixed(0)}%RH  VPD ${_latestTelemetry.vpdKpa.toStringAsFixed(2)}kPa  ดิน ${_latestTelemetry.soilMoisturePct.toStringAsFixed(0)}%',
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              color: _latestTelemetry.isStressCondition ? Colors.white : Colors.cyanAccent.shade100,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.info_outline, size: 11, color: Colors.white70),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  // Tropical Pomology & Tree ID Selector Strip
+                  // Unified AgriPhysics & HandySense Telemetry Bar
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         // Tree ID Chip
                         GestureDetector(
                           onTap: _showTreeIdSelectorDialog,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                             decoration: BoxDecoration(
                               color: const Color(0xFF1B5E20).withOpacity(0.85),
                               borderRadius: BorderRadius.circular(12),
@@ -934,7 +892,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                         GestureDetector(
                           onTap: _showLeafAgePickerSheet,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                             decoration: BoxDecoration(
                               color: Colors.black54,
                               borderRadius: BorderRadius.circular(12),
@@ -958,7 +916,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                         GestureDetector(
                           onTap: _showCropStagePickerSheet,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                             decoration: BoxDecoration(
                               color: _selectedCropStage == TreeCropStage.floralInduction
                                   ? const Color(0xFFB71C1C).withOpacity(0.85)
@@ -983,6 +941,46 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                                   style: const TextStyle(fontSize: 9.5, color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                                 const Icon(Icons.arrow_drop_down, size: 13, color: Colors.white70),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        // HandySense Microclimate Telemetry Pill
+                        GestureDetector(
+                          onTap: _showHandySenseDetailsSheet,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                            decoration: BoxDecoration(
+                              color: _latestTelemetry.isStressCondition
+                                  ? Colors.amber.shade900.withOpacity(0.85)
+                                  : Colors.black.withOpacity(0.72),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _latestTelemetry.isStressCondition
+                                    ? Colors.amberAccent
+                                    : const Color(0xFF00E5FF).withOpacity(0.4),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _latestTelemetry.isStressCondition ? Icons.warning_amber_rounded : Icons.sensors,
+                                  size: 12,
+                                  color: _latestTelemetry.isStressCondition ? Colors.amberAccent : const Color(0xFF00E5FF),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'HandySense | ${_latestTelemetry.temperatureC.toStringAsFixed(1)}°C ${_latestTelemetry.relativeHumidity.toStringAsFixed(0)}%RH VPD ${_latestTelemetry.vpdKpa.toStringAsFixed(2)}kPa ดิน ${_latestTelemetry.soilMoisturePct.toStringAsFixed(0)}%',
+                                  style: TextStyle(
+                                    fontSize: 9.5,
+                                    color: _latestTelemetry.isStressCondition ? Colors.white : Colors.cyanAccent.shade100,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.info_outline, size: 11, color: Colors.white70),
                               ],
                             ),
                           ),
@@ -1048,8 +1046,8 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
 
             // 5. Floating ROI Toolbar with Embedded Academic Color Strip on the Right
             Positioned(
-              right: 12,
-              top: topPadding + 80,
+              right: 10,
+              top: topPadding + 144,
               child: InteractiveRoiSelector(
                 selectedShape: _roiShape,
                 roiSize: _roiSize,

@@ -176,11 +176,11 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
     final tiers = _currentTiers;
 
     return Container(
-      width: 58,
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      width: 50,
+      padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
         color: const Color(0xDD121620),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white24, width: 1.2),
         boxShadow: const [
           BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 4)),
@@ -208,7 +208,7 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
             tooltip: 'วาดกรอบอิสระ',
             onTap: () => widget.onShapeChanged(RoiShape.freeform),
           ),
-          const Divider(color: Colors.white24, height: 10, indent: 8, endIndent: 8),
+          const Divider(color: Colors.white24, height: 8, indent: 6, endIndent: 6),
 
           // 2. Size adjustments
           _buildIconButton(
@@ -229,7 +229,7 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
               }
             },
           ),
-          const Divider(color: Colors.white24, height: 10, indent: 8, endIndent: 8),
+          const Divider(color: Colors.white24, height: 8, indent: 6, endIndent: 6),
 
           // 3. Academic Scale Mode Switcher
           GestureDetector(
@@ -239,10 +239,10 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
               widget.onScaleModeChanged(nextMode);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               decoration: BoxDecoration(
                 color: const Color(0xFF2E7D32),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Text(
                 widget.scaleMode == ScaleMode.spad
@@ -252,11 +252,11 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
                         : (widget.scaleMode == ScaleMode.phosphorus
                             ? 'P'
                             : (widget.scaleMode == ScaleMode.potassium ? 'K' : 'โรค'))),
-                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
 
           // 4. Vertical Academic Color Strip with Neon Glow & Live Pointer Badge
           GestureDetector(
@@ -267,9 +267,9 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
               alignment: Alignment.center,
               children: [
                 Container(
-                  width: 22,
+                  width: 20,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(11),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.white38),
                     color: Colors.black45,
                   ),
@@ -279,23 +279,23 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
                       final isCurrent = i == activeIndex;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
-                        width: isCurrent ? 24 : 18,
-                        height: isCurrent ? 20 : 15,
-                        margin: const EdgeInsets.symmetric(vertical: 1),
+                        width: isCurrent ? 20 : 15,
+                        height: isCurrent ? 16 : 11,
+                        margin: const EdgeInsets.symmetric(vertical: 0.8),
                         decoration: BoxDecoration(
                           color: tiers[i].color,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(3),
                           boxShadow: isCurrent
                               ? [
                                   BoxShadow(
                                     color: tiers[i].color.withOpacity(0.9),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    spreadRadius: 1.5,
                                   ),
                                 ]
                               : null,
                           border: isCurrent
-                              ? Border.all(color: Colors.white, width: 1.5)
+                              ? Border.all(color: Colors.white, width: 1.2)
                               : null,
                         ),
                       );
@@ -306,7 +306,7 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
                 // Live Pointer Badge on the left
                 Positioned(
                   left: -105,
-                  top: (activeIndex * 17.0) + 2,
+                  top: (activeIndex * 13.0) + 1,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -327,7 +327,7 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
                       _getLiveTagText(),
                       style: TextStyle(
                         color: tiers[activeIndex.clamp(0, tiers.length - 1)].color,
-                        fontSize: 10,
+                        fontSize: 9.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -336,11 +336,11 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
               ],
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           // Info icon to tap
           GestureDetector(
             onTap: _openLegendSheet,
-            child: const Icon(Icons.info_outline, color: Colors.white70, size: 16),
+            child: const Icon(Icons.info_outline, color: Colors.white70, size: 15),
           ),
         ],
       ),
@@ -357,18 +357,18 @@ class _InteractiveRoiSelectorState extends State<InteractiveRoiSelector> {
       message: tooltip,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          width: 38,
-          height: 38,
-          margin: const EdgeInsets.symmetric(vertical: 2),
+          width: 32,
+          height: 32,
+          margin: const EdgeInsets.symmetric(vertical: 1.5),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF2E7D32) : Colors.transparent,
             shape: BoxShape.circle,
           ),
           child: Icon(
             icon,
-            size: 20,
+            size: 18,
             color: isSelected ? Colors.white : Colors.white70,
           ),
         ),
