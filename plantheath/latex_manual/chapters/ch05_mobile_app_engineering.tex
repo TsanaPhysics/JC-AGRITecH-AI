@@ -51,12 +51,50 @@
   \item กดปุ่มบันทึก ระบบจะจดจำและตรวจจับอาการดังกล่าวในกล้องสดได้ทันทีโดยไม่ต้องต่ออินเทอร์เน็ต
 \end{enumerate}
 
+\section{การบูรณาการสถานีตรวจวัดสภาพแวดล้อม HandySense และดัชนี VPD}
+ความสมบูรณ์และการดูดซึมธาตุอาหารของใบไม้ทุเรียนมีความสัมพันธ์อย่างแนบแน่นกับจุลภูมิอากาศระดับแปลง (Microclimate) ระบบ DurianLeaf AI จึงได้เชื่อมโยงเข้ากับสถานีตรวจวัด HandySense และเซนเซอร์อุตสาหกรรมเกษตรแม่นยำ
+\begin{enumerate}
+  \item \textbf{เซนเซอร์ตรวจวัดบรรยากาศ SHT45} ตรวจวัดอุณหภูมิอากาศ ($T \text{ ในหน่วย } ^\circ\text{C}$) และความชื้นสัมพัทธ์ ($\text{RH } \%$)
+  \item \textbf{เซนเซอร์วัดคุณสมบัติดิน Soil 7-in-1} ตรวจวัดความชื้นในดิน ($\% \text{ VWC}$), การนำไฟฟ้า (EC), ความเป็นกรด-ด่าง (pH), และธาตุอาหารดิน N-P-K
+  \item \textbf{เซนเซอร์วัดความเข้มแสงแดด BH1750} ตรวจวัดค่าความสว่างแสง ($0 - 65,000 \text{ Lux}$) เพื่อประเมินสภาวะการสังเคราะห์แสง
+\end{enumerate}
+
+\subsection{การคำนวณความดันไอน้ำในอากาศส่วนขาดตามสมการ Tetens (Tetens VPD Equation)}
+ดัชนี Vapor Pressure Deficit (VPD) เป็นตัวชี้วัดสำคัญที่สุดของแรงดึงการคายน้ำและการเปิด-ปิดปากใบของทุเรียน โดยระบบทำการคำนวณแบบเรียลไทม์จากสมการ Tetens Equation
+\begin{align}
+  e_s(T) &= 0.61078 \exp\left( \frac{17.27 \times T}{T + 237.3} \right) \quad (\text{kPa}) \\
+  e_a(T, \text{RH}) &= e_s(T) \times \frac{\text{RH}}{100} \quad (\text{kPa}) \\
+  \text{VPD} &= e_s(T) - e_a(T, \text{RH}) \quad (\text{kPa})
+\end{align}
+โดยเกณฑ์การประเมินสภาวะทางสรีรวิทยาของทุเรียนแบ่งออกเป็น 4 ระดับ
+\begin{itemize}
+  \item $\text{VPD} < 0.4\text{ kPa}$ อากาศชื้นจัด การคายน้ำหยุดชะงัก เสี่ยงต่อการระบาดของโรคราใบติดและไฟทอปธอร่า
+  \item $0.4 \le \text{VPD} \le 0.8\text{ kPa}$ ความชื้นค่อนข้างสูง พืชคายน้ำปานกลาง เหมาะสำหรับระยะฟื้นต้นทำใบ
+  \item $0.8 < \text{VPD} \le 1.2\text{ kPa}$ \textbf{ช่วงสภาวะสมบูรณ์สูงสุด (Optimal Zone)} ปากใบเปิดกว้าง เกิดการดึงน้ำและธาตุอาหารจากรากขึ้นสู่ยอดได้อย่างมีประสิทธิภาพสูงสุด
+  \item $\text{VPD} > 1.6\text{ kPa}$ อากาศแห้งแล้งจัด พืชเกิดความเครียด (Water Stress) ปากใบจะปิดตัวลงเพื่อรักษาความชื้น ทำให้การดูดธาตุอาหารหยุดชะงัก ระบบจะส่งสัญญาณเตือนเตือนภัยสีส้มทันที
+\end{itemize}
+
+\section{ระบบสมุดบันทึกประวัติสุขภาพรายต้นผูกพิกัดภูมิศาสตร์ (Tree Passport System)}
+เพื่อรองรับการทำเกษตรแม่นยำรายต้น (Precision Tree-by-Tree Management) ระบบได้ออกแบบสถาปัตยกรรมข้อมูลบัตรประจำตัวสุขภาพต้นไม้ (\texttt{Tree Passport})
+\begin{enumerate}
+  \item \textbf{การระบุรหัสต้นไม้ (Tree ID)} เกษตรกรสามารถกำหนดรหัสต้นไม้ เช่น \texttt{TR-DUR-01}, \texttt{TR-DUR-02} เพื่อจำแนกต้นทุเรียนแต่ละต้นในแปลง
+  \item \textbf{การบันทึกพิกัดภูมิศาสตร์ระดับความแม่นยำสูง (GPS Geotagging)} ผูกโยงพิกัดละติจูด-ลองจิจูดในระบบพิกัด WGS84 และระดับความสูงจากระดับน้ำทะเลปานกลาง (MSL Altitude)
+  \item \textbf{บัตรตรวจสุขภาพรายต้น (Tree Passport Dialog)} สามารถเปิดดูประวัติย้อนหลังของต้นนั้นๆ ได้ทันที แสดงภาพถ่ายตัวอย่าง, ระดับความรุนแรงของโรค, ค่าคลอโรฟิลล์ SPAD, ความเข้มข้นธาตุอาหาร NPK, และสภาพแวดล้อม HandySense ณ วินาทีที่บันทึก
+\end{enumerate}
+
+\section{สถาปัตยกรรมการจัดวางหน้าจอที่ไร้การซ้อนทับ (Non-Overlapping Ergonomic Layout)}
+จากการทดสอบใช้งานจริงในสภาพแปลง พบว่าการแสดงผลข้อมูลทางวิทยาศาสตร์ที่หลากหลายพร้อมกันบนหน้าจอสมาร์ทโฟนอาจก่อให้เกิดปัญหาชิ้นส่วน UI บดบังกัน จึงได้ออกแบบเลย์เอาต์ตามหลักการยศาสตร์ดิจิทัล (Digital Ergonomics)
+\begin{itemize}
+  \item \textbf{แถบโทรมาตรบริบทแปลงแบบรวมศูนย์ (Unified AgriPhysics Bar)} รวมข้อมูลรหัสต้นไม้, รุ่นอายุใบ, ระยะพัฒนาการของทรงพุ่ม, และสถานะ HandySense เข้าไว้ในแถบแนวนอนเลื่อนได้แถวเดียว (Single Horizontal Strip) ช่วยประหยัดพื้นที่แนวตั้งได้ถึง $34$ พิกเซล
+  \item \textbf{แถบควบคุม ROI แบบกะทัดรัด (Compact Floating ROI Toolbar)} ปรับความกว้างแถบเหลือ $50$ พิกเซล และจัดตำแหน่งให้เริ่มต้นอยู่ใต้แถบข้อมูลด้านบนอย่างสมบูรณ์ ($\text{top} = \text{topPadding} + 144$) ทำให้ไม่บดบังเมนูหัวเรื่องและมีระยะห่างโปร่งสบายจากกล่อง HUD ด้านล่าง
+\end{itemize}
+
 \begin{theorybox}
 \textbf{การยศาสตร์การมองเห็นกลางแจ้ง (Outdoor Vision Ergonomics)}\par
-การใช้งานสมาร์ทโฟนในสวนทุเรียนที่มีแสงแดดจ้าทำให้สายตาแยกแยะความเปรียบต่างได้ยาก การออกแบบ UI จึงใช้ชุดสี Dark Slate (\texttt{\#0D1B2A}) เป็นพื้นหลัง และใช้เส้นนำสายตาสีนีออนเรืองแสงที่มีความสว่างสูงกว่า $85\%$ ร่วมกับตัวเลขอักษรขนาดใหญ่พิเศษ ทำให้เกษตรกรสามารถอ่านผลลัพธ์ได้อย่างชัดเจนแม้อยู่ใต้แสงแดดจัด
+การใช้งานสมาร์ทโฟนในสวนทุเรียนที่มีแสงแดดจ้าทำให้สายตาแยกแยะความเปรียบต่างได้ยาก การออกแบบ UI จึงใช้ชุดสี Cyber Dark (\texttt{\#0A0F1D}) เป็นพื้นหลัง และใช้เส้นนำสายตาสีนีออนเรืองแสงที่มีความสว่างสูงกว่า $85\%$ ร่วมกับตัวเลขอักษรขนาดใหญ่พิเศษ ทำให้เกษตรกรสามารถอ่านผลลัพธ์ได้อย่างชัดเจนแม้อยู่ใต้แสงแดดจัด
 \end{theorybox}
 
 \begin{promptbox}
 \textbf{พรอมพ์วิศวกรรมสำหรับการพัฒนาแอปพลิเคชันมือถือและ UI/UX (Prompt Eng-05)}\par
-\texttt{"Act as a Senior Flutter and Mobile UI/UX Engineer. Develop a high-performance cross-platform application for real-time durian leaf disease diagnosis and nutrient colorimetry. Implement Clean Architecture with Provider state management. Create an interactive floating ROI toolbar with morphing shapes (rectangle, circle) and scale toggles. Build an academic color strip that highlights the active diagnostic band with a dynamic neon glow and live pointer badge. Ensure offline SQLite persistence for GPS coordinates, timestamps, and exportable CSV audit logs."}
+\texttt{"Act as a Senior Flutter and Mobile UI/UX Engineer. Develop a high-performance cross-platform application for real-time durian leaf disease diagnosis, nutrient colorimetry, and microclimate IoT telemetry. Implement Clean Architecture with Provider state management. Integrate Tetens equation for live Vapor Pressure Deficit (VPD) monitoring from HandySense stations. Create a unified non-overlapping ergonomic layout with horizontal telemetry scroll strips and a compact cyber-dark ROI toolbar. Ensure offline SQLite persistence for Tree Passport records, GPS coordinates, and exportable CSV audit logs."}
 \end{promptbox}
