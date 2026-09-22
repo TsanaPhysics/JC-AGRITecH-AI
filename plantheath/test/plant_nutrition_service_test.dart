@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plantheath/services/plant_nutrition_service.dart';
 import 'package:plantheath/services/multi_color_space_service.dart';
+import 'package:plantheath/models/tropical_pomology_models.dart';
+import 'package:plantheath/services/handysense_sensor_service.dart';
 
 void main() {
   group('MultiColorSpaceService Tests', () {
@@ -80,6 +82,60 @@ void main() {
       final noLeafMetric = PlantNutritionService.analyzeFromColor(245, 245, 245);
       expect(noLeafMetric.overallConfidence, equals(0.0));
       expect(noLeafMetric.nitrogenMgKg, equals(0.0));
+    });
+
+    test('TreeCropStage floralInduction strictly blocks N fertilizer to prevent flush trap', () {
+      // Yellow chlorotic leaf in floral induction stage
+      final metric = PlantNutritionService.analyzeFromColor(
+        230, 235, 140,
+        cropStage: TreeCropStage.floralInduction,
+      );
+      expect(metric.fertilizerRecommendation.contains('งดปุ๋ยไนโตรเจน'), isTrue);
+      expect(metric.fertilizerRecommendation.contains('0-52-34') || metric.fertilizerRecommendation.contains('0-42-56'), isTrue);
+    });
+
+    test('LeafAgeStage adjusts nutrient baseline based on mobility', () {
+      // Flush leaf has naturally lower baseline SPAD and N
+      final flushMetric = PlantNutritionService.analyzeFromColor(
+        140, 180, 80,
+        leafAge: LeafAgeStage.flush,
+      );
+      // Mature leaf has mobile elements mobilized
+      final matureMetric = PlantNutritionService.analyzeFromColor(
+        140, 180, 80,
+        leafAge: LeafAgeStage.mature,
+      );
+
+      expect(flushMetric.nitrogenPct, greaterThan(0.0));
+      expect(matureMetric.nitrogenPct, greaterThan(0.0));
+      expect(flushMetric.nitrogenStatus.contains('ยอดใหม่'), isTrue);
+    });
+
+    test('HandySense VPD calculation follows Tetens thermodynamic formula', () {
+      // At 30°C and 70% RH:
+      // SVP = 0.61078 * exp((17.27 * 30) / (30 + 237.3)) ≈ 4.246 kPa
+      // AVP = 4.246 * 0.70 ≈ 2.972 kPa
+      // VPD = 4.246 - 2.972 ≈ 1.27 kPa
+      final vpd = HandySenseTelemetry.calculateVpd(30.0, 70.0);
+      expect(vpd, inInclusiveRange(1.20, 1.35));
+
+      // Environmental stress alert injection
+      final envStress = HandySenseTelemetry.create(
+        temperatureC: 38.5,
+        relativeHumidity: 35.0,
+        soilMoisturePct: 20.0,
+        soilEc: 1.2,
+        soilPh: 6.0,
+        solarLux: 75000.0,
+      );
+      expect(envStress.isStressCondition, isTrue);
+      expect(envStress.vpdKpa, greaterThan(2.2));
+
+      final metricWithEnv = PlantNutritionService.analyzeFromColor(
+        46, 125, 50,
+        environment: envStress,
+      );
+      expect(metricWithEnv.fertilizerRecommendation.contains('เตือน:'), isTrue);
     });
   });
 }

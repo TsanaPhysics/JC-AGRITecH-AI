@@ -20,6 +20,10 @@ class LeafDatasetItem {
   final int durationSeconds;
   final List<int> rgb;
   final List<double> lab;
+  final String treeId;
+  final String leafStage;
+  final String cropStage;
+  final double vpdKpa;
 
   const LeafDatasetItem({
     required this.id,
@@ -32,6 +36,10 @@ class LeafDatasetItem {
     this.durationSeconds = 0,
     required this.rgb,
     required this.lab,
+    this.treeId = 'DUR-ต้นที่ 01',
+    this.leafStage = 'young_mature',
+    this.cropStage = 'flush_recovery',
+    this.vpdKpa = 1.25,
   });
 
   Map<String, dynamic> toJson() => {
@@ -45,6 +53,10 @@ class LeafDatasetItem {
     'durationSeconds': durationSeconds,
     'rgb': rgb,
     'lab': lab,
+    'tree_id': treeId,
+    'leaf_stage': leafStage,
+    'crop_stage': cropStage,
+    'vpd_kpa': vpdKpa,
   };
 
   factory LeafDatasetItem.fromJson(Map<String, dynamic> json) {
@@ -59,6 +71,10 @@ class LeafDatasetItem {
       durationSeconds: (json['durationSeconds'] as num?)?.toInt() ?? 0,
       rgb: (json['rgb'] as List<dynamic>?)?.map((e) => (e as num).toInt()).toList() ?? [46, 125, 50],
       lab: (json['lab'] as List<dynamic>?)?.map((e) => (e as num).toDouble()).toList() ?? [46.8, -38.5, 32.1],
+      treeId: json['tree_id'] as String? ?? 'DUR-ต้นที่ 01',
+      leafStage: json['leaf_stage'] as String? ?? 'young_mature',
+      cropStage: json['crop_stage'] as String? ?? 'flush_recovery',
+      vpdKpa: (json['vpd_kpa'] as num?)?.toDouble() ?? 1.25,
     );
   }
 }
@@ -91,6 +107,10 @@ class LeafDatasetService {
     required GeoLocationData location,
     required List<int> rgb,
     required List<double> lab,
+    String treeId = 'DUR-ต้นที่ 01',
+    String leafStage = 'young_mature',
+    String cropStage = 'flush_recovery',
+    double vpdKpa = 1.25,
   }) async {
     final dir = await _getDatasetDir();
     final timestamp = DateTime.now();
@@ -110,11 +130,15 @@ class LeafDatasetService {
       nutrition: nutrition,
       rgb: rgb,
       lab: lab,
+      treeId: treeId,
+      leafStage: leafStage,
+      cropStage: cropStage,
+      vpdKpa: vpdKpa,
     );
 
     final metaFile = File(metaPath);
     await metaFile.writeAsString(jsonEncode(item.toJson()));
-    debugPrint('[LeafDatasetService] Saved photo sample $targetPath');
+    debugPrint('[LeafDatasetService] Saved photo sample $targetPath for $treeId');
     return targetPath;
   }
 
@@ -126,6 +150,10 @@ class LeafDatasetService {
     required int durationSeconds,
     required List<int> rgb,
     required List<double> lab,
+    String treeId = 'DUR-ต้นที่ 01',
+    String leafStage = 'young_mature',
+    String cropStage = 'flush_recovery',
+    double vpdKpa = 1.25,
   }) async {
     final dir = await _getDatasetDir();
     final timestamp = DateTime.now();
@@ -146,12 +174,21 @@ class LeafDatasetService {
       durationSeconds: durationSeconds,
       rgb: rgb,
       lab: lab,
+      treeId: treeId,
+      leafStage: leafStage,
+      cropStage: cropStage,
+      vpdKpa: vpdKpa,
     );
 
     final metaFile = File(metaPath);
     await metaFile.writeAsString(jsonEncode(item.toJson()));
-    debugPrint('[LeafDatasetService] Saved video sample $targetPath');
+    debugPrint('[LeafDatasetService] Saved video sample $targetPath for $treeId');
     return targetPath;
+  }
+
+  static Future<List<LeafDatasetItem>> loadSamplesForTree(String treeId) async {
+    final all = await loadAllSamples();
+    return all.where((e) => e.treeId == treeId).toList();
   }
 
   static Future<List<LeafDatasetItem>> loadAllSamples() async {

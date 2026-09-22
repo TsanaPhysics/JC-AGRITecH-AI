@@ -1,10 +1,20 @@
 import '../models/nutrient_health_metric.dart';
+import '../models/tropical_pomology_models.dart';
+import 'handysense_sensor_service.dart';
 import 'multi_color_space_service.dart';
 import 'plant_pathology_service.dart';
 
 class PlantNutritionService {
   /// Analyze nutritional and chlorophyll status from leaf pixel colors
-  static NutrientHealthMetric analyzeFromColor(int r, int g, int b, {List<double>? regressionOutputs}) {
+  static NutrientHealthMetric analyzeFromColor(
+    int r,
+    int g,
+    int b, {
+    List<double>? regressionOutputs,
+    LeafAgeStage leafAge = LeafAgeStage.youngMature,
+    TreeCropStage cropStage = TreeCropStage.flushRecovery,
+    HandySenseTelemetry? environment,
+  }) {
     // Return no-leaf metric if target is non-vegetative
     if (!PlantPathologyService.isLeafPresence(r: r, g: g, b: b)) {
       return NutrientHealthMetric.noLeaf();
@@ -94,14 +104,23 @@ class PlantNutritionService {
     // Status evaluation with dual units: mg/kg (ppm) and %
     final nMgKg = nPct * 10000.0;
     String nStatus;
-    if (nPct < 1.8) {
-      nStatus = 'ขาดวิกฤต (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
-    } else if (nPct < 2.2) {
-      nStatus = 'ค่อนข้างต่ำ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
-    } else if (nPct <= 2.8) {
-      nStatus = 'เหมาะสม (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+    if (leafAge == LeafAgeStage.flush) {
+      // Flush leaves naturally have lower nitrogen and chlorophyll density
+      if (nPct < 1.4) {
+        nStatus = 'ค่อนข้างต่ำสำหรับยอดใหม่ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      } else {
+        nStatus = 'ปกติสมบูรณ์สำหรับยอดใหม่ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      }
     } else {
-      nStatus = 'สูงเกินเกณฑ์ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      if (nPct < 1.8) {
+        nStatus = 'ขาดวิกฤต (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      } else if (nPct < 2.2) {
+        nStatus = 'ค่อนข้างต่ำ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      } else if (nPct <= 2.8) {
+        nStatus = 'เหมาะสม (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      } else {
+        nStatus = 'สูงเกินเกณฑ์ (${nMgKg.toStringAsFixed(0)} mg/kg | ${nPct.toStringAsFixed(2)}%)';
+      }
     }
 
     final pMgKg = pPct * 10000.0;
@@ -123,30 +142,59 @@ class PlantNutritionService {
         ? 'ต่ำ - เหลืองก้างปลา (${mgMgKg.toStringAsFixed(0)} mg/kg | ${mgPct.toStringAsFixed(2)}%)' 
         : 'เหมาะสม (${mgMgKg.toStringAsFixed(0)} mg/kg | ${mgPct.toStringAsFixed(2)}%)';
 
-    // Micronutrient alerts (mg/kg or ppm)
+    // Micronutrient alerts with Nutrient Mobility Differentiation
     List<String> microAlerts = [];
-    if (fePpm < 70.0) microAlerts.add('ขาดเหล็ก (Fe: ${fePpm.toStringAsFixed(0)} mg/kg)');
-    if (znPpm < 25.0) microAlerts.add('ขาดสังกะสี (Zn: ${znPpm.toStringAsFixed(0)} mg/kg)');
-    if (bPpm < 30.0) microAlerts.add('ขาดโบรอน (B: ${bPpm.toStringAsFixed(0)} mg/kg)');
-    if (cuPpm < 6.0) microAlerts.add('ขาดทองแดง (Cu: ${cuPpm.toStringAsFixed(0)} mg/kg)');
-    if (mnPpm < 30.0) microAlerts.add('ขาดแมงกานีส (Mn: ${mnPpm.toStringAsFixed(0)} mg/kg)');
-    if (mgPct < 0.30) microAlerts.add('ขาดแมกนีเซียม (Mg)');
-    if (caPct < 1.8) microAlerts.add('ขาดแคลเซียม (Ca)');
+    if (leafAge == LeafAgeStage.mature) {
+      if (mgPct < 0.30) microAlerts.add('ขาดแมกนีเซียม (Mg) ที่ใบแก่โคนกิ่ง (Mobile element)');
+      if (kPct < 1.5) microAlerts.add('ขาดโพแทสเซียม (K) ที่ใบแก่โคนกิ่ง (ขอบใบไหม้)');
+    } else if (leafAge == LeafAgeStage.flush) {
+      if (fePpm < 70.0 || mgPct < 0.30) microAlerts.add('ขาดเหล็ก/สังกะสี (Fe/Zn) ที่ยอดอ่อน (Immobile elements)');
+      if (caPct < 1.8) microAlerts.add('ขาดแคลเซียม (Ca) ยอดเปราะ/ชะงัก');
+    } else {
+      if (fePpm < 70.0) microAlerts.add('ขาดเหล็ก (Fe: ${fePpm.toStringAsFixed(0)} mg/kg)');
+      if (znPpm < 25.0) microAlerts.add('ขาดสังกะสี (Zn: ${znPpm.toStringAsFixed(0)} mg/kg)');
+      if (bPpm < 30.0) microAlerts.add('ขาดโบรอน (B: ${bPpm.toStringAsFixed(0)} mg/kg)');
+      if (cuPpm < 6.0) microAlerts.add('ขาดทองแดง (Cu: ${cuPpm.toStringAsFixed(0)} mg/kg)');
+      if (mnPpm < 30.0) microAlerts.add('ขาดแมงกานีส (Mn: ${mnPpm.toStringAsFixed(0)} mg/kg)');
+      if (mgPct < 0.30) microAlerts.add('ขาดแมกนีเซียม (Mg)');
+      if (caPct < 1.8) microAlerts.add('ขาดแคลเซียม (Ca)');
+    }
 
     String microSummary = microAlerts.isEmpty 
         ? 'ธาตุอาหารรองและจุลธาตุครบถ้วน อยู่ในเกณฑ์เหมาะสม' 
         : microAlerts.join(' • ');
 
-    // Prescriptive Fertilizer Plan
+    // Prescriptive Fertilizer Plan based on Crop Phenology Stage
     String recommendation;
-    if (nPct < 2.2) {
-      recommendation = 'เสริมปุ๋ยไนโตรเจนสูงสูตร 25-7-7 หรือพ่นยูเรีย 0.5% ทางใบ เพื่อฟื้นฟูการสร้างคลอโรฟิลล์';
-    } else if (kPct < 1.5) {
-      recommendation = 'ใส่ปุ๋ยโพแทสเซียมซัลเฟต (0-0-50) ป้องกันอาการขอบใบไหม้ และฉีดพ่นโพแทสเซียมไนเตรต';
-    } else if (mgPct < 0.30) {
-      recommendation = 'หว่านโดโลไมต์ปรับปรุงดิน หรือฉีดพ่นแมกนีเซียมซัลเฟต 1% ทางใบแก้ใบเหลืองก้างปลา';
-    } else {
-      recommendation = 'บำรุงด้วยปุ๋ยสูตรเสมอ 16-16-16 หรือ 15-15-15 ควบคู่กับอินทรียวัตถุและรักษาระดับความชื้นดิน';
+    switch (cropStage) {
+      case TreeCropStage.floralInduction:
+        recommendation = '【ระยะสะสมอาหารรอออกดอก】 งดปุ๋ยไนโตรเจน (N) เด็ดขาด เพื่อกดไม่ให้แตกใบอ่อน พ่นปุ๋ยสูตร 0-52-34 หรือ 0-42-56 ทางใบร่วมกับสังกะสีและโบรอน กักน้ำเพื่อดัน C:N Ratio เปิดตาดอก';
+        break;
+      case TreeCropStage.bloomToAnthesis:
+        recommendation = '【ระยะดอกบาน/หางแย้/ผลอ่อน】 เสริมแคลเซียม-โบรอน (Ca-B) อัตรา 10-15 ซีซี/น้ำ 20 ลิตร ป้องกันดอกหลุดร่วง ควบคุมการให้น้ำแบบสเปรย์สั้นๆ ช่วงเช้าตรู่';
+        break;
+      case TreeCropStage.fruitExpansion:
+        recommendation = '【ระยะขยายผล/สร้างเนื้อ】 ใส่ปุ๋ยสูตร 12-12-17+2MgO หรือ 13-13-21 ร่วมกับแคลเซียมไนเตรตและโพแทสเซียมเพื่อขยายขนาดพู เพิ่มน้ำหนัก และความสมบูรณ์ของเนื้อ';
+        break;
+      case TreeCropStage.preHarvest:
+        recommendation = '【ระยะบ่มหวานก่อนเก็บเกี่ยว】 พ่นโพแทสเซียมซัลเฟต (0-0-50) ทางใบ และควบคุมการให้น้ำให้พอเหมาะ เพื่อเร่งการเปลี่ยนแป้งเป็นน้ำตาล ป้องกันเนื้อแกนไส้ซึม';
+        break;
+      case TreeCropStage.flushRecovery:
+        if (nPct < 2.2) {
+          recommendation = '【ระยะฟื้นต้นทำชุดใบ】 เสริมปุ๋ยไนโตรเจนสูงสูตร 25-7-7 หรือพ่นยูเรีย 0.5% ทางใบ เพื่อฟื้นฟูการสร้างคลอโรฟิลล์';
+        } else if (kPct < 1.5) {
+          recommendation = '【ระยะฟื้นต้นทำชุดใบ】 ใส่ปุ๋ยโพแทสเซียมซัลเฟต (0-0-50) ป้องกันอาการขอบใบไหม้ และฉีดพ่นโพแทสเซียมไนเตรต';
+        } else if (mgPct < 0.30) {
+          recommendation = '【ระยะฟื้นต้นทำชุดใบ】 หว่านโดโลไมต์ปรับปรุงดิน หรือฉีดพ่นแมกนีเซียมซัลเฟต 1% ทางใบแก้ใบเหลืองก้างปลา';
+        } else {
+          recommendation = '【ระยะฟื้นต้นทำชุดใบ】 บำรุงด้วยปุ๋ยสูตรเสมอ 16-16-16 หรือ 15-15-15 ควบคู่กับอินทรียวัตถุและรักษาระดับความชื้นดิน';
+        }
+        break;
+    }
+
+    // Append HandySense microclimate alert if environmental stress is detected
+    if (environment != null && environment.isStressCondition) {
+      recommendation += ' • ${environment.stressAlert}';
     }
 
     return NutrientHealthMetric(

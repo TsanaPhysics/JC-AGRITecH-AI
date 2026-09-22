@@ -95,17 +95,19 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
     final isVideo = item.mediaType == LeafMediaType.video;
     final color = item.disease.id == 'healthy' ? const Color(0xFF4CAF50) : const Color(0xFFFF5252);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF161B22),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
-        boxShadow: const [
-          BoxShadow(color: Colors.black45, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () => _showSampleDetailsDialog(item),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF161B22),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white12),
+          boxShadow: const [
+            BoxShadow(color: Colors.black45, blurRadius: 6, offset: Offset(0, 3)),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,7 +198,7 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
                           item.disease.nameTh,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -206,19 +208,42 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
                     ],
                   ),
                   const SizedBox(height: 3),
+                  // Tree ID & VPD badge
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: Colors.amberAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.amberAccent.withOpacity(0.5), width: 0.6),
+                        ),
+                        child: Text(
+                          item.treeId,
+                          style: const TextStyle(color: Colors.amberAccent, fontSize: 8.5, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Text(
+                        '${item.vpdKpa.toStringAsFixed(2)} kPa',
+                        style: const TextStyle(color: Colors.cyanAccent, fontSize: 8.5, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
                   Text(
                     'SPAD: ${item.nutrition.spadChlorophyll.toStringAsFixed(1)} | N: ${item.nutrition.nitrogenPct.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Color(0xFF81C784), fontSize: 10, fontFamily: 'monospace'),
+                    style: const TextStyle(color: Color(0xFF81C784), fontSize: 9.5, fontFamily: 'monospace'),
                   ),
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 10, color: Colors.amberAccent),
-                      const SizedBox(width: 3),
+                      const Icon(Icons.location_on, size: 9, color: Colors.white54),
+                      const SizedBox(width: 2),
                       Expanded(
                         child: Text(
                           item.location.formattedCoordinates,
-                          style: const TextStyle(color: Colors.white54, fontSize: 9),
+                          style: const TextStyle(color: Colors.white54, fontSize: 8.5),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -231,8 +256,9 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _confirmDelete(LeafDatasetItem item) {
     showDialog(
@@ -258,6 +284,115 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
               _loadSamples();
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  void _showSampleDetailsDialog(LeafDatasetItem item) {
+    final isVideo = item.mediaType == LeafMediaType.video;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: const Color(0xFF0F172A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.white24)),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.description_outlined, color: Colors.cyanAccent, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          item.treeId,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: isVideo
+                        ? Container(
+                            color: const Color(0xFF1E293B),
+                            child: const Center(child: Icon(Icons.videocam, color: Colors.redAccent, size: 48)),
+                          )
+                        : Image.file(
+                            File(item.filePath),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Center(
+                              child: Icon(Icons.broken_image, color: Colors.white30),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildDetailRow('การวินิจฉัยโรคพืช', item.disease.nameTh, item.disease.id == 'healthy' ? Colors.greenAccent : Colors.redAccent),
+                _buildDetailRow('ความรุนแรง (DSI)', item.disease.severityLevel, Colors.amberAccent),
+                _buildDetailRow('รุ่นใบ (Leaf Stage)', item.leafStage, Colors.cyanAccent),
+                _buildDetailRow('ระยะต้น (Crop Stage)', item.cropStage, Colors.lightGreenAccent),
+                const Divider(color: Colors.white24, height: 20),
+                const Text('เมทริกซ์สเปกตรัม & ธาตุอาหาร (mg/kg | %)', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                _buildDetailRow('คลอโรฟิลล์ SPAD', item.nutrition.spadChlorophyll.toStringAsFixed(1), const Color(0xFF00E676)),
+                _buildDetailRow('ไนโตรเจน (N)', '${item.nutrition.nitrogenMgKg.toStringAsFixed(0)} mg/kg (${item.nutrition.nitrogenPct.toStringAsFixed(2)}%)', const Color(0xFFFF7043)),
+                _buildDetailRow('ฟอสฟอรัส (P)', '${item.nutrition.phosphorusMgKg.toStringAsFixed(0)} mg/kg (${item.nutrition.phosphorusPct.toStringAsFixed(2)}%)', const Color(0xFF42A5F5)),
+                _buildDetailRow('โพแทสเซียม (K)', '${item.nutrition.potassiumMgKg.toStringAsFixed(0)} mg/kg (${item.nutrition.potassiumPct.toStringAsFixed(2)}%)', const Color(0xFFAB47BC)),
+                _buildDetailRow('แมกนีเซียม (Mg)', '${item.nutrition.magnesiumMgKg.toStringAsFixed(0)} mg/kg (${item.nutrition.magnesiumPct.toStringAsFixed(2)}%)', Colors.tealAccent),
+                _buildDetailRow('แคลเซียม (Ca)', '${item.nutrition.calciumMgKg.toStringAsFixed(0)} mg/kg (${item.nutrition.calciumPct.toStringAsFixed(2)}%)', Colors.pinkAccent),
+                _buildDetailRow('เหล็ก (Fe)', '${item.nutrition.ironPpm.toStringAsFixed(0)} ppm', Colors.orangeAccent),
+                _buildDetailRow('ความเชื่อมั่น AI', '${item.nutrition.overallConfidence.toStringAsFixed(1)}%', Colors.greenAccent),
+                const Divider(color: Colors.white24, height: 20),
+                const Text('HandySense Microclimate & พิกัด', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                _buildDetailRow('VPD แรงดึงระเหยน้ำ', '${item.vpdKpa.toStringAsFixed(2)} kPa', Colors.cyanAccent),
+                _buildDetailRow('พิกัดภูมิศาสตร์ (GPS)', item.location.formattedCoordinates, Colors.amberAccent),
+                _buildDetailRow('เวลาบันทึก', '${item.timestamp.day}/${item.timestamp.month}/${item.timestamp.year} ${item.timestamp.hour.toString().padLeft(2, '0')}:${item.timestamp.minute.toString().padLeft(2, '0')} น.', Colors.white60),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(8)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('ข้อแนะนำการจัดการปุ๋ย/โรคตามระยะต้น:', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(item.nutrition.fertilizerRecommendation, style: const TextStyle(color: Colors.white, fontSize: 11)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, Color valueColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          Text(value, style: TextStyle(color: valueColor, fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
         ],
       ),
     );

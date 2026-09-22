@@ -80,7 +80,7 @@ class PlantPathologyService {
     if (l < 8.0 || l > 95.0) return false;
 
     // 2. Neutral non-foliar backgrounds (white wall, grey paper, concrete, metal)
-    if (s < 0.12) return false;
+    if (s < 0.10) return false;
     if ((r - g).abs() < 10 && (g - b).abs() < 10 && (r - b).abs() < 10) return false;
 
     // 3. Dominant Blue / Sky / Indigo / Purple
@@ -90,15 +90,15 @@ class PlantPathologyService {
     // 4. Highly saturated artificial red / magenta
     if (h >= 320.0 || (h <= 10.0 && s > 0.65)) return false;
 
-    // 5. Green foliage (Healthy to chlorotic green-yellow)
-    if (h >= 60.0 && h <= 170.0 && s >= 0.14) return true;
+    // 5. Green foliage (Healthy to chlorotic green-yellow, even under bright daylight/flash)
+    if ((h >= 50.0 && h <= 175.0 && s >= 0.10) || (g > r && g > b && s >= 0.08)) return true;
 
     // 6. Yellow chlorotic leaf (N / K deficiency)
-    if (h >= 38.0 && h < 60.0 && s >= 0.20 && g > b) return true;
+    if (h >= 38.0 && h < 60.0 && s >= 0.14 && g > b) return true;
 
     // 7. Foliar necrosis & brown lesions (Phytophthora, Rhizoctonia, Anthracnose, Algal spot)
     if (h >= 14.0 && h < 38.0) {
-      if (b < g && g < r && b < 135 && s >= 0.20) {
+      if (b < g && g < r && b < 140 && s >= 0.16) {
         // Exclude human skin tones (typically high L and low contrast)
         if (l > 75.0 && (r - g) < 45 && s < 0.35) return false;
         return true;
@@ -106,7 +106,7 @@ class PlantPathologyService {
     }
 
     // 8. Dark water-soaked necrosis (Phytophthora) where L is low (10-38)
-    if (l >= 10.0 && l <= 38.0 && g >= b && s >= 0.14) {
+    if (l >= 10.0 && l <= 38.0 && g >= b && s >= 0.12) {
       return true;
     }
 
