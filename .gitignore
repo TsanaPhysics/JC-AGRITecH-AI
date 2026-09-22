@@ -54,3 +54,4 @@ gallery/
 server/smartfarm.db
 *.pdf
 !latex_book/main.pdf
+!plantheath/assets/docs/Durian_Leaf_AI_Manual.pdf
