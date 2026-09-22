@@ -1,0 +1,57 @@
+\chapter{วิศวกรรมพรอมพ์และการออกแบบระบบร่วมกับปัญญาประดิษฐ์}
+
+\section{บทบาทของวิศวกรรมพรอมพ์ในการพัฒนาแอปพลิเคชันเกษตรอัจฉริยะ}
+การออกแบบและพัฒนาระบบปัญญาประดิษฐ์ทางการเกษตรสมัยใหม่ มีความซับซ้อนครอบคลุมตั้งแต่ฟิสิกส์เชิงแสง สรีรวิทยาพืช ชีวเคมี โครงสร้างเครือข่ายประสาทเทียม ไปจนถึงการเขียนโปรแกรมบนอุปกรณ์พกพา การนำแบบจำลองภาษาขนาดใหญ่ (Large Language Models หรือ LLM) เข้ามาร่วมในกระบวนการออกแบบร่วม (Co-Design) จำเป็นต้องอาศัยศาสตร์แห่งวิศวกรรมพรอมพ์ (Prompt Engineering) ที่มีโครงสร้างรัดกุม ชัดเจน และมีบริบทเฉพาะทาง เพื่อให้ได้ผลลัพธ์ที่มีความถูกต้องทางวิชาการและนำไปปฏิบัติการได้จริง
+
+\section{ชุดพรอมพ์วิศวกรรมหลัก 6 ด้าน (The Core Engineering Prompts Suite)}
+ในโครงการ DurianLeaf AI คณะผู้วิจัยได้สังเคราะห์ชุดพรอมพ์วิศวกรรมสำหรับการออกแบบและพัฒนาแอปพลิเคชันออกเป็น 6 มิติหลัก ดังต่อไปนี้
+
+\subsection{พรอมพ์ที่ 1 การออกแบบสถาปัตยกรรมระบบและการวิเคราะห์เชิงแสง}
+ใช้สำหรับการวางแผนผังสถาปัตยกรรมแบบภาพรวมและการเชื่อมต่อฮาร์ดแวร์เซนเซอร์กล้องเข้ากับระบบการประมวลผล
+
+\begin{promptbox}[title={พรอมพ์ที่ 1 สถาปัตยกรรมระบบและการวิเคราะห์ภาพเชิงแสง}]
+\texttt{"Act as a Chief Systems Architect and Optical Vision Specialist. Design an end-to-end edge AI vision system for automated durian leaf pathology and nutritional assessment on mobile devices. Structure the software layers using Clean Architecture principles in Flutter. Detail the multi-threaded camera ingestion buffer operating at 30 FPS with zero frame-dropping. Specify the interface contracts between raw NV21/YUV420 frame data, linear RGB conversion, and the on-device inference pipeline with full offline capability."}
+\end{promptbox}
+
+\subsection{พรอมพ์ที่ 2 การพัฒนาแอปพลิเคชันและอินเตอร์เฟซผู้ใช้ในแปลง}
+เน้นการสร้างส่วนติดต่อผู้ใช้ที่ตอบสนองรวดเร็ว ทนทานต่อแสงสะท้อนกลางแจ้ง และมีแถบควบคุมที่ยืดหยุ่น
+
+\begin{promptbox}[title={พรอมพ์ที่ 2 การพัฒนาแอปพลิเคชันและ UI/UX แถบสีวิชาการ}]
+\texttt{"Act as a Senior Flutter Engineer. Implement the complete presentation layer for the DurianLeaf AI application. Build an interactive floating ROI toolbar enabling dynamic switching between rectangular and circular sampling geometries with a 80-340px scale controller. Construct a vertical academic color strip featuring 5 distinct agronomic modes (SPAD, Nitrogen, Potassium, and Disease Severity). Integrate a pulsing neon-glow shader on the active diagnostic band and a live pointer badge. Ensure 60 FPS smooth rendering using CustomPainter."}
+\end{promptbox}
+
+\subsection{พรอมพ์ที่ 3 การสังเคราะห์สถาปัตยกรรม Deep Learning และ Multi-Task Loss}
+เน้นการปรับแต่งโครงข่าย MobileNetV3 และกลไกการเรียนรู้เพิ่มเติมแบบไม่ลืมความรู้เดิม
+
+\begin{promptbox}[title={พรอมพ์ที่ 3 สถาปัตยกรรม Deep Learning และ Few-Shot Learning}]
+\texttt{"Act as a Deep Learning Research Scientist. Design a dual-head convolutional neural network using MobileNetV3-Large as the backbone for real-time edge execution. Add a shared 128-dimensional bottleneck embedding layer. Head 1 must perform 6-class plant pathology classification with Softmax activation and Categorical Cross-Entropy. Head 2 must predict 9 continuous nutrient attributes (N, P, K, Ca, Mg, Fe, Zn, B, SPAD) using Smooth L1 Loss. Implement an on-device Few-Shot Metric Learning engine based on Cosine Similarity of prototype vectors with a 0.85 threshold to allow farmers to teach new symptoms in the field."}
+\end{promptbox}
+
+\subsection{พรอมพ์ที่ 4 มาตรวิทยาเฉดสีและการคำนวณดัชนีพืชพรรณ}
+เน้นความแม่นยำของการแปลงพิกัดสีทางฟิสิกส์และการเปรียบเทียบความต่างสีตามสูตรสากล
+
+\begin{promptbox}[title={พรอมพ์ที่ 4 วิทยาศาสตร์เฉดสีและการเปรียบเทียบ CIEDE2000}]
+\texttt{"Act as a Colorimetrist and Spectroscopist. Formulate a mathematical module in Dart for converting sRGB camera values to CIE XYZ (D65) and CIE L*a*b* color spaces. Implement the full CIEDE2000 (Delta E00) equation including lightness, chroma, hue weighting functions, and the blue-region rotation term. Compute the complete suite of visible vegetation indices: DGCI, VARI, GLI, ExG, ExR, and NGRDI. Correlate chromaticity coordinates with empirical laboratory chlorophyll measurements and define automated specular highlight rejection thresholds."}
+\end{promptbox}
+
+\subsection{พรอมพ์ที่ 5 การออกแบบภาพปกและไอคอนสไตล์มินิมอลลายเส้น AI ธาตุอาหาร}
+สำหรับสร้างสรรค์ภาพประกอบและไอคอนที่สื่อถึงความล้ำสมัย สะอาดตา และเน้นวิทยาการธาตุอาหารพืช
+
+\begin{promptbox}[title={พรอมพ์ที่ 5 การสร้างสรรค์ภาพกราฟิกสไตล์มินิมอลลายเส้น AI ธาตุอาหารพืช}]
+\texttt{"Create a minimalist, futuristic, high-tech vector line art illustration of a digital durian leaf representing AI-powered plant nutrient analysis. Elegant laser-sharp glowing neon green and gold wireframe contours on a dark matte slate background. The central vein and lateral leaf veins transition into glowing electronic PCB circuit traces with emerald synaptic neural network nodes. Prominently incorporate minimalist telemetry HUD elements: circular glowing rings displaying 'N', 'P', 'K' nutrient percentages, and dual spectral absorbance curves at 430 nm and 660 nm. Crisp, clean, uncluttered, state-of-the-art aesthetic without noise."}
+\end{promptbox}
+
+\subsection{พรอมพ์ที่ 6 การสังเคราะห์คำแนะนำการบำรุงรักษาและการจัดการแปลง}
+ระบบพรอมพ์ที่ฝังในเครื่องเพื่อสังเคราะห์คำแนะนำที่แม่นยำ ปลอดภัย และตรงกับระยะการเจริญเติบโต
+
+\begin{promptbox}[title={พรอมพ์ที่ 6 การสังเคราะห์คำแนะนำการดูแลรักษาและการให้ปุ๋ย}]
+\texttt{"Act as an Expert Durian Agronomist. Given the diagnosed condition (e.g. Phytophthora Blight at DSI Grade 2 and Nitrogen deficiency with SPAD 28.5), generate an immediate, actionable orchard intervention plan. Provide specific recommendations for: (1) Cultural sanitation and pruning, (2) Organic bio-controls (Trichoderma harzianum formulation rates), (3) Targeted fertigation recipe (N-P-K-Mg soluble ratio per tree based on canopy diameter), and (4) Chemical fungicides with proper FRAC group rotation to prevent resistance. Format in concise, farmer-friendly Thai bullet points."}
+\end{promptbox}
+
+\section{การต่อยอดสู่โมเดลภาษาขนาดใหญ่บนอุปกรณ์พกพา (On-Device LLM Integration)}
+สถาปัตยกรรมชุดพรอมพ์นี้ได้รับการออกแบบให้สามารถเชื่อมต่อเข้ากับโมเดลภาษาขนาดเล็กบนอุปกรณ์เคลื่อนที่ เช่น Google Gemma หรือ MobileLLM ได้ในอนาคต ทำให้สมาร์ทโฟนสามารถทำหน้าที่เป็นนักวิชาการเกษตรส่วนตัวประจำแปลง ที่สามารถพูดคุย ให้คำปรึกษา และปรับเปลี่ยนแผนการจัดการสวนตามข้อมูลสภาพอากาศและผลการวิเคราะห์สดได้อย่างไร้รอยต่อ
+
+\begin{theorybox}
+\textbf{หลักการ Prompt-Driven Dynamic Adaptation}\par
+การใช้พรอมพ์ที่นิยามบทบาท หน้าที่ ข้อจำกัด และรูปแบบผลลัพธ์ที่รัดกุม ช่วยลดความผิดพลาดและอาการเพ้อ (Hallucination) ของปัญญาประดิษฐ์ลงได้มากกว่า $95\%$ ทำให้การแปลผลจากภาพถ่ายพืชไปสู่คำแนะนำการใช้ปุ๋ยและสารชีวภัณฑ์มีความแม่นยำตามหลักวิชาการโรคพืชและปฐพีวิทยาอย่างแท้จริง
+\end{theorybox}

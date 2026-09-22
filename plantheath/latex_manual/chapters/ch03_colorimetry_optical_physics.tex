@@ -1,0 +1,86 @@
+\chapter{วิทยาศาสตร์เฉดสีและการวิเคราะห์มาตรวิทยาทางแสงทั้งหมด}
+
+\section{ปริภูมิสีและการแปลงพิกัดสีเชิงฟิสิกส์}
+การวิเคราะห์ภาพถ่ายดิจิทัลของใบไม้เพื่อวัตถุประสงค์ทางการเกษตรแม่นยำ จำเป็นต้องอาศัยการแปลงข้อมูลพิกเซลดิบจากเซนเซอร์กล้องเข้าสู่ปริภูมิสีที่สอดคล้องกับคุณลักษณะทางสเปกโทรสโกปีและทัศนศาสตร์การมองเห็น โดยระบบ DurianLeaf AI ผสาน 4 ปริภูมิสีหลักเข้าด้วยกัน
+
+\subsection{ปริภูมิสี sRGB และข้อจำกัดในการตรวจวัด}
+ข้อมูลที่ได้จากกล้องสมาร์ทโฟนทั่วไปจัดเก็บในรูป $sRGB$ ซึ่งเป็นปริภูมิสีที่ขึ้นกับอุปกรณ์ (Device-Dependent) และมีฟังก์ชันการปรับแก้แกมมา ($\gamma \approx 2.2$) ที่ไม่เป็นเชิงเส้น การนำค่า $R, G, B$ มาใช้โดยตรงจะก่อให้เกิดความคลาดเคลื่อนสูงเมื่อสภาพความสว่างเปลี่ยนแปลง ระบบจึงต้องแปลงค่าให้อยู่ในรูปเชิงเส้นก่อน
+\begin{equation}
+  C_{\text{linear}} = \begin{cases}
+    \frac{C}{12.92} & \text{เมื่อ } C \le 0.04045 \\
+    \left( \frac{C + 0.055}{1.055} \right)^{2.4} & \text{เมื่อ } C > 0.04045
+  \end{cases}
+  \quad (C \in \{R, G, B\})
+\end{equation}
+
+\subsection{ปริภูมิสีมาตรฐาน CIE XYZ และ CIE L*a*b*}
+จากค่า $R_{\text{linear}}, G_{\text{linear}}, B_{\text{linear}}$ ระบบจะทำการคูณด้วยเมทริกซ์การแปลงมาตรฐาน (sRGB to XYZ Matrix D65)
+\begin{equation}
+  \begin{bmatrix} X \\ Y \\ Z \end{bmatrix} = \begin{bmatrix}
+    0.4124564 & 0.3575761 & 0.1804375 \\
+    0.2126729 & 0.7151522 & 0.0721750 \\
+    0.0193339 & 0.1191920 & 0.9503041
+  \end{bmatrix} \begin{bmatrix} R_{\text{linear}} \\ G_{\text{linear}} \\ B_{\text{linear}} \end{bmatrix}
+\end{equation}
+จากนั้นจึงแปลงต่อไปยังปริภูมิสีอิสระ $\text{CIE } L^*a^*b^*$ ซึ่งจำลองการรับรู้สีของสายตามนุษย์ โดย $L^*$ แทนความสว่าง ($0 - 100$), $a^*$ แทนแกนสีเขียว (ลบ) ถึงสีแดง (บวก) และ $b^*$ แทนแกนสีน้ำเงิน (ลบ) ถึงสีเหลือง (บวก)
+\begin{align}
+  L^* &= 116 f(Y/Y_n) - 16 \\
+  a^* &= 500 \left[ f(X/X_n) - f(Y/Y_n) \right] \\
+  b^* &= 200 \left[ f(Y/Y_n) - f(Z/Z_n) \right]
+\end{align}
+โดยค่าอ้างอิงจุดขาวมาตรฐาน $D65$ คือ $X_n = 95.047, Y_n = 100.000, Z_n = 108.883$
+
+\section{มาตรวัดความแตกต่างของเฉดสีเชิงแสง}
+ในการเปรียบเทียบรอยโรคหรือการเทียบเคียงเฉดสีใบพืชกับเกณฑ์มาตรฐานวิชาการ ระบบนำเสนอมาตรวัดความต่างของสี 2 รูปแบบ
+
+\subsection{ระยะห่างแบบยูคลิดดั้งเดิม ($\Delta E^*_{ab}$)}
+\begin{equation}
+  \Delta E^*_{ab} = \sqrt{(\Delta L^*)^2 + (\Delta a^*)^2 + (\Delta b^*)^2}
+\end{equation}
+แม้จะคำนวณได้อย่างรวดเร็ว แต่สูตร $\Delta E^*_{ab}$ มีข้อจำกัดเรื่องความไม่สม่ำเสมอเชิงการรับรู้ (Perceptual Non-uniformity) ในย่านสีเขียวและสีเหลือง
+
+\subsection{มาตรฐานความแตกต่างสีระดับสากล CIEDE2000 ($\Delta E_{00}$)}
+เพื่อเพิ่มความแม่นยำสูงสุดในการตรวจวัดรอยโรคและการขาดธาตุอาหาร ระบบ DurianLeaf AI จึงนำสูตรมาตรฐาน $\text{CIEDE2000}$ มาใช้ในการคำนวณแบบเรียลไทม์
+\begin{equation}
+  \Delta E_{00} = \sqrt{ \left( \frac{\Delta L'}{k_L S_L} \right)^2 + \left( \frac{\Delta C'}{k_C S_C} \right)^2 + \left( \frac{\Delta H'}{k_H S_H} \right)^2 + R_T \left( \frac{\Delta C'}{k_C S_C} \right) \left( \frac{\Delta H'}{k_H S_H} \right) }
+\end{equation}
+เมื่อ $S_L, S_C, S_H$ คือฟังก์ชันถ่วงน้ำหนักความสว่าง ความอิ่มตัวสี และมุมเฉดสี และ $R_T$ คือเทอมหมุนชดเชยปฏิสัมพันธ์ระหว่างความอิ่มตัวสีกับมุมเฉดสีในย่านสีน้ำเงิน หากค่า $\Delta E_{00} < 1.0$ หมายถึงสีแทบจะเหมือนกันจนสายตามนุษย์แยกไม่ออก
+
+\section{ชุดดัชนีพืชพรรณเชิงแสงทั้งหมด (Optical Vegetation Indices)}
+ระบบรวบรวมและคำนวณดัชนีพืชพรรณในย่านแสงที่มองเห็นได้ ($RGB$) ครบทั้ง 6 ดัชนีหลักสำหรับเกษตรแม่นยำ ดังแสดงในตารางที่ \ref{tab:complete_indices}
+
+\begin{table}[h]
+\centering
+\caption{ชุดดัชนีพืชพรรณเชิงแสงสำหรับการวิเคราะห์ใบพืชทุเรียนในระบบ DurianLeaf AI}
+\label{tab:complete_indices}
+\small
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{ชื่อดัชนี} & \textbf{สูตรการคำนวณ} & \textbf{บทบาทและการนำไปใช้ประโยชน์} \\
+\hline
+Dark Green Color Index (DGCI) & $\frac{\frac{H - 60^\circ}{60^\circ} + (1 - S) + (1 - V)}{3}$ & ประเมินความเข้มคลอโรฟิลล์และไนโตรเจนสะสม \\
+Visible Atmospherically Resistant (VARI) & $\frac{G - R}{G + R - B}$ & ประเมินชีวมวลพืชพรรณและลดสัญญาณรบกวนบรรยากาศ \\
+Green Leaf Index (GLI) & $\frac{2G - R - B}{2G + R + B}$ & ชี้วัดปริมาณพื้นที่ใบเขียวและตรวจจับอาการใบซีด \\
+Excess Green Index (ExG) & $2G - R - B$ & ตัดแยกเนื้อเยื่อใบพืชออกจากดินและสิ่งแวดล้อม \\
+Excess Red Index (ExR) & $1.4R - G$ & สกัดรอยโรคแผลไหม้และอาการขาดฟอสฟอรัส \\
+Normalized Green-Red Difference (NGRDI) & $\frac{G - R}{G + R}$ & ติดตามพลศาสตร์การแก่ตัวและการร่วงหล่นของใบ \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{การปรับเทียบมาตรฐานสีและการกำจัดแสงสะท้อนในสภาพแปลง}
+การถ่ายภาพในแปลงเกษตรจริงมักเผชิญปัญหาอุณหภูมิสีแสงแดดที่แปรปรวน ($3000\text{ K} - 6500\text{ K}$) และแสงสะท้อนจากผิวใบ ระบบจึงได้รับการออกแบบให้รองรับการปรับเทียบสองระดับ
+\begin{enumerate}
+  \item \textbf{การปรับสมดุลแสงขาวด้วยการ์ดมาตรฐาน 18\% Neutral Gray Card} เมื่อเกษตรกรส่องแผ่นการ์ดสีเทา ระบบจะคำนวณสเกลาร์ปรับสมดุล $k_R = Y_{\text{ref}} / R_{\text{gray}}, k_G = Y_{\text{ref}} / G_{\text{gray}}, k_B = Y_{\text{ref}} / B_{\text{gray}}$
+  \item \textbf{การชดเชยการบิดเบือนสีด้วย Color Correction Matrix (CCM)} ผ่านการแก้สมการกำลังสองน้อยที่สุด (Least Squares) เพื่อให้สีที่กล้องอ่านได้ตรงกับชาร์ตสีมาตรฐานสากล X-Rite ColorChecker เสมอ
+\end{enumerate}
+
+\begin{theorybox}
+\textbf{ทฤษฎีการชดเชยแสงสะท้อนแบบ Lambertian และการตัดแยกเงาสะท้อน Specular}\par
+แสงสะท้อนจากผิวใบไม้ทุเรียนประกอบด้วยการสะท้อนแบบกระจาย (Diffuse Reflection) ซึ่งมีข้อมูลรงควัตถุ และการสะท้อนแบบกระจก (Specular Reflection) ซึ่งเกิดจากชั้นไขคิวติเคิล การใช้ตัวกรองโพลาไรซ์หรือการตัดพิกเซลที่มีค่าความสว่าง $V > 0.95$ ร่วมกับความอิ่มตัวสี $S < 0.15$ จะช่วยกำจัดแสงสะท้อนวาวออกได้อย่างแม่นยำ
+\end{theorybox}
+
+\begin{promptbox}
+\textbf{พรอมพ์วิศวกรรมสำหรับอัลกอริทึมมาตรวิทยาทางแสงและการแปลงปริภูมิสี (Prompt Eng-03)}\par
+\texttt{"Act as an Optical Physicist and Color Scientist. Implement a robust real-time colorimetric pipeline in Flutter/Dart. Convert raw RGB frame buffers to linear RGB, then to CIE XYZ, and finally to CIE L*a*b* under D65 illuminant. Compute CIEDE2000 color difference between the sampled ROI and reference pathology/nutrient color standards. Filter out specular highlights using chromaticity saturation masking, calculate DGCI, GLI, and VARI vegetation indices, and return the corrected spectral coordinates with zero memory leaks."}
+\end{promptbox}

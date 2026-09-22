@@ -1,0 +1,62 @@
+\chapter{การออกแบบและพัฒนาแอปพลิเคชันบนสมาร์ทโฟน}
+
+\section{สถาปัตยกรรมซอฟต์แวร์แอปพลิเคชัน (Clean Architecture in Flutter)}
+แอปพลิเคชัน DurianLeaf AI พัฒนาขึ้นด้วยเฟรมเวิร์ก Flutter โดยใช้ภาษา Dart ภายใต้แบบแผนสถาปัตยกรรม Clean Architecture และการจัดการสถานะด้วย Provider ซึ่งแยกโครงสร้างการทำงานออกเป็น 3 ชั้นหลักอย่างชัดเจน เพื่อให้ระบบมีความเสถียร สามารถทดสอบแยกส่วนได้ (Testability) และรองรับการขยายตัวในอนาคต
+
+\begin{enumerate}
+  \item \textbf{Presentation Layer} ประกอบด้วยวิดเจ็ตหน้าจอหลัก (\texttt{HomeScreen}), ตัวแสดงผลสตรีมกล้อง (\texttt{CameraView}), แถบควบคุมพื้นที่ตรวจจับ (\texttt{RoiToolbar}) และแผ่นหน้าต่างเกณฑ์วิชาการ (\texttt{AcademicLegendModal})
+  \item \textbf{Domain Layer} บรรจุโมเดลข้อมูลทางพฤกษศาสตร์และพยาธิวิทยา เช่น \texttt{DurianDiseaseClass}, \texttt{NutrientColorStandard}, \texttt{ColorimetryEngine} และตัวคำนวณดัชนีพืชพรรณ
+  \item \textbf{Data Layer} จัดการการเชื่อมต่ออุปกรณ์ฮาร์ดแวร์จริง เช่น กล้องถ่ายภาพ (\texttt{CameraPlugin}), เซนเซอร์จีพีเอส (\texttt{Geolocator}), และตัวขับเคลื่อนโมเดลปัญญาประดิษฐ์ (\texttt{TfliteNativeBridge})
+\end{enumerate}
+
+\section{ระบบสตรีมภาพสดและท่อประมวลผลความเร็วสูง (Zero-Lag Camera Pipeline)}
+การประมวลผลโครงข่ายประสาทเทียมและอัลกอริทึมสีควบคู่ไปกับการเรนเดอร์ภาพสด $30\text{ FPS}$ ในสภาพแปลงเกษตรกลางแจ้ง มักก่อให้เกิดปัญหาความร้อนสะสมและการหน่วงของภาพ (Frame Dropping) ระบบ DurianLeaf AI จึงใช้กลไก Mutex Lock และเฟรมบัฟเฟอร์แบบอะซิงโครนัส
+
+\begin{equation}
+  \Delta t_{\text{frame}} \ge \frac{1000\text{ ms}}{\text{Target FPS}} \approx 33.3\text{ ms}
+\end{equation}
+หากโมเดลปัญญาประดิษฐ์ยังประมวลผลเฟรมเดิมไม่เสร็จ ระบบจะข้ามเฟรมแทรกซ้อนทันทีโดยไม่เข้าคิวสะสม ทำให้การแสดงผลหน้าจอตอบสนองลื่นไหลแบบเรียลไทม์เสมอ
+
+\section{องค์ประกอบของแถบเมนูควบคุมพื้นที่ตรวจจับ (Interactive ROI Floating Toolbar)}
+ที่ขอบขวาของหน้าจอหลัก มีแถบลอยสำหรับการควบคุมพื้นที่ตรวจจับแบบอินเตอร์แอคทีฟ (Interactive ROI Floating Toolbar) ซึ่งได้รับการออกแบบตามมาตรฐานเดียวกับเครื่องมือตรวจวัดทางวิชาการ โดยประกอบด้วย 4 ฟังก์ชันหลัก
+
+\subsection{การปรับเปลี่ยนรูปทรงและขนาดของกรอบเล็งเป้า}
+\begin{itemize}
+  \item \textbf{กรอบสี่เหลี่ยม (Rectangle ROI)} เหมาะสำหรับการกำหนดพื้นที่รอยโรคขนาดใหญ่ เช่น แผลใบไหม้ไฟทอปธอร่า
+  \item \textbf{กรอบวงกลม (Circular ROI)} เหมาะสำหรับการสุ่มเก็บข้อมูลเนื้อเยื่อใบสมบูรณ์เพื่อวิเคราะห์ค่า SPAD และธาตุอาหาร
+  \item \textbf{ปุ่มขยายและย่อขนาด (+ / -)} เกษตรกรสามารถปรับขนาดเส้นผ่านศูนย์กลางของกรอบเล็งได้ตั้งแต่ $80$ ถึง $340$ พิกเซล เพื่อให้ครอบคลุมแผ่นใบในระยะซูมต่างๆ
+\end{itemize}
+
+\subsection{แถบแสดงเฉดสีตามเกณฑ์วิชาการ (Academic Color Strip)}
+ใต้ปุ่มควบคุมขนาด จะเป็นแถบเฉดสีแนวตั้งที่แสดงเกณฑ์มาตรฐานทางวิชาการ เกษตรกรสามารถแตะปุ่มสลับโหมดเพื่อเปลี่ยนเกณฑ์สีที่ต้องการมอนิเตอร์สด ได้แก่
+\begin{enumerate}
+  \item \textbf{โหมดคลอโรฟิลล์ (SPAD Strip)} แสดงแถบไล่เฉด 5 ระดับ ตั้งแต่สีซีดขาว ($<25$) ไปจนถึงสีเขียวมรกตเข้ม ($>55$)
+  \item \textbf{โหมดไนโตรเจน (N Strip)} แถบสีแสดงเกณฑ์โภชนาการตั้งแต่เหลืองซีด ($<1.8\%$) จนถึงเขียวเข้มจัด ($>3.2\%$)
+  \item \textbf{โหมดโพแทสเซียม (K Strip)} แถบสีส้มอิฐถึงน้ำตาลทองเตือนขอบใบไหม้
+  \item \textbf{โหมดความรุนแรงของโรค (DSI Strip)} ไล่เฉดสีเขียว (Grade 0) สีเหลือง (Grade 1-2) สีส้ม (Grade 3) และสีแดงเข้ม (Grade 4)
+\end{enumerate}
+
+\subsection{ไฟเรืองแสงนีออนและป้ายชี้เป้าสด (Neon Glow Live Pointer Badge)}
+เมื่อกล้องถ่ายภาพจับสัญญาณภาพใบไม้และ AI คำนวณค่าได้ ช่องสีบนแถบแนวตั้งที่ตรงกับระดับผลลัพธ์ปัจจุบันจะเปล่งแสงนีออนเรืองแสงกระพริบ และมีป้ายชี้เป้าสดสีดำขอบทอง เช่น \texttt{$\blacktriangleleft$ SPAD 52.4 (สมบูรณ์)} เลื่อนไปยังตำแหน่งระดับสีนั้นอย่างแม่นยำ
+
+\subsection{หน้าต่างแสดงคำอธิบายเกณฑ์วิชาการ (Academic Legend Modal)}
+เมื่อแตะที่แถบเฉดสี ระบบจะเปิดหน้าต่างป๊อปอัปแสดงตารางวิชาการ บรรจุข้อมูลพิกัดสีจริง ($RGB, HEX, CIE\ L^*a^*b^*$) นิยามทางพฤกษศาสตร์ และแนวทางการปฏิบัติดูแลรักษาสำหรับเกษตรกร
+
+\section{ระบบการสอนโมเดลเพิ่มเติมในแปลงจริง (Few-Shot Model Trainer)}
+หากเกษตรกรพบรอยโรคแปลกใหม่ในแปลง สามารถแตะไอคอนรูปหมวกปริญญา เพื่อเปิดหน้าต่างสอนโมเดลเพิ่มเติม
+\begin{enumerate}
+  \item ป้อนชื่อโรคหรืออาการเฉพาะถิ่น
+  \item ระบุข้อแนะนำในการกำจัดหรือสูตรปุ๋ย
+  \item ส่องกล้องแล้วกดถ่ายภาพตัวอย่าง $2 - 3$ มุมมอง ระบบจะสกัดเวกเตอร์เอกลักษณ์ 128 มิติ
+  \item กดปุ่มบันทึก ระบบจะจดจำและตรวจจับอาการดังกล่าวในกล้องสดได้ทันทีโดยไม่ต้องต่ออินเทอร์เน็ต
+\end{enumerate}
+
+\begin{theorybox}
+\textbf{การยศาสตร์การมองเห็นกลางแจ้ง (Outdoor Vision Ergonomics)}\par
+การใช้งานสมาร์ทโฟนในสวนทุเรียนที่มีแสงแดดจ้าทำให้สายตาแยกแยะความเปรียบต่างได้ยาก การออกแบบ UI จึงใช้ชุดสี Dark Slate (\texttt{\#0D1B2A}) เป็นพื้นหลัง และใช้เส้นนำสายตาสีนีออนเรืองแสงที่มีความสว่างสูงกว่า $85\%$ ร่วมกับตัวเลขอักษรขนาดใหญ่พิเศษ ทำให้เกษตรกรสามารถอ่านผลลัพธ์ได้อย่างชัดเจนแม้อยู่ใต้แสงแดดจัด
+\end{theorybox}
+
+\begin{promptbox}
+\textbf{พรอมพ์วิศวกรรมสำหรับการพัฒนาแอปพลิเคชันมือถือและ UI/UX (Prompt Eng-05)}\par
+\texttt{"Act as a Senior Flutter and Mobile UI/UX Engineer. Develop a high-performance cross-platform application for real-time durian leaf disease diagnosis and nutrient colorimetry. Implement Clean Architecture with Provider state management. Create an interactive floating ROI toolbar with morphing shapes (rectangle, circle) and scale toggles. Build an academic color strip that highlights the active diagnostic band with a dynamic neon glow and live pointer badge. Ensure offline SQLite persistence for GPS coordinates, timestamps, and exportable CSV audit logs."}
+\end{promptbox}

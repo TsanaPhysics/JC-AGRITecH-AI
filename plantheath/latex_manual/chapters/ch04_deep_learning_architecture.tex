@@ -1,0 +1,80 @@
+\chapter{สถาปัตยกรรมปัญญาประดิษฐ์การเรียนรู้เชิงลึกและการเรียนรู้ต่อเนื่อง}
+
+\section{โครงสร้างโมเดลโครงข่ายประสาทเทียมแบบสองหัว (Dual-Head Architecture)}
+ระบบ DurianLeaf AI ได้รับการออกแบบให้สามารถปฏิบัติงานประมวลผลเชิงลึกได้บนอุปกรณ์สมาร์ทโฟนทั่วไปโดยไม่ต้องพึ่งพาการเชื่อมต่ออินเทอร์เน็ตตลอดเวลา สถาปัตยกรรมโมเดลใช้โครงข่ายประสาทเทียมคอนโวลูชันชนิดปรับแต่งประสิทธิภาพสูง (MobileNetV3-Large Backbone) ที่ผสานชั้นคอนโวลูชันแบบแยกส่วนความลึก (Depthwise Separable Convolutions), ฟังก์ชันกระตุ้นแบบ Hard-Swish และบล็อกกลไกความใส่ใจแบบบีบอัดและกระตุ้น (Squeeze-and-Excitation หรือ SE Attention Blocks) ดังแสดงในรูปที่ \ref{fig:dual_head_architecture_detailed}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=rbruDarkGreen, fill=white, line width=1pt, rounded corners=4pt, align=center, font=\small},
+  head/.style={draw=rbruForestGreen, fill=rbruForestGreen!10, line width=1.2pt, rounded corners=6pt, align=center, font=\small\bfseries},
+  arrow/.style={->, >=stealth, line width=1.2pt, color=rbruDarkGreen}
+]
+  \node[box, fill=black!5] (input) at (0, 0) {ภาพใบไม้ทุเรียนนำเข้า\\$224 \times 224 \times 3$};
+  \node[box, fill=rbruDarkGreen!15] (backbone) at (0, -1.4) {โครงข่ายหลัก MobileNetV3-Large\\Inverted Residuals + SE Attention};
+  \node[box, fill=rbruGold!20] (embed) at (0, -2.8) {ชั้นเวกเตอร์เอกลักษณ์ (Embedding Layer)\\$\mathbf{z} \in \mathbb{R}^{128}$ (L2-Normalized)};
+
+  \node[head] (head1) at (-3.5, -4.5) {หัวทำนายที่ 1 (Pathology Classifier)\\Dense(6) + Softmax\\6 คลาสโรคและศัตรูพืช};
+  \node[head] (head2) at (3.5, -4.5) {หัวทำนายที่ 2 (Nutrient Regressor)\\Dense(9) + Linear Activation\\N, P, K, Ca, Mg, Fe, Zn, B, SPAD};
+
+  \draw[arrow] (input) -- (backbone);
+  \draw[arrow] (backbone) -- (embed);
+  \draw[arrow] (embed) -| (head1);
+  \draw[arrow] (embed) -| (head2);
+\end{tikzpicture}
+\caption{แผนผังสถาปัตยกรรมโมเดล Dual-Head MobileNetV3 และชั้นเวกเตอร์เอกลักษณ์}
+\label{fig:dual_head_architecture_detailed}
+\end{figure}
+
+\section{ฟังก์ชันสูญเสียรวมแบบหลายภารกิจ (Multi-Task Joint Loss)}
+การฝึกสอนโมเดลดำเนินการผ่านกระบวนการ Multi-Task Learning เพื่อให้เวกเตอร์เอกลักษณ์ $\mathbf{z}$ ในชั้นกลางสามารถเรียนรู้ตัวแทนข้อมูล (Representations) ที่ครอบคลุมทั้งสัณฐานวิทยาของรอยโรคและคุณลักษณะสีของธาตุอาหาร ฟังก์ชันสูญเสียรวมถูกนิยามดังนี้
+\begin{equation}
+  \mathcal{L}_{\text{total}} = \alpha \mathcal{L}_{\text{pathology}} + \beta \mathcal{L}_{\text{nutrients}} + \gamma \mathcal{L}_{\text{contrastive}}
+\end{equation}
+โดยที่
+\begin{itemize}
+  \item $\mathcal{L}_{\text{pathology}}$ คือฟังก์ชัน Categorical Cross-Entropy สำหรับจำแนก 6 คลาสโรค
+  \begin{equation}
+    \mathcal{L}_{\text{pathology}} = -\sum_{c=1}^{6} y_c \log(\hat{y}_c)
+  \end{equation}
+  \item $\mathcal{L}_{\text{nutrients}}$ คือฟังก์ชัน Smooth L1 Loss สำหรับการทำนายค่าตัวเลขธาตุอาหารและ SPAD ซึ่งทนทานต่อค่าผิดปกติ (Outliers) ในแปลงเกษตร
+  \begin{equation}
+    \mathcal{L}_{\text{Smooth L1}}(e) = \begin{cases}
+      0.5 e^2 & \text{เมื่อ } |e| < 1 \\
+      |e| - 0.5 & \text{เมื่อ } |e| \ge 1
+    \end{cases}
+    \quad (e = y - \hat{y})
+  \end{equation}
+  \item $\mathcal{L}_{\text{contrastive}}$ คือ Supervised Contrastive Loss เพื่อดึงเวกเตอร์ของใบไม้ในคลาสเดียวกันให้เข้าใกล้กัน และผลักเวกเตอร์ของโรคต่างคลาสให้ออกจากกันในปริภูมิไฮเปอร์สเฟียร์ 128 มิติ
+\end{itemize}
+
+\section{กลไกการเรียนรู้เพิ่มเติมแบบทันที (On-Device Continual Few-Shot Learning)}
+ข้อจำกัดใหญ่ของโมเดลปัญญาประดิษฐ์บนสมาร์ทโฟนทั่วไปคือ การหลงลืมความรู้เดิมเมื่อเรียนรู้สิ่งใหม่ (Catastrophic Forgetting) และความจำเป็นต้องใช้หน่วยประมวลผลเซิร์ฟเวอร์ขนาดใหญ่ในการเทรนซ้ำ ระบบ DurianLeaf AI แก้ไขปัญหานี้ด้วยสถาปัตยกรรม Metric Learning
+
+\subsection{การจัดเก็บธนาคารเวกเตอร์ตัวอย่าง (Exemplar Vector Bank)}
+เมื่อผู้ใช้งานบันทึกภาพตัวอย่างอาการใหม่ $K$ ภาพ ($K = 3 - 5$) ระบบจะสกัดเวกเตอร์เอกลักษณ์ $\mathbf{z}_k \in \mathbb{R}^{128}$ และคำนวณเวกเตอร์ตัวแทนมัชฌิม (Class Prototype Vector $\mathbf{c}_j$)
+\begin{equation}
+  \mathbf{c}_j = \frac{1}{K} \sum_{k=1}^{K} \frac{\mathbf{z}_k}{\|\mathbf{z}_k\|_2}
+\end{equation}
+เวกเตอร์ต้นแบบ $\mathbf{c}_j$ นี้จะถูกเข้ารหัสและบันทึกลงในฐานข้อมูลในเครื่องสมาร์ทโฟน (On-Device SQLite / SharedPreferences) ทันที โดยใช้เนื้อที่เพียงไม่กี่กิโลไบต์
+
+\subsection{การตรวจจับและตัดสินใจแบบสด (Real-Time Inference Metric)}
+ในขณะที่กล้องถ่ายภาพทำงาน ภาพทุกเฟรมจะถูกแปลงเป็นเวกเตอร์ $\mathbf{v}$ และคำนวณความคล้ายคลึงโคไซน์ (Cosine Similarity) เทียบกับทุกต้นแบบ $\mathbf{c}_j$ ที่เกษตรกรเคยสอนไว้
+\begin{equation}
+  \text{Similarity}(\mathbf{v}, \mathbf{c}_j) = \frac{\mathbf{v} \cdot \mathbf{c}_j}{\|\mathbf{v}\|_2 \|\mathbf{c}_j\|_2}
+\end{equation}
+หากค่า $\text{Similarity} \ge 0.85$ ระบบจะแสดงผลชื่อโรคหรืออาการเฉพาะถิ่นที่เกษตรกรสอนขึ้นมาแทนที่การทำนายแบบดั้งเดิม โดยมีเวลาหน่วงในการตัดสินใจต่ำกว่า $15\text{ ms}$
+
+\begin{theorybox}
+\textbf{ทฤษฎี Prototypical Networks และการอนุมานระยะห่างในไฮเปอร์สเฟียร์}\par
+การจำกัดเวกเตอร์เอกลักษณ์ให้อยู่บนพื้นผิวทรงกลม 128 มิติ ($\|\mathbf{z}\|_2 = 1$) ทำให้ระยะห่างยูคลิดกำลังสองสัมพันธ์แบบเส้นตรงกับค่าความคล้ายคลึงโคไซน์
+\begin{equation}
+  \|\mathbf{u} - \mathbf{v}\|_2^2 = \|\mathbf{u}\|_2^2 + \|\mathbf{v}\|_2^2 - 2(\mathbf{u} \cdot \mathbf{v}) = 2 - 2 \cos(\theta)
+\end{equation}
+ทำให้การค้นหาอาการโรคที่ใกล้เคียงที่สุดในอุปกรณ์สมาร์ทโฟนสามารถทำได้อย่างรวดเร็วมากด้วยการคูณดอตเวกเตอร์ (Vectorized BLAS Dot Product) เพียงครั้งเดียว
+\end{theorybox}
+
+\begin{promptbox}
+\textbf{พรอมพ์วิศวกรรมสำหรับสถาปัตยกรรมโมเดล Deep Learning และ Multi-Task Loss (Prompt Eng-04)}\par
+\texttt{"Act as an Edge Deep Learning Architect. Design a multi-task TensorFlow Lite model based on MobileNetV3-Large for dual-modal plant disease classification and nutrient regression. Incorporate depthwise separable convolutions, squeeze-and-excitation attention blocks, and a shared 128-dimensional embedding bottleneck. Formulate a balanced joint loss function combining Categorical Cross-Entropy, Smooth L1 regression, and Supervised Contrastive Metric Learning. Ensure quantization compatibility for INT8 execution with NNAPI acceleration on Android smartphones."}
+\end{promptbox}
