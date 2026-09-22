@@ -1,0 +1,144 @@
+{
+  "diseases": [
+    {
+      "id": "healthy",
+      "name_th": "ใบปกติสมบูรณ์",
+      "name_en": "Healthy Leaf",
+      "scientific_name": "Normal Foliage",
+      "pathogen_type": "None",
+      "severity_level": "None",
+      "description": "ใบมีสีเขียวสม่ำเสมอ ผิวใบเป็นมันเงา โครงสร้างสมบูรณ์ ปราศจากรอยโรคและศัตรูพืช",
+      "treatment": "รักษาการจัดการธาตุอาหารตามระยะการเจริญเติบโต และให้น้ำอย่างเหมาะสมสม่ำเสมอ"
+    },
+    {
+      "id": "phytophthora",
+      "name_th": "โรคใบไหม้ไฟทอปธอร่า",
+      "name_en": "Phytophthora Leaf Blight",
+      "scientific_name": "Phytophthora palmivora (Butler)",
+      "pathogen_type": "Oomycete / เชื้อราน้ำ",
+      "severity_level": "Severe",
+      "description": "แผลฉ่ำน้ำสีน้ำตาลเข้มถึงดำ ขอบแผลไม่เรียบ แผลขยายรวดเร็วในสภาพความชื้นสูง ใบแห้งร่วงง่าย",
+      "treatment": "พ่นสารป้องกันกำจัดโรคพืช เช่น ฟอสอีทิล-อะลูมิเนียม (Fosetyl-aluminium) เมทาแลกซิล (Metalaxyl) หรือฟอสโฟนิก แอซิด พร้อมตัดแต่งใบและกิ่งเป็นโรคนำไปเผาทำลาย"
+    },
+    {
+      "id": "rhizoctonia",
+      "name_th": "โรคราใบติด",
+      "name_en": "Rhizoctonia Web Blight",
+      "scientific_name": "Rhizoctonia solani Kühn",
+      "pathogen_type": "Fungi / เชื้อรา",
+      "severity_level": "High",
+      "description": "แผลคล้ายโดนน้ำร้อนลวก สีน้ำตาลอ่อน มีเส้นใยเชื้อรายึดติดใบที่อยู่ใกล้เคียงเข้าด้วยกันจนหลุดร่วงเป็นกระจุก",
+      "treatment": "พ่นสารแฮกซาโคนาโซล (Hexaconazole) หรือไดฟีโนโคนาโซล (Difenoconazole) ตัดแต่งทรงพุ่มให้อากาศถ่ายเทสะดวก ลดความชื้นสะสมในทรงพุ่ม"
+    },
+    {
+      "id": "anthracnose",
+      "name_th": "โรคแอนแทรคโนส",
+      "name_en": "Anthracnose",
+      "scientific_name": "Colletotrichum gloeosporioides",
+      "pathogen_type": "Fungi / เชื้อรา",
+      "severity_level": "Moderate",
+      "description": "แผลวงกลมหรือรูปไข่สีน้ำตาล ขอบแผลสีเข้ม มีวงซ้อนกันเป็นชั้น (Zonate) เนื้อเยื่อกลางแผลอาจฉีกขาดแห้งกรอบ",
+      "treatment": "พ่นสารโพรคลอราช (Prochloraz) อะซอกซีสโตรบิน (Azoxystrobin) หรือคอปเปอร์ออกซีคลอไรด์ หลีกเลี่ยงการให้น้ำกระทบใบโดยตรง"
+    },
+    {
+      "id": "algal_spot",
+      "name_th": "โรคราสนิม / จุดสนิมสาหร่าย",
+      "name_en": "Algal Leaf Spot / Red Rust",
+      "scientific_name": "Cephaleuros virescens Kunze",
+      "pathogen_type": "Parasitic Alga / สาหร่ายกาฝาก",
+      "severity_level": "Low-Moderate",
+      "description": "จุดฟูกำมะหยี่สีส้มอมแดงหรือสนิมเหล็กบนผิวใบ เมื่อแก่จะเปลี่ยนเป็นสีเทาอมเขียว ทำให้ประสิทธิภาพการสังเคราะห์แสงลดลง",
+      "treatment": "พ่นสารประกอบทองแดง เช่น คอปเปอร์ไฮดรอกไซด์ หรือคอปเปอร์ออกซีคลอไรด์ ตัดแต่งกิ่งให้โปร่งรับแสงแดดเพียงพอ"
+    },
+    {
+      "id": "pest_damage",
+      "name_th": "ความเสียหายจากไรแดงและเพลี้ยไก่แจ้",
+      "name_en": "Spider Mites & Psyllid Damage",
+      "scientific_name": "Oligonychus biharensis & Pseudophacopteron canarium",
+      "pathogen_type": "Insect & Pest / แมลงศัตรูพืช",
+      "severity_level": "Moderate-High",
+      "description": "ผิวใบมีจุดประสีขาวหรือเหลืองซีด ด้านบนใบกร้าน ขอบใบม้วนงอ ยอดอ่อนชะงักการเจริญเติบโต",
+      "treatment": "พ่นสารอะบาเมกติน (Abamectin) โพรพาร์ไกต์ (Propargite) หรือกำมะถันผงสำหรับไรแดง และอิมิดาโคลพริด (Imidacloprid) สำหรับเพลี้ยไก่แจ้"
+    }
+  ],
+  "nutrients": {
+    "macro": [
+      {
+        "id": "nitrogen",
+        "symbol": "N",
+        "name_th": "ไนโตรเจน",
+        "name_en": "Nitrogen",
+        "target_range": "2.2 - 2.8 %",
+        "deficiency_symptom": "ใบแก่เริ่มเหลืองซีดทั่วทั้งใบ การเจริญเติบโตชะงัก คลอโรฟิลล์และค่า SPAD ต่ำกว่า 35",
+        "remedy": "ให้ปุ๋ยไนโตรเจนสูง เช่น ปุ๋ยเคมีสูตร 46-0-0 หรือ 25-7-7 ทางดิน และเสริมปุ๋ยทางใบยูเรีย 0.5% ทางทรงพุ่ม"
+      },
+      {
+        "id": "phosphorus",
+        "symbol": "P",
+        "name_th": "ฟอสฟอรัส",
+        "name_en": "Phosphorus",
+        "target_range": "0.15 - 0.25 %",
+        "deficiency_symptom": "ใบมีสีเขียวเข้มคล้ำผิดปกติ ต่อมาปลายใบและขอบใบแห้งเป็นสีม่วงแดงหรือน้ำตาลคล้ำ",
+        "remedy": "ใส่ปุ๋ยฟอสเฟต เช่น ซูเปอร์ฟอสเฟต 0-46-0 หรือปุ๋ยสูตรเสมอ 16-16-16 และตรวจวัดความเป็นกรดด่างดินเพื่อป้องกันการตรึงฟอสฟอรัส"
+      },
+      {
+        "id": "potassium",
+        "symbol": "K",
+        "name_th": "โพแทสเซียม",
+        "name_en": "Potassium",
+        "target_range": "1.5 - 2.2 %",
+        "deficiency_symptom": "ขอบใบแก่เหลืองแล้วแห้งไหม้เป็นสีน้ำตาลเข้ม (Marginal Scorch) ใบม้วนงอ ปลายใบแห้งกรอบ",
+        "remedy": "ใส่ปุ๋ยโพแทสเซียมซัลเฟต 0-0-50 หรือโพแทสเซียมคลอไรด์ 0-0-60 และฉีดพ่นโพแทสเซียมไนเตรตทางใบช่วงฟื้นฟูต้น"
+      }
+    ],
+    "secondary": [
+      {
+        "id": "magnesium",
+        "symbol": "Mg",
+        "name_th": "แมกนีเซียม",
+        "name_en": "Magnesium",
+        "target_range": "0.30 - 0.50 %",
+        "deficiency_symptom": "ใบแก่แสดงอาการเหลืองระหว่างเส้นใบ (Interveinal Chlorosis) เส้นใบยังคงเขียวเป็นรูปลิ่มหรือก้างปลา (Inverted V)",
+        "remedy": "หว่านโดโลไมต์ปรับปรุงดิน หรือใส่คีเซอร์ไรต์ (Kieserite - MgSO4) และพ่นแมกนีเซียมซัลเฟต 1-2% ทางใบ"
+      },
+      {
+        "id": "calcium",
+        "symbol": "Ca",
+        "name_th": "แคลเซียม",
+        "name_en": "Calcium",
+        "target_range": "1.8 - 2.5 %",
+        "deficiency_symptom": "ใบอ่อนหงิกงอ ปลายใบม้วนลง ขอบใบหยักผิดรูป และปลายยอดแตกแขนงชะงักงัน",
+        "remedy": "ใส่ยิปซัมหรือปูนขาวโดโลไมต์ และฉีดพ่นแคลเซียม-โบรอนทางใบสม่ำเสมอในระยะแตกใบอ่อนและติดผล"
+      }
+    ],
+    "micro": [
+      {
+        "id": "iron",
+        "symbol": "Fe",
+        "name_th": "เหล็ก",
+        "name_en": "Iron",
+        "target_range": "70 - 150 mg/kg",
+        "deficiency_symptom": "ใบยอดและใบอ่อนซีดขาวเกือบทั้งแผ่นใบ เส้นใบยังเขียวจาง พบมากในดินด่างหรือดินมีน้ำขังรากหายใจไม่สะดวก",
+        "remedy": "ฉีดพ่นธาตุเหล็กคีเลต (Fe-EDDHA หรือ Fe-EDTA) ทางใบ และปรับลดค่า pH ดินหากดินมีความเป็นด่างสูงเกิน 7.0"
+      },
+      {
+        "id": "zinc",
+        "symbol": "Zn",
+        "name_th": "สังกะสี",
+        "name_en": "Zinc",
+        "target_range": "25 - 50 mg/kg",
+        "deficiency_symptom": "โรคใบแก้ว (Little Leaf) ใบมีขนาดเล็กลง เรียวแหลม ข้อปล้องสั้น แผ่นใบเหลืองเส้นใบเขียวเข้ม",
+        "remedy": "ฉีดพ่นสังกะสีซัลเฟต (ZnSO4) 0.1-0.2% หรือซิงค์คีเลตในระยะที่ต้นทุเรียนเริ่มผลิใบอ่อน"
+      },
+      {
+        "id": "boron",
+        "symbol": "B",
+        "name_th": "โบรอน",
+        "name_en": "Boron",
+        "target_range": "30 - 60 mg/kg",
+        "deficiency_symptom": "ใบหนาเปราะ เส้นใบปูดโปน ปลายยอดแห้งตาย เนื้อเยื่อเจริญเติบโตผิดปกติ",
+        "remedy": "ใส่บอแรกซ์ (Borax) ทางดินในปริมาณที่กำหนด หรือฉีดพ่นกรดบอริก/โบรอนคีเลตทางใบร่วมกับแคลเซียม"
+      }
+    ]
+  }
+}

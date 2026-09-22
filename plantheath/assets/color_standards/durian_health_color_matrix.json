@@ -1,0 +1,188 @@
+{
+  "spad_chlorophyll_scale": [
+    {
+      "tier": 1,
+      "label": "คลอโรฟิลล์ต่ำมาก (ซีดขาว)",
+      "spad_min": 0.0,
+      "spad_max": 24.9,
+      "rgb": [228, 238, 172],
+      "hex": "#E4EEAC",
+      "status": "Severe Deficiency",
+      "interpretation": "สังเคราะห์แสงไม่ได้ ยอดและใบแก่ซีดขาว ขาด N หรือ Fe รุนแรง"
+    },
+    {
+      "tier": 2,
+      "label": "คลอโรฟิลล์ต่ำ (เขียวตองอ่อน)",
+      "spad_min": 25.0,
+      "spad_max": 34.9,
+      "rgb": [182, 218, 126],
+      "hex": "#B6DA7E",
+      "status": "Deficient",
+      "interpretation": "ใบเขียวปนเหลือง ระดับคลอโรฟิลล์ไม่เพียงพอต่อการเจริญเติบโตเต็มที่"
+    },
+    {
+      "tier": 3,
+      "label": "คลอโรฟิลล์ปานกลาง (เขียวมาตรฐาน)",
+      "spad_min": 35.0,
+      "spad_max": 44.9,
+      "rgb": [108, 186, 76],
+      "hex": "#6CBA4C",
+      "status": "Moderate Normal",
+      "interpretation": "สุขภาพใบปกติ อยู่ในเกณฑ์มาตรฐานระยะพัฒนาใบ"
+    },
+    {
+      "tier": 4,
+      "label": "คลอโรฟิลล์สมบูรณ์ (เขียวเข้มสด)",
+      "spad_min": 45.0,
+      "spad_max": 54.9,
+      "rgb": [56, 142, 60],
+      "hex": "#388E3C",
+      "status": "Optimal Healthy",
+      "interpretation": "สุขภาพใบสมบูรณ์แบบ สังเคราะห์แสงได้เต็มศักยภาพ เหมาะสมต่อการสะสมอาหาร"
+    },
+    {
+      "tier": 5,
+      "label": "คลอโรฟิลล์สูงมาก (เขียวมรกตเข้ม)",
+      "spad_min": 55.0,
+      "spad_max": 80.0,
+      "rgb": [27, 94, 32],
+      "hex": "#1B5E20",
+      "status": "Very High / Surplus",
+      "interpretation": "ใบแก่เขียวเข้มจัด มันวาว ปริมาณคลอโรฟิลล์สะสมสูงสุด"
+    }
+  ],
+  "nitrogen_scale": [
+    {
+      "tier": 1,
+      "label": "N ต่ำวิกฤต (<1.8%)",
+      "rgb": [245, 235, 160],
+      "hex": "#F5EBA0",
+      "status": "Critical Low"
+    },
+    {
+      "tier": 2,
+      "label": "N ต่ำ (1.8 - 2.1%)",
+      "rgb": [198, 222, 130],
+      "hex": "#C6DE82",
+      "status": "Low"
+    },
+    {
+      "tier": 3,
+      "label": "N เหมาะสม (2.2 - 2.8%)",
+      "rgb": [56, 142, 60],
+      "hex": "#388E3C",
+      "status": "Optimal"
+    },
+    {
+      "tier": 4,
+      "label": "N สูง (2.8 - 3.2%)",
+      "rgb": [27, 94, 32],
+      "hex": "#1B5E20",
+      "status": "High"
+    },
+    {
+      "tier": 5,
+      "label": "N เกินเกณฑ์ (>3.2%)",
+      "rgb": [13, 71, 161],
+      "hex": "#0D47A1",
+      "status": "Excessive"
+    }
+  ],
+  "phosphorus_scale": [
+    {
+      "tier": 1,
+      "label": "P ต่ำ (<0.12%)",
+      "rgb": [123, 31, 162],
+      "hex": "#7B1FA2",
+      "status": "Low (Purple/Brown Tinge)"
+    },
+    {
+      "tier": 2,
+      "label": "P ค่อนข้างต่ำ (0.12 - 0.14%)",
+      "rgb": [69, 90, 100],
+      "hex": "#455A64",
+      "status": "Slightly Low"
+    },
+    {
+      "tier": 3,
+      "label": "P เหมาะสม (0.15 - 0.25%)",
+      "rgb": [46, 125, 50],
+      "hex": "#2E7D32",
+      "status": "Optimal"
+    },
+    {
+      "tier": 4,
+      "label": "P สูง (>0.25%)",
+      "rgb": [0, 121, 107],
+      "hex": "#00796B",
+      "status": "High"
+    }
+  ],
+  "potassium_scale": [
+    {
+      "tier": 1,
+      "label": "K ขาดรุนแรง (ขอบใบไหม้)",
+      "rgb": [165, 42, 42],
+      "hex": "#A52A2A",
+      "status": "Severe Marginal Burn"
+    },
+    {
+      "tier": 2,
+      "label": "K ต่ำ (1.0 - 1.4%)",
+      "rgb": [230, 126, 34],
+      "hex": "#E67E22",
+      "status": "Low"
+    },
+    {
+      "tier": 3,
+      "label": "K เหมาะสม (1.5 - 2.2%)",
+      "rgb": [46, 125, 50],
+      "hex": "#2E7D32",
+      "status": "Optimal"
+    },
+    {
+      "tier": 4,
+      "label": "K สูง (>2.2%)",
+      "rgb": [30, 136, 229],
+      "hex": "#1E88E5",
+      "status": "High"
+    }
+  ],
+  "disease_severity_scale": [
+    {
+      "tier": 1,
+      "label": "ปกติ / ไร้รอยโรค (0%)",
+      "rgb": [56, 142, 60],
+      "hex": "#388E3C",
+      "status": "Healthy / Grade 0"
+    },
+    {
+      "tier": 2,
+      "label": "เริ่มพบจุดแผล (<10%)",
+      "rgb": [251, 192, 45],
+      "hex": "#FBC02D",
+      "status": "Initial / Grade 1"
+    },
+    {
+      "tier": 3,
+      "label": "แผลปานกลาง (10 - 25%)",
+      "rgb": [245, 124, 0],
+      "hex": "#F57C00",
+      "status": "Moderate / Grade 2"
+    },
+    {
+      "tier": 4,
+      "label": "แผลลุกลาม (25 - 50%)",
+      "rgb": [211, 47, 47],
+      "hex": "#D32F2F",
+      "status": "Severe / Grade 3"
+    },
+    {
+      "tier": 5,
+      "label": "ใบไหม้รุนแรง (>50%)",
+      "rgb": [93, 64, 55],
+      "hex": "#5D4037",
+      "status": "Very Severe / Grade 4"
+    }
+  ]
+}

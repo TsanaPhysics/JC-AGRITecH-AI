@@ -1,0 +1,49 @@
+\documentclass[12pt, a4paper, oneside]{book}
+
+% นำเข้าไฟล์สไตล์มาตรฐานวิชาการ RBRU
+\usepackage{styles/rbru_style}
+
+\begin{document}
+
+% ----------------------------------------------------
+% ส่วนนำ (Frontmatter)
+% ----------------------------------------------------
+\frontmatter
+
+% ปกนอกดีไซน์ Smartphone UI เสมือนจริง
+\input{frontmatter/cover}
+
+% หน้าปกรอง (Title Page)
+\include{frontmatter/titlepage}
+
+% คำนำ (Preface)
+\include{frontmatter/preface}
+
+% สารบัญหลัก จัดกึ่งกลางหน้ากระดาษตามมาตรฐานใหม่
+\clearpage
+\phantomsection
+\tableofcontents
+
+% สารบัญตาราง จัดกึ่งกลางหน้ากระดาษ
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
+
+% สารบัญภาพ จัดกึ่งกลางหน้ากระดาษ
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+
+% ----------------------------------------------------
+% ส่วนเนื้อหาหลัก (Mainmatter)
+% ----------------------------------------------------
+\mainmatter
+
+\include{chapters/ch01_durian_pathology_ai}
+\include{chapters/ch02_nutrient_deficiency_optics}
+\include{chapters/ch03_continual_learning_engine}
+\include{chapters/ch04_mobile_app_operation}
+
+\end{document}
