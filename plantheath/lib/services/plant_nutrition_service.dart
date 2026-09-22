@@ -1,9 +1,15 @@
 import '../models/nutrient_health_metric.dart';
 import 'multi_color_space_service.dart';
+import 'plant_pathology_service.dart';
 
 class PlantNutritionService {
   /// Analyze nutritional and chlorophyll status from leaf pixel colors
   static NutrientHealthMetric analyzeFromColor(int r, int g, int b, {List<double>? regressionOutputs}) {
+    // Return no-leaf metric if target is non-vegetative
+    if (!PlantPathologyService.isLeafPresence(r: r, g: g, b: b)) {
+      return NutrientHealthMetric.noLeaf();
+    }
+
     final hsv = MultiColorSpaceService.rgbToHsv(r, g, b);
     final lab = MultiColorSpaceService.rgbToLab(r, g, b);
     final dgci = MultiColorSpaceService.calculateDgci(hsv[0], hsv[1], hsv[2]);

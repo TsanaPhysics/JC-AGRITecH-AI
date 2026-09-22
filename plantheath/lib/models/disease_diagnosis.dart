@@ -23,6 +23,8 @@ class DiseaseDiagnosis {
     this.lesionAreaPercentage = 0.0,
   });
 
+  bool get isLeaf => id != 'no_leaf';
+
   factory DiseaseDiagnosis.empty() {
     return const DiseaseDiagnosis(
       id: 'healthy',
@@ -34,6 +36,21 @@ class DiseaseDiagnosis {
       confidence: 1.0,
       description: 'ใบปกติ ไม่พบอาการโรคพืชหรือศัตรูพืชทำลาย',
       treatment: 'รักษาการให้น้ำและธาตุอาหารตามมาตรฐานสวนทุเรียน',
+      lesionAreaPercentage: 0.0,
+    );
+  }
+
+  factory DiseaseDiagnosis.noLeaf() {
+    return const DiseaseDiagnosis(
+      id: 'no_leaf',
+      nameTh: 'ไม่พบใบพืชในกรอบ ROI',
+      nameEn: 'No Leaf Detected',
+      scientificName: 'Non-Foliar Target',
+      pathogenType: 'None',
+      severityLevel: 'Waiting',
+      confidence: 0.0,
+      description: 'เซนเซอร์ตรวจพบว่าวัตถุในกรอบ ROI ไม่ใช่ใบพืช กรุณาขยับกล้องหรือลากกรอบไปยังพื้นผิวใบพืชทุเรียน',
+      treatment: 'ส่องกรอบ ROI ไปที่บริเวณใบพืชเพื่อเริ่มวิเคราะห์แบบ Real-time',
       lesionAreaPercentage: 0.0,
     );
   }

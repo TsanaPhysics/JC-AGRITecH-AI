@@ -68,6 +68,51 @@ class PlantPathologyService {
     },
   };
 
+  /// Detect whether the target in the ROI has optical properties of plant foliage or foliar lesions
+  static bool isLeafPresence({required int r, required int g, required int b}) {
+    final hsv = MultiColorSpaceService.rgbToHsv(r, g, b);
+    final lab = MultiColorSpaceService.rgbToLab(r, g, b);
+    final h = hsv[0];
+    final s = hsv[1];
+    final l = lab[0];
+
+    // 1. Extreme dark (lens covered) or blown out white glare
+    if (l < 8.0 || l > 95.0) return false;
+
+    // 2. Neutral non-foliar backgrounds (white wall, grey paper, concrete, metal)
+    if (s < 0.12) return false;
+    if ((r - g).abs() < 10 && (g - b).abs() < 10 && (r - b).abs() < 10) return false;
+
+    // 3. Dominant Blue / Sky / Indigo / Purple
+    if (b > g && b > r) return false;
+    if (h >= 180.0 && h <= 285.0) return false;
+
+    // 4. Highly saturated artificial red / magenta
+    if (h >= 320.0 || (h <= 10.0 && s > 0.65)) return false;
+
+    // 5. Green foliage (Healthy to chlorotic green-yellow)
+    if (h >= 60.0 && h <= 170.0 && s >= 0.14) return true;
+
+    // 6. Yellow chlorotic leaf (N / K deficiency)
+    if (h >= 38.0 && h < 60.0 && s >= 0.20 && g > b) return true;
+
+    // 7. Foliar necrosis & brown lesions (Phytophthora, Rhizoctonia, Anthracnose, Algal spot)
+    if (h >= 14.0 && h < 38.0) {
+      if (b < g && g < r && b < 135 && s >= 0.20) {
+        // Exclude human skin tones (typically high L and low contrast)
+        if (l > 75.0 && (r - g) < 45 && s < 0.35) return false;
+        return true;
+      }
+    }
+
+    // 8. Dark water-soaked necrosis (Phytophthora) where L is low (10-38)
+    if (l >= 10.0 && l <= 38.0 && g >= b && s >= 0.14) {
+      return true;
+    }
+
+    return false;
+  }
+
   /// Diagnose from Deep Learning model output probabilities or color physics fallback
   static DiseaseDiagnosis diagnose({
     List<double>? modelProbabilities,
@@ -76,6 +121,11 @@ class PlantPathologyService {
     int b = 50,
     double lesionAreaPct = 0.0,
   }) {
+    // Check if target under ROI is actually a plant leaf
+    if (!isLeafPresence(r: r, g: g, b: b)) {
+      return DiseaseDiagnosis.noLeaf();
+    }
+
     String bestKey = 'healthy';
     double maxConf = 0.85;
 

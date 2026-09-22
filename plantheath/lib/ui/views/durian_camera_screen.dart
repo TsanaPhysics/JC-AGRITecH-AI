@@ -564,7 +564,10 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.82),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF00E676), width: 0.9),
+                            border: Border.all(
+                              color: _liveDisease.isLeaf ? const Color(0xFF00E676) : Colors.amberAccent,
+                              width: 0.9,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.4),
@@ -586,9 +589,11 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                'RGB(${_liveRgb[0]},${_liveRgb[1]},${_liveRgb[2]})  |  แตะลาก ROI',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                _liveDisease.isLeaf
+                                    ? 'RGB(${_liveRgb[0]},${_liveRgb[1]},${_liveRgb[2]})  |  แตะลาก ROI'
+                                    : '🔍 ไม่พบใบพืช  |  เลื่อนกรอบไปที่ใบ',
+                                style: TextStyle(
+                                  color: _liveDisease.isLeaf ? Colors.white : Colors.amberAccent,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -863,7 +868,9 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: _hudMode == HudDisplayMode.pathologyAi
-                          ? (_liveDisease.id == 'healthy' ? const Color(0xFF00E676) : const Color(0xFFFF5252))
+                          ? (!_liveDisease.isLeaf
+                              ? Colors.amberAccent
+                              : (_liveDisease.id == 'healthy' ? const Color(0xFF00E676) : const Color(0xFFFF5252)))
                           : const Color(0xFF00E5FF),
                       width: 1.2,
                     ),
@@ -972,7 +979,9 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
-                                              color: _liveDisease.id == 'healthy' ? const Color(0xFF00E676) : const Color(0xFFFF5252),
+                                              color: !_liveDisease.isLeaf
+                                                  ? Colors.amberAccent
+                                                  : (_liveDisease.id == 'healthy' ? const Color(0xFF00E676) : const Color(0xFFFF5252)),
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -984,7 +993,9 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            '${(_liveDisease.confidence * 100).toStringAsFixed(0)}%',
+                                            _liveDisease.isLeaf
+                                                ? '${(_liveDisease.confidence * 100).toStringAsFixed(0)}%'
+                                                : 'รอตรวจ',
                                             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amberAccent),
                                           ),
                                         ),
@@ -1319,6 +1330,11 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
   }
 
   Widget _buildRoiOverlay() {
+    final bool isLeaf = _liveDisease.isLeaf;
+    final Color activeColor = isLeaf
+        ? (_liveDisease.id == 'healthy' ? const Color(0xFF00E676) : const Color(0xFFFF5252))
+        : Colors.amberAccent;
+
     switch (_roiShape) {
       case RoiShape.circle:
         return Container(
@@ -1326,12 +1342,18 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
           height: _roiSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF4CAF50), width: 2.2),
+            border: Border.all(color: activeColor, width: 2.2),
             boxShadow: [
-              BoxShadow(color: const Color(0xFF4CAF50).withOpacity(0.25), blurRadius: 12),
+              BoxShadow(color: activeColor.withOpacity(0.25), blurRadius: 12),
             ],
           ),
-          child: const Center(child: Icon(Icons.add, color: Color(0xFF4CAF50), size: 18)),
+          child: Center(
+            child: Icon(
+              isLeaf ? Icons.add : Icons.filter_center_focus_outlined,
+              color: activeColor,
+              size: 18,
+            ),
+          ),
         );
       case RoiShape.rectangle:
         return Container(
@@ -1339,12 +1361,18 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
           height: _roiSize * 1.3,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF4CAF50), width: 2.2),
+            border: Border.all(color: activeColor, width: 2.2),
             boxShadow: [
-              BoxShadow(color: const Color(0xFF4CAF50).withOpacity(0.25), blurRadius: 12),
+              BoxShadow(color: activeColor.withOpacity(0.25), blurRadius: 12),
             ],
           ),
-          child: const Center(child: Icon(Icons.add, color: Color(0xFF4CAF50), size: 18)),
+          child: Center(
+            child: Icon(
+              isLeaf ? Icons.add : Icons.filter_center_focus_outlined,
+              color: activeColor,
+              size: 18,
+            ),
+          ),
         );
       case RoiShape.freeform:
         return Container(
@@ -1357,9 +1385,15 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
               bottomLeft: Radius.circular(15),
               bottomRight: Radius.circular(40),
             ),
-            border: Border.all(color: const Color(0xFF00E676), width: 2.2),
+            border: Border.all(color: activeColor, width: 2.2),
           ),
-          child: const Center(child: Icon(Icons.gesture, color: Color(0xFF00E676), size: 18)),
+          child: Center(
+            child: Icon(
+              isLeaf ? Icons.gesture : Icons.filter_center_focus_outlined,
+              color: activeColor,
+              size: 18,
+            ),
+          ),
         );
     }
   }

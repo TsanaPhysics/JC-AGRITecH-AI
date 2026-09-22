@@ -79,6 +79,33 @@ class NutrientHealthMetric {
     );
   }
 
+  factory NutrientHealthMetric.noLeaf() {
+    return const NutrientHealthMetric(
+      spadChlorophyll: 0.0,
+      nitrogenPct: 0.0,
+      phosphorusPct: 0.0,
+      potassiumPct: 0.0,
+      magnesiumPct: 0.0,
+      calciumPct: 0.0,
+      ironPpm: 0.0,
+      zincPpm: 0.0,
+      boronPpm: 0.0,
+      dgci: 0.0,
+      vari: 0.0,
+      gli: 0.0,
+      exg: 0.0,
+      rgb: [0, 0, 0],
+      hsv: [0.0, 0.0, 0.0],
+      lab: [0.0, 0.0, 0.0],
+      nitrogenStatus: 'รอส่องใบพืช',
+      phosphorusStatus: 'รอส่องใบพืช',
+      potassiumStatus: 'รอส่องใบพืช',
+      magnesiumStatus: 'รอส่องใบพืช',
+      micronutrientAlert: 'ไม่พบใบพืชในกรอบ ROI',
+      fertilizerRecommendation: 'กรุณานำกรอบ ROI ไปทาบลงบนใบพืชทุเรียนเพื่อประเมินระดับธาตุอาหารและคลอโรฟิลล์',
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'spad_chlorophyll': spadChlorophyll,
     'nitrogen_pct': nitrogenPct,

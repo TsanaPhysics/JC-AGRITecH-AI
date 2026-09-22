@@ -32,6 +32,28 @@ void main() {
       expect(diag.nameTh, contains('ราใบติด'));
       expect(diag.confidence, equals(0.85));
     });
+
+    test('Identifies non-leaf targets (wall, sky, white paper) as no_leaf', () {
+      // 1. White paper / wall
+      expect(PlantPathologyService.isLeafPresence(r: 240, g: 240, b: 240), isFalse);
+      final whiteDiag = PlantPathologyService.diagnose(r: 240, g: 240, b: 240);
+      expect(whiteDiag.id, equals('no_leaf'));
+      expect(whiteDiag.isLeaf, isFalse);
+      expect(whiteDiag.nameTh, contains('ไม่พบใบพืช'));
+
+      // 2. Blue sky / blue fabric
+      expect(PlantPathologyService.isLeafPresence(r: 40, g: 120, b: 220), isFalse);
+      final blueDiag = PlantPathologyService.diagnose(r: 40, g: 120, b: 220);
+      expect(blueDiag.isLeaf, isFalse);
+
+      // 3. Dark shadow / covered lens
+      expect(PlantPathologyService.isLeafPresence(r: 5, g: 5, b: 5), isFalse);
+
+      // 4. Foliage green leaf is recognized
+      expect(PlantPathologyService.isLeafPresence(r: 46, g: 125, b: 50), isTrue);
+      final greenDiag = PlantPathologyService.diagnose(r: 46, g: 125, b: 50);
+      expect(greenDiag.isLeaf, isTrue);
+    });
   });
 
   group('ContinualLearningService Tests', () {
