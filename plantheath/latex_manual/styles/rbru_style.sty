@@ -237,14 +237,14 @@
         borderline east={4pt}{0pt}{rbruGold},
         boxrule=0pt,
         arc=0mm,
-        top=14pt, bottom=14pt, left=16pt, right=16pt,
-        halign=right
+        top=14pt, bottom=14pt, left=16pt, right=16pt
     ]
-        {\fontsize{34}{40}\selectfont\bfseries\color{white}\chapterlabelname{} \thechapter}\par
+        \raggedleft
+        {\fontsize{34}{40}\selectfont\bfseries\color{white}\mbox{บทที่\ \thechapter}}\par
         \vspace{6pt}
         {\color{rbruGold}\rule{0.65\textwidth}{2pt}}\par
         \vspace{6pt}
-        {\fontsize{20}{26}\selectfont\bfseries\color{white}#1}
+        {\fontsize{20}{26}\selectfont\bfseries\color{white}#1\par}
     \end{tcolorbox}
 }
 
