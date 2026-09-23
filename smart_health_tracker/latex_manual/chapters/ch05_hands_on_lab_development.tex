@@ -13,6 +13,7 @@
     \item ปฏิบัติการที่ 5.5 การทดสอบสอบเทียบระบบในสภาวะการใช้งานจริงและการวิเคราะห์ผล
     \item ปฏิบัติการที่ 5.6 การพัฒนาโมเดลปัญญาประดิษฐ์การเรียนรู้เชิงลึกบนอุปกรณ์ (DeepHealthAiEngine)
     \item ปฏิบัติการที่ 5.7 การพัฒนาระบบเสียงพูดเตือนเนือยนิ่งและสแนปชอตอัตโนมัติทุก 4 ชั่วโมง
+    \item ปฏิบัติการที่ 5.8 การพัฒนาระบบติดตามพิกัด GPS และการเรนเดอร์แผนที่เส้นทางจริง (GpsRouteMapCard)
 \end{enumerate}
 
 \noindent\textbf{วัตถุประสงค์เชิงพฤติกรรม}
@@ -24,6 +25,7 @@
     \item ดำเนินการทดสอบสอบเทียบภาคสนามและคำนวณค่าความแม่นยำในการนับก้าวได้อย่างถูกต้อง
     \item พัฒนาโครงข่ายประสาทเทียมหลายชั้น (MLP) พร้อมกระบวนการ Backpropagation และ SGD บนอุปกรณ์ได้จริง
     \item พัฒนาระบบสังเคราะห์เสียงแจ้งเตือนภาษาไทยและระบบบันทึกข้อมูลทุก 4 ชั่วโมงได้อย่างสมบูรณ์
+    \item พัฒนาระบบติดตามพิกัดดาวเทียม GPS และเรนเดอร์เส้นทางโพลีไลน์บนผืนผ้าใบแบบเวกเตอร์ได้อย่างถูกต้อง
 \end{enumerate}
 
 \noindent\textbf{กิจกรรมการเรียนการสอน}
@@ -338,13 +340,69 @@ _sedentaryCheckTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
 \end{lstlisting}
 \end{codebox}
 
+\section{ปฏิบัติการที่ 5.8 การพัฒนาระบบติดตามพิกัด GPS และการเรนเดอร์แผนที่เส้นทางจริง}
+ในปฏิบัติการนี้ ผู้เรียนจะสร้างระบบติดตามพิกัดตำแหน่งทางภูมิศาสตร์จริงในไฟล์ \texttt{lib/services/gps\_tracking\_service.dart} พร้อมการคำนวณระยะทางด้วยสูตรฮาเวอร์ซีน และสร้างวิดเจ็ตแสดงผลแผนที่เวกเตอร์ในไฟล์ \texttt{lib/ui/widgets/gps\_route\_map\_card.dart}
+
+เริ่มต้นด้วยการสร้างคลาส \texttt{GpsWaypoint} เพื่อเก็บพิกัดละติจูด ลองจิจูด ความสูง ความเร็ว และทิศทางมุ่งหน้า พร้อมเมธอดคำนวณระยะทางผิวโค้งโลก
+
+\begin{codebox}
+\textbf{การคำนวณระยะทาง Haversine ใน GpsWaypoint.dart}
+\begin{lstlisting}[language=Dart]
+double distanceTo(GpsWaypoint other) {
+  final double phi1 = latitude * (pi / 180.0);
+  final double phi2 = other.latitude * (pi / 180.0);
+  final double deltaPhi = (other.latitude - latitude) * (pi / 180.0);
+  final double deltaLambda = (other.longitude - longitude) * (pi / 180.0);
+
+  final double a = sin(deltaPhi / 2.0) * sin(deltaPhi / 2.0) +
+      cos(phi1) * cos(phi2) * sin(deltaLambda / 2.0) * sin(deltaLambda / 2.0);
+
+  final double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+  return 6371000.0 * c; // ระยะทางในหน่วยเมตร
+}
+\end{lstlisting}
+\end{codebox}
+
+จากนั้น สร้างคลาสเรนเดอร์กราฟิกเวกเตอร์ \texttt{GpsRoutePainter} เพื่อแปลงพิกัด $(\phi, \lambda)$ เข้าสู่พิกัดระนาบพิกเซลหน้าจอ พร้อมการวาดเส้นทางโพลีไลน์นีออนเรืองแสงและการกะพริบคลื่นเรดาร์
+
+\begin{codebox}
+\textbf{การแปลงพิกัดและวาดโพลีไลน์ใน GpsRoutePainter.dart}
+\begin{lstlisting}[language=Dart]
+@override
+void paint(Canvas canvas, Size size) {
+  _drawGridBackground(canvas, size);
+
+  // คำนวณ Bounding Box ของพิกัดทั้งหมด
+  double minLat = ..., maxLat = ..., minLng = ..., maxLng = ...;
+
+  Offset toCanvas(double lat, double lng) {
+    double nx = (lng - minLng) / (maxLng - minLng);
+    double ny = (maxLat - lat) / (maxLat - minLat); // พลิกแกนดิ่ง
+    double px = margin + (nx * drawW);
+    double py = margin + (ny * drawH);
+    return Offset(center.dx + (px - center.dx) * zoom + pan.dx,
+                  center.dy + (py - center.dy) * zoom + pan.dy);
+  }
+
+  // วาดเส้นทางโพลีไลน์เรืองแสงนีออน (Glow Path & Core Path)
+  final path = Path();
+  // เติมพิกัดและ drawPath ด้วย LinearGradient(neonEmerald, neonCyan)
+  canvas.drawPath(path, linePaint);
+
+  // วาดคลื่นเรดาร์กะพริบที่ตำแหน่งปัจจุบัน (Radar Pulsing Ripple)
+  canvas.drawCircle(curPoint, 6.0 + pulse * 18.0, pulsePaint);
+}
+\end{lstlisting}
+\end{codebox}
+
 \section*{คำถามทบทวนท้ายบทที่ 5}
 \addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 5}
 \begin{enumerate}
-    \item เพราะเหตุใดจึงต้องกำหนดสิทธิ์ \texttt{HIGH\_SAMPLING\_RATE\_SENSORS} ในไฟล์ \texttt{AndroidManifest.xml}
+    \item เพราะเหตุใดจึงต้องกำหนดสิทธิ์ \texttt{HIGH\_SAMPLING\_RATE\_SENSORS} และสิทธิ์ \texttt{ACCESS\_FINE\_LOCATION} ในไฟล์ \texttt{AndroidManifest.xml}
     \item หากต้องการปรับแต่งอัลกอริทึมให้ตรวจจับการวิ่งเร็วได้ดียิ่งขึ้น ควรปรับพารามิเตอร์ใดในคลาส \texttt{StepDetectionEngine}
     \item จงอธิบายขั้นตอนการทำงานของ Forward Propagation และ Backpropagation ที่เกิดขึ้นภายในคลาส \texttt{DeepHealthAiEngine} บนสมาร์ทโฟน
     \item เพราะเหตุใดระบบจึงต้องบันทึกข้อมูลสแนปชอตสรีรวิทยาอัตโนมัติทุก 4 ชั่วโมง เพื่อนำไปใช้วิเคราะห์ร่วมกับโครงข่ายประสาทเทียม
-    \item จงอธิบายกลไกการทำงานของ \texttt{VoiceAlertService} และเหตุผลทางจิตวิทยาในการเลือกใช้เสียงสังเคราะห์คำว่า ``ลุกค่ะ ลุกค่ะ''
+    \item จงอธิบายกลไกการคำนวณระยะทาง Great-Circle Distance ในคลาส \texttt{GpsWaypoint} และการกรองสัญญาณสะท้อนเทียม (Multipath Noise Filter)
+    \item จงอธิบายขั้นตอนการแปลงพิกัดภูมิศาสตร์สู่พิกัดระนาบ 2 มิติของหน้าจอด้วยคลาส \texttt{CustomPainter} ในแอปพลิเคชัน Flutter
 \end{enumerate}
 \clearpage

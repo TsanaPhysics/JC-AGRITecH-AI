@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'services/movement_sensor_service.dart';
+import 'services/gps_tracking_service.dart';
 import 'ui/screens/home_tracker_screen.dart';
 import 'ui/theme/health_theme.dart';
 
@@ -24,6 +25,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MovementSensorService()),
+        ChangeNotifierProvider(create: (_) => GpsTrackingService()),
       ],
       child: const SmartHealthTrackerApp(),
     ),

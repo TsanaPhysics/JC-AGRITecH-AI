@@ -173,6 +173,41 @@ T_{\text{dynamic}}(t) = \mu_{w}(t) + \beta \cdot \sigma_{w}(t)
 \end{equation}
 กระบวนการนี้ทำให้แอปพลิเคชันสามารถเรียนรู้และปรับตัวเข้ากับรูปแบบการเดินเฉพาะบุคคลได้อย่างแท้จริง โดยไม่ต้องพึ่งพาเซิร์ฟเวอร์ภายนอก
 
+\section{คณิตศาสตร์จลนศาสตร์พิกัดภูมิศาสตร์และสมการฮาเวอร์ซีน}
+ในการคำนวณระยะทางจริงจากการเคลื่อนที่บนพื้นผิวพิภพที่มีลักษณะเป็นทรงกลมแป้น (Oblate Spheroid) การใช้สูตรระยะทางยูคลิดบนระนาบ 2 มิติ ($d = \sqrt{\Delta x^2 + \Delta y^2}$) จะทำให้เกิดความคลาดเคลื่อนทางเรขาคณิตทรงกลมอย่างรุนแรง
+
+ระบบ Smart Health Tracker จึงประยุกต์ใช้ \textbf{สมการฮาเวอร์ซีน (Haversine Formula)} เพื่อคำนวณระยะทางบนผิวโค้งวงกลมใหญ่ (Great-Circle Distance) ระหว่างสองจุดพิกัด $(\phi_1, \lambda_1)$ และ $(\phi_2, \lambda_2)$
+
+\begin{theorybox}
+\textbf{สมการการคำนวณระยะทางผิวโค้งโลกของฮาเวอร์ซีน}
+
+กำหนดให้ $\phi$ คือละติจูดในหน่วยเรเดียน, $\lambda$ คือลองจิจูดในหน่วยเรเดียน และ $R = 6{,}371{,}000\text{ เมตร}$ คือรัศมีเฉลี่ยของโลก
+\begin{align}
+\Delta \phi &= \phi_2 - \phi_1 \\
+\Delta \lambda &= \lambda_2 - \lambda_1 \\
+a &= \sin^2\left(\frac{\Delta \phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right) \\
+c &= 2 \operatorname{atan2}\left(\sqrt{a}, \sqrt{1-a}\right) \\
+d &= R \times c
+\end{align}
+ความเร็วขณะใดขณะหนึ่ง ($v_{\text{inst}}$) คำนวณได้จากผลต่างระยะทางต่อผลต่างเวลา
+\begin{equation}
+v_{\text{inst}} = \frac{d}{\Delta t} \times 3.6\text{ กิโลเมตรต่อชั่วโมง}
+\end{equation}
+และทิศทางการเคลื่อนที่ (Bearing หรือ Azimuth, $\theta$) บนระนาบราบคำนวณจาก
+\begin{equation}
+\theta = \operatorname{atan2}\left(\sin(\Delta \lambda)\cos(\phi_2), \; \cos(\phi_1)\sin(\phi_2) - \sin(\phi_1)\cos(\phi_2)\cos(\Delta \lambda)\right)
+\end{equation}
+\end{theorybox}
+
+เพื่อขจัดปัญหาการแกว่งตัวของพิกัดขณะผู้ใช้หยุดยืนอยู่กับที่ (Stationary GPS Jitter) และสัญญาณสะท้อนจากอาคารสูง (Multipath Interference) ระบบได้กำหนดฟังก์ชันกรองสัญญาณเชิงตรรกะ 3 ด่าน
+\begin{equation}
+\text{Accept}(P_k) = 
+\begin{cases}
+\text{True} & \text{ถ้า } \text{Accuracy}(P_k) \le 25\text{ m} \ \land \ d(P_{k-1}, P_k) \ge 2.0\text{ m} \ \land \ v_{\text{inst}} \le 45\text{ km/h} \\
+\text{False} & \text{กรณีอื่นๆ (ตัดทิ้งเป็นสัญญาณรบกวน)}
+\end{cases}
+\end{equation}
+
 \section*{คำถามทบทวนท้ายบทที่ 2}
 \addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 2}
 \begin{enumerate}
@@ -180,5 +215,7 @@ T_{\text{dynamic}}(t) = \mu_{w}(t) + \beta \cdot \sigma_{w}(t)
     \item เหตุใดเวกเตอร์ขนาดความเร่งแบบยูคลิด $a_{\text{norm}}$ จึงไม่แปรผันตามการหมุนของโทรศัพท์ จงแสดงการพิสูจน์
     \item หากใช้เกณฑ์ตัดสินการก้าวเดินแบบคงที่ (Static Threshold) จะเกิดผลกระทบอย่างไรเมื่อผู้ใช้เปลี่ยนจากการเดินช้าเป็นการวิ่งเร็ว
     \item จงอธิบายหลักการทำงานของ Refractory Period $250\text{ ms}$ และประโยชน์ในการลดความผิดพลาดของการนับก้าว
+    \item จงเขียนสมการฮาเวอร์ซีนและอธิบายเหตุผลทางฟิสิกส์ที่ต้องใช้สูตรนี้แทนระยะทางแบบยูคลิดในการหาเส้นทางการเดินทางจริง
+    \item จงอธิบายกลไกการกรองสัญญาณรบกวนของ GPS เพื่อป้องกันปรากฏการณ์พิกัดดริฟต์ขณะหยุดนิ่ง
 \end{enumerate}
 \clearpage

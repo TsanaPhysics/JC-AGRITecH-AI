@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import '../../models/activity_type.dart';
 import '../../models/health_interval_record.dart';
 import '../../services/movement_sensor_service.dart';
+import '../../services/gps_tracking_service.dart';
 import '../theme/health_theme.dart';
 import '../widgets/activity_ring_progress.dart';
 import '../widgets/cadence_and_hydration_card.dart';
 import '../widgets/comprehensive_goals_dialog.dart';
 import '../widgets/deep_ai_analytics_card.dart';
+import '../widgets/gps_route_map_card.dart';
 import '../widgets/hourly_activity_chart.dart';
 import '../widgets/kinetic_avatar_widget.dart';
 import '../widgets/live_motion_gauge.dart';
@@ -87,6 +89,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     final sensor = context.watch<MovementSensorService>();
+    final gpsService = context.watch<GpsTrackingService>();
     final metric = sensor.currentMetric;
     final now = DateTime.now();
     final dateStr = DateFormat('d MMMM yyyy').format(now);
@@ -163,11 +166,50 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Text(
-                            '$dateStr • เป้าหมาย ${sensor.dailyGoal} ก้าว • เตือน ${sensor.sedentaryAlertMinutes} น.',
-                            style: const TextStyle(color: Colors.white38, fontSize: 10.5),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  '$dateStr • เป้าหมาย ${sensor.dailyGoal} ก้าว',
+                                  style: const TextStyle(color: Colors.white38, fontSize: 10.5),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: (gpsService.isTracking ? HealthTheme.neonCyan : Colors.white).withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: (gpsService.isTracking ? HealthTheme.neonCyan : Colors.white).withOpacity(0.2),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.satellite_alt_rounded,
+                                      size: 10,
+                                      color: gpsService.isTracking ? HealthTheme.neonCyan : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      gpsService.isTracking
+                                          ? '${gpsService.totalDistanceKm.toStringAsFixed(2)} km'
+                                          : 'GPS IDLE',
+                                      style: TextStyle(
+                                        color: gpsService.isTracking ? HealthTheme.neonCyan : Colors.grey,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -196,11 +238,11 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                 child: ResponsiveLayoutBuilder(
                   builder: (context, breakpoint, constraints) {
                     if (breakpoint == ResponsiveBreakpoint.expanded) {
-                      return _buildExpandedLayout(sensor, metric);
+                      return _buildExpandedLayout(sensor, metric, gpsService);
                     } else if (breakpoint == ResponsiveBreakpoint.medium) {
-                      return _buildMediumLayout(sensor, metric);
+                      return _buildMediumLayout(sensor, metric, gpsService);
                     } else {
-                      return _buildCompactLayout(sensor, metric);
+                      return _buildCompactLayout(sensor, metric, gpsService);
                     }
                   },
                 ),
@@ -213,7 +255,8 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
   }
 
   /// Compact Layout (< 600dp) - Mobile Phones
-  Widget _buildCompactLayout(MovementSensorService sensor, dynamic metric) {
+  Widget _buildCompactLayout(
+      MovementSensorService sensor, dynamic metric, GpsTrackingService gpsService) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 28),
@@ -239,6 +282,15 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
             child: DeepAiAnalyticsCard(sensor: sensor),
           ),
           const SizedBox(height: 16),
+          // GPS Live Route Map Card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: GpsRouteMapCard(
+              gpsService: gpsService,
+              pedometerDistanceKm: metric.distanceKm,
+            ),
+          ),
+          const SizedBox(height: 16),
           MetricStatCards(metric: metric),
           const SizedBox(height: 16),
           CadenceAndHydrationCard(
@@ -262,7 +314,8 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
   }
 
   /// Medium Layout (600 - 840dp) - Foldable Phones / Tablets Portrait
-  Widget _buildMediumLayout(MovementSensorService sensor, dynamic metric) {
+  Widget _buildMediumLayout(
+      MovementSensorService sensor, dynamic metric, GpsTrackingService gpsService) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -290,6 +343,11 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                     ),
                     const SizedBox(height: 16),
                     DeepAiAnalyticsCard(sensor: sensor),
+                    const SizedBox(height: 16),
+                    GpsRouteMapCard(
+                      gpsService: gpsService,
+                      pedometerDistanceKm: metric.distanceKm,
+                    ),
                     const SizedBox(height: 16),
                     LiveMotionGauge(intensity: metric.motionIntensity, isSensorLive: sensor.isSensorActive),
                     const SizedBox(height: 16),
@@ -326,7 +384,8 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
   }
 
   /// Expanded Layout (> 840dp) - Large Tablets / Landscape / Web
-  Widget _buildExpandedLayout(MovementSensorService sensor, dynamic metric) {
+  Widget _buildExpandedLayout(
+      MovementSensorService sensor, dynamic metric, GpsTrackingService gpsService) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -355,7 +414,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
               ),
               const SizedBox(width: 16),
 
-              // Column 2: Kinetic Motion & AI Engine
+              // Column 2: Kinetic Motion, AI Engine & GPS Route Map
               Expanded(
                 flex: 4,
                 child: Column(
@@ -367,6 +426,11 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                     ),
                     const SizedBox(height: 16),
                     DeepAiAnalyticsCard(sensor: sensor),
+                    const SizedBox(height: 16),
+                    GpsRouteMapCard(
+                      gpsService: gpsService,
+                      pedometerDistanceKm: metric.distanceKm,
+                    ),
                     const SizedBox(height: 16),
                     CadenceAndHydrationCard(
                       cadenceSpm: metric.cadenceSpm,

@@ -7,6 +7,7 @@ import '../models/daily_health_metric.dart';
 import '../models/health_interval_record.dart';
 import '../models/user_health_profile.dart';
 import 'deep_health_ai_engine.dart';
+import 'gps_tracking_service.dart';
 import 'health_storage_service.dart';
 import 'voice_alert_service.dart';
 
@@ -480,6 +481,7 @@ class MovementSensorService extends ChangeNotifier {
     _stepsAtIntervalStart = 0;
     _currentIntervalStartTime = DateTime.now();
     HealthStorageService.saveStepsForDate(DateTime.now(), 0);
+    GpsTrackingService.instance.clearRoute();
     _runAiIntervalAnalysis();
     notifyListeners();
   }
