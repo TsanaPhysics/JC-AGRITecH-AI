@@ -123,21 +123,30 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                 child: Row(
                   children: [
                     Container(
-                      width: 10,
-                      height: 10,
                       decoration: BoxDecoration(
-                        color: metric.currentActivity.color,
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: metric.currentActivity.color.withValues(alpha: 0.8),
+                          width: 1.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: metric.currentActivity.color.withValues(alpha: 0.6),
-                            blurRadius: 8,
-                            spreadRadius: 2,
+                            color: metric.currentActivity.color.withValues(alpha: 0.4),
+                            blurRadius: 10,
+                            spreadRadius: 1,
                           ),
                         ],
                       ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/icons/app_icon.png',
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
