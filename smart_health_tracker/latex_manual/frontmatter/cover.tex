@@ -1,0 +1,103 @@
+% ==============================================================================
+% ฝาปกหน้า Smartphone UI เสมือนจริง (Virtual Mobile Viewfinder Cover Architecture)
+% ตำราวิชาการ: การออกแบบและพัฒนาแอปพลิเคชันเพื่อสุขภาพ การนับก้าวและการเคลื่อนไหวร่างกายเชิงสรีรวิทยา
+% มาตรฐานมหาวิทยาลัยราชภัฏรำไพพรรณี (Zero-Colon Rule ปราศจากเครื่องหมายทวิภาค 100%)
+% ==============================================================================
+\begin{titlepage}
+\newgeometry{left=0mm, right=0mm, top=0mm, bottom=0mm}
+
+\begin{tikzpicture}[remember picture, overlay]
+  % 1. พื้นหลังไล่ระดับสีล้ำสมัย (Dark Navy Tech to Deep Midnight Slate)
+  \fill[top color=rbruNavy, bottom color=black]
+    (current page.south west) rectangle (current page.north east);
+
+  % แถบขอบเย็บเล่ม 1.5 นิ้ว ด้านซ้าย
+  \fill[black, opacity=0.35]
+    (current page.north west) rectangle ++(38.1mm, -\paperheight);
+
+  % 2. แถบหัวกระดาษสถาบันวิชาการ
+  \node[anchor=north west] at ([xshift=44mm, yshift=-16mm]current page.north west) {
+    \begin{minipage}{150mm}
+      \begin{flushleft}
+        {\fontsize{10.5pt}{14pt}\selectfont\bfseries\color{rbruGold} หน่วยวิเคราะห์-ติดตามคุณภาพดินและสภาพอากาศเชิงพื้นที่}\\[1mm]
+        {\fontsize{9pt}{12pt}\selectfont\color{white!80} คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี}
+      \end{flushleft}
+    \end{minipage}
+  };
+
+  % 3. ชื่อเอกสารวิชาการขนาดใหญ่พิเศษ (Hero Title)
+  \node[anchor=north west] at ([xshift=44mm, yshift=-33mm]current page.north west) {
+    \begin{minipage}{152mm}
+      \begin{flushleft}
+        \color{white}
+        {\fontsize{25pt}{32pt}\selectfont\bfseries การออกแบบและพัฒนาแอปพลิเคชันเพื่อสุขภาพ}\\[2mm]
+        {\fontsize{22pt}{28pt}\selectfont\bfseries การนับก้าวและการตรวจจับการเคลื่อนไหว}\\[2mm]
+        {\fontsize{23pt}{29pt}\selectfont\bfseries\color{rbruCyan} เชิงชีวกลศาสตร์และสรีรวิทยาประยุกต์}\\[4mm]
+        {\fontsize{10pt}{13.5pt}\selectfont\bfseries\color{white!90}
+        DESIGN AND DEVELOPMENT OF SMART HEALTH TRACKER APPLICATION}\\[1mm]
+        {\fontsize{9pt}{12.5pt}\selectfont\bfseries\color{white!75}
+        FOR PHYSIOLOGICAL STEP COUNTING AND BIOMECHANICAL KINEMATICS}
+      \end{flushleft}
+    \end{minipage}
+  };
+
+  % 4. หน้าจอสมาร์ทโฟนเสมือนจริง (Smartphone Screen Frame with Neon Line-Art Icon)
+  \node[anchor=center] at ([xshift=20mm, yshift=-26mm]current page.center) {
+    \begin{tikzpicture}
+      % ตัวเครื่องสมาร์ทโฟนขอบมนสีไทเทเนียมเข้ม
+      \draw[draw=white!45, fill=black!90, rounded corners=22pt, line width=2.4pt]
+        (-5.2, -4.6) rectangle (5.2, 4.6);
+
+      % แถบ Notch และเลนส์กล้องหน้า
+      \fill[fill=black, rounded corners=6pt] (-1.6, 4.25) rectangle (1.6, 4.55);
+      \fill[fill=white!35] (1.0, 4.40) circle (1.8pt);
+
+      % ภาพไอคอนกราฟิกลายเส้นนีออน Smart Health Tracker
+      \node at (0, 0.2) {
+        \includegraphics[width=6.8cm, height=6.8cm, keepaspectratio]{figures/app_icon.png}
+      };
+
+      % วงแหวน HUD ตรวจวัดคลื่นสัญญาณความเร่ง (Sensor Waveform Ring)
+      \draw[draw=rbruCyan!70, line width=1.2pt, dash pattern=on 4pt off 3pt] (0, 0.2) circle (3.7cm);
+      \draw[draw=rbruEmerald!60, line width=0.8pt] (0, 0.2) circle (3.95cm);
+
+      % ป้ายมาตรวัดสดด้านบนจอ (HUD Header - Zero-Colon Rule)
+      \node[anchor=north west, fill=black!85, text=white, rounded corners=4pt, inner sep=4pt]
+        at (-3.8, 3.8) {
+          \fontsize{7.5pt}{10pt}\selectfont\bfseries\color{rbruEmerald} LIVE SENSOR 50 Hz \color{white} \textbar\ 3-AXIS MEMS \textbar\ ZERO-DRIFT
+        };
+
+      % ป้ายสถิติมิติด้านล่างจอ (Real-Time Biomechanics & Exercise Science)
+      \node[anchor=south west, fill=black!88, text=white, rounded corners=5pt, inner sep=5pt]
+        at (-4.4, -4.1) {
+          \begin{minipage}{8.8cm}
+            \fontsize{8pt}{11pt}\selectfont
+            \textbf{อัตราการก้าว} 115 SPM (Moderate Aerobic) \textbar\ \textbf{ระยะทางก้าวคำนวณ} 74.2 ซม.\\[1mm]
+            \textbf{ดัชนีเผาผลาญ} Mifflin-St Jeor 1,740 kcal/วัน \textbar\ \textbf{ภาวะขาดน้ำ} ดื่มแล้ว 1,850 mL
+          \end{minipage}
+        };
+
+      % ป้ายบอกระดับพลังงาน METs
+      \node[anchor=north east, fill=rbruCyan!90!black, text=white, rounded corners=3pt, inner sep=3pt]
+        at (4.4, 3.8) {
+          \fontsize{7.5pt}{10pt}\selectfont\bfseries METs 3.8
+        };
+    \end{tikzpicture}
+  };
+
+  % 5. ข้อมูลผู้จัดทำและปีพิมพ์ท้ายปก (Zero-Colon Rule)
+  \node[anchor=south west] at ([xshift=44mm, yshift=16mm]current page.south west) {
+    \begin{minipage}{152mm}
+      \begin{flushleft}
+        \color{white!85}
+        {\fontsize{10.5pt}{15pt}\selectfont\bfseries ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา และคณะนักวิจัย}\\[1mm]
+        {\fontsize{9pt}{13pt}\selectfont\color{white!75} หน่วยวิเคราะห์-ติดตามคุณภาพดินและสภาพอากาศเชิงพื้นที่}\\[1mm]
+        {\fontsize{9pt}{13pt}\selectfont\color{white!65} คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี}\\[1mm]
+        {\fontsize{9pt}{13pt}\selectfont\color{rbruGold} เอกสารคู่มือวิชาการและวิจัยฉบับสมบูรณ์ พุทธศักราช 2569}
+      \end{flushleft}
+    \end{minipage}
+  };
+\end{tikzpicture}
+
+\restoregeometry
+\end{titlepage}

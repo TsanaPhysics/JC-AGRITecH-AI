@@ -55,6 +55,7 @@ server/smartfarm.db
 *.pdf
 !latex_book/main.pdf
 !plantheath/assets/docs/Durian_Leaf_AI_Manual.pdf
+!smart_health_tracker/latex_manual/main.pdf
 
 # Flutter & Dart Build Artifacts
 **/build/
