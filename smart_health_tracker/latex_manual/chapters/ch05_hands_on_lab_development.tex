@@ -11,6 +11,8 @@
     \item ปฏิบัติการที่ 5.3 การเขียนคลาสคำนวณสรีรวิทยาและพลังงาน UserHealthProfile
     \item ปฏิบัติการที่ 5.4 การสร้างคอมโพเนนต์ส่วนติดต่อผู้ใช้แบบ Bento Grid Cards
     \item ปฏิบัติการที่ 5.5 การทดสอบสอบเทียบระบบในสภาวะการใช้งานจริงและการวิเคราะห์ผล
+    \item ปฏิบัติการที่ 5.6 การพัฒนาโมเดลปัญญาประดิษฐ์การเรียนรู้เชิงลึกบนอุปกรณ์ (DeepHealthAiEngine)
+    \item ปฏิบัติการที่ 5.7 การพัฒนาระบบเสียงพูดเตือนเนือยนิ่งและสแนปชอตอัตโนมัติทุก 4 ชั่วโมง
 \end{enumerate}
 
 \noindent\textbf{วัตถุประสงค์เชิงพฤติกรรม}
@@ -20,6 +22,8 @@
     \item พัฒนาโมเดลข้อมูลสุขภาพคำนวณ BMR, TDEE, Stride Length และ Hydration ได้อย่างถูกต้อง
     \item ประกอบและปรับแต่งส่วนต่อประสานผู้ใช้แบบ Bento Grid ให้รองรับหน้าจอหลากหลายขนาดได้อย่างราบรื่น
     \item ดำเนินการทดสอบสอบเทียบภาคสนามและคำนวณค่าความแม่นยำในการนับก้าวได้อย่างถูกต้อง
+    \item พัฒนาโครงข่ายประสาทเทียมหลายชั้น (MLP) พร้อมกระบวนการ Backpropagation และ SGD บนอุปกรณ์ได้จริง
+    \item พัฒนาระบบสังเคราะห์เสียงแจ้งเตือนภาษาไทยและระบบบันทึกข้อมูลทุก 4 ชั่วโมงได้อย่างสมบูรณ์
 \end{enumerate}
 
 \noindent\textbf{กิจกรรมการเรียนการสอน}
@@ -261,12 +265,86 @@ class BentoMetricCard extends StatelessWidget {
 
 ผลการทดลองแสดงให้เห็นว่า การประมวลผลขนาดเวกเตอร์ยูคลิดสามมิติร่วมกับ Dynamic Peak Detection และ Refractory Period $250\text{ ms}$ ให้ความแม่นยำสูงถึงร้อยละ 99.27 และสามารถขจัดการสั่นสะเทือนของเครื่องยนต์รถโดยสารได้อย่างมีประสิทธิภาพ
 
+\section{ปฏิบัติการที่ 5.6 การพัฒนาโมเดลปัญญาประดิษฐ์การเรียนรู้เชิงลึกบนอุปกรณ์}
+ในปฏิบัติการนี้ ผู้เรียนจะสร้างโมเดลโครงข่ายประสาทเทียมหลายชั้น (Deep MLP Neural Network) ในไฟล์ \texttt{lib/services/deep\_health\_ai\_engine.dart} ซึ่งทำงานประมวลผลและเรียนรู้ได้โดยตรงบนสมาร์ทโฟน (On-Device Learning) โดยไม่ต้องพึ่งพาเซิร์ฟเวอร์ภายนอก
+
+โมเดลรับเวกเตอร์อินพุต 6 มิติ ผ่านชั้นฮิดเดน 2 ชั้น ($8$ และ $6$ โหนด) พร้อมฟังก์ชันแอกติเวชัน LeakyReLU และ Tanh สู่ชั้นเอาต์พุต 4 คลาสด้วย Softmax และมีฟังก์ชัน \texttt{trainOnUserKinematics} สำหรับคำนวณเกรเดียนต์และอัปเดตค่าน้ำหนักด้วย Stochastic Gradient Descent (SGD)
+
+\begin{codebox}
+\textbf{แกนหลักของ DeepHealthAiEngine.dart}
+\begin{lstlisting}[language=Dart]
+class DeepHealthAiEngine {
+  // สถาปัตยกรรมโครงข่ายประสาทเทียม 6 -> 8 -> 6 -> 4
+  List<List<double>> w1 = ...; // 6x8
+  List<double> b1 = ...;
+  List<List<double>> w2 = ...; // 8x6
+  List<double> b2 = ...;
+  List<List<double>> w3 = ...; // 6x4
+  List<double> b3 = ...;
+
+  // Forward Propagation
+  DeepAiInferenceResult predict(HealthIntervalRecord interval) {
+    List<double> x = _extractNormalizedFeatures(interval);
+    List<double> z1 = _dense(x, w1, b1);
+    List<double> a1 = z1.map((v) => v > 0 ? v : 0.01 * v).toList(); // LeakyReLU
+
+    List<double> z2 = _dense(a1, w2, b2);
+    List<double> a2 = z2.map((v) => (exp(2*v) - 1)/(exp(2*v) + 1)).toList(); // Tanh
+
+    List<double> z3 = _dense(a2, w3, b3);
+    List<double> probs = _softmax(z3);
+
+    return DeepAiInferenceResult(
+      predictedState: _mapState(probs),
+      confidence: probs.reduce(max),
+      forecastStepsNext4h: _forecastSteps(interval, probs),
+      forecastCaloriesNext4h: _forecastCalories(interval, probs),
+    );
+  }
+
+  // Backpropagation & SGD Training On Device
+  void trainOnUserKinematics(List<HealthIntervalRecord> history, {double lr = 0.01}) {
+    for (var record in history) {
+      // 1. Forward Pass
+      // 2. Compute Cross-Entropy Loss Derivative
+      // 3. Backpropagate Gradients: dL/dw3, dL/dw2, dL/dw1
+      // 4. Update Weights: w = w - lr * grad
+    }
+  }
+}
+\end{lstlisting}
+\end{codebox}
+
+\section{ปฏิบัติการที่ 5.7 การพัฒนาระบบเสียงพูดเตือนและสแนปชอตอัตโนมัติทุก 4 ชั่วโมง}
+สร้างไฟล์ \texttt{lib/services/voice\_alert\_service.dart} เพื่อจัดการการเล่นเสียงกระตุ้นเตือนโสตประสาทและความถี่เสียงเตือน พร้อมคำพูดสังเคราะห์ภาษาไทย ``ลุกค่ะ ลุกค่ะ! ได้เวลาลุกขึ้นยืดเส้นยืดสายและขยับร่างกายแล้วค่ะ''
+
+และในไฟล์ \texttt{lib/services/movement\_sensor\_service.dart} ให้ติดตั้งตัวจับเวลา \texttt{Timer.periodic} สำหรับตรวจจับพฤติกรรมเนือยนิ่งทุก 30 นาที และตัวจับเวลาบันทึกข้อมูลสุขภาพอัตโนมัติทุก 4 ชั่วโมง (\texttt{Duration(hours: 4)}) พร้อมนโยบายการรีเซ็ตค่าเริ่มต้นเป็นศูนย์ (Zero-Baseline Launch Policy) เมื่อเปิดแอปพลิเคชันใหม่
+
+\begin{codebox}
+\textbf{การตั้งเวลาบันทึกอัตโนมัติและตรวจจับเนือยนิ่งใน MovementSensorService}
+\begin{lstlisting}[language=Dart]
+// ตัวจับเวลาบันทึกอัตโนมัติทุก 4 ชั่วโมง
+_snapshot4hTimer = Timer.periodic(const Duration(hours: 4), (timer) {
+  take4HourIntervalSnapshot();
+});
+
+// ตัวจับเวลาตรวจสอบพฤติกรรมเนือยนิ่งทุก 30 นาที
+_sedentaryCheckTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+  if (isSittingInactive && inactiveMinutes >= sedentaryThresholdMinutes) {
+    _triggerSedentaryAlert();
+    VoiceAlertService.instance.playStandUpSpeechAlert();
+  }
+});
+\end{lstlisting}
+\end{codebox}
+
 \section*{คำถามทบทวนท้ายบทที่ 5}
 \addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 5}
 \begin{enumerate}
     \item เพราะเหตุใดจึงต้องกำหนดสิทธิ์ \texttt{HIGH\_SAMPLING\_RATE\_SENSORS} ในไฟล์ \texttt{AndroidManifest.xml}
     \item หากต้องการปรับแต่งอัลกอริทึมให้ตรวจจับการวิ่งเร็วได้ดียิ่งขึ้น ควรปรับพารามิเตอร์ใดในคลาส \texttt{StepDetectionEngine}
-    \item จงอธิบายบทบาทของวิดเจ็ต \texttt{LayoutBuilder} ในการจัดแสดงผลการ์ด Bento Grid ให้รองรับสมาร์ทโฟนขนาดเล็ก
-    \item จากผลการสอบเทียบในตารางที่ \ref{tab:field_calibration_results} เพราะเหตุใดการนับก้าวขณะนั่งบนรถโดยสารจึงมีค่าผิดพลาดเกิดขึ้นเพียง 2 ก้าวตลอดระยะเวลา 15 นาที
+    \item จงอธิบายขั้นตอนการทำงานของ Forward Propagation และ Backpropagation ที่เกิดขึ้นภายในคลาส \texttt{DeepHealthAiEngine} บนสมาร์ทโฟน
+    \item เพราะเหตุใดระบบจึงต้องบันทึกข้อมูลสแนปชอตสรีรวิทยาอัตโนมัติทุก 4 ชั่วโมง เพื่อนำไปใช้วิเคราะห์ร่วมกับโครงข่ายประสาทเทียม
+    \item จงอธิบายกลไกการทำงานของ \texttt{VoiceAlertService} และเหตุผลทางจิตวิทยาในการเลือกใช้เสียงสังเคราะห์คำว่า ``ลุกค่ะ ลุกค่ะ''
 \end{enumerate}
 \clearpage

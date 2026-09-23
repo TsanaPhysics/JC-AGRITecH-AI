@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/activity_type.dart';
+import '../../models/health_interval_record.dart';
 import '../../services/movement_sensor_service.dart';
 import '../theme/health_theme.dart';
 import '../widgets/activity_ring_progress.dart';
 import '../widgets/cadence_and_hydration_card.dart';
-import '../widgets/goal_setting_dialog.dart';
+import '../widgets/comprehensive_goals_dialog.dart';
+import '../widgets/deep_ai_analytics_card.dart';
 import '../widgets/hourly_activity_chart.dart';
 import '../widgets/kinetic_avatar_widget.dart';
 import '../widgets/live_motion_gauge.dart';
@@ -31,14 +33,11 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
     });
   }
 
-  void _openGoalDialog() {
+  void _openComprehensiveGoalsDialog() {
     final sensor = context.read<MovementSensorService>();
     showDialog(
       context: context,
-      builder: (_) => GoalSettingDialog(
-        currentGoal: sensor.dailyGoal,
-        onSave: (newGoal) => sensor.updateGoal(newGoal),
-      ),
+      builder: (_) => ComprehensiveGoalsDialog(sensor: sensor),
     );
   }
 
@@ -59,9 +58,9 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: HealthTheme.surfaceElevated,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('รีเซ็ตจำนวนก้าววันนี้?', style: TextStyle(color: Colors.white)),
+        title: const Text('รีเซ็ตสถิติทุกอย่างเป็น 0?', style: TextStyle(color: Colors.white)),
         content: const Text(
-          'ต้องการเริ่มนับก้าวใหม่สำหรับวันนี้หรือไม่?',
+          'ต้องการเริ่มนับก้าว คำนวณแคลอรี และรอบเวลาใหม่ทั้งหมดเป็น 0 หรือไม่?',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -72,10 +71,13 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: HealthTheme.orangeCalorie),
             onPressed: () {
-              context.read<MovementSensorService>().resetSteps();
+              context.read<MovementSensorService>().resetAllToZero();
               Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('รีเซ็ตทุกค่าเริ่มต้นเป็น 0 เรียบร้อยแล้ว')),
+              );
             },
-            child: const Text('รีเซ็ต', style: TextStyle(color: Colors.white)),
+            child: const Text('รีเซ็ตเป็น 0', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -89,7 +91,6 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
     final now = DateTime.now();
     final dateStr = DateFormat('d MMMM yyyy').format(now);
 
-    // Dynamic Ambient Background Colors according to current movement activity
     final Color ambientColor1 = metric.currentActivity == ActivityType.running
         ? const Color(0xFF2A0D0A)
         : metric.currentActivity == ActivityType.walking
@@ -126,12 +127,12 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: metric.currentActivity.color.withValues(alpha: 0.8),
+                          color: metric.currentActivity.color.withOpacity(0.8),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: metric.currentActivity.color.withValues(alpha: 0.4),
+                            color: metric.currentActivity.color.withOpacity(0.4),
                             blurRadius: 10,
                             spreadRadius: 1,
                           ),
@@ -163,7 +164,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            '$dateStr • ส่วนสูง ${sensor.profile.heightCm.round()} ซม. (${sensor.profile.gender.displayName})',
+                            '$dateStr • เป้าหมาย ${sensor.dailyGoal} ก้าว • เตือน ${sensor.sedentaryAlertMinutes} น.',
                             style: const TextStyle(color: Colors.white38, fontSize: 10.5),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -171,21 +172,20 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    IconButton(
+                      tooltip: 'ตั้งค่าเป้าหมายสุขภาพ & ลดน้ำหนัก',
+                      onPressed: _openComprehensiveGoalsDialog,
+                      icon: const Icon(Icons.tune, color: HealthTheme.cyanPrimary),
+                    ),
                     IconButton(
                       tooltip: 'โปรไฟล์สรีรวิทยา',
                       onPressed: _openProfileDialog,
                       icon: const Icon(Icons.person_outline, color: HealthTheme.cyanDistance),
                     ),
                     IconButton(
-                      tooltip: 'ตั้งเป้าหมายก้าว',
-                      onPressed: _openGoalDialog,
-                      icon: const Icon(Icons.flag_outlined, color: HealthTheme.emeraldStep),
-                    ),
-                    IconButton(
-                      tooltip: 'รีเซ็ตข้อมูล',
+                      tooltip: 'รีเซ็ตข้อมูลเป็น 0',
                       onPressed: _confirmReset,
-                      icon: const Icon(Icons.refresh, color: Colors.white54),
+                      icon: const Icon(Icons.restart_alt, color: HealthTheme.orangeCalorie),
                     ),
                   ],
                 ),
@@ -212,7 +212,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
     );
   }
 
-  /// Compact Layout (< 600dp) - Mobile Phones (Fluid 1-Column Bento Grid)
+  /// Compact Layout (< 600dp) - Mobile Phones
   Widget _buildCompactLayout(MovementSensorService sensor, dynamic metric) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -225,12 +225,18 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
               onDismiss: () => sensor.dismissActiveBreak(),
             ),
           const SizedBox(height: 6),
-          ActivityRingProgress(metric: metric, onGoalTap: _openGoalDialog),
+          ActivityRingProgress(metric: metric, onGoalTap: _openComprehensiveGoalsDialog),
           const SizedBox(height: 18),
           KineticAvatarWidget(
             activity: metric.currentActivity,
             intensity: metric.motionIntensity,
             cadenceSpm: metric.cadenceSpm,
+          ),
+          const SizedBox(height: 16),
+          // Deep Learning AI Card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: DeepAiAnalyticsCard(sensor: sensor),
           ),
           const SizedBox(height: 16),
           MetricStatCards(metric: metric),
@@ -242,6 +248,9 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
             bmrKcal: sensor.profile.bmrKcal,
           ),
           const SizedBox(height: 16),
+          // 4-Hour Interval Snapshot History
+          _buildIntervalHistorySection(sensor),
+          const SizedBox(height: 16),
           LiveMotionGauge(intensity: metric.motionIntensity, isSensorLive: sensor.isSensorActive),
           const SizedBox(height: 16),
           HourlyActivityChart(records: sensor.hourlyRecords),
@@ -252,7 +261,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
     );
   }
 
-  /// Medium Layout (600 - 840dp) - Foldable Phones / Tablets Portrait (2-Column Bento Grid)
+  /// Medium Layout (600 - 840dp) - Foldable Phones / Tablets Portrait
   Widget _buildMediumLayout(MovementSensorService sensor, dynamic metric) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -272,13 +281,15 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                 flex: 5,
                 child: Column(
                   children: [
-                    ActivityRingProgress(metric: metric, onGoalTap: _openGoalDialog),
+                    ActivityRingProgress(metric: metric, onGoalTap: _openComprehensiveGoalsDialog),
                     const SizedBox(height: 16),
                     KineticAvatarWidget(
                       activity: metric.currentActivity,
                       intensity: metric.motionIntensity,
                       cadenceSpm: metric.cadenceSpm,
                     ),
+                    const SizedBox(height: 16),
+                    DeepAiAnalyticsCard(sensor: sensor),
                     const SizedBox(height: 16),
                     LiveMotionGauge(intensity: metric.motionIntensity, isSensorLive: sensor.isSensorActive),
                     const SizedBox(height: 16),
@@ -301,6 +312,8 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                       bmrKcal: sensor.profile.bmrKcal,
                     ),
                     const SizedBox(height: 16),
+                    _buildIntervalHistorySection(sensor),
+                    const SizedBox(height: 16),
                     HourlyActivityChart(records: sensor.hourlyRecords),
                   ],
                 ),
@@ -312,7 +325,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
     );
   }
 
-  /// Expanded Layout (> 840dp) - Large Tablets / Landscape / Web (3-Column Studio Hub)
+  /// Expanded Layout (> 840dp) - Large Tablets / Landscape / Web
   Widget _buildExpandedLayout(MovementSensorService sensor, dynamic metric) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -332,7 +345,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                 flex: 3,
                 child: Column(
                   children: [
-                    ActivityRingProgress(metric: metric, onGoalTap: _openGoalDialog),
+                    ActivityRingProgress(metric: metric, onGoalTap: _openComprehensiveGoalsDialog),
                     const SizedBox(height: 18),
                     _buildProfileSummaryCard(sensor),
                     const SizedBox(height: 18),
@@ -342,7 +355,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
               ),
               const SizedBox(width: 16),
 
-              // Column 2: Kinetic Motion & Biometrics
+              // Column 2: Kinetic Motion & AI Engine
               Expanded(
                 flex: 4,
                 child: Column(
@@ -353,25 +366,29 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                       cadenceSpm: metric.cadenceSpm,
                     ),
                     const SizedBox(height: 16),
+                    DeepAiAnalyticsCard(sensor: sensor),
+                    const SizedBox(height: 16),
                     CadenceAndHydrationCard(
                       cadenceSpm: metric.cadenceSpm,
                       hydrationLossMl: metric.hydrationLostMl,
                       tdeeKcal: metric.tdeeKcal,
                       bmrKcal: sensor.profile.bmrKcal,
                     ),
-                    const SizedBox(height: 16),
-                    LiveMotionGauge(intensity: metric.motionIntensity, isSensorLive: sensor.isSensorActive),
                   ],
                 ),
               ),
               const SizedBox(width: 16),
 
-              // Column 3: Metrics & 24h Activity
+              // Column 3: Metrics & 4h Interval History
               Expanded(
                 flex: 4,
                 child: Column(
                   children: [
                     MetricStatCards(metric: metric),
+                    const SizedBox(height: 16),
+                    _buildIntervalHistorySection(sensor),
+                    const SizedBox(height: 16),
+                    LiveMotionGauge(intensity: metric.motionIntensity, isSensorLive: sensor.isSensorActive),
                     const SizedBox(height: 16),
                     HourlyActivityChart(records: sensor.hourlyRecords),
                   ],
@@ -379,6 +396,101 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 4-Hour Interval Snapshot History Section
+  Widget _buildIntervalHistorySection(MovementSensorService sensor) {
+    final intervals = sensor.intervalRecords;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: HealthTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: HealthTheme.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.history_toggle_off, color: HealthTheme.goldRBRU, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'สถิติบันทึกอัตโนมัติรอบ 4 ชม.',
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Text(
+                '${intervals.length} รายการ',
+                style: TextStyle(color: Colors.grey[400], fontSize: 11),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (intervals.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(14),
+              alignment: Alignment.center,
+              child: Text(
+                'ระบบจะบันทึกสแน็ปช็อตอัตโนมัติทุก 4 ชั่วโมง\nหรือกด "บันทึกรอบ 4 ชม." ในการ์ด AI เพื่อทดสอบได้ทันที',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[400], fontSize: 11.5, height: 1.5),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: intervals.length.clamp(0, 3),
+              separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 14),
+              itemBuilder: (context, idx) {
+                final item = intervals[idx];
+                return Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: HealthTheme.surfaceElevated,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        item.intervalLabel,
+                        style: const TextStyle(color: HealthTheme.cyanPrimary, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${item.steps} ก้าว • ${item.caloriesKcal.toStringAsFixed(0)} kcal • Cadence ${item.meanCadenceSpm} SPM',
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'AI: ${item.aiDiagnosis}',
+                            style: const TextStyle(color: HealthTheme.goldRBRU, fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${item.distanceKm.toStringAsFixed(2)} กม.',
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                  ],
+                );
+              },
+            ),
         ],
       ),
     );
@@ -401,7 +513,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('ข้อมูลสรีรวิทยา', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('ข้อมูลสรีรวิทยา & เป้าหมาย', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
               TextButton(
                 onPressed: _openProfileDialog,
                 style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(40, 24)),
@@ -414,8 +526,8 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _profileMiniItem('BMI', p.bmi.toStringAsFixed(1), HealthTheme.emeraldStep),
-              _profileMiniItem('BMR', '${p.bmrKcal.round()} kcal', HealthTheme.orangeCalorie),
-              _profileMiniItem('ช่วงก้าว', '${(p.baseStrideLengthM * 100).round()} cm', HealthTheme.cyanDistance),
+              _profileMiniItem('เป้าหมายน้ำหนัก', '${sensor.targetWeightKg.toStringAsFixed(0)} kg', HealthTheme.orangeCalorie),
+              _profileMiniItem('พร่องแคลอรี', '${sensor.targetCalorieDeficitKcal} kcal', HealthTheme.goldRBRU),
             ],
           ),
         ],

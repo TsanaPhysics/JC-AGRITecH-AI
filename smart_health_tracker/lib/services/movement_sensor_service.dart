@@ -4,8 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../models/activity_type.dart';
 import '../models/daily_health_metric.dart';
+import '../models/health_interval_record.dart';
 import '../models/user_health_profile.dart';
+import 'deep_health_ai_engine.dart';
 import 'health_storage_service.dart';
+import 'voice_alert_service.dart';
 
 class MovementSensorService extends ChangeNotifier {
   static final MovementSensorService _instance = MovementSensorService._internal();
@@ -16,13 +19,19 @@ class MovementSensorService extends ChangeNotifier {
   Timer? _simulationTimer;
   Timer? _decayTimer;
   Timer? _cadenceAndSedentaryTimer;
+  Timer? _fourHourSnapshotTimer;
 
-  // Personalized Health Profile
+  // Personalized Health Profile & Goals
   UserHealthProfile _profile = const UserHealthProfile();
-
-  // Real-time sensor state
-  int _todaySteps = 0;
   int _dailyGoal = 10000;
+  double _targetWeightKg = 60.0;
+  int _targetCalorieDeficitKcal = 500;
+  int _sedentaryAlertMinutes = 30; // ค่าเริ่มต้น 30 นาทีตามคำสั่งผู้ใช้
+  int _dailyWaterGoalMl = 2500;
+  bool _isVoiceAlertEnabled = true;
+
+  // Real-time sensor state (เริ่มต้นทุกอย่างเป็น 0 ทั้งหมด)
+  int _todaySteps = 0;
   double _motionIntensity = 0.0; // 0.0 to 1.0
   ActivityType _currentActivity = ActivityType.stationary;
   int _activeSeconds = 0;
@@ -38,17 +47,14 @@ class MovementSensorService extends ChangeNotifier {
   final List<int> _recentStepTimestamps = [];
   int _sedentarySeconds = 0; // Continuous inactive seconds
 
-  // Hourly steps distribution (0..23)
-  final Map<int, int> _hourlySteps = {
-    6: 120,
-    7: 450,
-    8: 980,
-    9: 620,
-    10: 380,
-    11: 410,
-    12: 850,
-    13: 310,
-  };
+  // 4-Hour Interval Tracking & AI
+  final List<HealthIntervalRecord> _intervalRecords = [];
+  DeepHealthInference? _latestAiInference;
+  DateTime _currentIntervalStartTime = DateTime.now();
+  int _stepsAtIntervalStart = 0;
+
+  // Hourly steps distribution (0..23) เริ่มต้นว่างเปล่า 0 ทั้งหมด
+  final Map<int, int> _hourlySteps = {};
 
   bool _isSimulating = false;
   bool _isSensorActive = false;
@@ -57,14 +63,25 @@ class MovementSensorService extends ChangeNotifier {
   UserHealthProfile get profile => _profile;
   int get todaySteps => _todaySteps;
   int get dailyGoal => _dailyGoal;
+  double get targetWeightKg => _targetWeightKg;
+  int get targetCalorieDeficitKcal => _targetCalorieDeficitKcal;
+  int get sedentaryAlertMinutes => _sedentaryAlertMinutes;
+  int get dailyWaterGoalMl => _dailyWaterGoalMl;
+  bool get isVoiceAlertEnabled => _isVoiceAlertEnabled;
+
   double get motionIntensity => _motionIntensity;
   ActivityType get currentActivity => _currentActivity;
   int get activeMinutes => (_activeSeconds ~/ 60);
   int get cadenceSpm => _cadenceSpm;
   int get sedentaryMinutes => _sedentarySeconds ~/ 60;
-  bool get needsActiveBreak => _sedentarySeconds >= 3600; // >= 60 min
+  
+  /// เตือนเมื่ออยู่นิ่งนานกว่าเกณฑ์ที่กำหนด (ค่าเริ่มต้น 30 นาที)
+  bool get needsActiveBreak => _sedentarySeconds >= (_sedentaryAlertMinutes * 60);
   bool get isSimulating => _isSimulating;
   bool get isSensorActive => _isSensorActive;
+
+  List<HealthIntervalRecord> get intervalRecords => List.unmodifiable(_intervalRecords);
+  DeepHealthInference? get latestAiInference => _latestAiInference;
 
   /// Dynamic Stride Distance (Km) based on User Profile Height and Activity Speed
   double get distanceKm {
@@ -79,7 +96,6 @@ class MovementSensorService extends ChangeNotifier {
 
   /// Calories Burned (kcal) using Personalized Body Weight & MET Activity Multiplier
   double get caloriesKcal {
-    // 1 step kcal formula: MET * 3.5 * weightKg / (200 * 60 * 1.8 steps/sec)
     final met = _currentActivity.metValue;
     final kcalPerStep = (met * 3.5 * _profile.weightKg) / (200.0 * 60.0 * 1.75);
     return _todaySteps * kcalPerStep;
@@ -117,26 +133,45 @@ class MovementSensorService extends ChangeNotifier {
     return list;
   }
 
-  /// Initialize service, load saved preferences and start accelerometer stream
+  /// Initialize service
+  /// กฎสำคัญ: "เมื่อเปิดแอปพลิเคชันใหม่ ทุกอย่างเซตเป็น 0 ทั้งหมด"
   Future<void> initialize() async {
+    // โหลดการตั้งค่าเป้าหมายและโปรไฟล์
     _dailyGoal = await HealthStorageService.getDailyGoal();
-    
-    // Load profile
+    _targetWeightKg = await HealthStorageService.getTargetWeight();
+    _targetCalorieDeficitKcal = await HealthStorageService.getTargetCalorieDeficit();
+    _sedentaryAlertMinutes = await HealthStorageService.getSedentaryAlertMinutes();
+    _dailyWaterGoalMl = await HealthStorageService.getDailyWaterGoal();
+    _isVoiceAlertEnabled = await HealthStorageService.getVoiceAlertEnabled();
+
+    VoiceAlertService().setVoiceEnabled(_isVoiceAlertEnabled);
+
     final profileData = await HealthStorageService.getUserProfileData();
     _profile = UserHealthProfile.fromJson(profileData);
 
-    final now = DateTime.now();
-    final saved = await HealthStorageService.getSavedStepsForDate(now);
-    if (saved > 0) {
-      _todaySteps = saved;
-    } else {
-      // Starting base for realistic morning tracking
-      _todaySteps = 4120;
-    }
+    // โหลดประวัติรอบ 4 ชั่วโมงก่อนหน้า
+    final savedIntervals = await HealthStorageService.getIntervalRecords();
+    _intervalRecords.clear();
+    _intervalRecords.addAll(savedIntervals);
+
+    // เซตค่าตัวนับสดของรอบใหม่เป็น 0 ทั้งหมดตามคำสั่ง
+    _todaySteps = 0;
+    _activeSeconds = 0;
+    _motionIntensity = 0.0;
+    _cadenceSpm = 0;
+    _sedentarySeconds = 0;
+    _currentActivity = ActivityType.stationary;
+    _hourlySteps.clear();
+    _currentIntervalStartTime = DateTime.now();
+    _stepsAtIntervalStart = 0;
+
+    // รันการวินิจฉัย AI รอบแรก
+    _runAiIntervalAnalysis();
 
     _startSensorListener();
     _startMotionDecayTimer();
     _startCadenceAndSedentaryTimer();
+    _startFourHourSnapshotTimer();
     notifyListeners();
   }
 
@@ -149,27 +184,26 @@ class MovementSensorService extends ChangeNotifier {
           _processAccelerometerData(event.x, event.y, event.z);
         },
         onError: (err) {
-          debugPrint('[i] Accelerometer sensor stream notice: $err (Smart motion engine ready)');
+          debugPrint('[i] Accelerometer sensor notice: $err');
           _isSensorActive = false;
         },
       );
     } catch (e) {
-      debugPrint('[!] Sensor listener initialization: $e');
+      debugPrint('[!] Sensor listener error: $e');
       _isSensorActive = false;
     }
   }
 
   /// Physics-Informed Step Detection
   void _processAccelerometerData(double x, double y, double z) {
-    // Dynamic magnitude (excluding gravity baseline)
     final double magnitude = math.sqrt(x * x + y * y + z * z);
     final int nowMs = DateTime.now().millisecondsSinceEpoch;
 
-    // Motion intensity smoothing (0.0 - 1.0)
+    // Motion intensity smoothing
     final double rawIntensity = (magnitude / 10.0).clamp(0.0, 1.0);
     _motionIntensity = (_motionIntensity * 0.7) + (rawIntensity * 0.3);
 
-    // Peak detection with refractory window
+    // Dynamic peak detection with refractory window
     if (magnitude > _stepThreshold && _lastMagnitude <= _stepThreshold) {
       if (nowMs - _lastStepTimestampMs > _refractoryPeriodMs) {
         _onStepDetected(nowMs, magnitude);
@@ -184,9 +218,9 @@ class MovementSensorService extends ChangeNotifier {
     _todaySteps++;
     _lastStepTimestampMs = nowMs;
     _activeSeconds += 2;
-    _sedentarySeconds = 0; // Reset sedentary timer on movement
+    _sedentarySeconds = 0; // รีเซตเวลานั่งนิ่งเมื่อเกิดการก้าวเดินจริง
 
-    // Add to sliding window for cadence calculation
+    // Sliding window cadence calculation
     _recentStepTimestamps.add(nowMs);
     _calculateCadence(nowMs);
 
@@ -194,7 +228,7 @@ class MovementSensorService extends ChangeNotifier {
     final currentHour = DateTime.now().hour;
     _hourlySteps[currentHour] = (_hourlySteps[currentHour] ?? 0) + 1;
 
-    // Save periodically
+    // Save steps periodically
     if (_todaySteps % 10 == 0) {
       HealthStorageService.saveStepsForDate(DateTime.now(), _todaySteps);
     }
@@ -202,9 +236,7 @@ class MovementSensorService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Real-time Cadence (Steps per Minute) sliding-window estimator
   void _calculateCadence(int nowMs) {
-    // Clean timestamps older than 8 seconds
     _recentStepTimestamps.removeWhere((ts) => nowMs - ts > 8000);
     if (_recentStepTimestamps.length >= 2) {
       final int dt = _recentStepTimestamps.last - _recentStepTimestamps.first;
@@ -230,7 +262,6 @@ class MovementSensorService extends ChangeNotifier {
     }
   }
 
-  /// Decay motion intensity when idle
   void _startMotionDecayTimer() {
     _decayTimer?.cancel();
     _decayTimer = Timer.periodic(const Duration(milliseconds: 250), (_) {
@@ -248,24 +279,28 @@ class MovementSensorService extends ChangeNotifier {
     });
   }
 
-  /// Timer to update cadence decay and continuous sedentary time
+  /// ตรวจจับการนั่งนิ่งนานเกิน 30 นาที พร้อมกระตุ้นเสียงเตือน "ลุกค่ะ ลุกค่ะ"
   void _startCadenceAndSedentaryTimer() {
     _cadenceAndSedentaryTimer?.cancel();
     _cadenceAndSedentaryTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       final nowMs = DateTime.now().millisecondsSinceEpoch;
-      
-      // Decay cadence if no step in the last 3.5 seconds
+
       if (nowMs - _lastStepTimestampMs > 3500 && _cadenceSpm > 0) {
         _cadenceSpm = 0;
         _recentStepTimestamps.clear();
         notifyListeners();
       }
 
-      // Sedentary counter
       if (_currentActivity == ActivityType.stationary) {
         _sedentarySeconds++;
-        // Notify at key milestones (e.g. at 60 mins)
-        if (_sedentarySeconds % 60 == 0) {
+
+        // ตรวจสอบเงื่อนไข 30 นาที (1,800 วินาที)
+        final thresholdSec = _sedentaryAlertMinutes * 60;
+        if (_sedentarySeconds == thresholdSec || (_sedentarySeconds > thresholdSec && _sedentarySeconds % 300 == 0)) {
+          // กระตุ้นเสียงพูดเตือนภาษาไทย "ลุกค่ะ ลุกค่ะ"
+          VoiceAlertService().playSedentaryVoiceAlert();
+          notifyListeners();
+        } else if (_sedentarySeconds % 60 == 0) {
           notifyListeners();
         }
       } else {
@@ -274,7 +309,86 @@ class MovementSensorService extends ChangeNotifier {
     });
   }
 
-  /// Toggle Live Walking Simulation (Useful for testing & demonstration)
+  /// บันทึกข้อมูลอัตโนมัติทุก 4 ชั่วโมง เพื่อนำข้อมูลมาวิเคราะห์
+  void _startFourHourSnapshotTimer() {
+    _fourHourSnapshotTimer?.cancel();
+    // ตรวจสอบทุก 4 ชั่วโมง (4 * 3600 วินาที)
+    _fourHourSnapshotTimer = Timer.periodic(const Duration(hours: 4), (_) {
+      captureAndSave4HourSnapshot();
+    });
+  }
+
+  /// ถ่ายสแน็ปช็อตข้อมูลรอบ 4 ชั่วโมง และวิเคราะห์ด้วยปัญญาประดิษฐ์
+  Future<HealthIntervalRecord> captureAndSave4HourSnapshot() async {
+    final now = DateTime.now();
+    final intervalSteps = _todaySteps - _stepsAtIntervalStart;
+    final speedMultiplier = _currentActivity == ActivityType.running ? 1.25 : 1.0;
+    final intervalDistance = _profile.calculateDistanceKm(intervalSteps, speedMultiplier);
+    final intervalCalories = (intervalSteps / 1000.0) * (_profile.weightKg * 0.55);
+    final intervalHydration = _profile.calculateHydrationLossMl(intervalSteps, _motionIntensity);
+
+    // รันการวินิจฉัยด้วย Deep Learning Neural Engine
+    final aiInference = DeepHealthAiEngine().analyze4HourInterval(
+      steps4h: intervalSteps,
+      meanCadence: _cadenceSpm > 0 ? _cadenceSpm : 92,
+      sedentaryMinutes: sedentaryMinutes,
+      motionIntensity: _motionIntensity,
+      calories: intervalCalories,
+      hydrationLossMl: intervalHydration,
+    );
+    _latestAiInference = aiInference;
+
+    final record = HealthIntervalRecord(
+      id: 'snap_${now.millisecondsSinceEpoch}',
+      startTime: _currentIntervalStartTime,
+      endTime: now,
+      steps: intervalSteps,
+      distanceKm: intervalDistance,
+      caloriesKcal: intervalCalories,
+      hydrationMl: intervalHydration,
+      meanCadenceSpm: _cadenceSpm > 0 ? _cadenceSpm : 95,
+      maxCadenceSpm: math.max(_cadenceSpm, 120),
+      sedentaryMinutes: sedentaryMinutes,
+      motionIntensity: _motionIntensity,
+      aiDiagnosis: aiInference.statusTitle,
+      aiConfidence: aiInference.confidence,
+    );
+
+    _intervalRecords.insert(0, record);
+    await HealthStorageService.saveIntervalRecord(record);
+
+    // อัปเดตจุดเริ่มของรอบถัดไป
+    _currentIntervalStartTime = now;
+    _stepsAtIntervalStart = _todaySteps;
+
+    notifyListeners();
+    return record;
+  }
+
+  void _runAiIntervalAnalysis() {
+    final ai = DeepHealthAiEngine();
+    _latestAiInference = ai.analyze4HourInterval(
+      steps4h: _todaySteps,
+      meanCadence: _cadenceSpm,
+      sedentaryMinutes: sedentaryMinutes,
+      motionIntensity: _motionIntensity,
+      calories: caloriesKcal,
+      hydrationLossMl: hydrationLostMl,
+    );
+  }
+
+  /// ฝึกสอนโมเดล Deep Learning บนสมาร์ทโฟนด้วยข้อมูลการเคลื่อนไหวจริง
+  Future<DeepTrainingResult> retrainAiModel({int epochs = 15}) async {
+    final result = await DeepHealthAiEngine().trainOnUserKinematics(
+      historicalRecords: _intervalRecords,
+      epochs: epochs,
+    );
+    _runAiIntervalAnalysis();
+    notifyListeners();
+    return result;
+  }
+
+  /// Toggle Live Walking Simulation
   void toggleSimulation() {
     _isSimulating = !_isSimulating;
     _simulationTimer?.cancel();
@@ -282,7 +396,7 @@ class MovementSensorService extends ChangeNotifier {
     if (_isSimulating) {
       _currentActivity = ActivityType.walking;
       _motionIntensity = 0.45;
-      _cadenceSpm = 106; // Target brisk walking rhythm
+      _cadenceSpm = 106;
       _sedentarySeconds = 0;
       _simulationTimer = Timer.periodic(const Duration(milliseconds: 566), (_) {
         final nowMs = DateTime.now().millisecondsSinceEpoch;
@@ -308,10 +422,31 @@ class MovementSensorService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update daily step goal
-  Future<void> updateGoal(int newGoal) async {
-    _dailyGoal = newGoal.clamp(1000, 50000);
+  /// ปรับปรุงเป้าหมายและค่าคอนฟิกทั้งหมด
+  Future<void> updateComprehensiveSettings({
+    required int dailyGoal,
+    required double targetWeightKg,
+    required int targetCalorieDeficit,
+    required int sedentaryAlertMinutes,
+    required int dailyWaterGoalMl,
+    required bool voiceAlertEnabled,
+  }) async {
+    _dailyGoal = dailyGoal.clamp(1000, 50000);
+    _targetWeightKg = targetWeightKg.clamp(30.0, 200.0);
+    _targetCalorieDeficitKcal = targetCalorieDeficit.clamp(100, 2000);
+    _sedentaryAlertMinutes = sedentaryAlertMinutes.clamp(10, 180);
+    _dailyWaterGoalMl = dailyWaterGoalMl.clamp(1000, 5000);
+    _isVoiceAlertEnabled = voiceAlertEnabled;
+
+    VoiceAlertService().setVoiceEnabled(_isVoiceAlertEnabled);
+
     await HealthStorageService.setDailyGoal(_dailyGoal);
+    await HealthStorageService.setTargetWeight(_targetWeightKg);
+    await HealthStorageService.setTargetCalorieDeficit(_targetCalorieDeficitKcal);
+    await HealthStorageService.setSedentaryAlertMinutes(_sedentaryAlertMinutes);
+    await HealthStorageService.setDailyWaterGoal(_dailyWaterGoalMl);
+    await HealthStorageService.setVoiceAlertEnabled(_isVoiceAlertEnabled);
+
     notifyListeners();
   }
 
@@ -333,15 +468,19 @@ class MovementSensorService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reset counter for today
-  void resetSteps() {
+  /// รีเซตข้อมูลทั้งหมดเป็น 0 (Reset All to 0)
+  void resetAllToZero() {
     _todaySteps = 0;
     _activeSeconds = 0;
     _motionIntensity = 0.0;
     _cadenceSpm = 0;
     _sedentarySeconds = 0;
     _currentActivity = ActivityType.stationary;
+    _hourlySteps.clear();
+    _stepsAtIntervalStart = 0;
+    _currentIntervalStartTime = DateTime.now();
     HealthStorageService.saveStepsForDate(DateTime.now(), 0);
+    _runAiIntervalAnalysis();
     notifyListeners();
   }
 
@@ -351,6 +490,7 @@ class MovementSensorService extends ChangeNotifier {
     _simulationTimer?.cancel();
     _decayTimer?.cancel();
     _cadenceAndSedentaryTimer?.cancel();
+    _fourHourSnapshotTimer?.cancel();
     super.dispose();
   }
 }
