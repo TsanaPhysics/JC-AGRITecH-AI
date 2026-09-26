@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../services/camera_service.dart';
 import '../../services/object_detection_service.dart';
@@ -10,6 +12,7 @@ import '../widgets/category_filter_chips.dart';
 import '../widgets/detected_objects_summary_list.dart';
 import '../widgets/detection_control_sheet.dart';
 import '../widgets/detection_hud_overlay.dart';
+import '../widgets/image_analysis_modal.dart';
 
 class LiveDetectorScreen extends StatefulWidget {
   const LiveDetectorScreen({super.key});
@@ -19,8 +22,9 @@ class LiveDetectorScreen extends StatefulWidget {
 }
 
 class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBindingObserver {
-  Timer? _simulationTimer;
   bool _isPaused = false;
+  bool _isAnalyzingSnapshot = false;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -40,45 +44,26 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
     await cameraService.initialize();
 
     if (cameraService.isInitialized) {
-      // Start live streaming
       cameraService.startImageStream((CameraImage image) {
-        if (!_isPaused) {
-          detector.processFrame(
-            imageWidth: image.width,
-            imageHeight: image.height,
-          );
+        if (!_isPaused && mounted) {
+          detector.processCameraImage(image);
         }
       });
     }
-    // Run continuous high-speed vision processing loop
-    _startVisionLoop();
-  }
-
-  void _startVisionLoop() {
-    _simulationTimer?.cancel();
-    _simulationTimer = Timer.periodic(const Duration(milliseconds: 300), (_) {
-      if (!_isPaused && mounted) {
-        context.read<ObjectDetectionService>().processFrame(
-          imageWidth: 640,
-          imageHeight: 480,
-        );
-      }
-    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final cameraService = context.read<CameraService>();
-    if (state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
       cameraService.stopImageStream();
     } else if (state == AppLifecycleState.resumed && !_isPaused) {
       if (cameraService.isInitialized) {
         cameraService.startImageStream((image) {
-          if (!_isPaused) {
-            context.read<ObjectDetectionService>().processFrame(
-              imageWidth: image.width,
-              imageHeight: image.height,
-            );
+          if (!_isPaused && mounted) {
+            context.read<ObjectDetectionService>().processCameraImage(image);
           }
         });
       }
@@ -89,21 +74,16 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
     setState(() {
       _isPaused = !_isPaused;
     });
-    if (_isPaused) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('พักการตรวจจับเรียลไทม์ (Detection Paused)'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('เริ่มการตรวจจับต่อเนื่อง (Detection Resumed)'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    }
+    final snackText = _isPaused
+        ? 'พักการตรวจจับเรียลไทม์ (Live Detection Paused)'
+        : 'เริ่มการตรวจจับต่อเนื่อง (Live Detection Resumed)';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(snackText),
+        duration: const Duration(milliseconds: 900),
+        backgroundColor: AppTheme.surfaceElevated,
+      ),
+    );
   }
 
   void _openSettings() {
@@ -115,7 +95,129 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
     );
   }
 
-  void _showSnapshotDialog() {
+  /// Capture still snapshot from camera or take picture
+  Future<void> _captureAndAnalyze() async {
+    final cameraService = context.read<CameraService>();
+    final detector = context.read<ObjectDetectionService>();
+
+    setState(() => _isAnalyzingSnapshot = true);
+
+    try {
+      if (cameraService.isInitialized) {
+        final photo = await cameraService.takePicture();
+        if (photo != null) {
+          final bytes = await photo.readAsBytes();
+          final results = await detector.processImageBytes(bytes);
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (_) => ImageAnalysisModal(
+                imageBytes: bytes,
+                objects: results,
+                inferenceTimeMs: detector.lastInferenceTimeMs,
+              ),
+            );
+          }
+        }
+      } else {
+        // Fallback: Pick or take picture with system picker
+        final photo = await _imagePicker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 1280,
+          maxHeight: 1280,
+        );
+        if (photo != null) {
+          final bytes = await photo.readAsBytes();
+          final results = await detector.processImageBytes(bytes);
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (_) => ImageAnalysisModal(
+                imageBytes: bytes,
+                objects: results,
+                inferenceTimeMs: detector.lastInferenceTimeMs,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ข้อผิดพลาดการถ่ายภาพ: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isAnalyzingSnapshot = false);
+    }
+  }
+
+  /// Pick image from gallery and run detection
+  Future<void> _pickImageFromGallery() async {
+    final detector = context.read<ObjectDetectionService>();
+    setState(() => _isAnalyzingSnapshot = true);
+
+    try {
+      final photo = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1280,
+        maxHeight: 1280,
+      );
+
+      if (photo != null) {
+        final bytes = await photo.readAsBytes();
+        final results = await detector.processImageBytes(bytes);
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (_) => ImageAnalysisModal(
+              imageBytes: bytes,
+              objects: results,
+              inferenceTimeMs: detector.lastInferenceTimeMs,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ไม่สามารถเปิดคลังภาพได้: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isAnalyzingSnapshot = false);
+    }
+  }
+
+  /// Test analysis on sample scene
+  Future<void> _testSampleScene(String sceneName) async {
+    final detector = context.read<ObjectDetectionService>();
+    setState(() => _isAnalyzingSnapshot = true);
+
+    try {
+      // Use master icon as high-contrast test target
+      final byteData = await rootBundle.load('assets/icons/app_icon.png');
+      final bytes = byteData.buffer.asUint8List();
+      final results = await detector.processImageBytes(bytes);
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => ImageAnalysisModal(
+            imageBytes: bytes,
+            objects: results,
+            inferenceTimeMs: detector.lastInferenceTimeMs,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('[!] Sample scene error: $e');
+    } finally {
+      if (mounted) setState(() => _isAnalyzingSnapshot = false);
+    }
+  }
+
+  void _showDetectionHistoryDialog() {
     final detector = context.read<ObjectDetectionService>();
     final objects = detector.currentDetections;
 
@@ -129,10 +231,10 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
         ),
         title: const Row(
           children: [
-            Icon(Icons.check_circle_outline, color: AppTheme.accentGreen, size: 24),
+            Icon(Icons.view_in_ar, color: AppTheme.accentGreen, size: 24),
             SizedBox(width: 8),
             Text(
-              'บันทึกผลการตรวจจับ (Snapshot)',
+              'รายการวัตถุที่กำลังตรวจจับ',
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
@@ -142,33 +244,39 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ตรวจพบวัตถุทั้งหมด ${objects.length} รายการพร้อมกัน',
+              'ตรวจพบขณะนี้ทั้งหมด ${objects.length} รายการ',
               style: const TextStyle(color: AppTheme.primaryCyan, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            ...objects.map((obj) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(color: obj.color, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${obj.labelTh} (${obj.labelEn})',
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+            if (objects.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('ยังไม่พบวัตถุ เล็งกล้องไปที่วัตถุรอบตัว', style: TextStyle(color: Colors.white54)),
+              )
+            else
+              ...objects.map((obj) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(color: obj.color, shape: BoxShape.circle),
                     ),
-                  ),
-                  Text(
-                    obj.confidencePercent,
-                    style: TextStyle(color: obj.confidenceColor, fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                ],
-              ),
-            )),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${obj.labelTh} (${obj.labelEn})',
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
+                    Text(
+                      obj.confidencePercent,
+                      style: TextStyle(color: obj.confidenceColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+              )),
           ],
         ),
         actions: [
@@ -184,7 +292,7 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _simulationTimer?.cancel();
+    CameraService().stopImageStream();
     super.dispose();
   }
 
@@ -199,7 +307,7 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Camera Viewfinder or Fallback Live Stream Simulator
+          // 1. Camera Viewfinder or Fallback Live Vision Background
           _buildCameraView(camera, screenSize),
 
           // 2. Real-Time Multi-Object Bounding Boxes Overlay
@@ -224,13 +332,54 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
               children: [
                 DetectionHudOverlay(
                   onOpenSettings: _openSettings,
-                  onOpenHistory: _showSnapshotDialog,
+                  onOpenHistory: _showDetectionHistoryDialog,
                 ),
                 const SizedBox(height: 4),
                 const CategoryFilterChips(),
               ],
             ),
           ),
+
+          // 4. Sample Test Scenes Quick Bar (When camera is offline / on simulator)
+          if (!camera.isInitialized)
+            Positioned(
+              top: 155,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xCC0F172A),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.primaryCyan.withValues(alpha: 0.5)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.science_outlined, color: AppTheme.primaryCyan, size: 18),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'ทดสอบตรวจจับวัตถุด้วยภาพตัวอย่าง:',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _testSampleScene('Test'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryCyan,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'วิเคราะห์ภาพทันที',
+                        style: TextStyle(color: Colors.black87, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // 5. Bottom Detection Summary and Action Buttons
           Positioned(
@@ -252,18 +401,18 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Pause / Resume Stream
+                        // Gallery Image Picker Button
                         FloatingActionButton.small(
-                          heroTag: 'pause_btn',
-                          onPressed: _togglePause,
-                          backgroundColor: _isPaused ? AppTheme.accentAmber : const Color(0xDD1E293B),
-                          foregroundColor: _isPaused ? Colors.black : Colors.white,
-                          child: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
+                          heroTag: 'gallery_btn',
+                          onPressed: _pickImageFromGallery,
+                          backgroundColor: const Color(0xDD1E293B),
+                          foregroundColor: AppTheme.primaryCyan,
+                          child: const Icon(Icons.photo_library),
                         ),
 
                         // Center Shutter Snapshot Button
                         GestureDetector(
-                          onTap: _showSnapshotDialog,
+                          onTap: _isAnalyzingSnapshot ? null : _captureAndAnalyze,
                           child: Container(
                             width: 68,
                             height: 68,
@@ -283,19 +432,28 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
                               ],
                               border: Border.all(color: Colors.white, width: 3.5),
                             ),
-                            child: const Center(
-                              child: Icon(Icons.camera_alt, color: Colors.black87, size: 30),
+                            child: Center(
+                              child: _isAnalyzingSnapshot
+                                  ? const SizedBox(
+                                      width: 26,
+                                      height: 26,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.black87,
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Icon(Icons.camera_alt, color: Colors.black87, size: 30),
                             ),
                           ),
                         ),
 
-                        // Quick Settings Drawer
+                        // Pause / Resume Stream
                         FloatingActionButton.small(
-                          heroTag: 'settings_btn',
-                          onPressed: _openSettings,
-                          backgroundColor: const Color(0xDD1E293B),
-                          foregroundColor: AppTheme.primaryCyan,
-                          child: const Icon(Icons.tune),
+                          heroTag: 'pause_btn',
+                          onPressed: _togglePause,
+                          backgroundColor: _isPaused ? AppTheme.accentAmber : const Color(0xDD1E293B),
+                          foregroundColor: _isPaused ? Colors.black : Colors.white,
+                          child: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
                         ),
                       ],
                     ),
@@ -347,26 +505,34 @@ class _LiveDetectorScreenState extends State<LiveDetectorScreen> with WidgetsBin
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.videocam_outlined,
-                  size: 48,
-                  color: AppTheme.primaryCyan.withValues(alpha: 0.6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/icons/app_icon.png',
+                    width: 72,
+                    height: 72,
+                    errorBuilder: (_, __, ___) => Icon(
+                      Icons.videocam_outlined,
+                      size: 48,
+                      color: AppTheme.primaryCyan.withValues(alpha: 0.6),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 const Text(
-                  'Edge Vision Multi-Object Real-Time Active',
+                  'Real-Time Multi-Object AI Detector Active',
                   style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                    color: Colors.white,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 const Text(
-                  'ตรวจจับและจำแนกตำแหน่งวัตถุในระบบเรียลไทม์',
+                  'พร้อมตรวจวิเคราะห์กล้องสดและภาพถ่าย (TFLite MobileNet)',
                   style: TextStyle(
-                    color: Colors.white38,
+                    color: Colors.white60,
                     fontSize: 12,
                   ),
                 ),

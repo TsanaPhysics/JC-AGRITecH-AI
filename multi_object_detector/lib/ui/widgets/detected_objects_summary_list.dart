@@ -61,17 +61,21 @@ class DetectedObjectsSummaryList extends StatelessWidget {
             children: [
               const Icon(Icons.analytics_outlined, color: AppTheme.primaryCyan, size: 16),
               const SizedBox(width: 6),
-              Text(
-                'รายการวัตถุที่ตรวจพบพร้อมกัน (${objects.length})',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'วัตถุที่ตรวจพบ (${objects.length})',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               const Text(
-                'ความเชื่อมั่น (Confidence)',
+                'ความเชื่อมั่น',
                 style: TextStyle(color: Colors.white54, fontSize: 11),
               ),
             ],

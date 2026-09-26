@@ -33,7 +33,7 @@ class DetectionHudOverlay extends StatelessWidget {
                 // Brand / Title Badge
                 Flexible(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xDD0B1220),
                       borderRadius: BorderRadius.circular(12),
@@ -51,16 +51,24 @@ class DetectionHudOverlay extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.accentGreen,
-                            shape: BoxShape.circle,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.asset(
+                            'assets/icons/app_icon.png',
+                            width: 22,
+                            height: 22,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: AppTheme.accentGreen,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(width: 6),
-                        Flexible(
+                        const SizedBox(width: 8),
+                        const Flexible(
                           child: Text(
                             'MULTI-OBJECT AI',
                             maxLines: 1,

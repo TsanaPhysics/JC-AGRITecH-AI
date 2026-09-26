@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 enum ObjectCategoryGroup {
@@ -64,22 +65,44 @@ class DetectedObject {
     return const Color(0xFFFF5252);
   }
 
-  /// Convert normalized rect into actual screen pixel Rect
+  /// Convert normalized rect into actual screen pixel Rect with BoxFit.cover alignment
   Rect toScreenRect({
     required Size screenSize,
     required Size imageSize,
     bool isRotated = false,
   }) {
-    // Standard aspect-fit/cover scaling
-    final double scaleX = screenSize.width;
-    final double scaleY = screenSize.height;
+    // When preview is rendered with BoxFit.cover:
+    double camW = imageSize.width;
+    double camH = imageSize.height;
 
-    final double left = (normalizedRect.left * scaleX).clamp(0.0, screenSize.width);
-    final double top = (normalizedRect.top * scaleY).clamp(0.0, screenSize.height);
-    final double width = (normalizedRect.width * scaleX).clamp(0.0, screenSize.width - left);
-    final double height = (normalizedRect.height * scaleY).clamp(0.0, screenSize.height - top);
+    // Normalize orientation: portrait width is smaller than height
+    if (camW > camH) {
+      final tmp = camW;
+      camW = camH;
+      camH = tmp;
+    }
 
-    return Rect.fromLTWH(left, top, width, height);
+    if (camW <= 0 || camH <= 0 || screenSize.width <= 0 || screenSize.height <= 0) {
+      return Rect.fromLTWH(
+        normalizedRect.left * screenSize.width,
+        normalizedRect.top * screenSize.height,
+        normalizedRect.width * screenSize.width,
+        normalizedRect.height * screenSize.height,
+      );
+    }
+
+    final double scale = math.max(screenSize.width / camW, screenSize.height / camH);
+    final double fittedW = camW * scale;
+    final double fittedH = camH * scale;
+    final double offsetX = (screenSize.width - fittedW) / 2.0;
+    final double offsetY = (screenSize.height - fittedH) / 2.0;
+
+    final double screenLeft = offsetX + normalizedRect.left * fittedW;
+    final double screenTop = offsetY + normalizedRect.top * fittedH;
+    final double screenWidth = normalizedRect.width * fittedW;
+    final double screenHeight = normalizedRect.height * fittedH;
+
+    return Rect.fromLTWH(screenLeft, screenTop, screenWidth, screenHeight);
   }
 
   Map<String, dynamic> toJson() => {

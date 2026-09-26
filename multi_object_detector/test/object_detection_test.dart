@@ -23,7 +23,7 @@ void main() {
 
       final screenRect = objHigh.toScreenRect(
         screenSize: const Size(400, 800),
-        imageSize: const Size(640, 480),
+        imageSize: const Size(400, 800),
       );
 
       expect(screenRect.left, equals(40.0));

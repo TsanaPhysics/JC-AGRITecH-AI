@@ -103,12 +103,13 @@ class BoundingBoxPainter extends CustomPainter {
     final double pillWidth = textPainter.width + (hPadding * 2);
     final double pillHeight = textPainter.height + (vPadding * 2);
 
-    // Position above bounding box, or inside if near top edge
+    // Position above bounding box, or inside if near top HUD
     double pillTop = rect.top - pillHeight - 4;
-    if (pillTop < 4) {
-      pillTop = rect.top + 4;
+    if (pillTop < 100) {
+      pillTop = (rect.top + 6).clamp(100.0, screenSize.height - pillHeight - 140.0);
     }
-    final double pillLeft = rect.left.clamp(4.0, screenSize.width - pillWidth - 4);
+    final double maxLeft = screenSize.width > (pillWidth + 8) ? screenSize.width - pillWidth - 8 : 4.0;
+    final double pillLeft = rect.left.clamp(4.0, maxLeft);
 
     final pillRect = Rect.fromLTWH(pillLeft, pillTop, pillWidth, pillHeight);
 

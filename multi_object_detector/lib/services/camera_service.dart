@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,6 +15,7 @@ class CameraService extends ChangeNotifier {
   bool _isStreaming = false;
   bool _isInitialized = false;
   String? _errorMessage;
+  Function(CameraImage image)? _streamCallback;
 
   // Stream controller for passing raw frame metadata
   final StreamController<CameraImage> _imageStreamController = StreamController<CameraImage>.broadcast();
@@ -56,11 +58,16 @@ class CameraService extends ChangeNotifier {
   Future<void> _setupController(CameraDescription camera) async {
     await _controller?.dispose();
 
+    // Select suitable format: iOS prefers BGRA8888, Android prefers YUV420
+    final imageFormat = !kIsWeb && Platform.isIOS 
+        ? ImageFormatGroup.bgra8888 
+        : ImageFormatGroup.yuv420;
+
     _controller = CameraController(
       camera,
-      ResolutionPreset.high,
+      ResolutionPreset.medium,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: imageFormat,
     );
 
     try {
@@ -77,8 +84,20 @@ class CameraService extends ChangeNotifier {
   Future<void> switchCamera() async {
     if (_cameras.length <= 1) return;
 
+    final wasStreaming = _isStreaming;
+    final callback = _streamCallback;
+
+    if (wasStreaming) {
+      await stopImageStream();
+    }
+
     _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras.length;
     await _setupController(_cameras[_selectedCameraIndex]);
+
+    if (wasStreaming && callback != null && _controller != null && _controller!.value.isInitialized) {
+      await startImageStream(callback);
+    }
+
     notifyListeners();
   }
 
@@ -100,10 +119,41 @@ class CameraService extends ChangeNotifier {
     }
   }
 
+  /// Capture still photo for high-accuracy object detection
+  Future<XFile?> takePicture() async {
+    if (_controller == null || !_controller!.value.isInitialized) return null;
+
+    try {
+      final wasStreaming = _isStreaming;
+      final callback = _streamCallback;
+
+      if (wasStreaming) {
+        await _controller!.stopImageStream();
+        _isStreaming = false;
+      }
+
+      final file = await _controller!.takePicture();
+
+      if (wasStreaming && callback != null) {
+        await _controller!.startImageStream((CameraImage image) {
+          _imageStreamController.add(image);
+          callback(image);
+        });
+        _isStreaming = true;
+      }
+
+      return file;
+    } catch (e) {
+      debugPrint('[!] Failed to capture photo: $e');
+      return null;
+    }
+  }
+
   /// Start streaming camera frames to detector
   Future<void> startImageStream(Function(CameraImage image) onImage) async {
     if (_controller == null || !_controller!.value.isInitialized || _isStreaming) return;
 
+    _streamCallback = onImage;
     try {
       await _controller!.startImageStream((CameraImage image) {
         _imageStreamController.add(image);

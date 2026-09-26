@@ -33,7 +33,7 @@ class DurianCameraScreen extends StatefulWidget {
   State<DurianCameraScreen> createState() => _DurianCameraScreenState();
 }
 
-class _DurianCameraScreenState extends State<DurianCameraScreen> {
+class _DurianCameraScreenState extends State<DurianCameraScreen> with WidgetsBindingObserver {
   // Camera & Device State
   CameraController? _cameraController;
   List<CameraDescription> _cameras = [];
@@ -92,6 +92,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initCamera();
     _initLocation();
     _refreshDatasetCount();
@@ -111,7 +112,32 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final cameraController = _cameraController;
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      _stopImageStream();
+      cameraController.dispose();
+      _cameraController = null;
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = false;
+        });
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      if (_cameras.isNotEmpty) {
+        _setupCameraController(_cameras[_selectedCameraIndex]);
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _isStreamActive = false;
     _stopImageStream();
     _recordingTimer?.cancel();
     _streamSimulationTimer?.cancel();
@@ -206,6 +232,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> {
   }
 
   void _processLiveCameraFrame(CameraImage image) {
+    if (!mounted || !_isStreamActive || _cameraController == null || !_cameraController!.value.isInitialized) return;
     if (_isProcessingFrame) return;
     final now = DateTime.now();
     // Throttle inference to every ~120ms — fast enough to show real-time color changes
