@@ -429,8 +429,8 @@ static void drawDetailHeader(const char *th_title, const char *en_title, const c
 }
 
 // ============================================================================
-// SPLASH SCREEN - LEQs AgriSci xAI: Neural Plant Nexus (Option 2)
-// ระบบเกษตรอัจฉริยะและการเรียนรู้เชิงลึก (Deep Learning + Living Plant + Precision Sensors)
+// SPLASH SCREEN - LEQs-AgriEnvi-xAI: Neural Plant Nexus (Option 2)
+// ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม (Deep Learning + Living Plant + Precision Sensors)
 // ============================================================================
 static void drawSplashScreen() {
     const int cx = 240;
@@ -611,19 +611,19 @@ static void drawSplashScreen() {
     delay(80);
 
     // ─────────────────────────────────────────────────────────────
-    // Phase 5: Branding - "LEQs AgriSci xAI"
+    // Phase 5: Branding - "LEQs-AgriEnvi-xAI"
     // ─────────────────────────────────────────────────────────────
     lcd.setTextDatum(textdatum_t::middle_center);
     
     // Glowing shadow layers for 3D neon presence
     lcd.setTextColor(0x01A6, SBGC);
-    lcd.drawString("LEQs AgriSci xAI", cx + 2, 147, &fonts::Font4);
-    lcd.drawString("LEQs AgriSci xAI", cx - 1, 145, &fonts::Font4);
+    lcd.drawString("LEQs-AgriEnvi-xAI", cx + 2, 147, &fonts::Font4);
+    lcd.drawString("LEQs-AgriEnvi-xAI", cx - 1, 145, &fonts::Font4);
     
     // Crisp face with dual-color accents
     lcd.setTextDatum(textdatum_t::middle_right);
     lcd.setTextColor(0x07FF, SBGC);
-    lcd.drawString("LEQs AgriSci ", cx + 24, 146, &fonts::Font4);
+    lcd.drawString("LEQs-AgriEnvi-", cx + 24, 146, &fonts::Font4);
     lcd.setTextDatum(textdatum_t::middle_left);
     lcd.setTextColor(0x07E0, SBGC);
     lcd.drawString("xAI", cx + 24, 146, &fonts::Font4);
@@ -635,11 +635,11 @@ static void drawSplashScreen() {
     lcd.loadFont(thai_font_vlw);
     lcd.setTextDatum(textdatum_t::middle_center);
     
-    // Subtitle in Thai: "ระบบเกษตรอัจฉริยะและการเรียนรู้เชิงลึก"
+    // Subtitle in Thai: "ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม"
     lcd.setTextColor(0x0182, SBGC);
-    lcd.drawString("ระบบเกษตรอัจฉริยะและการเรียนรู้เชิงลึก", cx + 1, 177); // shadow
+    lcd.drawString("ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม", cx + 1, 177); // shadow
     lcd.setTextColor(0xFFFF, SBGC);
-    lcd.drawString("ระบบเกษตรอัจฉริยะและการเรียนรู้เชิงลึก", cx, 176);     // crisp white
+    lcd.drawString("ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม", cx, 176);     // crisp white
     delay(80);
 
     // Tech Pillars: "Digital | IoT | Smart Farm | Edge AI"
@@ -699,7 +699,7 @@ void DisplayManager_init() {
     // โหลดฟอนต์ไทยก่อนแสดง splash (ใช้สำหรับชื่อผู้พัฒนา)
     lcd.loadFont(thai_font_vlw);
 
-    // แสดง splash screen LEQs AgriSci xAI
+    // แสดง splash screen LEQs-AgriEnvi-xAI
     drawSplashScreen();
 
     // เคลียร์ splash → เตรียมหน้าภาพรวม
@@ -724,7 +724,7 @@ void DisplayManager_init() {
 }
 
 // ============================================================================
-// แถบหัวด้านบนสำหรับหน้าภาพรวม (LEQs AgriSci xAI Branding + Wi-Fi Status + ปุ่มภาษา)
+// แถบหัวด้านบนสำหรับหน้าภาพรวม (LEQs-AgriEnvi-xAI Branding + Wi-Fi Status + ปุ่มภาษา)
 // ============================================================================
 static void drawOverviewTopHeader() {
     // พื้นหลังแถบ Header ดำออบซิเดียนหรู ไร้เส้นรบกวนตา
@@ -738,7 +738,7 @@ static void drawOverviewTopHeader() {
     lcd.fillCircle(jx + 13, jy + 13, 2, 0x07E0);
 
     // ========================================================================
-    // ข้อความ "LEQs AgriSci xAI" หลายสีสัน ทันสมัย โดเด่น (Cyber Tech Branding)
+    // ข้อความ "LEQs-AgriEnvi-xAI" หลายสีสัน ทันสมัย โดเด่น (Cyber Tech Branding)
     // ========================================================================
     lcd.loadFont(thai_font_vlw);
     lcd.setTextDatum(textdatum_t::middle_left);
@@ -748,17 +748,22 @@ static void drawOverviewTopHeader() {
     // "LEQs": ฟ้าไซแอนนีออน (Electric Cyan 0x07FF)
     lcd.setTextColor(0x07FF, 0x0862);
     lcd.drawString("LEQs", brandX, brandY);
-    brandX += lcd.textWidth("LEQs") + 3;
+    brandX += lcd.textWidth("LEQs") + 1;
+
+    // "-": เทาสเตนเลส (0x9CF3)
+    lcd.setTextColor(0x9CF3, 0x0862);
+    lcd.drawString("-", brandX, brandY);
+    brandX += lcd.textWidth("-") + 1;
 
     // "Agri": เขียวมรกตนีออน (Neon Emerald 0x07E0)
     lcd.setTextColor(0x07E0, 0x0862);
     lcd.drawString("Agri", brandX, brandY);
     brandX += lcd.textWidth("Agri");
 
-    // "Sci": ทองนีออน (Solar Amber Gold 0xFFE0)
+    // "Envi": ทองนีออน (Solar Amber Gold 0xFFE0)
     lcd.setTextColor(0xFFE0, 0x0862);
-    lcd.drawString("Sci", brandX, brandY);
-    brandX += lcd.textWidth("Sci") + 5;
+    lcd.drawString("Envi", brandX, brandY);
+    brandX += lcd.textWidth("Envi") + 4;
 
     // "xAI": แคปซูลไซเบอร์ม่วงมาเจนต้านีออนเรืองแสง (Cyber Violet Pill Badge)
     int aiW = 28, aiH = 18;
@@ -2560,7 +2565,7 @@ static void drawPageWiFiSetup() {
 
         lcd.setTextColor(COLOR_TEXT_VAL, COLOR_CARD_BG);
         lcd.drawString(L_STR("1. สแกน QR Code ด้านซ้ายด้วยมือถือ", "1. Scan QR Code on left with phone", "1. 使用手机扫描左侧二维码"), 206, 92);
-        lcd.drawString(L_STR("2. หรือต่อ Wi-Fi: LEQs-AgriSci-Setup", "2. Or connect to: LEQs-AgriSci-Setup", "2. 或连接 Wi-Fi: LEQs-AgriSci-Setup"), 206, 114);
+        lcd.drawString(L_STR("2. หรือต่อ Wi-Fi: LEQs-AgriEnvi-Setup", "2. Or connect to: LEQs-AgriEnvi-Setup", "2. 或连接 Wi-Fi: LEQs-AgriEnvi-Setup"), 206, 114);
         lcd.drawString(L_STR("3. เปิดเบราว์เซอร์: 192.168.4.1", "3. Open browser: 192.168.4.1", "3. 浏览器访问: 192.168.4.1"), 206, 136);
         lcd.drawString(L_STR("4. เลือก Wi-Fi และใส่รหัสผ่าน", "4. Select Wi-Fi & enter password", "4. 选择您的 Wi-Fi 并输入密码"), 206, 158);
         lcd.setTextColor(COLOR_YELLOW, COLOR_CARD_BG);

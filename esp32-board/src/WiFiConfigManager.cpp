@@ -66,7 +66,7 @@ static String buildHtmlPage() {
     String html = "<!DOCTYPE html><html><head>";
     html += "<meta charset='utf-8'>";
     html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-    html += "<title>LEQs AgriSci xAI Wi-Fi Setup</title>";
+    html += "<title>LEQs-AgriEnvi-xAI Wi-Fi Setup</title>";
     html += "<style>";
     html += "body{font-family:sans-serif;background:#0b1120;color:#f8fafc;margin:0;padding:20px;}";
     html += ".card{max-width:400px;margin:20px auto;background:#1e293b;padding:24px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid #334155;}";
@@ -78,8 +78,8 @@ static String buildHtmlPage() {
     html += ".badge{display:inline-block;padding:4px 10px;border-radius:20px;background:#0284c7;color:#fff;font-size:12px;font-weight:bold;}";
     html += "</style></head><body>";
     html += "<div class='card'>";
-    html += "<h2>🌿 LEQs AgriSci xAI</h2>";
-    html += "<p><span class='badge'>ATD3.5-S3 Smart Farm</span><br>ตั้งค่าเชื่อมต่อ Wi-Fi สำหรับแปลงเกษตร</p>";
+    html += "<h2>🌿 LEQs-AgriEnvi-xAI</h2>";
+    html += "<p><span class='badge'>ATD3.5-S3 Smart Farm</span><br>ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม</p>";
     html += "<form action='/save' method='POST'>";
     html += "<label for='ssid_select'>เลือกเครือข่าย Wi-Fi 2.4GHz:</label>";
     html += "<select id='ssid_select' name='ssid_select' onchange=\"if(this.value!='__custom__'){document.getElementById('ssid').value=this.value;}\">";
@@ -135,11 +135,11 @@ bool WiFiConfigManager_isPortalActive() {
 void WiFiConfigManager_startPortal() {
     if (portalActive) return;
 
-    Serial.println("\n[WiFiConfig] Starting SoftAP Captive Portal: 'LEQs-AgriSci-Setup'...");
+    Serial.println("\n[WiFiConfig] Starting SoftAP Captive Portal: 'LEQs-AgriEnvi-Setup'...");
 
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAPConfig(apIP, apIP, netMsk);
-    WiFi.softAP("LEQs-AgriSci-Setup", ""); // Open AP ไม่มีรหัสผ่านเพื่อให้เกษตรกรเชื่อมต่อง่ายที่สุด
+    WiFi.softAP("LEQs-AgriEnvi-Setup", ""); // Open AP ไม่มีรหัสผ่านเพื่อให้เกษตรกรเชื่อมต่อง่ายที่สุด
 
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
     dnsServer.start(DNS_PORT, "*", apIP);
@@ -150,7 +150,7 @@ void WiFiConfigManager_startPortal() {
     server.begin();
 
     portalActive = true;
-    Serial.printf("[WiFiConfig] SoftAP is READY! IP: %s (Connect to 'LEQs-AgriSci-Setup')\n", apIP.toString().c_str());
+    Serial.printf("[WiFiConfig] SoftAP is READY! IP: %s (Connect to 'LEQs-AgriEnvi-Setup')\n", apIP.toString().c_str());
 }
 
 void WiFiConfigManager_stopPortal() {
