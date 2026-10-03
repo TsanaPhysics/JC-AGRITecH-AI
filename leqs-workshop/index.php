@@ -996,7 +996,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                 
                 <!-- CARD 1: Smartphone App Platform -->
-                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500">
+                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500 bg-white">
                     <div class="space-y-5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -1004,52 +1004,52 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                                     <i class="fa-solid fa-mobile-screen text-xl"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest font-mono">Mobile Platform</span>
+                                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest font-mono">Mobile Web Application</span>
                                     <h3 class="text-2xl font-heading font-bold text-gray-900">Smartphone Mobile App</h3>
                                 </div>
                             </div>
-                            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200">
-                                iOS &amp; Android
+                            <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 flex items-center gap-1.5 font-mono">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Wi-Fi Live
                             </span>
                         </div>
 
-                        <!-- Mobile Preview Image -->
-                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group">
-                            <img src="assets/images/pixar_track_f.jpg" alt="Smartphone App UI" class="w-full h-56 object-cover object-center transform group-hover:scale-105 transition duration-700">
+                        <!-- Mobile Preview Image (Sleek Real UI Mockup) -->
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group cursor-pointer" onclick="window.open('mobile/index.php', '_blank')">
+                            <img src="assets/images/real_mobile_app_preview.jpg" alt="Real Smartphone App for ESP32-S3 ATD3.5" class="w-full h-60 object-cover object-center transform group-hover:scale-105 transition duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                             <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
-                                <span class="font-bold flex items-center gap-1.5 text-indigo-300">
-                                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Flutter Cross-Platform Ready
+                                <span class="font-bold flex items-center gap-1.5 text-emerald-300">
+                                    <i class="fa-solid fa-wifi text-emerald-400"></i> ESP32-S3 ATD3.5 Wi-Fi Connected
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-300 bg-white/10 px-2 py-0.5 rounded backdrop-blur-sm">Touch-Optimized</span>
+                                <span class="text-[10px] font-mono text-cyan-300 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-cyan-500/30">PWA Touch Ready</span>
                             </div>
                         </div>
 
                         <!-- Key Features -->
                         <ul class="space-y-3 text-xs md:text-sm text-gray-600">
                             <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
-                                <span><strong>Pocket Telemetry:</strong> มอนิเตอร์อุณหภูมิ ความชื้น แสง และธาตุอาหารดิน NPK/pH ได้ทุกที่จากกระเป๋ากางเกง</span>
+                                <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                                <span><strong>Direct Wi-Fi Telemetry:</strong> รับส่งข้อมูลสดกับบอร์ด ESP32-S3 (อุณหภูมิ, ความชื้น, แสง, ดิน 7-in-1, VPD)</span>
                             </li>
                             <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
-                                <span><strong>One-Touch Relay Switch:</strong> ปุ่มกดเปิด-ปิดโซลินอยด์วาล์ว ปั๊มน้ำ และระบบพ่นหมอกแบบเรียลไทม์</span>
+                                <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                                <span><strong>Instant Relay Control:</strong> กดเปิด-ปิดวาล์วน้ำโซลินอยด์ ปั๊มปุ๋ย และพ่นหมอกแบบเรียลไทม์ผ่านมือถือ</span>
                             </li>
                             <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
-                                <span><strong>Push Notification Alerts:</strong> แจ้งเตือนเข้าสมาร์ทโฟนทันทีเมื่อเซนเซอร์ตรวจพบสภาวะวิกฤต</span>
+                                <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                                <span><strong>On-Device Camera Vision:</strong> สั่งจับภาพและวิเคราะห์โรคใบพืชผ่านกล้อง OV2640 บนบอร์ดได้ทันที</span>
                             </li>
                             <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
-                                <span><strong>Bluetooth Low Energy (BLE) Provisioning:</strong> สแกนและเชื่อมต่อบอร์ดเพื่อตั้งค่าเครือข่าย Wi-Fi อย่างง่ายดาย</span>
+                                <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                                <span><strong>Wi-Fi Config &amp; AP Pairing:</strong> รองรับการระบุ IP Address บอร์ด และเชื่อมต่อเครือข่าย Wi-Fi อย่างอิสระ</span>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Action Button -->
                     <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
-                        <a href="http://localhost/cmu_aiot/mobile/" target="_blank" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
-                            <i class="fa-solid fa-mobile-screen-button"></i> เปิดทดสอบ Smartphone App
+                        <a href="mobile/index.php" target="_blank" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-mobile-screen-button"></i> เปิดใช้งาน Smartphone App จริง
                             <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                         </a>
                         <a href="#relay-console" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5">
@@ -1059,7 +1059,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                 </div>
 
                 <!-- CARD 2: Interactive Web Dashboard Platform -->
-                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500">
+                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500 bg-white">
                     <div class="space-y-5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -1067,24 +1067,24 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                                     <i class="fa-solid fa-desktop text-xl"></i>
                                 </div>
                                 <div>
-                                    <span class="text-xs font-bold text-cyan-600 uppercase tracking-widest font-mono">Web Platform</span>
+                                    <span class="text-xs font-bold text-cyan-600 uppercase tracking-widest font-mono">Interactive Web Dashboard</span>
                                     <h3 class="text-2xl font-heading font-bold text-gray-900">Interactive Web Dashboard</h3>
                                 </div>
                             </div>
-                            <span class="px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 text-xs font-bold border border-cyan-200">
-                                Desktop &amp; Tablet
+                            <span class="px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 text-xs font-bold border border-cyan-200 flex items-center gap-1.5 font-mono">
+                                <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span> Real-time Hub
                             </span>
                         </div>
 
-                        <!-- Web Dashboard Preview Image -->
-                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group">
-                            <img src="assets/images/hass_dashboard_ui.png" alt="Web Dashboard UI" class="w-full h-56 object-cover object-top transform group-hover:scale-105 transition duration-700 opacity-90">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                        <!-- Web Dashboard Preview Image (Sleek Real UI Mockup) -->
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group cursor-pointer" onclick="window.open('dashboard/index.php', '_blank')">
+                            <img src="assets/images/real_web_dashboard_preview.jpg" alt="Real Interactive Web Dashboard for ESP32-S3 ATD3.5" class="w-full h-60 object-cover object-top transform group-hover:scale-105 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                             <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
                                 <span class="font-bold flex items-center gap-1.5 text-cyan-300">
-                                    <i class="fa-solid fa-chart-pie text-cyan-400"></i> Multi-Zone Interactive Telemetry
+                                    <i class="fa-solid fa-chart-line text-cyan-400"></i> Chart.js 24h Trends &amp; NPK Radar
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-300 bg-white/10 px-2 py-0.5 rounded backdrop-blur-sm">Chart.js Live Canvas</span>
+                                <span class="text-[10px] font-mono text-gray-300 bg-white/10 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">Full Desktop &amp; Tablet</span>
                             </div>
                         </div>
 
@@ -1092,31 +1092,31 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         <ul class="space-y-3 text-xs md:text-sm text-gray-600">
                             <li class="flex items-start gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
-                                <span><strong>Real-Time Trend Charts:</strong> กราฟเส้นแสดงแนวโน้มสภาพแวดล้อม 24 ชั่วโมง พร้อมระบบคำนวณสมดุล VPD (kPa)</span>
+                                <span><strong>24-Hour Trend Analytics:</strong> กราฟเส้นแนวโน้มสภาพแวดล้อม 24 ชม. และสมดุลธาตุอาหารดิน NPK Radar Chart</span>
                             </li>
                             <li class="flex items-start gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
-                                <span><strong>Multi-Zone Farm Management:</strong> จัดการข้อมูลแปลงทดลองหลายจุดพร้อมกัน แสดงสถานะบอร์ดและการเชื่อมต่อ</span>
+                                <span><strong>Smart Rule Automation Engine:</strong> ตั้งกฎอัตโนมัติ 3 เงื่อนไข (รดน้ำเมื่อดินแห้ง, พ่นหมอกตามค่า VPD)</span>
                             </li>
                             <li class="flex items-start gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
-                                <span><strong>Smart Rule Automation:</strong> ตั้งเกณฑ์อัตโนมัติ (เช่น อุณหภูมิ &gt; 35°C ให้เปิดพ่นหมอก 3 นาทีอัตโนมัติ)</span>
+                                <span><strong>4-Channel Online Relay Switch:</strong> มอนิเตอร์และสั่งการเปิด-ปิดอุปกรณ์ภาคสนามพร้อมไฟแสดงสถานะ LED</span>
                             </li>
                             <li class="flex items-start gap-2.5">
                                 <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
-                                <span><strong>CSV Historical Data Export:</strong> ส่งออกชุดข้อมูลประวัติศาสตร์เซนเซอร์ เพื่อนำไปเทรนโมเดล AI / Machine Learning</span>
+                                <span><strong>CSV Historical Data Export:</strong> ปุ่มกดส่งออกไฟล์ CSV สถิติย้อนหลัง เพื่อนำไปวิเคราะห์ต่อด้วย Machine Learning</span>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Action Button -->
                     <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
-                        <a href="http://localhost/cmu_aiot/smart_farm_dashboard/" target="_blank" class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
-                            <i class="fa-solid fa-gauge-high"></i> เปิด Smart Farm Dashboard
+                        <a href="dashboard/index.php" target="_blank" class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-gauge-high"></i> เปิดใช้งาน Web Dashboard จริง
                             <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                         </a>
-                        <a href="http://localhost/cmu_aiot/zigbee_system/" target="_blank" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5" title="ดูระบบเครือข่าย Zigbee">
-                            <i class="fa-solid fa-network-wired"></i> Zigbee System
+                        <a href="dashboard/index.php" target="_blank" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5" title="เปิดดูกราฟและข้อมูลสด">
+                            <i class="fa-solid fa-chart-line"></i> ดูกราฟ Real-Time
                         </a>
                     </div>
                 </div>
