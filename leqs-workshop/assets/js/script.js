@@ -127,11 +127,11 @@ const heroSlides = [
         badge: 'Slide 04/10'
     },
     {
-        file: 'assets/images/web_dashboard_ui.png',
-        category: 'Interactive Web Dashboard',
-        categoryDot: 'bg-amber-400',
-        title: 'ระบบเว็บแดชบอร์ดมอนิเตอร์และสั่งการออนไลน์',
-        desc: 'ควบคุมวาล์วน้ำ สปริงเกลอร์ และติดตามค่าเซนเซอร์ทางออนไลน์แบบ Real-time',
+        file: 'assets/images/pixar_smart_farm_hero.jpg',
+        category: '3D Pixar & Ghibli AIoT',
+        categoryDot: 'bg-emerald-400',
+        title: '🌱 นวัตกรรมเกษตรดิจิทัล 3D Pixar Ghibli AIoT',
+        desc: 'การเรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรเชิงสร้างสรรค์ ผสานหุ่นยนต์และระบบอัจฉริยะ',
         badge: 'Slide 05/10'
     },
     {

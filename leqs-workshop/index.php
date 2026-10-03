@@ -1015,8 +1015,8 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
 
                         <!-- Mobile Preview Image -->
                         <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group">
-                            <img src="assets/images/web_dashboard_ui.png" alt="Smartphone App UI" class="w-full h-56 object-cover object-left-top transform group-hover:scale-105 transition duration-700 opacity-90">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                            <img src="assets/images/pixar_track_f.jpg" alt="Smartphone App UI" class="w-full h-56 object-cover object-center transform group-hover:scale-105 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                             <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
                                 <span class="font-bold flex items-center gap-1.5 text-indigo-300">
                                     <i class="fa-solid fa-circle-check text-emerald-400"></i> Flutter Cross-Platform Ready
@@ -1246,19 +1246,28 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <div class="glass-card rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-emerald-200/80 relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-80 h-80 bg-emerald-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 transform translate-x-1/3 -translate-y-1/3"></div>
 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-6 relative z-10">
-                    <div>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-gray-100 pb-6 relative z-10">
+                    <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-100 text-emerald-700">หลักสูตรอบรมเชิงปฏิบัติการ</span>
                             <span class="text-xs text-gray-400 font-mono">7 หน่วยการเรียนรู้ (Modules)</span>
+                            <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                <i class="fa-solid fa-sparkles text-amber-500 mr-1"></i>3D Pixar Ghibli Style
+                            </span>
                         </div>
                         <h2 class="text-3xl font-heading font-bold text-gray-900">
                             โครงสร้างหลักสูตร 7 Modules (Active Learning 70%)
                         </h2>
+                        <p class="text-gray-500 text-xs md:text-sm mt-1">
+                            เรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรแม่นยำผ่านแนวทางสร้างสรรค์และลงมือปฏิบัติจริง
+                        </p>
                     </div>
-                    <a href="pages/register.php" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus"></i> สมัครเข้าร่วมอบรม
-                    </a>
+                    <div class="flex items-center gap-3">
+                        <img src="assets/images/pixar_smart_farm_hero.jpg" alt="Active Learning 3D Pixar" class="w-24 h-16 md:w-32 md:h-20 object-cover rounded-2xl shadow-md border-2 border-white hover:scale-105 transition cursor-pointer" onclick="openScreenModal('assets/images/pixar_smart_farm_hero.jpg', 'นวัตกรรมเกษตรดิจิทัล 3D Pixar Ghibli AIoT', 'การเรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรเชิงสร้างสรรค์ ผสานหุ่นยนต์และระบบอัจฉริยะ')" title="คลิกดูภาพขยาย">
+                        <a href="pages/register.php" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="fa-solid fa-user-plus"></i> สมัครเข้าร่วมอบรม
+                        </a>
+                    </div>
                 </div>
 
                 <!-- 7 Modules Grid -->
@@ -1330,70 +1339,154 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-cyan-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-cyan-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-cyan-200">
-                        <i class="fa-solid fa-wheat-awn"></i>
+                <!-- Track A -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-cyan-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_a.jpg" alt="Track A Smart Agriculture IoT" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-cyan-300 font-tech font-bold text-[10px] border border-cyan-400/30">
+                                TRACK A
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-cyan-600 font-mono">Precision Agriculture</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">IoT &amp; Modbus</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-cyan-600 transition">Smart Agriculture IoT</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                ระบบฟาร์มอัจฉริยะแบบครบวงจร เซนเซอร์วัดสภาพแวดล้อม ควบคุมวาล์วให้น้ำอัตโนมัติตามค่า VPD และความชื้นเขตรากพืช
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-cyan-600 uppercase font-tech">Track A</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">Smart Agriculture IoT</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        ระบบฟาร์มอัจฉริยะแบบครบวงจร เซนเซอร์วัดสภาพแวดล้อม ควบคุมวาล์วให้น้ำอัตโนมัติตามค่า VPD
-                    </p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-emerald-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-emerald-200">
-                        <i class="fa-solid fa-camera"></i>
+                <!-- Track B -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-emerald-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_b.jpg" alt="Track B Plant Vision AI" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-emerald-300 font-tech font-bold text-[10px] border border-emerald-400/30">
+                                TRACK B
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-emerald-600 font-mono">Computer Vision</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">YOLOv8 &amp; OpenCV</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-emerald-600 transition">Plant Vision AI</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                ระบบตรวจจับและวินิจฉัยโรคพืชจากภาพถ่ายใบพืช ประเมินความสมบูรณ์และเตือนภัยโรคราสนิม/แมลงศัตรูพืช
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-emerald-600 uppercase font-tech">Track B</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">Plant Vision AI</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        ระบบตรวจจับและวินิจฉัยโรคพืชจากภาพถ่ายใบพืช ประเมินความสมบูรณ์และเตือนภัยโรคราสนิม
-                    </p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-amber-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-amber-200">
-                        <i class="fa-solid fa-cloud-sun-rain"></i>
+                <!-- Track C -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-amber-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_c.jpg" alt="Track C Environmental AI" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 font-tech font-bold text-[10px] border border-amber-400/30">
+                                TRACK C
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-amber-600 font-mono">Environmental Station</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Solar PAR &amp; Carbon</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-amber-600 transition">Environmental AI</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                สถานีตรวจวัดสภาพอากาศชุมชน พลังงานแสงอาทิตย์ PAR อุณหภูมิ ความชื้น และการประเมินสมดุลคาร์บอน
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-amber-600 uppercase font-tech">Track C</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">Environmental AI</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        สถานีตรวจวัดสภาพอากาศชุมชน พลังงานแสงอาทิตย์ PAR และการประเมินการกักเก็บคาร์บอน
-                    </p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-purple-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-purple-200">
-                        <i class="fa-solid fa-microchip"></i>
+                <!-- Track D -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-purple-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_d.jpg" alt="Track D Edge AI & TinyML" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-purple-300 font-tech font-bold text-[10px] border border-purple-400/30">
+                                TRACK D
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-purple-600 font-mono">Edge Intelligence</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">ESP32-S3 TinyML</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-purple-600 transition">Edge AI &amp; TinyML</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                การบีบอัดและฝังโมเดลปัญญาประดิษฐ์ INT8 ลงบนชิปไมโครคอนโทรลเลอร์ ESP32-S3 ประมวลผลรวดเร็วแบบออฟไลน์
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-purple-600 uppercase font-tech">Track D</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">Edge AI &amp; TinyML</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        การบีบอัดและฝังโมเดลปัญญาประดิษฐ์ลงบนชิปไมโครคอนโทรลเลอร์ ESP32 ประมวลผลแบบออฟไลน์
-                    </p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-rose-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-rose-200">
-                        <i class="fa-solid fa-water"></i>
+                <!-- Track E -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-rose-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_e.jpg" alt="Track E Aquaculture AIoT" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-rose-300 font-tech font-bold text-[10px] border border-rose-400/30">
+                                TRACK E
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-rose-600 font-mono">Coastal Aquaculture</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">DO Sensor &amp; VFD</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-rose-600 transition">Aquaculture AIoT</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                ระบบฟาร์มสัตว์น้ำชายฝั่ง ตรวจวัดออกซิเจนละลาย DO ควบคุมกังหันตีน้ำ VFD อัจฉริยะ ลดต้นทุนพลังงานไฟฟ้า
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-rose-600 uppercase font-tech">Track E</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">Aquaculture AIoT</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        ระบบฟาร์มสัตว์น้ำชายฝั่ง ตรวจวัดออกซิเจนละลาย DO ควบคุมกังหันตีน้ำ VFD เซฟค่าไฟ
-                    </p>
                 </div>
 
-                <div class="glass-card p-6 rounded-3xl border-b-4 border-indigo-500 shadow-sm hover:shadow-lg transition hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-200">
-                        <i class="fa-solid fa-diagram-project"></i>
+                <!-- Track F -->
+                <div class="glass-card p-5 rounded-3xl border-b-4 border-indigo-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group overflow-hidden bg-white">
+                    <div class="space-y-4">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 shadow-inner">
+                            <img src="assets/images/pixar_track_f.jpg" alt="Track F AI Integrated Decision System" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-indigo-300 font-tech font-bold text-[10px] border border-indigo-400/30">
+                                TRACK F
+                            </span>
+                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-mono">
+                                3D Pixar Art
+                            </span>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-indigo-600 font-mono">Integrated AI System</span>
+                                <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">App &amp; Cloud</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-indigo-600 transition">AI Integrated Decision System</h3>
+                            <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                                ระบบตัดสินใจอัจฉริยะผสานภาพถ่าย เซนเซอร์ผิวดิน และแจ้งเตือนเกษตรกรผ่าน LINE Notify และ Smartphone App
+                            </p>
+                        </div>
                     </div>
-                    <span class="text-xs font-bold text-indigo-600 uppercase font-tech">Track F</span>
-                    <h3 class="text-lg font-bold text-gray-800 mt-1">AI Integrated Decision System</h3>
-                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-                        ระบบตัดสินใจอัจฉริยะผสานภาพถ่าย เซนเซอร์ผิวดิน และแจ้งเตือนเกษตรกรผ่าน LINE Notify / Telegram
-                    </p>
                 </div>
 
             </div>
