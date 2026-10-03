@@ -325,10 +325,10 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div class="text-3xl md:text-4xl font-black font-tech text-cyan-600">7 Modules</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">ทฤษฎี 30% + ปฏิบัติการ 70%</div>
                 </div>
-                <div class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition">
-                    <div class="text-3xl md:text-4xl font-black font-tech text-amber-600">76,000 บ.</div>
-                    <div class="text-xs text-gray-500 mt-1 font-medium">งบประมาณสนับสนุนจาก มรภ.</div>
-                </div>
+                <a href="#simulators" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
+                    <div class="text-2xl md:text-3xl font-black font-tech text-amber-600 group-hover:text-amber-500 transition">Virtual XR Lab</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">ห้องทดลองเสมือนจริง 3 มิติ</div>
+                </a>
                 <div class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition">
                     <div class="text-3xl md:text-4xl font-black font-tech text-purple-600">100% Cert</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">วุฒิบัตรรับรองสมรรถนะ AIoT</div>
