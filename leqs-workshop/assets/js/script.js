@@ -91,197 +91,235 @@ function initNavbarLogoCarousel() {
 }
 
 // ==========================================
-// 2. HERO MAIN ARTWORK CAROUSEL
+// 2. HERO SINGLE SCREEN CAROUSEL (สกรีนเดียว รวมภาพจาก cmu_aiot & บอร์ด)
 // ==========================================
-function initHeroImageCarousel() {
-    const heroImg = document.getElementById('heroImage');
-    const heroCaption = document.getElementById('heroImageCaption');
-    if (!heroImg) return;
-
-    const heroArtworks = [
-        {
-            src: 'assets/images/cv_cover_artwork.jpg',
-            caption: '🌾 Computer Vision & Precision AgriTech 2026'
-        },
-        {
-            src: 'assets/images/cv_hardware_setup.jpg',
-            caption: '🔬 ชุดบอร์ดทดลอง ATD3.5-S3 & เซนเซอร์ Modbus'
-        },
-        {
-            src: 'assets/images/cv_agri_vision.jpg',
-            caption: '🌱 การตรวจจับโรคใบทุเรียนและผลผลิตด้วย YOLOv8'
-        },
-        {
-            src: 'assets/images/soil_7in1_dashboard_ui.jpg',
-            caption: '📊 แดชบอร์ดติดตามค่า NPK, EC, pH และความชื้นดิน'
-        },
-        {
-            src: 'assets/images/soil_probe_atd_lcd_render.jpg',
-            caption: '⚡ โพรบสเตนเลส RS485 Modbus RTU สำหรับสวนผลไม้'
-        },
-        {
-            src: 'assets/images/card_plant_ai.png',
-            caption: '🤖 โมเดล TinyML On-Device วิเคราะห์สุขภาพใบพืช'
-        }
-    ];
-
-    let currentIdx = 0;
-    setInterval(() => {
-        heroImg.style.opacity = '0';
-        heroImg.style.transform = 'scale(0.96) rotate(0deg)';
-        setTimeout(() => {
-            currentIdx = (currentIdx + 1) % heroArtworks.length;
-            const item = heroArtworks[currentIdx];
-            heroImg.src = item.src;
-            if (heroCaption) heroCaption.innerText = item.caption;
-            heroImg.style.opacity = '1';
-            heroImg.style.transform = 'scale(1) rotate(-1deg)';
-        }, 500);
-    }, 4800);
-}
-
-// ==========================================
-// 3. ATD3.5-S3 SCREEN CYCLING CAROUSEL (หน้าจอหมุนวนสลับภาพ)
-// ==========================================
-const atdScreens = [
+const heroSlides = [
     {
-        num: '01/10',
-        name: '01. Overview Dashboard',
+        file: 'assets/images/cv_cover_artwork.jpg',
+        category: 'Computer Vision & AI',
+        categoryDot: 'bg-emerald-400',
+        title: 'AI Camera & Computer Vision 2026',
+        desc: 'หลักสูตรอบรมเชิงปฏิบัติการ Zero to Hero ปูพื้นฐานการประมวลผลภาพดิจิทัล',
+        badge: 'Slide 01/10'
+    },
+    {
+        file: 'assets/images/cv_hardware_setup.jpg',
+        category: 'Hardware & Sensors',
+        categoryDot: 'bg-cyan-400',
+        title: 'ชุดบอร์ดทดลอง ATD3.5-S3 & เซนเซอร์ Modbus',
+        desc: 'ESP32-S3 Xtensa LX7 พร้อมกล้อง AI และโพรบวัดดินสแตนเลส 7-in-1',
+        badge: 'Slide 02/10'
+    },
+    {
+        file: 'assets/images/cv_agri_vision.jpg',
+        category: 'AgriTech AI Vision',
+        categoryDot: 'bg-teal-400',
+        title: 'ตรวจจับโรคใบทุเรียนและคัดเกรดผลผลิต',
+        desc: 'ประยุกต์ใช้โมเดลดีพเลิร์นนิง YOLOv8 ตรวจวินิจฉัยโรคพืชในสวนจริง',
+        badge: 'Slide 03/10'
+    },
+    {
+        file: 'assets/images/soil_7in1_dashboard_ui.jpg',
+        category: 'IoT Telemetry UI',
+        categoryDot: 'bg-blue-400',
+        title: 'แดชบอร์ดติดตามค่า NPK, EC, pH และความชื้นดิน',
+        desc: 'แสดงผลข้อมูลเขตราก 10-30 cm วิเคราะห์ความอุดมสมบูรณ์ของดินด้วย AI',
+        badge: 'Slide 04/10'
+    },
+    {
+        file: 'assets/images/web_dashboard_ui.png',
+        category: 'Interactive Web Dashboard',
+        categoryDot: 'bg-amber-400',
+        title: 'ระบบเว็บแดชบอร์ดมอนิเตอร์และสั่งการออนไลน์',
+        desc: 'ควบคุมวาล์วน้ำ สปริงเกลอร์ และติดตามค่าเซนเซอร์ทางออนไลน์แบบ Real-time',
+        badge: 'Slide 05/10'
+    },
+    {
         file: 'assets/images/atd35/01_overview_dashboard.png',
-        title: 'Screen 01: Overview Dashboard',
-        desc: 'แดชบอร์ดหลัก 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน, เขตราก 7-in-1 แบบเรียลไทม์ 60 FPS'
+        category: 'ATD3.5-S3 Touch Display',
+        categoryDot: 'bg-purple-400',
+        title: 'จอแสดงผลสัมผัส 3.5 นิ้ว: Overview 4D Dashboard',
+        desc: 'แสดงผล 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 60 FPS',
+        badge: 'Slide 06/10'
     },
     {
-        num: '02/10',
-        name: '02. Big Numbers Telemetry',
-        file: 'assets/images/atd35/02_big_numbers.png',
-        title: 'Screen 02: Big Numbers Telemetry',
-        desc: 'โหมดตัวเลขอักษรขนาดใหญ่พิเศษ สำหรับมองเห็นชัดเจนในระยะ 5-10 เมตรในแปลง'
+        file: 'assets/images/card_plant_ai.png',
+        category: 'TinyML On-Device',
+        categoryDot: 'bg-rose-400',
+        title: 'โมเดล TinyML On-Device วิเคราะห์สุขภาพใบพืช',
+        desc: 'สถาปัตยกรรม CNN ขนาดกะทัดรัด ประมวลผลบนชิปไมโครคอนโทรลเลอร์โดยไม่ต้องต่อเน็ต',
+        badge: 'Slide 07/10'
     },
     {
-        num: '03/10',
-        name: '03. Realtime Sensors Graph',
+        file: 'assets/images/card_soil_expert.png',
+        category: 'Quantitative Science',
+        categoryDot: 'bg-emerald-400',
+        title: 'ระบบผู้เชี่ยวชาญวินิจฉัยธาตุอาหารในดิน (NPK)',
+        desc: 'ประเมินสมดุลธาตุอาหารพืชและคำนวณการใส่ปุ๋ยเคมี/อินทรีย์อย่างแม่นยำ',
+        badge: 'Slide 08/10'
+    },
+    {
         file: 'assets/images/atd35/03_realtime_graphs.png',
-        title: 'Screen 03: Realtime Graphs',
-        desc: 'กราฟบันทึกแนวโน้มอุณหภูมิและความชื้นย้อนหลัง 24 ชั่วโมงแบบเรียลไทม์'
+        category: 'Data Analytics',
+        categoryDot: 'bg-cyan-400',
+        title: 'กราฟแนวโน้มสภาพอากาศย้อนหลัง 24 ชั่วโมง',
+        desc: 'ติดตามเส้นกราฟอุณหภูมิและความชื้นสัมพัทธ์ เฝ้าระวังการระบาดของโรคราสนิม',
+        badge: 'Slide 09/10'
     },
     {
-        num: '04/10',
-        name: '04. Relay & Solenoid Control',
-        file: 'assets/images/atd35/04_relay_control.png',
-        title: 'Screen 04: Relay & Solenoid Control',
-        desc: 'แผงควบคุมสวิตช์รีเลย์และวาล์วไฟฟ้า 12V/24V ควบคุมการให้น้ำอัตโนมัติ'
-    },
-    {
-        num: '05/10',
-        name: '05. Wi-Fi Captive Portal',
-        file: 'assets/images/atd35/05_wifi_captive_portal.png',
-        title: 'Screen 05: Wi-Fi Captive Portal',
-        desc: 'ระบบจับคู่การเชื่อมต่ออินเทอร์เน็ตผ่าน QR Code แบบ Zero-Configuration'
-    },
-    {
-        num: '06/10',
-        name: '06. SHT45 Microclimate & VPD',
-        file: 'assets/images/atd35/06_sht45_air_vpd.png',
-        title: 'Screen 06: SHT45 Microclimate & VPD',
-        desc: 'การวิเคราะห์สภาพอากาศย่อย ค่าความดันไอขาดดุล และสถานะความเสี่ยงโรครา'
-    },
-    {
-        num: '07/10',
-        name: '07. Solar Spectrum & PAR',
-        file: 'assets/images/atd35/07_bh1750_solar_par.png',
-        title: 'Screen 07: Solar Spectrum & PAR',
-        desc: 'การวัดความเข้มแสงแดด Lux และคำนวณโฟตอนสังเคราะห์แสง PAR (umol/m2/s)'
-    },
-    {
-        num: '08/10',
-        name: '08. Soil Stick Surface Moisture',
-        file: 'assets/images/atd35/08_soil_stick_surface.png',
-        title: 'Screen 08: Soil Stick Surface Moisture',
-        desc: 'การตรวจสอบความชื้นผิวดิน 0-10 cm เฝ้าระวังการระเหยน้ำและการแตกระแหง'
-    },
-    {
-        num: '09/10',
-        name: '09. Soil 7in1 TinyML Inference',
-        file: 'assets/images/atd35/09_soil_7in1_tinyml.png',
-        title: 'Screen 09: Soil 7in1 TinyML Inference',
-        desc: 'ผลการทำนายความต้องการปุ๋ยและน้ำจากโมเดล TinyML ที่รันบน ESP32 โดยตรง'
-    },
-    {
-        num: '10/10',
-        name: '00. Nexus Boot Splash',
-        file: 'assets/images/atd35/00_splash_nexus.png',
-        title: 'Screen 00: Nexus Boot Splash',
-        desc: 'หน้าจอต้อนรับและบูตระบบเฟิร์มแวร์ LEQs-xAI Smart Controller v3.5'
+        file: 'assets/images/soil_probe_atd_lcd_render.jpg',
+        category: 'Industrial Probes',
+        categoryDot: 'bg-indigo-400',
+        title: 'โพรบวัดดินสแตนเลสแท้มาตรฐานอุตสาหกรรม',
+        desc: 'ทนทานต่อการกัดกร่อน เชื่อมต่อผ่านสายสัญญาณ RS485 มาตรฐานอุตสาหกรรม',
+        badge: 'Slide 10/10'
     }
 ];
 
-let currentAtdIndex = 0;
-let atdScreenTimer = null;
+let currentSlideIdx = 0;
+let heroSlideTimer = null;
 
-function renderAtdScreen(index) {
-    currentAtdIndex = (index + atdScreens.length) % atdScreens.length;
-    const item = atdScreens[currentAtdIndex];
+function renderHeroSlide(index) {
+    currentSlideIdx = (index + heroSlides.length) % heroSlides.length;
+    const slide = heroSlides[currentSlideIdx];
 
-    const screenImg = document.getElementById('atdScreenImg');
-    const screenBadge = document.getElementById('atdScreenBadge');
-    const screenName = document.getElementById('atdScreenName');
+    const img = document.getElementById('heroSingleScreenImg');
+    const title = document.getElementById('heroSingleScreenTitle');
+    const desc = document.getElementById('heroSingleScreenDesc');
+    const badge = document.getElementById('heroSlideBadge');
+    const catName = document.getElementById('heroCategoryName');
+    const catDot = document.getElementById('heroCategoryDot');
 
-    if (screenImg) {
-        screenImg.style.opacity = '0.3';
-        screenImg.style.transform = 'scale(0.97)';
+    if (img) {
+        img.style.opacity = '0.3';
+        img.style.transform = 'scale(0.97)';
         setTimeout(() => {
-            screenImg.src = item.file;
-            screenImg.style.opacity = '1';
-            screenImg.style.transform = 'scale(1)';
-        }, 250);
+            img.src = slide.file;
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        }, 200);
     }
 
-    if (screenBadge) screenBadge.innerText = 'Screen ' + item.num;
-    if (screenName) screenName.innerText = item.name;
+    if (title) title.innerText = slide.title;
+    if (desc) desc.innerText = slide.desc;
+    if (badge) badge.innerText = slide.badge;
+    if (catName) catName.innerText = slide.category;
+    if (catDot) catDot.className = `w-2 h-2 rounded-full ${slide.categoryDot} animate-ping`;
 
-    // Update Dots indicator if present
-    const dots = document.querySelectorAll('.atd-dot');
-    dots.forEach((dot, idx) => {
-        if (idx === currentAtdIndex) {
-            dot.className = 'atd-dot w-4 h-1.5 rounded-full bg-emerald-400 transition-all duration-300';
+    // Render Indicator Dots
+    renderHeroDots();
+}
+
+function renderHeroDots() {
+    const dotsBox = document.getElementById('heroScreenDots');
+    if (!dotsBox) return;
+
+    dotsBox.innerHTML = '';
+    heroSlides.forEach((s, idx) => {
+        const dot = document.createElement('button');
+        if (idx === currentSlideIdx) {
+            dot.className = 'w-5 h-2 rounded-full bg-emerald-500 transition-all duration-300 shadow-sm';
         } else {
-            dot.className = 'atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300';
+            dot.className = 'w-2 h-2 rounded-full bg-gray-200 hover:bg-gray-400 transition-all duration-300';
         }
+        dot.title = s.title;
+        dot.onclick = () => jumpToHeroSlide(idx);
+        dotsBox.appendChild(dot);
     });
 }
 
-function jumpToAtdScreen(index) {
-    renderAtdScreen(index);
-    resetAtdScreenTimer();
+function jumpToHeroSlide(idx) {
+    renderHeroSlide(idx);
+    resetHeroSlideTimer();
 }
 
-function openActiveAtdScreenModal() {
-    const item = atdScreens[currentAtdIndex];
-    openScreenModal(item.file, item.title, item.desc);
+function nextHeroSlide() {
+    renderHeroSlide(currentSlideIdx + 1);
+    resetHeroSlideTimer();
 }
 
-function resetAtdScreenTimer() {
-    if (atdScreenTimer) clearInterval(atdScreenTimer);
-    atdScreenTimer = setInterval(() => {
-        renderAtdScreen(currentAtdIndex + 1);
-    }, 3500);
+function prevHeroSlide() {
+    renderHeroSlide(currentSlideIdx - 1);
+    resetHeroSlideTimer();
 }
 
-function initAtdScreenCarousel() {
-    const container = document.getElementById('atdScreenContainer');
+function openCurrentHeroSlideModal() {
+    const slide = heroSlides[currentSlideIdx];
+    openScreenModal(slide.file, slide.title, slide.desc);
+}
+
+function resetHeroSlideTimer() {
+    if (heroSlideTimer) clearInterval(heroSlideTimer);
+    heroSlideTimer = setInterval(() => {
+        renderHeroSlide(currentSlideIdx + 1);
+    }, 3800);
+}
+
+function initHeroSingleScreenCarousel() {
+    const container = document.getElementById('heroSingleScreenContainer');
     if (!container) return;
 
-    renderAtdScreen(0);
-    resetAtdScreenTimer();
+    renderHeroSlide(0);
+    resetHeroSlideTimer();
 
     // Pause on hover
     container.addEventListener('mouseenter', () => {
-        if (atdScreenTimer) clearInterval(atdScreenTimer);
+        if (heroSlideTimer) clearInterval(heroSlideTimer);
     });
     container.addEventListener('mouseleave', () => {
-        resetAtdScreenTimer();
+        resetHeroSlideTimer();
     });
+}
+
+// ==========================================
+// 3. ONLINE REMOTE CONTROL SIMULATOR (ควบคุม สั่งการ บอร์ดทางออนไลน์)
+// ==========================================
+const relayStates = { 1: false, 2: false, 3: false, 4: false };
+
+function toggleRemoteRelay(relayId, name) {
+    relayStates[relayId] = !relayStates[relayId];
+    const isNowOn = relayStates[relayId];
+
+    const led = document.getElementById(`relay-led-${relayId}`);
+    const btn = document.getElementById(`relay-btn-${relayId}`);
+    const statusText = document.getElementById(`relay-status-${relayId}`);
+
+    if (led) {
+        led.className = isNowOn ? 'w-3 h-3 rounded-full bg-emerald-500 animate-ping inline-block' : 'w-3 h-3 rounded-full bg-gray-300 inline-block';
+    }
+    if (btn) {
+        btn.className = isNowOn 
+            ? 'px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5' 
+            : 'px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs shadow-xs transition flex items-center gap-1.5';
+        btn.innerHTML = isNowOn ? '<i class="fa-solid fa-power-off"></i> สั่งปิด (ON)' : '<i class="fa-solid fa-power-off"></i> สั่งเปิด (OFF)';
+    }
+    if (statusText) {
+        statusText.innerText = isNowOn ? 'สถานะ: กำลังทำงาน (ACTIVE ON)' : 'สถานะ: ปิดการทำงาน (STANDBY OFF)';
+        statusText.className = isNowOn ? 'text-[11px] font-bold text-emerald-600' : 'text-[11px] font-bold text-gray-400';
+    }
+
+    // Append to live MQTT packet log
+    const logBox = document.getElementById('mqtt-log-console');
+    if (logBox) {
+        const timeStr = new Date().toLocaleTimeString('th-TH');
+        const stateStr = isNowOn ? 'ACTIVE_HIGH_ON' : 'ACTIVE_LOW_OFF';
+        const line = document.createElement('div');
+        line.className = 'text-[10px] font-mono ' + (isNowOn ? 'text-emerald-400' : 'text-gray-400');
+        line.innerText = `[${timeStr}] MQTT ➔ /board/relay/${relayId}/cmd: {"cmd":"${stateStr}", "actuator":"${name}"}`;
+        logBox.prepend(line);
+    }
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: isNowOn ? 'success' : 'info',
+            title: `${name}: ${isNowOn ? 'เปิดทำงานแล้ว' : 'ปิดทำงานแล้ว'}`,
+            text: `ส่งคำสั่ง MQTT ควบคุมสำเร็จสู่บอร์ด ESP32-S3 ATD3.5`,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
 }
 
 // ==========================================
@@ -314,7 +352,7 @@ function initHeroTicker() {
             // Stage 3: Modules Marquee
             ticker.className = `${baseClass} anim-marquee`;
             ticker.style.color = getRandom(colors);
-            ticker.innerHTML = "🚀 7 โมดูลปฏิบัติการ: M1 AIoT Sensor Hub | M2 TinyML Edge AI | M3 Computer Vision | M4 LoRaWAN & Zigbee Mesh | M5 VPD & Irrigation | M6 Cloud & Telegram Bot | M7 Capstone Showcase";
+            ticker.innerHTML = "🚀 7 โมดูลปฏิบัติการ: M1 AIoT Sensor Hub | M2 TinyML Edge AI | M3 Computer Vision | M4 LoRaWAN & Zigbee Mesh | M5 Smartphone App & Web Dashboard | M6 Environmental AI | M7 Capstone Showcase";
             await wait(24000);
 
             // Stage 4: Motto
@@ -565,8 +603,7 @@ function closeScreenModal() {
 // Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
     initNavbarLogoCarousel();
-    initHeroImageCarousel();
-    initAtdScreenCarousel();
+    initHeroSingleScreenCarousel();
     initHeroTicker();
     updateVPDSimulator();
     updateAquaSimulator();

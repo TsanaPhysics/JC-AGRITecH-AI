@@ -145,6 +145,13 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <i class="fa-solid fa-layer-group text-emerald-600"></i> นวัตกรรม &amp; เอกสาร <i class="fa-solid fa-chevron-down text-xs ml-0.5"></i>
                         </button>
                         <div class="absolute right-0 mt-2 w-72 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50 overflow-hidden p-1.5">
+                            <a href="#iot-platform" class="px-3.5 py-2.5 rounded-xl hover:bg-cyan-50 hover:text-cyan-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-mobile-screen-button text-cyan-600 w-5"></i>
+                                <div>
+                                    <span class="font-bold text-xs block text-gray-800">Smartphone App &amp; Web Dashboard</span>
+                                    <span class="text-[10px] text-gray-500">มอนิเตอร์ ควบคุม สั่งการบอร์ดออนไลน์</span>
+                                </div>
+                            </a>
                             <a href="#learning-resources" class="px-3.5 py-2.5 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition flex items-center gap-3">
                                 <i class="fa-solid fa-graduation-cap text-indigo-600 w-5"></i>
                                 <div>
@@ -206,6 +213,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <a href="pages/assessment_pre.php" class="block py-2 text-gray-700 hover:text-orange-600"><i class="fa-solid fa-file-pen w-6 text-orange-500"></i> แบบทดสอบก่อนเรียน (Pre-test)</a>
             <a href="pages/assessment_post.php" class="block py-2 text-gray-700 hover:text-pink-600"><i class="fa-solid fa-file-circle-check w-6 text-pink-500"></i> แบบทดสอบหลังเรียน (Post-test)</a>
             <hr class="border-gray-100">
+            <a href="#iot-platform" onclick="toggleMobileMenu()" class="block py-2 text-cyan-700 font-bold"><i class="fa-solid fa-mobile-screen-button w-6 text-cyan-600"></i> Smartphone App &amp; Web Dashboard</a>
             <a href="#modules" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-cyan-600"><i class="fa-solid fa-cubes w-6 text-cyan-500"></i> 3. หลักสูตร 7 โมดูล</a>
             <a href="#simulators" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-flask-vial w-6 text-amber-500"></i> 4. Virtual Lab เสมือนจริง</a>
             <a href="#learning-resources" onclick="toggleMobileMenu()" class="block py-2 text-indigo-700 font-bold"><i class="fa-solid fa-graduation-cap w-6 text-indigo-600"></i> 5. แหล่งเรียนรู้เพิ่มเติม 9 ระบบ</a>
@@ -225,82 +233,78 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
         <header id="overview" class="py-10 md:py-16 relative">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 
-                <!-- Hero Image Showcase (Left) - matching cmu_aiot -->
+                <!-- Hero Image Showcase (Left) - Single Unified Smart Screen Frame matching cmu_aiot -->
                 <div class="relative animate-float order-last md:order-first">
                     <div class="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-[3.5rem] opacity-25 blur-3xl"></div>
                     
-                    <div class="relative rounded-[2.5rem] shadow-2xl border-4 border-white/80 overflow-hidden transform -rotate-1 hover:rotate-0 transition-all duration-700 ease-in-out bg-white p-3 space-y-3">
+                    <div id="heroSingleScreenContainer" class="relative rounded-[2.5rem] shadow-2xl border-4 border-white/90 overflow-hidden bg-white p-4 space-y-3.5 group hover:shadow-emerald-200/50 transition-all duration-700">
                         
-                        <!-- 1. Hero Artwork Carousel (สลับเปลี่ยนภาพผลงานและกิจกรรม) -->
-                        <div class="relative rounded-2xl overflow-hidden shadow-md group">
-                            <img id="heroImage" 
+                        <!-- Top Monitor Header Bar -->
+                        <div class="flex items-center justify-between px-2 pt-1 pb-2 border-b border-gray-100 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span id="heroCategoryDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                <span id="heroCategoryName" class="font-bold text-gray-800 font-tech tracking-wider text-[11px]">Computer Vision AI</span>
+                                <span id="heroSlideBadge" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[9px] border border-emerald-200 font-semibold">
+                                    Slide 01/10
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="prevHeroSlide()" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-600 flex items-center justify-center transition text-xs" title="ภาพก่อนหน้า">
+                                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                                </button>
+                                <button onclick="nextHeroSlide()" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-600 flex items-center justify-center transition text-xs" title="ภาพถัดไป">
+                                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
+                                <button onclick="openCurrentHeroSlideModal()" class="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-600 flex items-center justify-center transition text-xs ml-1" title="ขยายดูภาพขนาดใหญ่">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Main Screen Display (16:10 high-clarity ratio) -->
+                        <div class="relative rounded-2xl overflow-hidden bg-slate-950 aspect-[16/11] flex items-center justify-center shadow-inner cursor-pointer" onclick="openCurrentHeroSlideModal()">
+                            <img id="heroSingleScreenImg" 
                                  src="assets/images/cv_cover_artwork.jpg" 
-                                 alt="LEQs-xAI Agricultural AI & Environmental Vision" 
-                                 class="w-full object-cover aspect-[4/3] rounded-2xl transition-all duration-700">
+                                 alt="Smart Display Screen" 
+                                 class="w-full h-full object-cover transition-all duration-500 transform group-hover:scale-[1.02]">
+                            
+                            <!-- Status Badges Overlay -->
                             <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-[10px] font-tech font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <i class="fa-solid fa-microchip"></i> Edge AI • Computer Vision • IoT
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>ONLINE • LIVE TELEMETRY</span>
                             </div>
-                            <!-- Artwork Caption Bar -->
-                            <div class="absolute bottom-2.5 left-2.5 right-2.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-[11px] flex items-center justify-between">
-                                <span id="heroImageCaption" class="truncate font-medium text-emerald-300">
-                                    🌾 Computer Vision & Precision AgriTech 2026
-                                </span>
-                                <span class="text-[9px] font-mono text-gray-400 bg-white/10 px-2 py-0.5 rounded ml-2">Auto-play</span>
+
+                            <div class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[10px] text-cyan-300 font-mono border border-cyan-500/30 flex items-center gap-1">
+                                <i class="fa-solid fa-signal text-[9px] text-cyan-400"></i>
+                                <span>ESP32-S3 ATD3.5</span>
+                            </div>
+
+                            <!-- Bottom Floating Title Overlay -->
+                            <div class="absolute bottom-2.5 left-2.5 right-2.5 px-3.5 py-2.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/10 text-white shadow-lg">
+                                <div class="font-bold text-xs md:text-sm text-emerald-300 truncate" id="heroSingleScreenTitle">
+                                    Computer Vision & Precision AgriTech 2026
+                                </div>
+                                <div class="text-[11px] text-gray-300 truncate mt-0.5" id="heroSingleScreenDesc">
+                                    ระบบกล้อง AI อัจฉริยะ ตรวจจับศัตรูพืชและวิเคราะห์ความสมบูรณ์ของใบพืช
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 2. ATD3.5-S3 Touch Screen Rotating Live Frame (สลับเปลี่ยนภาพวนไป 10 หน้าจอ) -->
-                        <div id="atdScreenContainer" 
-                             class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-white shadow-lg cursor-pointer group hover:border-emerald-500/50 transition-all duration-300" 
-                             onclick="openActiveAtdScreenModal()" 
-                             title="คลิกเพื่อขยายดูภาพหน้าจอขนาดใหญ่">
-                            
-                            <!-- Header Bar -->
-                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                                    <span class="font-bold text-cyan-300 font-tech tracking-wider text-[11px]">ATD3.5-S3 CONTROLLER</span>
-                                    <span id="atdScreenBadge" class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-mono text-[9px] border border-slate-700">
-                                        Screen 01/10
-                                    </span>
-                                </div>
-                                <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition flex items-center gap-1">
-                                    <span id="atdScreenName" class="font-medium text-slate-300">01. Overview Dashboard</span>
-                                    <i class="fa-solid fa-expand text-[9px] text-cyan-400"></i>
-                                </span>
+                        <!-- Screen Bottom Navigation Dots & Quick Switcher -->
+                        <div class="flex items-center justify-between pt-1 px-1">
+                            <div class="text-[10px] text-gray-400 flex items-center gap-1 font-mono">
+                                <i class="fa-solid fa-arrows-rotate text-emerald-500 text-[9px]"></i>
+                                <span>Auto-cycling 3.8s</span>
                             </div>
-                            
-                            <!-- Screen Display Area (Aspect Ratio 480x320) -->
-                            <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-black aspect-[480/320] flex items-center justify-center shadow-inner">
-                                <img id="atdScreenImg" 
-                                     src="assets/images/atd35/01_overview_dashboard.png" 
-                                     alt="ATD3.5-S3 Active Screen" 
-                                     class="w-full h-full object-cover transition-all duration-500 transform group-hover:scale-105">
-                                
-                                <div class="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] text-emerald-400 font-mono border border-slate-700/80 flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 60 FPS • Realtime
-                                </div>
-                                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] text-cyan-300 font-mono border border-slate-700/80">
-                                    3.5" Capacitive Touch
-                                </div>
+                            <div id="heroScreenDots" class="flex items-center gap-1.5">
+                                <!-- Dots dynamically rendered by script.js -->
                             </div>
-
-                            <!-- Screen Progress Dot Navigation -->
-                            <div class="flex items-center justify-center gap-1.5 mt-2.5 pt-1" onclick="event.stopPropagation()">
-                                <button onclick="jumpToAtdScreen(0)" class="atd-dot w-4 h-1.5 rounded-full bg-emerald-400 transition-all duration-300" title="01. Overview"></button>
-                                <button onclick="jumpToAtdScreen(1)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="02. Big Numbers"></button>
-                                <button onclick="jumpToAtdScreen(2)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="03. Graphs"></button>
-                                <button onclick="jumpToAtdScreen(3)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="04. Relay"></button>
-                                <button onclick="jumpToAtdScreen(4)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="05. Wi-Fi"></button>
-                                <button onclick="jumpToAtdScreen(5)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="06. SHT45"></button>
-                                <button onclick="jumpToAtdScreen(6)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="07. PAR"></button>
-                                <button onclick="jumpToAtdScreen(7)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="08. Soil Stick"></button>
-                                <button onclick="jumpToAtdScreen(8)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="09. TinyML"></button>
-                                <button onclick="jumpToAtdScreen(9)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="00. Nexus Boot"></button>
-                            </div>
-
+                            <a href="#iot-platform" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 transition">
+                                <span>ดูระบบ App &amp; Web</span>
+                                <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                            </a>
                         </div>
+
                     </div>
                 </div>
 
@@ -893,6 +897,340 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div class="mt-2 text-center">
                         <span class="text-xs font-bold text-gray-800 block">10. Ultra-HD Poster</span>
                         <span class="text-[10px] text-gray-500">PR Exhibition</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- 5.1 FROM BOARD TO SMARTPHONE APP & INTERACTIVE WEB DASHBOARD (#iot-platform)-->
+        <!-- ========================================================================= -->
+        <section id="iot-platform" class="scroll-mt-24 space-y-12">
+            
+            <!-- Section Header -->
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <span class="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-100 to-emerald-100 text-cyan-800 text-xs font-bold uppercase tracking-wider border border-cyan-200 shadow-xs">
+                    <i class="fa-solid fa-network-wired text-cyan-600 mr-1.5"></i> Full-Stack AIoT Platform Ecosystem
+                </span>
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-gray-900 leading-tight">
+                    จากบอร์ดฮาร์ดแวร์ สู่ Smartphone App<br>และ Interactive Web Dashboard
+                </h2>
+                <p class="text-gray-600 text-sm md:text-base leading-relaxed">
+                    สถาปัตยกรรมเชื่อมต่อครบวงจร: จากบอร์ดไมโครคอนโทรลเลอร์ ESP32-S3 ATD3.5 และโพรบวัดดิน 7-in-1 Modbus RTU สู่ออนไลน์โมบายล์แอปพลิเคชันบนสมาร์ทโฟน และเว็บแดชบอร์ดกราฟิกแบบอินเทอร์แอคทีฟ สำหรับการมอนิเตอร์ ควบคุม สั่งการระบบทางออนไลน์ได้แบบเรียลไทม์
+                </p>
+            </div>
+
+            <!-- Architecture 4-Step Pipeline Flow Banner -->
+            <div class="glass-card rounded-3xl p-6 md:p-8 border border-gray-100 shadow-xl bg-gradient-to-r from-slate-900 via-slate-950 to-emerald-950 text-white relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <span class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            End-to-End IoT Data Flow &amp; Control Topology
+                        </span>
+                        <span class="text-[11px] text-gray-400 font-tech">Bi-Directional MQTT / WebSockets</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        
+                        <!-- Step 1: Hardware Node -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-emerald-500/50 transition">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center font-mono">01</span>
+                                <i class="fa-solid fa-microchip text-emerald-400 text-base"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-white">ESP32-S3 Hardware Board</h4>
+                            <p class="text-[11px] text-gray-400 leading-relaxed">
+                                โพรบวัดดิน 7-in-1 RS485 Modbus, SHT45, BH1750, ควบคุม 4-Channel Relays ในแปลง
+                            </p>
+                            <span class="inline-block text-[9px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Edge Sensing &amp; TinyML</span>
+                        </div>
+
+                        <!-- Step 2: Gateway & Broker -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-cyan-500/50 transition">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs flex items-center justify-center font-mono">02</span>
+                                <i class="fa-solid fa-cloud-arrow-up text-cyan-400 text-base"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-white">MQTT Broker &amp; Gateway</h4>
+                            <p class="text-[11px] text-gray-400 leading-relaxed">
+                                EMQX / Mosquitto Broker ส่งแพ็กเก็ตข้อมูล JSON แบบ Real-time ผ่าน Wi-Fi และ 4G LTE
+                            </p>
+                            <span class="inline-block text-[9px] font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">QoS 1 • Low Latency</span>
+                        </div>
+
+                        <!-- Step 3: Smartphone App -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-indigo-500/50 transition">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 font-bold text-xs flex items-center justify-center font-mono">03</span>
+                                <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-base"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-white">Smartphone Mobile App</h4>
+                            <p class="text-[11px] text-gray-400 leading-relaxed">
+                                แอปพลิเคชัน Flutter (iOS &amp; Android) มอนิเตอร์จากมือถือ แจ้งเตือน และสั่งเปิด-ปิดวาล์วทันใจ
+                            </p>
+                            <span class="inline-block text-[9px] font-mono text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">Pocket Telemetry</span>
+                        </div>
+
+                        <!-- Step 4: Web Dashboard -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-amber-500/50 transition">
+                            <div class="flex items-center justify-between">
+                                <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center font-mono">04</span>
+                                <i class="fa-solid fa-chart-line text-amber-400 text-base"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-white">Interactive Web Dashboard</h4>
+                            <p class="text-[11px] text-gray-400 leading-relaxed">
+                                แดชบอร์ดสรุปสถิติกราฟิก วิเคราะห์ VPD, ประวัติย้อนหลัง, และ Rule Automation ออนไลน์
+                            </p>
+                            <span class="inline-block text-[9px] font-mono text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">Cloud Analytics &amp; CSV</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 Core Platforms: Smartphone App vs Web Dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                
+                <!-- CARD 1: Smartphone App Platform -->
+                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500">
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                                    <i class="fa-solid fa-mobile-screen text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest font-mono">Mobile Platform</span>
+                                    <h3 class="text-2xl font-heading font-bold text-gray-900">Smartphone Mobile App</h3>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200">
+                                iOS &amp; Android
+                            </span>
+                        </div>
+
+                        <!-- Mobile Preview Image -->
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group">
+                            <img src="assets/images/web_dashboard_ui.png" alt="Smartphone App UI" class="w-full h-56 object-cover object-left-top transform group-hover:scale-105 transition duration-700 opacity-90">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
+                                <span class="font-bold flex items-center gap-1.5 text-indigo-300">
+                                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Flutter Cross-Platform Ready
+                                </span>
+                                <span class="text-[10px] font-mono text-gray-300 bg-white/10 px-2 py-0.5 rounded backdrop-blur-sm">Touch-Optimized</span>
+                            </div>
+                        </div>
+
+                        <!-- Key Features -->
+                        <ul class="space-y-3 text-xs md:text-sm text-gray-600">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
+                                <span><strong>Pocket Telemetry:</strong> มอนิเตอร์อุณหภูมิ ความชื้น แสง และธาตุอาหารดิน NPK/pH ได้ทุกที่จากกระเป๋ากางเกง</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
+                                <span><strong>One-Touch Relay Switch:</strong> ปุ่มกดเปิด-ปิดโซลินอยด์วาล์ว ปั๊มน้ำ และระบบพ่นหมอกแบบเรียลไทม์</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
+                                <span><strong>Push Notification Alerts:</strong> แจ้งเตือนเข้าสมาร์ทโฟนทันทีเมื่อเซนเซอร์ตรวจพบสภาวะวิกฤต</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-indigo-500 mt-1"></i>
+                                <span><strong>Bluetooth Low Energy (BLE) Provisioning:</strong> สแกนและเชื่อมต่อบอร์ดเพื่อตั้งค่าเครือข่าย Wi-Fi อย่างง่ายดาย</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
+                        <a href="http://localhost/cmu_aiot/mobile/" target="_blank" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-mobile-screen-button"></i> เปิดทดสอบ Smartphone App
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                        <a href="#relay-console" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders"></i> ทดลองสั่งการ
+                        </a>
+                    </div>
+                </div>
+
+                <!-- CARD 2: Interactive Web Dashboard Platform -->
+                <div class="glass-card rounded-[2.5rem] p-8 shadow-xl border border-gray-100 flex flex-col justify-between space-y-6 hover:shadow-2xl transition duration-500">
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-cyan-200">
+                                    <i class="fa-solid fa-desktop text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-cyan-600 uppercase tracking-widest font-mono">Web Platform</span>
+                                    <h3 class="text-2xl font-heading font-bold text-gray-900">Interactive Web Dashboard</h3>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 text-xs font-bold border border-cyan-200">
+                                Desktop &amp; Tablet
+                            </span>
+                        </div>
+
+                        <!-- Web Dashboard Preview Image -->
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-slate-950 group">
+                            <img src="assets/images/hass_dashboard_ui.png" alt="Web Dashboard UI" class="w-full h-56 object-cover object-top transform group-hover:scale-105 transition duration-700 opacity-90">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
+                                <span class="font-bold flex items-center gap-1.5 text-cyan-300">
+                                    <i class="fa-solid fa-chart-pie text-cyan-400"></i> Multi-Zone Interactive Telemetry
+                                </span>
+                                <span class="text-[10px] font-mono text-gray-300 bg-white/10 px-2 py-0.5 rounded backdrop-blur-sm">Chart.js Live Canvas</span>
+                            </div>
+                        </div>
+
+                        <!-- Key Features -->
+                        <ul class="space-y-3 text-xs md:text-sm text-gray-600">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
+                                <span><strong>Real-Time Trend Charts:</strong> กราฟเส้นแสดงแนวโน้มสภาพแวดล้อม 24 ชั่วโมง พร้อมระบบคำนวณสมดุล VPD (kPa)</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
+                                <span><strong>Multi-Zone Farm Management:</strong> จัดการข้อมูลแปลงทดลองหลายจุดพร้อมกัน แสดงสถานะบอร์ดและการเชื่อมต่อ</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
+                                <span><strong>Smart Rule Automation:</strong> ตั้งเกณฑ์อัตโนมัติ (เช่น อุณหภูมิ &gt; 35°C ให้เปิดพ่นหมอก 3 นาทีอัตโนมัติ)</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-cyan-500 mt-1"></i>
+                                <span><strong>CSV Historical Data Export:</strong> ส่งออกชุดข้อมูลประวัติศาสตร์เซนเซอร์ เพื่อนำไปเทรนโมเดล AI / Machine Learning</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
+                        <a href="http://localhost/cmu_aiot/smart_farm_dashboard/" target="_blank" class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-gauge-high"></i> เปิด Smart Farm Dashboard
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                        <a href="http://localhost/cmu_aiot/zigbee_system/" target="_blank" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5" title="ดูระบบเครือข่าย Zigbee">
+                            <i class="fa-solid fa-network-wired"></i> Zigbee System
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Interactive Online Actuator Console (ทดลองกดสั่งการบอร์ดจริงออนไลน์) -->
+            <div id="relay-console" class="glass-card rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-emerald-200/80 bg-gradient-to-b from-white to-emerald-50/30 space-y-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200/80 pb-5">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span class="text-xs font-mono font-bold text-emerald-700 uppercase tracking-widest">LIVE HARDWARE ACTUATOR CONSOLE</span>
+                        </div>
+                        <h3 class="text-2xl font-heading font-bold text-gray-900">
+                            คอนโซลทดลองสั่งการบอร์ดจริงออนไลน์ (Interactive Relay Control)
+                        </h3>
+                        <p class="text-gray-500 text-xs md:text-sm">
+                            ทดลองกดสวิตช์สั่งเปิด-ปิดอุปกรณ์ภาคสนามผ่านคำสั่ง MQTT Protocol เพื่อเชื่อมโยงสู่บอร์ด ESP32-S3 ATD3.5
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 font-mono text-xs font-bold border border-emerald-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-emerald-600"></i> MQTT Status: Connected
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 4 Interactive Relay Channels Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Relay 1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-emerald-400 transition space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-400 font-mono">CH-01 (PIN D4)</span>
+                            <span id="relay-led-1" class="w-3 h-3 rounded-full bg-gray-300 inline-block"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-800">วาล์วน้ำโซลินอยด์ (12V)</h4>
+                            <p class="text-[11px] text-gray-500">แปลงปลูกผักสลัดไฮโดรโปนิกส์</p>
+                        </div>
+                        <div id="relay-status-1" class="text-[11px] font-bold text-gray-400">สถานะ: ปิดการทำงาน (STANDBY OFF)</div>
+                        <button id="relay-btn-1" onclick="toggleRemoteRelay(1, 'วาล์วน้ำโซลินอยด์ 12V')" class="w-full px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-power-off"></i> สั่งเปิด (OFF)
+                        </button>
+                    </div>
+
+                    <!-- Relay 2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-emerald-400 transition space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-400 font-mono">CH-02 (PIN D5)</span>
+                            <span id="relay-led-2" class="w-3 h-3 rounded-full bg-gray-300 inline-block"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-800">ระบบพ่นหมอกลด VPD</h4>
+                            <p class="text-[11px] text-gray-500">ควบคุมความชื้นสัมพัทธ์ในอากาศ</p>
+                        </div>
+                        <div id="relay-status-2" class="text-[11px] font-bold text-gray-400">สถานะ: ปิดการทำงาน (STANDBY OFF)</div>
+                        <button id="relay-btn-2" onclick="toggleRemoteRelay(2, 'ระบบพ่นหมอกลด VPD')" class="w-full px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-power-off"></i> สั่งเปิด (OFF)
+                        </button>
+                    </div>
+
+                    <!-- Relay 3 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-emerald-400 transition space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-400 font-mono">CH-03 (PIN D6)</span>
+                            <span id="relay-led-3" class="w-3 h-3 rounded-full bg-gray-300 inline-block"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-800">ปั๊มสารละลายปุ๋ย AB</h4>
+                            <p class="text-[11px] text-gray-500">ระบบปรับค่า EC อัตโนมัติ</p>
+                        </div>
+                        <div id="relay-status-3" class="text-[11px] font-bold text-gray-400">สถานะ: ปิดการทำงาน (STANDBY OFF)</div>
+                        <button id="relay-btn-3" onclick="toggleRemoteRelay(3, 'ปั๊มสารละลายปุ๋ย AB')" class="w-full px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-power-off"></i> สั่งเปิด (OFF)
+                        </button>
+                    </div>
+
+                    <!-- Relay 4 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:border-emerald-400 transition space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-400 font-mono">CH-04 (PIN D7)</span>
+                            <span id="relay-led-4" class="w-3 h-3 rounded-full bg-gray-300 inline-block"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-800">พัดลมระบายอากาศโรงเรือน</h4>
+                            <p class="text-[11px] text-gray-500">ลดความร้อนสะสมช่วงกลางวัน</p>
+                        </div>
+                        <div id="relay-status-4" class="text-[11px] font-bold text-gray-400">สถานะ: ปิดการทำงาน (STANDBY OFF)</div>
+                        <button id="relay-btn-4" onclick="toggleRemoteRelay(4, 'พัดลมระบายอากาศโรงเรือน')" class="w-full px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-power-off"></i> สั่งเปิด (OFF)
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Live MQTT Packet Console Stream Box -->
+                <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 font-mono text-xs text-gray-300 space-y-2 shadow-inner">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-[11px]">
+                        <span class="text-emerald-400 font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-emerald-500"></i> MQTT TELEMETRY PACKET CONSOLE (ESP32-S3 CLIENT)
+                        </span>
+                        <span class="text-[10px] text-gray-500">Topic: /board/relay/+/cmd</span>
+                    </div>
+                    <div id="mqtt-log-console" class="max-h-28 overflow-y-auto space-y-1 text-[11px]">
+                        <div class="text-[10px] font-mono text-emerald-400">
+                            [System Ready] Connected to MQTT Broker tcp://localhost:1883 | ClientID: LEQs_ESP32S3_Gateway
+                        </div>
+                        <div class="text-[10px] font-mono text-gray-500">
+                            [Subscription] Subscribed to topic /board/relay/+/cmd (QoS: 1)
+                        </div>
                     </div>
                 </div>
 
