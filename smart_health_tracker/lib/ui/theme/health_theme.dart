@@ -12,6 +12,16 @@ class HealthTheme {
   static const Color cyanDistance = Color(0xFF00E5FF);
   static const Color purpleTime = Color(0xFFB388FF);
 
+  static const Color alertRed = Color(0xFFFF5252);
+  static const Color blueDistance = Color(0xFF2979FF);
+  static const Color cardBackground = Color(0xFF131A29);
+  static const Color cyanPrimary = Color(0xFF00E5FF);
+  static const Color emeraldActive = Color(0xFF00E676);
+  static const Color goldRBRU = Color(0xFFFFD700);
+  static const Color neonCyan = Color(0xFF00E5FF);
+  static const Color neonEmerald = Color(0xFF00E676);
+  static const Color neonOrange = Color(0xFFFF6D00);
+
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,

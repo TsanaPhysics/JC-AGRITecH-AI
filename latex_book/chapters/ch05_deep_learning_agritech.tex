@@ -242,7 +242,7 @@ def train_agri_model(model, train_loader, val_loader, epochs=50, lr=1e-3):
 
 \subsection{การแปลงเป็น C++ Inference Engine และการทำงานบน ESP32-S3}
 
-น้ำหนักโครงข่ายประสาทเทียมทั้งหมด (549 พารามิเตอร์) ถูกแปลงเป็นไฟล์เฮดเดอร์ C++ ภาษา C++ สแตนดาร์ด \texttt{gravity/include/SoilNeuralCalibrator.h} โดยใช้เทคนิค \textbf{Zero Dynamic Memory Allocation} เพื่อป้องกันการเกิดภาวะหน่วยความจำแตกกระจาย (Heap Fragmentation) บนไมโครคอนโทรลเลอร์:
+น้ำหนักโครงข่ายประสาทเทียมทั้งหมด (549 พารามิเตอร์) ถูกแปลงเป็นไฟล์เฮดเดอร์ C++ ภาษา C++ สแตนดาร์ด \texttt{esp32-board/include/SoilNeuralCalibrator.h} โดยใช้เทคนิค \textbf{Zero Dynamic Memory Allocation} เพื่อป้องกันการเกิดภาวะหน่วยความจำแตกกระจาย (Heap Fragmentation) บนไมโครคอนโทรลเลอร์:
 
 \begin{cppbox}[โครงสร้าง C++ Inference Engine ของ SoilNeuralCalibrator บน ESP32-S3]
 #include <Arduino.h>

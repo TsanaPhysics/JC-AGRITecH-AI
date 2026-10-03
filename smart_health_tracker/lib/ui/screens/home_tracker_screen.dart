@@ -156,7 +156,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'SMART HEALTH TRACKER',
+                            'LEQs AgriSci xAI',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -483,16 +483,22 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.history_toggle_off, color: HealthTheme.goldRBRU, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'สถิติบันทึกอัตโนมัติรอบ 4 ชม.',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              const Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.history_toggle_off, color: HealthTheme.goldRBRU, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'สถิติบันทึกอัตโนมัติรอบ 4 ชม.',
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${intervals.length} รายการ',
                 style: TextStyle(color: Colors.grey[400], fontSize: 11),

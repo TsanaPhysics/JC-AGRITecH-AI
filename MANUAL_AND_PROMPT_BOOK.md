@@ -178,13 +178,13 @@
 > **ผู้ใช้:** *"กลับไปที่ http://localhost:8501/ แล้วต้องการเชื่อมต่อ wifi : JChome (Pass. JCHome2023) กับบอร์ด"* -> *"upload ไฟล์ไปบอร์ด"*
 * **การดำเนินการของ AI:**
   * ตรวจสอบ IP ปัจจุบันของเครื่องคอมพิวเตอร์บนวง Wi-Fi `JChome`: ได้รับ IP `192.168.0.120`
-  * อัปเดตค่าคอนฟิกใน `gravity/include/UserConfigs.h`:
+  * อัปเดตค่าคอนฟิกใน `esp32-board/include/UserConfigs.h`:
     * `WIFI_SSID = "JChome"`
     * `WIFI_PASSWORD = "JCHome2023"`
     * `ENABLE_CUSTOM_SERVER = true`
     * `CUSTOM_SERVER_URL = "http://192.168.0.120:8000/api/telemetry"`
   * สแกนพอร์ต USB Serial บนระบบ พบอุปกรณ์บอร์ด ATD3.5-S3 อยู่ที่ `/dev/cu.usbserial-10` (CP2102N USB to UART Bridge)
-  * อัปเดตพอร์ตใน `gravity/platformio.ini` ให้ชี้ไปยัง `/dev/cu.usbserial-10`
+  * อัปเดตพอร์ตใน `esp32-board/platformio.ini` ให้ชี้ไปยัง `/dev/cu.usbserial-10`
   * ติดตั้งเครื่องมือ PlatformIO CLI ผ่าน `pipx` และสั่งคำสั่งคอมไพล์พร้อมเบิร์นเฟิร์มแวร์:
     ```bash
     pio run -d /Users/chewathassana/Desktop/handysense/gravity -t upload
@@ -194,7 +194,7 @@
 ### 🔹 พรอมพ์ที่ 19: ปรับเปลี่ยนชื่อ Wi-Fi SSID เป็น JC_Home และเบิร์นเฟิร์มแวร์ใหม่
 > **ผู้ใช้:** *"xปรับเป็น Wi-Fi SSID: JC_Home"*
 * **การดำเนินการของ AI:**
-  * ปรับแต่งค่าพารามิเตอร์ใน `gravity/include/UserConfigs.h`:
+  * ปรับแต่งค่าพารามิเตอร์ใน `esp32-board/include/UserConfigs.h`:
     * `#define WIFI_SSID "JC_Home"` (พร้อมรหัสผ่าน `"JCHome2023"`)
   * สั่งคอมไพล์และอัปโหลดเฟิร์มแวร์ลงบอร์ดทันทีผ่าน PlatformIO:
     ```bash
@@ -396,7 +396,7 @@
       * แสดง SSID, IP Address, ความแรงสัญญาณ RSSI, และ URL เซิร์ฟเวอร์ Cloud
       * มีปุ่มสัมผัส **"📶 สแกน QR Code ตั้งค่าผ่านมือถือ"**
   * **พัฒนาระบบตั้งค่า Wi-Fi โดยไม่ต้องแฟลชโค้ดใหม่ (Zero-Recompile Wi-Fi Manager):**
-    * สร้างโมดูล [WiFiConfigManager.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/WiFiConfigManager.h) และ [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/WiFiConfigManager.cpp)
+    * สร้างโมดูล [WiFiConfigManager.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/WiFiConfigManager.h) และ [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/WiFiConfigManager.cpp)
     * บันทึก SSID และ Password ลงใน **ESP32 NVS Flash Memory (Preferences)** อย่างถาวร
     * เมื่อเข้าสู่โหมดตั้งค่า: บอร์ดจะเปิด SoftAP ชื่อ `JC-AgriTech-Setup` (IP: `192.168.4.1`) รัน DNS Captive Portal และ WebServer
     * หน้าจอ LCD จะเรนเดอร์ **QR Code** ขึ้นมาทันทีด้วย `lcd.qrcode("http://192.168.4.1", ...)`
@@ -485,13 +485,13 @@
 
 ## 6. โครงสร้างโค้ดและหน้าที่ของแต่ละไฟล์ (Codebase Architecture)
 
-### ฝั่งเฟิร์มแวร์ไมโครคอนโทรลเลอร์ (`/gravity/`)
-* **[include/PinConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/PinConfigs.h):** แมปขาฮาร์ดแวร์ ESP32-S3 กับ Farm1 Shield (I2C: 9/8, RS485: 41/40, ADC: 1, Relays: 39/38/7/6)
-* **[include/UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/UserConfigs.h):** ค่าตั้งค่าระบบ, Wi-Fi SSID/Pass, IP ปลายทาง Server (`10.100.2.179:8000`)
-* **[src/AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/AgriSensors.cpp):** ไดรเวอร์เซนเซอร์ 4 ตัว และสูตรคำนวณปฐพีวิทยา (VPD, Dew Point, Solar Radiation)
-* **[src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp):** ควบคุมจอภาพ ST7796, เรนเดอร์ 4 การ์ด Telemetry, ฟอนต์ไทย "ชีวะ ทัศนา"
-* **[src/CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp):** ซิงค์เวลา NTP (UTC+7) และยิง HTTP POST ข้อมูล JSON ไปยัง Server แบบ Non-blocking
-* **[src/main.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/main.cpp):** ลูปหลักและลอจิกการตัดสินใจควบคุมปั๊มน้ำ/พ่นหมอกอัตโนมัติ
+### ฝั่งเฟิร์มแวร์ไมโครคอนโทรลเลอร์ (`/esp32-board/`)
+* **[include/PinConfigs.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/PinConfigs.h):** แมปขาฮาร์ดแวร์ ESP32-S3 กับ Farm1 Shield (I2C: 9/8, RS485: 41/40, ADC: 1, Relays: 39/38/7/6)
+* **[include/UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/UserConfigs.h):** ค่าตั้งค่าระบบ, Wi-Fi SSID/Pass, IP ปลายทาง Server (`10.100.2.179:8000`)
+* **[src/AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/AgriSensors.cpp):** ไดรเวอร์เซนเซอร์ 4 ตัว และสูตรคำนวณปฐพีวิทยา (VPD, Dew Point, Solar Radiation)
+* **[src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp):** ควบคุมจอภาพ ST7796, เรนเดอร์ 4 การ์ด Telemetry, ฟอนต์ไทย "ชีวะ ทัศนา"
+* **[src/CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp):** ซิงค์เวลา NTP (UTC+7) และยิง HTTP POST ข้อมูล JSON ไปยัง Server แบบ Non-blocking
+* **[src/main.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/main.cpp):** ลูปหลักและลอจิกการตัดสินใจควบคุมปั๊มน้ำ/พ่นหมอกอัตโนมัติ
 
 ### ฝั่งเซิร์ฟเวอร์และแดชบอร์ด (`/server/`)
 * **[server/database.py](file:///Users/chewathassana/Desktop/handysense/server/database.py):** สคีมาฐานข้อมูล SQLAlchemy (SQLite/PostgreSQL) เก็บข้อมูลอนุกรมเวลา
@@ -529,7 +529,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 ## 8. แนวทางการนำข้อมูลไปฝึกโมเดล Deep Learning (PyTorch / Google Colab)
 
 สำหรับผู้ที่ต้องการนำข้อมูลไปพัฒนาโมเดลระดับสูงขึ้นบน Google Colab:
-1. เปิดไฟล์ [ai_colab_starter.py](file:///Users/chewathassana/Desktop/handysense/gravity/ai_colab_starter.py)
+1. เปิดไฟล์ [ai_colab_starter.py](file:///Users/chewathassana/Desktop/handysense/esp32-board/ai_colab_starter.py)
 2. สคริปต์นี้มีคลาส **`AgriTimeSeriesDataset`** ซึ่งทำหน้าที่แปลงข้อมูลอนุกรมเวลาเป็น Sliding Windows (`Lookback = 12 steps -> Predict 1 step ahead`)
 3. สถาปัตยกรรมโมเดล **`AgriLSTMForecaster` (PyTorch LSTM)** พร้อมทำงานทันที:
    ```python
@@ -573,7 +573,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 
 ### 10.1 สถาปัตยกรรมฟอนต์และการเรนเดอร์บนฮาร์ดแวร์ (ESP32-S3 LovyanGFX)
 1. **ภาษาไทย (Thai):**
-   - พัฒนาไฟล์ฟอนต์ VLW เวกเตอร์บิตแมปแบบ Custom [ThaiFontVLW.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/ThaiFontVLW.h) ขนาด 25 KB บรรจุในหน่วยความจำ Flash (`PROGMEM`)
+   - พัฒนาไฟล์ฟอนต์ VLW เวกเตอร์บิตแมปแบบ Custom [ThaiFontVLW.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/ThaiFontVLW.h) ขนาด 25 KB บรรจุในหน่วยความจำ Flash (`PROGMEM`)
    - รองรับตัวอักษรไทยครบทุกตัว พยัญชนะ สระ วรรณยุกต์ (Unicode `0x0E01` – `0x0E5B`) และรหัส ASCII พื้นฐาน (`0x20` – `0x7E`)
    - โหลดเข้าสู่จอผ่านคำสั่ง `lcd.loadFont(thai_font_vlw);`
 2. **ภาษาจีน (Chinese):**
@@ -776,10 +776,10 @@ cd /Users/chewathassana/Desktop/handysense/server
       * **Soil pH:** $R^2 = 0.9890$, $MAE = 0.10\text{ pH}$
       * **Soil Moisture:** $R^2 = 0.9970$, $MAE = 0.96\%$
     * ส่งออกค่าน้ำหนัก (Weights & Biases 549 ตัว) และ Scaler ลงสู่ C++ Header อัตโนมัติ
-  * **พัฒนา C++ TinyML Inference Engine ([gravity/include/SoilNeuralCalibrator.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/SoilNeuralCalibrator.h)):**
+  * **พัฒนา C++ TinyML Inference Engine ([esp32-board/include/SoilNeuralCalibrator.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/SoilNeuralCalibrator.h)):**
     * ออกแบบการคำนวณแบบ Pure C++ ไม่ใช้ Dynamic Memory Allocation (No Heap fragmentation)
     * ใช้หน่วยความจำ Flash เพียง $< 2.2\text{ KB}$ และใช้เวลาคำนวณบน ESP32-S3 Xtensa FPU เพียง $< 0.12\text{ ms}$
-  * **ผนวกเข้ากับเฟิร์มแวร์ระบบ ([gravity/src/AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/AgriSensors.cpp) และ [gravity/src/CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp)):**
+  * **ผนวกเข้ากับเฟิร์มแวร์ระบบ ([esp32-board/src/AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/AgriSensors.cpp) และ [esp32-board/src/CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp)):**
     * เพิ่มฟิลด์ `aiCalibrated` ลงใน `FarmSensorTelemetry`
     * รันการชดเชยค่าแบบเรียลไทม์ในลูปเซนเซอร์ และพิมพ์รายงานเปรียบเทียบค่าดิบ (Raw) vs ค่าที่ชดเชยด้วย AI (Calibrated) บน Serial Dashboard
     * ส่งข้อมูลโครงข่ายประสาทเทียมผ่าน JSON Telemetry เข้าสู่ Cloud/FastAPI Server
@@ -880,7 +880,7 @@ cd /Users/chewathassana/Desktop/handysense/server
     * จัดทำ [README.md](file:///Users/chewathassana/Desktop/handysense/README.md) หน้าหลักของโครงการ สรุปสถาปัตยกรรม 5 เลเยอร์, โครงสร้างไฟล์, วิธีการรันระบบ และภาพประกอบระบบจริง
   * **นำส่งข้อมูลขึ้น GitHub Repository ([https://github.com/Tsanaphy2023/JC-AGRITecH2026](https://github.com/Tsanaphy2023/JC-AGRITecH2026)):**
     * รวมไฟล์ทั้งหมด 65 ไฟล์ 12,817 บรรทัด ครอบคลุม:
-      1. `gravity/` (ESP32-S3 Firmware C++, PlatformIO, TinyML Calibrator, LCD UI)
+      1. `esp32-board/` (ESP32-S3 Firmware C++, PlatformIO, TinyML Calibrator, LCD UI)
       2. `server/` (FastAPI Cloud Service, Streamlit Cockpit, SQLite DB, Serial Bridge)
       3. `scripts/` (สคริปต์ฝึกโมเดล TinyML และจำลองฟิสิกส์เคมีดิน)
       4. `latex_book/` (ต้นฉบับตำราวิชาการ 78 หน้า พร้อมไฟล์ PDF คุณภาพสูง)
@@ -898,7 +898,7 @@ cd /Users/chewathassana/Desktop/handysense/server
     3. **หน้า SHT45 (`PAGE_DETAIL_AIR`):** บาร์กราฟความชื้นทับซ้อนกับป้าย `"เกจวัดความชื้น:"`, ป้ายสถานะ `[ ความชื้นสูงเกินไป ]` ทับซ้อนกับค่า `VPD`
     4. **หน้า BH1750 (`PAGE_DETAIL_LIGHT`):** เกจแสงทับซ้อนกับข้อความระดับรังสี, ป้าย `[ แดดร่ม พืชพักตัว ]` ทับซ้อนกับค่า `PAR (PPFD)`
     5. **แถบหัวเรื่อง (`drawDetailHeader`):** กรอบข้อความหัวเรื่องกว้าง 240px ทำให้ชื่อบางหน้าถูกตัดขอบ (Truncation)
-  * **ยกเครื่องเฟิร์มแวร์ C++ ([gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+  * **ยกเครื่องเฟิร์มแวร์ C++ ([esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
     * ปรับปรุงแถบหัวเรื่อง `drawDetailHeader` ขยายกรอบชื่อเรื่องเป็น 252px ปรับสัดส่วนปุ่ม `< ย้อน` และ `ถัดไป >` ให้อยู่ในระยะสัมผัสที่แม่นยำ
     * ออกแบบโครงสร้างเกจบาร์กราฟใหม่แยกแถวเด็ดขาด (Dedicated Row): บรรทัดบนแสดงชื่อเกจและตัวเลขเปอร์เซ็นต์ บรรทัดล่างแสดงหลอดเกจเต็มความกว้างการ์ด 428px พร้อมมุมโค้งมนและสีเปลี่ยนตามสภาวะ
     * จัดตำแหน่งป้ายสถานะ (Status Pill Badge) ให้อยู่ฝั่งขวาชัดเจน ไม่ทับซ้อนกับค่าตัวเลขดัชนีทางฟิสิกส์
@@ -935,7 +935,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 ### 🔹 พรอมพ์ที่ 43: ปรับแต่งหน้าจอแสดงผลทั้ง 4 การ์ดในบอร์ดจริงให้ตรงกับภาพออกแบบ 100% พร้อมระบบสัมผัสเลื่อนหน้าจอและสไลด์บาร์ (Interactive Scrollbar)
 > **ผู้ใช้:** *"หน้าจอแสดงผลในบอร์ดของทั้งสี่การ์ด ยังไม่เหมือนกับภาพทั้งสี่ที่ได้ออกแบบไว้ ช่วยปรับแก้ๆข โดยถ้าข้อมูลล้นหน้าจอให้สามารถสไลด์ได้โดยอาจมีสไลด์บาร์"*
 * **การดำเนินการของ AI:**
-  * **ปรับปรุงสถาปัตยกรรม UI บนเฟิร์มแวร์ ESP32-S3 ([gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+  * **ปรับปรุงสถาปัตยกรรม UI บนเฟิร์มแวร์ ESP32-S3 ([esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
     * ปรับแต่งเลย์เอาต์ของการ์ดเซนเซอร์ทั้ง 4 หน้าจอ (`drawPageDetailAir`, `drawPageDetailLight`, `drawPageDetailSoil1`, `drawPageDetailSoil7`) ให้สอดคล้องกับภาพออกแบบ Master Render (`figure_sensor_01_soil_stick.jpg`, `figure_sensor_02_soil_7in1.jpg`, `figure_sensor_03_sht45.jpg`, `figure_sensor_04_bh1750.jpg`) 100%
     * เพิ่มฟังก์ชันวาด Cyber Badge Tags ระดับพรีเมียม `drawBadgeTag(...)` สำหรับแท็กระบุหมวดหมู่ค่าตรวจวัด เช่น `[TEMP]`, `[RH%]`, `[SOLAR]`, `[LUX]`, `[SOIL]`, `[ADC]`, `[ROOT]`, `[pH]`, `[AI]`
     * ออกแบบการ์ดเขตรากลึก Soil 7-in-1 ให้มีบล็อกกรอบนีออนไซแอน (`0x07FF`) พื้นหลัง Dark Teal (`0x0124`) สำหรับ **TinyML Edge AI Calibrated** พร้อม 4 แคปซูลสีแยกชัดเจน (`AI-N`, `AI-P`, `AI-K`, `AI-pH`) และค่าความชื้นแท้จริงพยากรณ์ True Moist AI
@@ -955,7 +955,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 ### 🔹 พรอมพ์ที่ 44: ปรับเพิ่มระยะห่างระหว่างบรรทัดของการ์ดเซนเซอร์เป็น 1.5 - 1.7 เท่า เพื่อความชัดเจนและอ่านค่าง่าย
 > **ผู้ใช้:** *"ปรับเพิ่มระยะห่างระหว่างบรรทัดของแต่ละบรรทัด  เป็น 1.5-1.7 เท่า  เนื่องจากตอนนี้อยู่ชิดกันมาก อ่านค่าได้ยาก"*
 * **การดำเนินการของ AI:**
-  * **ปรับระยะห่างบรรทัด (Line-Height Scaling) บนเฟิร์มแวร์ ESP32-S3 ([gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+  * **ปรับระยะห่างบรรทัด (Line-Height Scaling) บนเฟิร์มแวร์ ESP32-S3 ([esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
     * ปรับเพิ่มระยะห่างแนวดิ่งระหว่างบรรทัดข้อความ แท็กป้ายกำกับ และเกจบาร์กราฟ จากเดิม 18--22 พิกเซล เป็น **32--34 พิกเซล** (คิดเป็นอัตราส่วน 1.55--1.70 เท่า) ครบทั้ง 4 หน้าจอเจาะลึกเซนเซอร์ (`drawPageDetailAir`, `drawPageDetailLight`, `drawPageDetailSoil1`, `drawPageDetailSoil7`)
     * ขยายมิติความสูงของการ์ดทั้ง 3 ระดับในแต่ละหน้าจอ:
       * **การ์ดที่ 1 (Hero & Gauge Card):** ขยายจาก 134px เป็น **200px** (สำหรับ Air, Light, Soil Stick) และจาก 196px เป็น **328px** (สำหรับ Soil 7-in-1 ที่มีกล่อง TinyML Edge AI Calibrated)
@@ -1042,9 +1042,9 @@ cd /Users/chewathassana/Desktop/handysense/server
 ### 🔹 พรอมพ์ที่ 48: การตรวจสอบความพร้อมการเชื่อมต่อ Wi-Fi และการกำหนด IP เครื่อง Mac
 > **ผู้ใช้:** *"ต้องการเชื่อมต่อ wifi ช่วยตรวจสอบว่าระบบปัจจุบันรองรับหรือยัง"*, *"ต้องการให้ชี้ IP ปลายทางมายังเครื่อง Mac ในวงเดียวกัน"*
 * **การดำเนินการของ AI:**
-  * ตรวจสอบซอร์สโค้ดเฟิร์มแวร์ [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp) และ [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/WiFiConfigManager.cpp) ยืนยันว่าระบบรองรับ Wi-Fi 100% มีระบบ Auto-Rotation 8 คู่รหัสผ่าน และ Captive Portal `192.168.4.1`
+  * ตรวจสอบซอร์สโค้ดเฟิร์มแวร์ [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp) และ [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/WiFiConfigManager.cpp) ยืนยันว่าระบบรองรับ Wi-Fi 100% มีระบบ Auto-Rotation 8 คู่รหัสผ่าน และ Captive Portal `192.168.4.1`
   * ค้นหา IP Address ในวงแลนจริงของเครื่อง Mac (`en0` / `en1`) พบหมายเลข `192.168.0.120`
-  * อัปเดตไฟล์คอนฟิก [gravity/include/UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/UserConfigs.h):
+  * อัปเดตไฟล์คอนฟิก [esp32-board/include/UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/UserConfigs.h):
     ```cpp
     #define ENABLE_CUSTOM_SERVER        true
     #define CUSTOM_SERVER_URL           "http://192.168.0.120:8000/api/telemetry"
@@ -1061,7 +1061,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 > **ผู้ใช้:** *"A fatal error occurred: Could not open /dev/cu.usbserial-110 ... No such file or directory"*, *"ต้องการรับข้อมูลผ่าน wifi"*
 * **การดำเนินการของ AI:**
   * ตรวจสอบพอร์ตสื่อสารจริงบน macOS ของผู้ใช้ พบพอร์ตของบอร์ด ATD3.5-S3 คือ `/dev/cu.usbserial-210`
-  * ปลดล็อคค่า Hardcoded พอร์ตใน [gravity/platformio.ini](file:///Users/chewathassana/Desktop/handysense/gravity/platformio.ini) ให้ PlatformIO ทำการค้นหาพอร์ตบอร์ดอัตโนมัติ (Auto-Detection)
+  * ปลดล็อคค่า Hardcoded พอร์ตใน [esp32-board/platformio.ini](file:///Users/chewathassana/Desktop/handysense/esp32-board/platformio.ini) ให้ PlatformIO ทำการค้นหาพอร์ตบอร์ดอัตโนมัติ (Auto-Detection)
   * อัปเดตรายการพอร์ตลำดับแรกใน [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) และ [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้รองรับ `/dev/cu.usbserial-210`
   * ให้คำแนะนำและคู่มือการรันระบบรับข้อมูล Wi-Fi ไร้สายผ่าน FastAPI Server (`uvicorn main_api:app --host 0.0.0.0 --port 8000`) และ Streamlit Dashboard (:8501) หรือรันผ่านสคริปต์รวม `./run.sh` แบบอัตโนมัติ
 
@@ -1073,10 +1073,10 @@ cd /Users/chewathassana/Desktop/handysense/server
     * พื้นที่ด้านบน (Top Header Bar ความสูง 40px) ระหว่างโลโก้ `JC-AGRITecH +AI` ด้านซ้าย กับไอคอน `Wi-Fi` และปุ่ม `[ 🇹🇭 TH ]` ด้านขวา มีพื้นที่ว่างกว้างถึง 170px ซึ่งเดิมวางข้อความ `เวอร์ชั่น 1.0` ไว้
     * **ผู้ใช้เลือก Option A (Top Header Center Capsule Clock):** แปลงพื้นที่ว่างดังกล่าวให้เป็นแคปซูลแสดงผลวันเดือนปีและนาฬิกาดิจิทัล ซึ่งเด่นชัด ไม่รบกวนการ์ดเซนเซอร์ และคงความหรูหราทันสมัยระดับพรีเมียม
   * **การพัฒนาในฝั่งเฟิร์มแวร์ C++ (LovyanGFX):**
-    * **[gravity/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp):**
+    * **[esp32-board/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp):**
       * เพิ่มฟังก์ชัน `CloudDataManager_getDateString()` ส่งคืนวันที่ในรูปแบบ `DD/MM/YYYY`
       * เพิ่มฟังก์ชัน `CloudDataManager_getTimeString()` ส่งคืนเวลาในรูปแบบ `HH:MM:SS`
-    * **[gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp):**
+    * **[esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp):**
       * ออกแบบฟังก์ชัน `drawOverviewTopHeader()` สร้างแคปซูลพิกัด `x: 208, y: 6, w: 168, h: 26, r: 13` พื้นหลังสีเข้มหรู (`0x0185`) ขอบเขียวมรกตเรืองแสง (`0x15D3`)
       * ข้อความสีฟ้าไซแอนเรืองแสง (`0x07FF`) ฟอนต์ `Font2` แสดง `DD/MM/YY HH:MM:SS` (หรือ `NTP SYNCING...` ในช่วงที่กำลังเชื่อมต่อ NTP)
       * พัฒนากลไก `updateTopHeaderClock()` อัปเดตเฉพาะพื้นที่ด้านในแคปซูลทุกๆ 1 วินาที โดยไม่สั่งวาดทั้งหน้าจอ ทำให้หน้าจอนิ่งสนิท 100% ไร้การกระพริบ (Flicker-Free 60 FPS)
@@ -1094,7 +1094,7 @@ cd /Users/chewathassana/Desktop/handysense/server
     * **แถวที่ 2 (ด้านล่าง - กึ่งกลาง):** แสดงค่า **VPD (Vapor Pressure Deficit)** โดยจัดกึ่งกลางการ์ด ($X=122$) พร้อมป้าย `VPD ` สีเขียวนีออน และหน่วย ` kPa` สีฟ้าอ่อน
     * **ขนาดฟอนต์ตัวเลข VPD:** ใช้ฟอนต์ **`&fonts::Font4`** สีขาวคมชัด (`0xFFFF`) ซึ่งเป็นฟอนต์ขนาดใหญ่ระดับเดียวกับตัวเลขอุณหภูมิและค่าความชื้นเป๊ะๆ ตามความต้องการของผู้ใช้
   * **การปรับปรุงทั้งสองแพลตฟอร์มอย่างสอดประสานกัน:**
-    * **บอร์ด ATD3.5-S3:** แก้ไขใน [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ทำการคอมไพล์และแฟลชอัปโหลดลงบอร์ดผ่าน `/dev/cu.usbserial-210` สำเร็จ
+    * **บอร์ด ATD3.5-S3:** แก้ไขใน [esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp) ทำการคอมไพล์และแฟลชอัปโหลดลงบอร์ดผ่าน `/dev/cu.usbserial-210` สำเร็จ
     * **เว็บแดชบอร์ด Streamlit:** แก้ไขใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ปรับโครงสร้าง HTML/CSS ของการ์ด Microclimate Weather ให้ VPD อยู่กึ่งกลางด้านล่างด้วยฟอนต์ `3.2rem` เทียบเท่าอุณหภูมิ
 
 ### 🔹 พรอมพ์ที่ 53: ปรับหัวข้อการ์ด 4 มิติหลักเป็นภาษาไทย ตัวหนา คมชัด พร้อมคู่สีนีออนสดใสแยกตามหมวดหมู่
@@ -1110,7 +1110,7 @@ cd /Users/chewathassana/Desktop/handysense/server
     * ใช้วิธีพิมพ์ข้อความสองครั้งเหลื่อมพิกเซลแกน X ทีละ 1px (`drawString(t, x, y)` และ `drawString(t, x+1, y)`) ส่งผลให้ตัวอักษรภาษาไทยหนา คมกริบ ไร้รอยแตกบนจอ ST7796 IPS
     * ผูกฟังก์ชัน `L_STR(...)` รองรับการสลับภาษาแบบ Multi-language (TH / EN / ZH) ผ่านปุ่มสลับภาษาด้านบน
   * **อัปเดตระบบควบคู่:**
-    * อัปเดตเฟิร์มแวร์บอร์ด [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) คอมไพล์และแฟลชอัปโหลดสำเร็จ
+    * อัปเดตเฟิร์มแวร์บอร์ด [esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp) คอมไพล์และแฟลชอัปโหลดสำเร็จ
     * อัปเดตเว็บแดชบอร์ด [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ปรับแต่งป้ายหัวการ์ดทั้ง 4 เป็นภาษาไทยสีสันสดใสตัวหนา 800 สวยงามระดับมืออาชีพ
 
 ### 🔹 พรอมพ์ที่ 54: ปรับสีของ VPD และสีของหน่วยปริมาณการวัดต่างๆ ให้เป็นสีสว่างสดใส อ่านง่ายชัดเจน
@@ -1130,7 +1130,7 @@ cd /Users/chewathassana/Desktop/handysense/server
          * หน่วย **`uS/cm`**: ปรับเป็น **ฟ้าสกายบลูสว่างสดใส (`0x3DFF` / `#38bdf8`)**
          * หน่วย **`mg/kg`** (NPK): ปรับเป็น **เหลืองทองสว่างชัดเจน (`0xFFE0` / `#fde047`)**
   * **การพัฒนาและติดตั้งจริง (End-to-End Implementation):**
-    * **เฟิร์มแวร์บอร์ด ATD3.5-S3:** ปรับปรุงใน [gravity/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ทำการ Build และแฟลชอัปโหลดผ่าน PlatformIO ลงชิป ESP32-S3 ทางพอร์ต `/dev/cu.usbserial-210` สำเร็จสมบูรณ์
+    * **เฟิร์มแวร์บอร์ด ATD3.5-S3:** ปรับปรุงใน [esp32-board/src/DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp) ทำการ Build และแฟลชอัปโหลดผ่าน PlatformIO ลงชิป ESP32-S3 ทางพอร์ต `/dev/cu.usbserial-210` สำเร็จสมบูรณ์
     * **เว็บแดชบอร์ด:** ปรับปรุงใน [server/dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้สีของหน่วยวัดสอดคล้องกับหน้าจอบอร์ดจริง 100%
     * **บริการรับข้อมูล:** ฟื้นฟูการทำงานของ [server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py) เชื่อมต่อแบบเรียลไทม์ ไร้ข้อผิดพลาด
 
@@ -1144,8 +1144,8 @@ cd /Users/chewathassana/Desktop/handysense/server
     * เมื่อต่อ Wi-Fi: ซิงค์เวลาโลกผ่านอินเทอร์เน็ต (NTP) ตามปกติ
     * เมื่อเสียบสาย USB: เครื่องคอมพิวเตอร์ Mac จะส่ง Unix Timestamp ปัจจุบันผ่านคำสั่ง Serial `TIME:<epoch>\n` ไปยังบอร์ดทันทีที่เชื่อมต่อและทุกๆ 10 วินาที
   * **การแก้ไขในเฟิร์มแวร์ C++:**
-    * **[gravity/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp):** พัฒนาฟังก์ชัน `CloudDataManager_checkSerialTimeSync()` ดักจับคำสั่ง Serial และอัปเดตนาฬิกาภายใน ESP32-S3 ด้วย `settimeofday(&tv, NULL)`
-    * **[gravity/src/main.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/main.cpp):** เรียกตรวจจับคำสั่งในลูปหลัก ทำให้บอร์ดตั้งเวลาได้ในระดับมิลลิวินาที
+    * **[esp32-board/include/CloudDataManager.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/CloudDataManager.h) & [CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp):** พัฒนาฟังก์ชัน `CloudDataManager_checkSerialTimeSync()` ดักจับคำสั่ง Serial และอัปเดตนาฬิกาภายใน ESP32-S3 ด้วย `settimeofday(&tv, NULL)`
+    * **[esp32-board/src/main.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/main.cpp):** เรียกตรวจจับคำสั่งในลูปหลัก ทำให้บอร์ดตั้งเวลาได้ในระดับมิลลิวินาที
     * **[server/serial_bridge.py](file:///Users/chewathassana/Desktop/handysense/server/serial_bridge.py):** ส่งคำสั่ง `TIME:{int(now)}\n` แบบ Non-blocking ไปยังบอร์ดเป็นระยะ
 * **ผลลัพธ์การทดสอบ:**
   * ทันทีที่รันระบบ บอร์ด ATD3.5-S3 ตอบสนอง `[CloudData] Time Synced via USB Serial: 2026-09-12 11:52:48 (UTC+7)`
@@ -1169,7 +1169,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 > **ผู้ใช้:** *"สัญญลักษณ์ wifi ของ ATD ยังคงเป้นสีเทา ทำไมไม่เป็นสีเขียวที่แสดงถึงการเชื่อมต่อกับ wifi router ได้จริง"*
 * **การวิเคราะห์ทางวิศวกรรมเชิงลึก (Deep Diagnostic & Root Cause Analysis):**
   * **1. ตรรกะสีของสัญญลักษณ์ Wi-Fi บนหน้าจอ:**
-    * ในซอร์สโค้ด [DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp) ไอคอน Wi-Fi จะเป็น **สีเขียวสว่าง (`0x15D3` หรือ Bright Green)** ก็ต่อเมื่อเงื่อนไข `WiFi.status() == WL_CONNECTED` เป็นจริง (ได้รับ IP Address จริงจาก Router แล้วเท่านั้น ไม่มีการใช้ค่าจำลองเพื่อความโปร่งใสทางวิศวกรรม)
+    * ในซอร์สโค้ด [DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp) ไอคอน Wi-Fi จะเป็น **สีเขียวสว่าง (`0x15D3` หรือ Bright Green)** ก็ต่อเมื่อเงื่อนไข `WiFi.status() == WL_CONNECTED` เป็นจริง (ได้รับ IP Address จริงจาก Router แล้วเท่านั้น ไม่มีการใช้ค่าจำลองเพื่อความโปร่งใสทางวิศวกรรม)
     * หากสถานะยังไม่ได้เชื่อมต่อ ไอคอนจะแสดงเป็น **สีเทาเข้ม (`0x52AA` หรือ Dark Slate Gray)**
   * **2. ผลการตรวจจับสัญญาณ Serial Telemetry Log จริงจาก ESP32-S3:**
     * จากการดักจับ Serial Event พบว่าชิป ESP32 ส่งรหัส:
@@ -1199,7 +1199,7 @@ cd /Users/chewathassana/Desktop/handysense/server
 ### 🔹 พรอมพ์ที่ 58: ปรับเพิ่มความหนาและคมชัดของกรอบการ์ดเซนเซอร์และปุ่มนำทาง (High-Contrast Bold Bezel Architecture)
 > **ผู้ใช้:** *"ปรับให้กรอบของการ์ด ต่างๆ หนามากขึ้น คมชัด"*
 * **การดำเนินการของ AI:**
-  * **1. การยกระดับในระดับเฟิร์มแวร์บอร์ดฮาร์ดแวร์จริง ATD3.5-S3 ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+  * **1. การยกระดับในระดับเฟิร์มแวร์บอร์ดฮาร์ดแวร์จริง ATD3.5-S3 ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
     * **กรอบการ์ด 4 มิติหลัก (Card 1–4):** เดิมวาดด้วยเส้นเดี่ยว 1px ทำให้ดูกลืนไปกับความมืด ได้รับการอัปเกรดเป็น **กรอบมนหนา 3 ชั้น (3-Pixel Multi-Layer Bezel)** พร้อมเล่นระดับสีเรืองแสง:
       * **การ์ด 1 (สภาพอากาศรอบแปลง):** ขอบฟ้าไซแอนเรืองแสงหนา 3 พิกเซล (`0x07FF` -> `0x07FF` -> `0x03FF`)
       * **การ์ด 2 (ความเข้มแสงโดมตะวัน):** ขอบส้มทองนีออนหนา 3 พิกเซล (`0xFFE0` -> `0xFFE0` -> `0xFD20`)
@@ -1219,7 +1219,7 @@ cd /Users/chewathassana/Desktop/handysense/server
   * **1. การปรับปรุงปุ่มนำทาง "3. รีเลย์ (Relays)" (Bottom Navigation Button 3):**
     * **เดิม:** สีพื้นหลังเป็นโทนน้ำตาลแดงเข้มหม่น (`#3b1216` / `0x28A3`) เส้นขอบแดงตุ่น (`#b91c1c` / `0xF81F`) และตัวหนังสือสีชมพูอ่อนซีด (`#f87171` / `0xFCD7`) ทำให้ดูกลืนและมืดทึบ
     * **ปรับใหม่:**
-      * **หน้าจอฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+      * **หน้าจอฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
         * พื้นหลัง: สีแดงทับทิมเข้มลึกระดับพรีเมียม (`0x4002`)
         * กรอบหนา 2 ชั้น: ชั้นนอกสีแดงทับทิมนีออนสว่างสดใส (`0xF948` Vibrant Ruby Coral) ซ้อนด้วยชั้นในสีส้มแสดนีออนเรืองแสง (`0xFD20`) คมกริบ
         * ตัวหนังสือ: ปรับเป็น **สีขาวสว่างชัดเจน 100% (`0xFFFF`)** อ่านง่ายในทันที
@@ -1239,7 +1239,7 @@ cd /Users/chewathassana/Desktop/handysense/server
   * **1. การปรับปรุงแบรนด์ดิ้งส่วนหัว "JC-AGRITecH +AI" สู่ความทันสมัย หลากสีสันระดับ Cyberpunk Neon Masterpiece:**
     * **เดิม:** เป็นข้อความสีขาวล้วนชิ้นเดียว (`#ffffff` / `0xFFFF`) ทำให้ดูเรียบแบน ไร้มิติ
     * **ปรับใหม่:**
-      * **หน้าจอฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+      * **หน้าจอฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
         * **JC:** สีฟ้าไซแอนนีออน (`0x07FF` Electric Cyan)
         * **-:** สีเทาสเตนเลสหรูหรา (`0x9CF3` Muted Slate)
         * **AGRI:** สีเขียวมรกตนีออนทรงพลัง (`0x07E0` Neon Emerald Green)
@@ -1254,7 +1254,7 @@ cd /Users/chewathassana/Desktop/handysense/server
       * ปุ่มที่ 2: `📈 2. ข้อมูล/กราฟ (Graphs)` (ธีมฟ้าไซแอนนีออน)
       * ปุ่มที่ 3: `⚡ 3. รีเลย์ (Relays)` (ธีมแดงทับทิมคอรัลนีออน)
       * ปุ่มที่ 4: `⚙️ 4. ตั้งค่า (Settings)` (ธีมทองอำพันนีออน)
-    * **บนบอร์ดฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+    * **บนบอร์ดฮาร์ดแวร์จริง ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
       * เพิ่มเส้นขอบไฮไลต์ด้านบน 3D Bevel (`drawFastHLine`) จำลองแสงตกกระทบ และเงาด้านล่าง
       * ปรับปรุงพิกัดตรวจจับการสัมผัสจอ Touch Screen ใน `DisplayManager_handleTouch` ($y \ge 270$) ให้ครอบคลุมทุกพิกัดไม่มีจุดบอด แตะปุ่มใดสลับเข้าสู่หน้านั้นๆ ทันทีแบบเรียลไทม์
     * **บนเว็บแดชบอร์ด ([dashboard_app.py](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py)):**
@@ -1358,7 +1358,7 @@ cd /Users/chewathassana/Desktop/handysense/server
             border: 1.5px solid #ffffff;
         }
         ```
-    * **การแสดงผลบนหน้าจอฮาร์ดแวร์ LCD ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/DisplayManager.cpp)):**
+    * **การแสดงผลบนหน้าจอฮาร์ดแวร์ LCD ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
       * กำหนดค่าสี 16-bit RGB565 ในตารางอาร์เรย์สำหรับแต่ละระดับ:
         * pH Neutral `#2a9d8f` $\to$ `0x2CEE`
         * Nitrate Adequate `#e76f51` $\to$ `0xE36A`
@@ -1369,20 +1369,20 @@ cd /Users/chewathassana/Desktop/handysense/server
 ### 🔹 พรอมพ์ที่ 40: การบูรณาการเซนเซอร์กรด-ด่างผิวดิน (Surface Soil pH on ADC A2) และยกระดับ TinyML Full-Stack (แผน ค)
 > **ผู้ใช้:** *"จากข้อมูลการพัฒนา" -> "ตัวเลือกที่ 2" -> "แผน ค"*
 * **การดำเนินการของ AI:**
-  * **1. ฮาร์ดแวร์และการปรับสภาพสัญญาณแอนะล็อก ([PinConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/PinConfigs.h) & [UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/UserConfigs.h)):**
+  * **1. ฮาร์ดแวร์และการปรับสภาพสัญญาณแอนะล็อก ([PinConfigs.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/PinConfigs.h) & [UserConfigs.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/UserConfigs.h)):**
     * กำหนดขา `#define SOIL_PH_ADC_PIN 2` (GPIO2 / ช่อง A2 บน Farm1 Shield)
     * ตั้งค่าระบบ Two-Point Calibration สำหรับหัววัดกรด-ด่างแอนะล็อก (บัฟเฟอร์ pH 4.01 = 2.120V และ pH 7.00 = 1.500V) พร้อมดิจิทัลฟิลเตอร์ Oversampling 16 ตัวอย่าง
-  * **2. กลไกฟิสิกส์เคมีและการชดเชยอุณหภูมิเนิร์นสต์ ([AgriSensors.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/AgriSensors.h) & [AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/AgriSensors.cpp)):**
+  * **2. กลไกฟิสิกส์เคมีและการชดเชยอุณหภูมิเนิร์นสต์ ([AgriSensors.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/AgriSensors.h) & [AgriSensors.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/AgriSensors.cpp)):**
     * ขยายโครงสร้างข้อมูล `SoilStickData` ให้บันทึก `rawPhVoltage`, `ph`, และ `isPhConnected`
     * คำนวณชดเชยความชันของปฏิกิริยาเคมีไฟฟ้าแบบ Nernstian Temperature Compensation โดยดึงอุณหภูมิอากาศความแม่นยำสูงจาก Sensirion SHT45:
       $$\text{pH}_{\text{comp}} = 7.00 + (\text{pH}_{\text{raw}} - 7.00) \times \left(\frac{298.15}{T_{\text{kelvin}}}\right)$$
-  * **3. ยกระดับ TinyML On-Device Neural Calibrator ([SoilNeuralCalibrator.h](file:///Users/chewathassana/Desktop/handysense/gravity/include/SoilNeuralCalibrator.h)):**
+  * **3. ยกระดับ TinyML On-Device Neural Calibrator ([SoilNeuralCalibrator.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/SoilNeuralCalibrator.h)):**
     * พัฒนาระบบประเมินความเชื่อมั่นอัจฉริยะ **Dynamic Physics-Aware Confidence Index** หักลดค่าความเชื่อมั่น (Penalty) อัตโนมัติเมื่อเกิดสภาวะ Dry-Junction Error (ความชื้น < 20%) หรือสภาวะอุณหภูมิวิกฤต (> 40°C หรือ < 12°C) เพื่อให้ระบบหันมาพึ่งพาโมเดล AI ที่ผ่านการฝึกสอนแทน
-  * **4. ตรรกะควบคุมและเตือนภัยทางปฐพีวิทยา ([main.cpp](file:///Users/chewathassana/Desktop/handysense/gravity/src/main.cpp)):**
+  * **4. ตรรกะควบคุมและเตือนภัยทางปฐพีวิทยา ([main.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/main.cpp)):**
     * เพิ่ม Rule 3: ตรวจจับสภาวะกรดรุนแรง (pH < 5.0) เตือนการตรึงฟอสฟอรัสและแนะนำให้ใส่ปูนโดโลไมต์ปรับสภาพดิน
     * ตรวจสอบความชัน pH ข้ามชั้นดิน (Dual-Depth Gradient): เปรียบเทียบผิวดิน 0-10 ซม. (A2) กับเขตรากลึก 15-30 ซม. (7-in-1) หากต่างกันเกิน 1.2 pH จะแจ้งเตือนการตกค้างของปุ๋ยเคมีผิวดิน
   * **5. การขยายระบบคลาวด์และแดชบอร์ด (Full-Stack Data Flow):**
-    * อัปเดต [`CloudDataManager.cpp`](file:///Users/chewathassana/Desktop/handysense/gravity/src/CloudDataManager.cpp) ให้สตรีมค่า `ph`, `ph_raw_voltage`, และ `ph_connected` ขึ้นเซิร์ฟเวอร์
+    * อัปเดต [`CloudDataManager.cpp`](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp) ให้สตรีมค่า `ph`, `ph_raw_voltage`, และ `ph_connected` ขึ้นเซิร์ฟเวอร์
     * ขยายฐานข้อมูล [`database.py`](file:///Users/chewathassana/Desktop/handysense/server/database.py) (เพิ่มคอลัมน์ `soil_stick_ph`, `soil_stick_ph_connected` พร้อม Auto-migration)
     * ปรับปรุง REST API ใน [`main_api.py`](file:///Users/chewathassana/Desktop/handysense/server/main_api.py) (รองรับ Telemetry Insert, History, และ CSV Export)
     * ปรับปรุงหน้าจอเว็บแดชบอร์ด [`dashboard_app.py`](file:///Users/chewathassana/Desktop/handysense/server/dashboard_app.py) ให้แสดงผลป้าย Badge `pH X.XX | ADC XXXX` บนการ์ด Q3 ผิวดิน

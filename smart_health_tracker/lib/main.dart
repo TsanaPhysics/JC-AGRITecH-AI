@@ -27,18 +27,18 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MovementSensorService()),
         ChangeNotifierProvider(create: (_) => GpsTrackingService()),
       ],
-      child: const SmartHealthTrackerApp(),
+      child: const LEQsAgriSciApp(),
     ),
   );
 }
 
-class SmartHealthTrackerApp extends StatelessWidget {
-  const SmartHealthTrackerApp({super.key});
+class LEQsAgriSciApp extends StatelessWidget {
+  const LEQsAgriSciApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Health Step Pulse',
+      title: 'LEQs AgriSci xAI',
       debugShowCheckedModeBanner: false,
       theme: HealthTheme.darkTheme,
       home: const HomeTrackerScreen(),

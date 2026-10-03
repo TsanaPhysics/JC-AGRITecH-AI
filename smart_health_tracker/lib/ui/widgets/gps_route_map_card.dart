@@ -101,13 +101,16 @@ class _GpsRouteMapCardState extends State<GpsRouteMapCard>
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            'แผนที่เส้นทางจริง (GPS ROUTE)',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
+                          const Flexible(
+                            child: Text(
+                              'แผนที่เส้นทางจริง (GPS ROUTE)',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -562,11 +565,15 @@ class _GpsRouteMapCardState extends State<GpsRouteMapCard>
               children: [
                 Icon(icon, color: accentColor, size: 12),
                 const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 10,
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 10,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

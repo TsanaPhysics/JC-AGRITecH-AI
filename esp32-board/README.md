@@ -11,10 +11,10 @@
 
 ---
 
-## 1. โครงสร้างไฟล์ในโปรเจกต์ (`gravity/`)
+## 1. โครงสร้างไฟล์ในโปรเจกต์ (`esp32-board/`)
 
 ```
-gravity/
+esp32-board/
 ├── platformio.ini         # การตั้งค่า PlatformIO สำหรับ ESP32-S3 (8MB Flash, No PSRAM)
 ├── WIRING_DIAGRAM.md      # คู่มือการต่อสายไฟของเซนเซอร์ทุกตัวอย่างละเอียด (รวมช่อง A1 และ A2)
 ├── SOIL_PH_FEASIBILITY_STUDY.md # รายงานการศึกษาความเป็นไปได้เชิงวิศวกรรมการวัด Soil pH
@@ -56,7 +56,7 @@ gravity/
 ### วิธีที่ 1: รันด้วย VS Code + PlatformIO (แนะนำ)
 1. เปิดโปรแกรม VS Code
 2. ติดตั้ง Extension: **PlatformIO IDE**
-3. เลือก **File > Open Folder...** แล้วเปิดโฟลเดอร์ `/Users/chewathassana/Desktop/handysense/gravity`
+3. เลือก **File > Open Folder...** แล้วเปิดโฟลเดอร์ `/Users/chewathassana/Desktop/handysense/esp32-board`
 4. เสียบสาย USB-C เข้าที่ช่อง **Upload** ของบอร์ด ATD3.5-S3
 5. เสียบอะแดปเตอร์ **12V 2A** เข้าที่แจ็คไฟของบอร์ด Farm1 Shield
 6. กดปุ่ม **Build** (เครื่องหมายถูก) และ **Upload** (ลูกศรขวา) ที่แถบด้านล่างของ PlatformIO

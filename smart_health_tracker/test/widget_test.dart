@@ -5,6 +5,7 @@ import 'package:smart_health_tracker/models/activity_type.dart';
 import 'package:smart_health_tracker/models/daily_health_metric.dart';
 import 'package:smart_health_tracker/models/user_health_profile.dart';
 import 'package:smart_health_tracker/services/movement_sensor_service.dart';
+import 'package:smart_health_tracker/services/gps_tracking_service.dart';
 
 void main() {
   group('Exercise Science & Biomechanics Tests', () {
@@ -63,17 +64,18 @@ void main() {
     });
   });
 
-  testWidgets('SmartHealthTrackerApp boots and renders responsive layout', (WidgetTester tester) async {
+  testWidgets('LEQsAgriSciApp boots and renders responsive layout', (WidgetTester tester) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => MovementSensorService()),
+          ChangeNotifierProvider(create: (_) => GpsTrackingService()),
         ],
-        child: const SmartHealthTrackerApp(),
+        child: const LEQsAgriSciApp(),
       ),
     );
 
-    expect(find.byType(SmartHealthTrackerApp), findsOneWidget);
-    expect(find.textContaining('HEALTH'), findsWidgets);
+    expect(find.byType(LEQsAgriSciApp), findsOneWidget);
+    expect(find.textContaining('LEQs'), findsWidgets);
   });
 }

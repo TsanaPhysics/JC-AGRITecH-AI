@@ -29,7 +29,7 @@
 
 ```
 JC-AGRITecH2026/
-├── gravity/                     # เฟิร์มแวร์สมองกลฝังตัว C++ (PlatformIO)
+├── esp32-board/                     # เฟิร์มแวร์สมองกลฝังตัว C++ (PlatformIO)
 │   ├── platformio.ini           # คอนฟิกบอร์ด ATD3.5-S3 (ESP32-S3 8MB Flash/2MB PSRAM)
 │   ├── WIRING_DIAGRAM.md        # คู่มือการต่อสายไฟของเซนเซอร์ทุกตัว (รวม ADC A1/A2)
 │   ├── SOIL_PH_FEASIBILITY_STUDY.md # รายงานการศึกษาความเป็นไปได้เชิงวิศวกรรมการวัด Soil pH
@@ -87,7 +87,7 @@ JC-AGRITecH2026/
 
 ### 1. การติดตั้งและแฟลชเฟิร์มแวร์ ESP32-S3
 ```bash
-cd gravity
+cd esp32-board
 pio run -e esp32-s3-atd35 -t upload
 ```
 
