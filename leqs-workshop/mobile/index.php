@@ -1,9 +1,10 @@
 <?php
 // LEQs-xAI: Real Smartphone Mobile Web Application
-// Connected via Wi-Fi to ESP32-S3 ATD3.5 Controller Board
+// Styled exactly to match real_mobile_app_preview.jpg
+// Direct Wi-Fi Connection to ESP32-S3 ATD3.5 Controller Board
 ?>
 <!DOCTYPE html>
-<html lang="th" class="h-full">
+<html lang="th" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -12,13 +13,13 @@
     <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#090d16">
+    <meta name="theme-color" content="#030712">
     <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Orbitron:wght@500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Tailwind CSS -->
@@ -33,10 +34,12 @@
                         mono: ['Orbitron', 'monospace'],
                     },
                     colors: {
-                        darkbg: '#0a0f1d',
-                        darkcard: '#111827',
-                        accent: '#10b981',
-                        cyanic: '#06b6d4',
+                        darkphone: '#0d1322',
+                        phonepanel: '#151d30',
+                        accentgreen: '#10b981',
+                        accentcyan: '#06b6d4',
+                        accentamber: '#f59e0b',
+                        accentblue: '#3b82f6',
                     }
                 }
             }
@@ -47,20 +50,61 @@
     
     <style>
         body {
-            background: radial-gradient(circle at 50% 0%, #0f172a 0%, #030712 100%);
+            background-color: #030712;
             color: #f3f4f6;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
-        .glass-panel {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+
+        /* Ambient Smart Greenhouse Twilight Glow Backdrop */
+        .farm-backdrop {
+            background: 
+                radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 10% 40%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 40%, rgba(245, 158, 11, 0.12) 0%, transparent 40%),
+                linear-gradient(180deg, #090e1a 0%, #030712 100%);
+        }
+
+        /* Glassmorphism Phone Frame & Panels */
+        .glass-phone-card {
+            background: rgba(18, 26, 43, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
-        .glass-card-glow {
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+        .glass-inner-panel {
+            background: rgba(13, 19, 34, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
+
+        /* Glowing circular arcs */
+        .glow-orange {
+            filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.65));
+        }
+        .glow-cyan {
+            filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.65));
+        }
+        .glow-green {
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.75));
+        }
+        .glow-blue {
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.65));
+        }
+
+        /* Active Switch Neon Glow */
+        .neon-switch-active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+        }
+        .neon-switch-inactive {
+            background: #1e293b;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -70,333 +114,364 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans overflow-x-hidden antialiased">
+<body class="min-h-full flex flex-col font-sans farm-backdrop antialiased">
 
-    <!-- Top Status Bar & App Header -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-white/10 px-4 pt-3 pb-3">
-        <div class="flex items-center justify-between">
-            <!-- App Identity -->
+    <!-- Top Floating Header Bar (Navigation & Controls) -->
+    <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-4 py-2.5">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-                <a href="../index.php" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition active:scale-95" title="กลับสู่หน้าหลัก">
+                <a href="../index.php" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition active:scale-95" title="กลับสู่หน้าหลัก">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                 </a>
                 <div>
-                    <div class="flex items-center gap-1.5">
+                    <h1 class="font-bold text-xs sm:text-sm text-white font-tech tracking-wider flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <h1 class="font-bold text-sm text-white font-tech tracking-wider">LEQs-xAI MOBILE</h1>
-                        <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-500/30">v2.6</span>
-                    </div>
-                    <div class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                        <i class="fa-solid fa-wifi text-emerald-400 text-[9px]"></i>
-                        <span id="headerBoardIp">ESP32-S3 • 192.168.1.105</span>
-                    </div>
+                        LEQs-xAI SMART PHONE APP
+                    </h1>
+                    <span class="text-[10px] text-gray-400 font-mono">ESP32-S3 ATD3.5 Hardware Interface</span>
                 </div>
             </div>
 
-            <!-- Wi-Fi Settings & Quick Actions -->
             <div class="flex items-center gap-2">
-                <button onclick="openWifiModal()" class="px-2.5 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-[11px] font-tech font-bold flex items-center gap-1.5 active:scale-95 transition">
-                    <i class="fa-solid fa-gear text-[10px]"></i>
-                    <span>Wi-Fi Config</span>
+                <button onclick="openWifiModal()" class="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-xs font-tech font-bold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-wifi text-[10px]"></i>
+                    <span id="navBoardIp">192.168.1.105</span>
                 </button>
+                <a href="../dashboard/index.php" target="_blank" class="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-desktop text-[10px]"></i>
+                    <span class="hidden sm:inline">Web Dashboard</span>
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Mobile Content Area (Tab Views) -->
-    <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24 hide-scrollbar">
+    <!-- Main Container: Styled to exact mockup preview screen -->
+    <main class="flex-1 flex flex-col items-center justify-start px-3 sm:px-4 py-4 sm:py-6 overflow-y-auto hide-scrollbar">
         
-        <!-- SECTION 1: Wi-Fi Live Link Banner -->
-        <div class="glass-panel rounded-2xl p-3.5 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-cyan-950/40 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg">
-                    <i class="fa-solid fa-microchip"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-white">ESP32-S3 ATD3.5</span>
-                        <span class="text-[9px] font-mono text-emerald-300 bg-emerald-900/80 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">ONLINE</span>
-                    </div>
-                    <p class="text-[10px] text-gray-400 font-mono mt-0.5">
-                        Ping: <span id="pingValue" class="text-emerald-400">18ms</span> | RSSI: <span class="text-cyan-300">-58 dBm</span>
-                    </p>
-                </div>
-            </div>
-            <button onclick="syncSensorData()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-emerald-400 flex items-center justify-center active:rotate-180 transition duration-300" title="รีเฟรชข้อมูลเซนเซอร์">
-                <i class="fa-solid fa-arrows-rotate text-xs"></i>
-            </button>
-        </div>
-
-        <!-- TAB 1: OVERVIEW & SENSORS -->
-        <div id="tab-overview" class="space-y-4">
+        <!-- ========================================================================= -->
+        <!-- THE SMARTPHONE APP SCREEN FRAME (MATCHING real_mobile_app_preview.jpg)     -->
+        <!-- ========================================================================= -->
+        <div class="w-full max-w-3xl glass-phone-card rounded-[2.5rem] p-4 sm:p-6 border border-white/10 space-y-6 relative overflow-hidden">
             
-            <!-- 4 Quick Metric Gauges -->
-            <div class="grid grid-cols-2 gap-3">
+            <!-- 1. TOP SMARTPHONE STATUS BAR & HARDWARE ISLAND -->
+            <div class="glass-inner-panel rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs font-mono">
                 
-                <!-- Air Temp -->
-                <div class="glass-panel p-3.5 rounded-2xl border border-white/5 space-y-2 relative overflow-hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-medium text-gray-400">อุณหภูมิอากาศ (SHT45)</span>
-                        <i class="fa-solid fa-temperature-half text-amber-400 text-sm"></i>
-                    </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="valTemp" class="text-2xl font-bold font-mono text-white">28.5</span>
-                        <span class="text-xs text-gray-400">°C</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] text-gray-400">
-                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> ปกติ (Optimal)</span>
-                        <span>เป้าหมาย 26-30°C</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="barTemp" class="bg-gradient-to-r from-amber-400 to-rose-400 h-full rounded-full" style="width: 58%"></div>
+                <!-- Left: Hardware Connection Badge -->
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-wifi text-emerald-400 text-sm"></i>
+                    <div>
+                        <div class="flex items-center gap-1.5 leading-none">
+                            <span class="font-bold text-white tracking-wide text-[11px] sm:text-xs">ESP32-S3 ATD3.5</span>
+                            <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40">CONNECTED</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-0.5 block">Wi-Fi 5GHz • AP: 192.168.1.105</span>
                     </div>
                 </div>
 
-                <!-- Humidity -->
-                <div class="glass-panel p-3.5 rounded-2xl border border-white/5 space-y-2 relative overflow-hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-medium text-gray-400">ความชื้นสัมพัทธ์ (RH)</span>
-                        <i class="fa-solid fa-droplet text-cyan-400 text-sm"></i>
-                    </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="valHum" class="text-2xl font-bold font-mono text-white">65.2</span>
-                        <span class="text-xs text-gray-400">%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] text-gray-400">
-                        <span class="text-cyan-400 font-bold"><i class="fa-solid fa-circle-check"></i> เหมาะสม (Ideal)</span>
-                        <span>เป้าหมาย 60-75%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="barHum" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full" style="width: 65%"></div>
-                    </div>
+                <!-- Center: Real-Time Live Clock -->
+                <div class="hidden sm:flex flex-col items-center">
+                    <span id="liveClock" class="text-sm font-bold text-white tracking-widest">18:42</span>
+                    <span class="text-[9px] text-gray-400 font-sans">เวลาปัจจุบัน</span>
                 </div>
 
-                <!-- Soil Moisture -->
-                <div class="glass-panel p-3.5 rounded-2xl border border-white/5 space-y-2 relative overflow-hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-medium text-gray-400">ความชื้นในดิน 7-in-1</span>
-                        <i class="fa-solid fa-seedling text-emerald-400 text-sm"></i>
+                <!-- Right: Battery & Signal Level -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 text-[11px] text-gray-300">
+                        <i class="fa-solid fa-signal text-cyan-400 text-xs"></i>
+                        <span>Signal 4</span>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="valSoilMoist" class="text-2xl font-bold font-mono text-white">72.0</span>
-                        <span class="text-xs text-gray-400">%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] text-gray-400">
-                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-check"></i> เขตราก 15 cm</span>
-                        <span>ชุ่มชื้นพอดี</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="barSoilMoist" class="bg-gradient-to-r from-teal-400 to-emerald-500 h-full rounded-full" style="width: 72%"></div>
-                    </div>
-                </div>
-
-                <!-- VPD -->
-                <div class="glass-panel p-3.5 rounded-2xl border border-white/5 space-y-2 relative overflow-hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-medium text-gray-400">แรงดึงระเหยน้ำ (VPD)</span>
-                        <i class="fa-solid fa-wind text-indigo-400 text-sm"></i>
-                    </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="valVpd" class="text-2xl font-bold font-mono text-emerald-300">0.95</span>
-                        <span class="text-xs text-gray-400">kPa</span>
-                    </div>
-                    <div class="flex items-center justify-between text-[9px] text-gray-400">
-                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> สมดุลการคายน้ำ</span>
-                        <span>0.8 - 1.2 kPa</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div id="barVpd" class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-full rounded-full" style="width: 48%"></div>
+                    <div class="flex items-center gap-1 text-[11px] text-emerald-400 font-bold">
+                        <span id="batteryPct">98%</span>
+                        <i class="fa-solid fa-battery-full text-sm"></i>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Soil 7-in-1 Full Breakdown Card -->
-            <div class="glass-panel rounded-2xl p-4 border border-white/5 space-y-3">
-                <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-flask-vial text-emerald-400 text-xs"></i>
-                        <h3 class="font-bold text-xs text-white">ผลตรวจดิน RS485 Modbus RTU (7-in-1)</h3>
+            <!-- 2. THE 4 CIRCULAR RADIAL GAUGES (EXACT VISUAL REPLICA) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 py-2">
+                
+                <!-- GAUGES 1: AIR TEMPERATURE (ORANGE / AMBER GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-amber-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <!-- Background Track Ring -->
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <!-- Inner Outline Ring -->
+                            <circle cx="60" cy="60" r="38" stroke="rgba(245, 158, 11, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <!-- Active Arc Ring -->
+                            <circle id="arcTemp" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradTemp)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="125" 
+                                    stroke-linecap="round" 
+                                    class="glow-orange transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradTemp" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f59e0b" />
+                                    <stop offset="100%" stop-color="#ef4444" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <!-- Centered Value Display -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValTemp" class="text-2xl font-bold font-mono text-white leading-none">28.5</span>
+                                <span class="text-xs font-mono text-amber-400 font-bold ml-0.5">°C</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-amber-400/90 font-bold mt-0.5">28.5</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] text-gray-400 font-mono">Stainless Probe</span>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Air Temperature</span>
+                    <span class="text-[11px] font-mono text-amber-400 font-medium">Optimal</span>
                 </div>
 
-                <div class="grid grid-cols-4 gap-2 text-center">
-                    <!-- pH -->
-                    <div class="p-2 rounded-xl bg-slate-900/60 border border-white/5">
-                        <span class="text-[10px] text-gray-400 block">pH ดิน</span>
-                        <span id="valSoilPh" class="text-sm font-bold font-mono text-emerald-400">6.4</span>
+                <!-- GAUGES 2: HUMIDITY (CYAN / AQUA GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(6, 182, 212, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle id="arcHum" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradHum)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="105" 
+                                    stroke-linecap="round" 
+                                    class="glow-cyan transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradHum" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#06b6d4" />
+                                    <stop offset="100%" stop-color="#3b82f6" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValHum" class="text-2xl font-bold font-mono text-white leading-none">65</span>
+                                <span class="text-xs font-mono text-cyan-400 font-bold ml-0.5">%</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-cyan-400/90 font-bold mt-0.5">65</span>
+                        </div>
                     </div>
-                    <!-- EC -->
-                    <div class="p-2 rounded-xl bg-slate-900/60 border border-white/5">
-                        <span class="text-[10px] text-gray-400 block">EC (µS/cm)</span>
-                        <span id="valSoilEc" class="text-sm font-bold font-mono text-cyan-400">850</span>
-                    </div>
-                    <!-- Light PAR -->
-                    <div class="p-2 rounded-xl bg-slate-900/60 border border-white/5">
-                        <span class="text-[10px] text-gray-400 block">PAR (Lux)</span>
-                        <span id="valPar" class="text-sm font-bold font-mono text-amber-400">42,500</span>
-                    </div>
-                    <!-- Soil Temp -->
-                    <div class="p-2 rounded-xl bg-slate-900/60 border border-white/5">
-                        <span class="text-[10px] text-gray-400 block">อุณหภูมิดิน</span>
-                        <span id="valSoilTemp" class="text-sm font-bold font-mono text-indigo-400">26.8°C</span>
-                    </div>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Humidity</span>
+                    <span class="text-[11px] font-mono text-cyan-400 font-medium">Ideal</span>
                 </div>
 
-                <!-- N-P-K Breakdown -->
-                <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-around text-xs font-mono">
-                    <div>
-                        <span class="text-gray-400 text-[10px]">Nitrogen (N):</span>
-                        <span id="valN" class="font-bold text-emerald-400 ml-1">45 mg/kg</span>
+                <!-- GAUGES 3: SOIL MOISTURE (LIME / EMERALD GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-emerald-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(16, 185, 129, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle id="arcSoil" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradSoil)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="84" 
+                                    stroke-linecap="round" 
+                                    class="glow-green transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradSoil" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#22c55e" />
+                                    <stop offset="100%" stop-color="#10b981" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValSoil" class="text-2xl font-bold font-mono text-white leading-none">72</span>
+                                <span class="text-xs font-mono text-emerald-400 font-bold ml-0.5">%</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-emerald-400/90 font-bold mt-0.5">72</span>
+                        </div>
                     </div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div>
-                        <span class="text-gray-400 text-[10px]">Phosphorus (P):</span>
-                        <span id="valP" class="font-bold text-cyan-400 ml-1">28 mg/kg</span>
-                    </div>
-                    <div class="w-px h-4 bg-white/10"></div>
-                    <div>
-                        <span class="text-gray-400 text-[10px]">Potassium (K):</span>
-                        <span id="valK" class="font-bold text-amber-400 ml-1">160 mg/kg</span>
-                    </div>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Soil Moisture</span>
+                    <span class="text-[11px] font-mono text-emerald-400 font-medium">Ideal</span>
                 </div>
+
+                <!-- GAUGES 4: VPD (SAPPHIRE BLUE GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-blue-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(59, 130, 246, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle id="arcVpd" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradVpd)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="135" 
+                                    stroke-linecap="round" 
+                                    class="glow-blue transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradVpd" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3b82f6" />
+                                    <stop offset="100%" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValVpd" class="text-2xl font-bold font-mono text-white leading-none">0.95</span>
+                                <span class="text-[10px] font-mono text-blue-400 font-bold ml-0.5">kPa</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-blue-400/90 font-bold mt-0.5">0.95</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">VPD</span>
+                    <span class="text-[11px] font-mono text-blue-400 font-medium">Ideal</span>
+                </div>
+
             </div>
 
-            <!-- SECTION 2: 4-CHANNEL REMOTE RELAY SWITCHES -->
-            <div class="glass-panel rounded-2xl p-4 border border-white/5 space-y-3">
-                <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-cyan-400 text-xs"></i>
-                        <h3 class="font-bold text-xs text-white">แผงควบคุมรีเลย์ 4 แชนแนล (ESP32 Relay)</h3>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-mono">Direct Command</span>
+            <!-- 3. THE 4 INTERACTIVE ROUNDED TOGGLE SWITCHES (EXACT VISUAL REPLICA) -->
+            <div class="glass-inner-panel rounded-3xl p-4 sm:p-5 border border-white/5 space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-white/5">
+                    <span class="text-[11px] font-bold text-gray-400 font-tech tracking-wider uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders text-emerald-400"></i> DIRECT RELAY ACTUATOR CONTROLS
+                    </span>
+                    <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">Wi-Fi GPIO</span>
                 </div>
 
-                <div class="space-y-2.5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
                     
-                    <!-- Relay 1 -->
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span id="app-led-1" class="w-3 h-3 rounded-full bg-gray-600 inline-block"></span>
-                            <div>
-                                <h4 class="text-xs font-bold text-white">วาล์วน้ำโซลินอยด์ (12V)</h4>
-                                <span id="app-status-1" class="text-[10px] text-gray-400">สถานะ: ปิด (STANDBY)</span>
+                    <!-- SWITCH 1: Solenoid Valve -->
+                    <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 flex flex-col items-center justify-center text-center space-y-2 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-cyan-400 text-xs">
+                                <i class="fa-solid fa-faucet-drip"></i>
                             </div>
+                            <!-- Switch Button Pill -->
+                            <button id="switchPill-1" onclick="toggleExactRelay(1, 'Solenoid Valve')" class="w-14 h-7 rounded-full neon-switch-active flex items-center justify-end px-1 transition-all duration-300">
+                                <span id="switchTxt-1" class="text-[10px] font-bold text-white mr-1.5 font-mono">ON</span>
+                                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                            </button>
                         </div>
-                        <button id="app-btn-1" onclick="toggleAppRelay(1, 'วาล์วน้ำโซลินอยด์')" class="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5">
-                            <i class="fa-solid fa-power-off text-[10px]"></i> สลับเปิด
-                        </button>
+                        <div>
+                            <span class="text-xs font-bold text-gray-200 block font-tech">Solenoid Valve</span>
+                            <span id="switchStatus-1" class="text-[10px] font-mono text-emerald-400 font-bold">ACTIVE</span>
+                        </div>
                     </div>
 
-                    <!-- Relay 2 -->
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span id="app-led-2" class="w-3 h-3 rounded-full bg-gray-600 inline-block"></span>
-                            <div>
-                                <h4 class="text-xs font-bold text-white">ระบบพ่นหมอกลด VPD</h4>
-                                <span id="app-status-2" class="text-[10px] text-gray-400">สถานะ: ปิด (STANDBY)</span>
+                    <!-- SWITCH 2: Misting Sprinkler -->
+                    <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 flex flex-col items-center justify-center text-center space-y-2 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-cyan-300 text-xs">
+                                <i class="fa-solid fa-shower"></i>
                             </div>
+                            <button id="switchPill-2" onclick="toggleExactRelay(2, 'Misting Sprinkler')" class="w-14 h-7 rounded-full neon-switch-inactive flex items-center justify-start px-1 transition-all duration-300">
+                                <span class="w-5 h-5 rounded-full bg-gray-400 shadow-md"></span>
+                                <span id="switchTxt-2" class="text-[10px] font-bold text-gray-400 ml-1.5 font-mono">OFF</span>
+                            </button>
                         </div>
-                        <button id="app-btn-2" onclick="toggleAppRelay(2, 'ระบบพ่นหมอกลด VPD')" class="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5">
-                            <i class="fa-solid fa-power-off text-[10px]"></i> สลับเปิด
-                        </button>
+                        <div>
+                            <span class="text-xs font-bold text-gray-200 block font-tech">Misting Sprinkler</span>
+                            <span id="switchStatus-2" class="text-[10px] font-mono text-gray-500 font-bold">STANDBY</span>
+                        </div>
                     </div>
 
-                    <!-- Relay 3 -->
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span id="app-led-3" class="w-3 h-3 rounded-full bg-gray-600 inline-block"></span>
-                            <div>
-                                <h4 class="text-xs font-bold text-white">ปั๊มสารละลายปุ๋ย AB</h4>
-                                <span id="app-status-3" class="text-[10px] text-gray-400">สถานะ: ปิด (STANDBY)</span>
+                    <!-- SWITCH 3: Fertilizer Pump -->
+                    <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 flex flex-col items-center justify-center text-center space-y-2 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-emerald-400 text-xs">
+                                <i class="fa-solid fa-flask"></i>
                             </div>
+                            <button id="switchPill-3" onclick="toggleExactRelay(3, 'Fertilizer Pump')" class="w-14 h-7 rounded-full neon-switch-active flex items-center justify-end px-1 transition-all duration-300">
+                                <span id="switchTxt-3" class="text-[10px] font-bold text-white mr-1.5 font-mono">ON</span>
+                                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                            </button>
                         </div>
-                        <button id="app-btn-3" onclick="toggleAppRelay(3, 'ปั๊มสารละลายปุ๋ย AB')" class="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5">
-                            <i class="fa-solid fa-power-off text-[10px]"></i> สลับเปิด
-                        </button>
+                        <div>
+                            <span class="text-xs font-bold text-gray-200 block font-tech">Fertilizer Pump</span>
+                            <span id="switchStatus-3" class="text-[10px] font-mono text-emerald-400 font-bold">ACTIVE</span>
+                        </div>
                     </div>
 
-                    <!-- Relay 4 -->
-                    <div class="p-3 rounded-xl bg-slate-900/80 border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span id="app-led-4" class="w-3 h-3 rounded-full bg-gray-600 inline-block"></span>
-                            <div>
-                                <h4 class="text-xs font-bold text-white">พัดลมระบายอากาศโรงเรือน</h4>
-                                <span id="app-status-4" class="text-[10px] text-gray-400">สถานะ: ปิด (STANDBY)</span>
+                    <!-- SWITCH 4: Ventilation Fan -->
+                    <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 flex flex-col items-center justify-center text-center space-y-2 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-blue-400 text-xs">
+                                <i class="fa-solid fa-fan"></i>
                             </div>
+                            <button id="switchPill-4" onclick="toggleExactRelay(4, 'Ventilation Fan')" class="w-14 h-7 rounded-full neon-switch-active flex items-center justify-end px-1 transition-all duration-300">
+                                <span id="switchTxt-4" class="text-[10px] font-bold text-white mr-1.5 font-mono">ON</span>
+                                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                            </button>
                         </div>
-                        <button id="app-btn-4" onclick="toggleAppRelay(4, 'พัดลมระบายอากาศ')" class="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5">
-                            <i class="fa-solid fa-power-off text-[10px]"></i> สลับเปิด
-                        </button>
+                        <div>
+                            <span class="text-xs font-bold text-gray-200 block font-tech">Ventilation Fan</span>
+                            <span id="switchStatus-4" class="text-[10px] font-mono text-emerald-400 font-bold">ACTIVE</span>
+                        </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- SECTION 3: Edge AI Vision Camera -->
-            <div class="glass-panel rounded-2xl p-4 border border-white/5 space-y-3">
-                <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-camera text-rose-400 text-xs"></i>
-                        <h3 class="font-bold text-xs text-white">กล้อง AI Vision (OV2640 Snapshot)</h3>
+            <!-- 4. EXPANDABLE TELEMETRY DETAILS (SOIL 7-IN-1 & CAMERA VISION) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Soil 7-in-1 Modbus Live Telemetry -->
+                <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
+                            <i class="fa-solid fa-seedling text-emerald-400"></i> RS485 Soil 7-in-1 Probe
+                        </span>
+                        <span class="text-[10px] text-gray-400 font-mono">Root Zone 15cm</span>
                     </div>
-                    <span class="text-[10px] text-emerald-400 font-mono">YOLOv8 On-Device</span>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block">pH ดิน</span>
+                            <span id="detailPh" class="font-bold text-emerald-400">6.4</span>
+                        </div>
+                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block">EC (µS/cm)</span>
+                            <span id="detailEc" class="font-bold text-cyan-400">850</span>
+                        </div>
+                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block">PAR (Lux)</span>
+                            <span id="detailPar" class="font-bold text-amber-400">42.5k</span>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-around text-[11px] font-mono">
+                        <span>N: <strong class="text-emerald-400">45 mg/kg</strong></span>
+                        <span>P: <strong class="text-cyan-400">28 mg/kg</strong></span>
+                        <span>K: <strong class="text-amber-400">160 mg/kg</strong></span>
+                    </div>
                 </div>
 
-                <div class="relative rounded-xl overflow-hidden aspect-[16/10] bg-black border border-white/10 flex items-center justify-center">
-                    <img id="cameraStreamImg" src="../assets/images/cv_agri_vision.jpg" alt="Camera Feed" class="w-full h-full object-cover">
-                    <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 text-[9px] font-mono text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Snapshot
+                <!-- Camera Vision Snapshot -->
+                <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera text-rose-400"></i> OV2640 AI Camera Vision
+                        </span>
+                        <span class="text-[10px] font-mono text-emerald-400 font-bold">YOLOv8 98.4%</span>
                     </div>
-                    <div class="absolute bottom-2 left-2 right-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-sm border border-white/10 flex items-center justify-between text-[10px]">
-                        <span class="text-white font-medium">ผลวินิจฉัย: ใบพืชสมบูรณ์ (Healthy)</span>
-                        <span class="text-emerald-400 font-mono font-bold">Conf: 98.4%</span>
+
+                    <div class="relative rounded-xl overflow-hidden aspect-[16/9] bg-black border border-white/10 group cursor-pointer" onclick="captureLiveSnapshot()">
+                        <img src="../assets/images/cv_agri_vision.jpg" alt="Camera Snapshot" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition duration-300"></div>
+                        <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 text-[9px] font-mono text-emerald-300 border border-emerald-500/30">
+                            Healthy Leaf Detected
+                        </div>
+                        <div class="absolute bottom-2 right-2 px-2.5 py-1 rounded bg-black/80 text-[10px] text-white font-tech flex items-center gap-1">
+                            <i class="fa-solid fa-camera-rotate text-emerald-400"></i> แตะเพื่อถ่ายภาพใหม่
+                        </div>
                     </div>
                 </div>
 
-                <button onclick="captureSnapshot()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-camera-rotate"></i> ถ่ายภาพวิเคราะห์โรคพืชใหม่
-                </button>
             </div>
 
         </div>
+
     </main>
 
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 glass-panel border-t border-white/10 px-6 py-2.5">
-        <div class="flex items-center justify-around text-center">
-            
-            <button onclick="switchTab('overview')" class="flex flex-col items-center gap-1 text-emerald-400">
-                <i class="fa-solid fa-gauge-high text-base"></i>
-                <span class="text-[10px] font-medium">มอนิเตอร์</span>
-            </button>
-
-            <button onclick="window.location.href='../dashboard/index.php'" class="flex flex-col items-center gap-1 text-gray-400 hover:text-cyan-400 transition">
-                <i class="fa-solid fa-chart-line text-base"></i>
-                <span class="text-[10px] font-medium">เว็บแดชบอร์ด</span>
-            </button>
-
-            <button onclick="openWifiModal()" class="flex flex-col items-center gap-1 text-gray-400 hover:text-amber-400 transition">
-                <i class="fa-solid fa-wifi text-base"></i>
-                <span class="text-[10px] font-medium">Wi-Fi บอร์ด</span>
-            </button>
-
-            <a href="../index.php" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition">
-                <i class="fa-solid fa-house text-base"></i>
-                <span class="text-[10px] font-medium">กลับเว็บหลัก</span>
-            </a>
-
-        </div>
-    </nav>
-
-    <!-- Wi-Fi Configuration Modal -->
+    <!-- Wi-Fi IP Configuration Modal -->
     <div id="wifiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-panel rounded-3xl p-6 border border-white/10 w-full max-w-sm space-y-4 shadow-2xl">
+        <div class="glass-phone-card rounded-3xl p-6 border border-white/10 w-full max-w-sm space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-wifi text-cyan-400"></i>
-                    <h3 class="font-bold text-sm text-white">ตั้งค่าการเชื่อมต่อ Wi-Fi กับบอร์ด</h3>
+                    <h3 class="font-bold text-sm text-white font-tech">ตั้งค่าการเชื่อมต่อ Wi-Fi บอร์ด</h3>
                 </div>
                 <button onclick="closeWifiModal()" class="text-gray-400 hover:text-white">
                     <i class="fa-solid fa-xmark text-sm"></i>
@@ -405,26 +480,26 @@
 
             <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block text-gray-400 mb-1">IP Address บอร์ด ESP32-S3 ATD3.5</label>
+                    <label class="block text-gray-400 mb-1 font-tech">ESP32-S3 ATD3.5 IP Address</label>
                     <input type="text" id="inputBoardIp" value="192.168.1.105" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
-                    <span class="text-[10px] text-gray-500 mt-1 block">โหมด AP ค่าเริ่มต้น: 192.168.4.1 หรือ IP ในวง Wi-Fi บ้าน</span>
+                    <span class="text-[10px] text-gray-500 mt-1 block">เช่น 192.168.4.1 (AP Mode) หรือ IP ในวง Wi-Fi บ้าน</span>
                 </div>
 
                 <div>
-                    <label class="block text-gray-400 mb-1">โปรโตคอลการสื่อสาร</label>
-                    <select id="inputProtocol" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
-                        <option value="http">HTTP REST API / JSON Polling</option>
-                        <option value="ws">WebSockets (Real-time 60 FPS)</option>
-                        <option value="mqtt">MQTT Telemetry Topic</option>
+                    <label class="block text-gray-400 mb-1 font-tech">Polling Interval</label>
+                    <select class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
+                        <option value="3">3 วินาที (Fast)</option>
+                        <option value="5" selected>5 วินาที (Optimal)</option>
+                        <option value="10">10 วินาที (Eco)</option>
                     </select>
                 </div>
             </div>
 
             <div class="flex gap-2 pt-2">
-                <button onclick="saveWifiConfig()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+                <button onclick="saveWifiConfig()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs font-tech transition">
                     <i class="fa-solid fa-floppy-disk mr-1"></i> บันทึกและเชื่อมต่อ
                 </button>
-                <button onclick="closeWifiModal()" class="px-4 py-2.5 rounded-xl bg-white/10 text-gray-300 font-bold text-xs hover:bg-white/20 transition">
+                <button onclick="closeWifiModal()" class="px-4 py-2.5 rounded-xl bg-white/10 text-gray-300 font-bold text-xs font-tech hover:bg-white/20 transition">
                     ยกเลิก
                 </button>
             </div>
@@ -433,117 +508,124 @@
 
     <!-- Application Script -->
     <script>
-        const appRelayStates = { 1: false, 2: false, 3: false, 4: false };
+        // Exact relay states matching real_mobile_app_preview.jpg:
+        // Relay 1: ON, Relay 2: OFF, Relay 3: ON, Relay 4: ON
+        const exactRelayStates = { 1: true, 2: false, 3: true, 4: true };
 
-        function toggleAppRelay(id, name) {
-            appRelayStates[id] = !appRelayStates[id];
-            const isOn = appRelayStates[id];
+        // Play subtle Web Audio API click feedback
+        function playBeep(freq = 880, duration = 0.05) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
 
-            const led = document.getElementById(`app-led-${id}`);
-            const btn = document.getElementById(`app-btn-${id}`);
-            const status = document.getElementById(`app-status-${id}`);
+        function toggleExactRelay(id, name) {
+            exactRelayStates[id] = !exactRelayStates[id];
+            const isOn = exactRelayStates[id];
 
-            if (led) {
-                led.className = isOn ? 'w-3 h-3 rounded-full bg-emerald-400 animate-ping inline-block' : 'w-3 h-3 rounded-full bg-gray-600 inline-block';
+            const pill = document.getElementById(`switchPill-${id}`);
+            const txt = document.getElementById(`switchTxt-${id}`);
+            const status = document.getElementById(`switchStatus-${id}`);
+
+            playBeep(isOn ? 920 : 440);
+
+            if (pill && txt) {
+                if (isOn) {
+                    pill.className = 'w-14 h-7 rounded-full neon-switch-active flex items-center justify-end px-1 transition-all duration-300';
+                    pill.innerHTML = `<span id="switchTxt-${id}" class="text-[10px] font-bold text-white mr-1.5 font-mono">ON</span><span class="w-5 h-5 rounded-full bg-white shadow-md"></span>`;
+                } else {
+                    pill.className = 'w-14 h-7 rounded-full neon-switch-inactive flex items-center justify-start px-1 transition-all duration-300';
+                    pill.innerHTML = `<span class="w-5 h-5 rounded-full bg-gray-400 shadow-md"></span><span id="switchTxt-${id}" class="text-[10px] font-bold text-gray-400 ml-1.5 font-mono">OFF</span>`;
+                }
             }
-            if (btn) {
-                btn.className = isOn 
-                    ? 'px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5'
-                    : 'px-4 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1.5';
-                btn.innerHTML = isOn ? '<i class="fa-solid fa-power-off text-[10px]"></i> สลับปิด' : '<i class="fa-solid fa-power-off text-[10px]"></i> สลับเปิด';
-            }
+
             if (status) {
-                status.innerText = isOn ? 'สถานะ: กำลังทำงาน (ON)' : 'สถานะ: ปิด (STANDBY)';
-                status.className = isOn ? 'text-[10px] font-bold text-emerald-400' : 'text-[10px] text-gray-400';
+                status.innerText = isOn ? 'ACTIVE' : 'STANDBY';
+                status.className = isOn ? 'text-[10px] font-mono text-emerald-400 font-bold' : 'text-[10px] font-mono text-gray-500 font-bold';
             }
 
             Swal.fire({
                 toast: true,
                 position: 'top-end',
                 icon: isOn ? 'success' : 'info',
-                title: `${name}: ${isOn ? 'เปิดการทำงานแล้ว' : 'ปิดการทำงานแล้ว'}`,
-                text: `คำสั่ง Wi-Fi ส่งสำเร็จสู่บอร์ด ESP32-S3`,
+                title: `${name}: ${isOn ? 'ACTIVE (เปิด)' : 'STANDBY (ปิด)'}`,
+                text: `คำสั่ง Wi-Fi ส่งสำเร็จสู่บอร์ด ESP32-S3 ATD3.5`,
                 showConfirmButton: false,
-                timer: 1800
+                timer: 1600
             });
         }
 
-        function captureSnapshot() {
-            Swal.fire({
-                title: 'กำลังจับภาพจากกล้อง OV2640...',
-                text: 'ประมวลผลโมเดล Edge AI YOLOv8 บนบอร์ด ESP32-S3',
-                timer: 1200,
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            }).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'จับภาพและวินิจฉัยสำเร็จ!',
-                    text: 'ตรวจพบ: ใบพืชสมบูรณ์ (Healthy Plant) ความมั่นใจ 98.4%',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            });
+        // Live Clock
+        function updateLiveClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const clockEl = document.getElementById('liveClock');
+            if (clockEl) clockEl.innerText = `${h}:${m}`;
         }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
 
-        function syncSensorData() {
-            // Simulate reading live jitter from SHT45 & Soil 7-in-1
-            const temp = (28.2 + Math.random() * 0.8).toFixed(1);
-            const hum = (64.5 + Math.random() * 1.5).toFixed(1);
-            const soilMoist = (71.0 + Math.random() * 2.0).toFixed(1);
-            
-            // Calculate VPD
-            const svp = 0.61078 * Math.exp((17.27 * temp) / (parseFloat(temp) + 237.3));
-            const avp = svp * (hum / 100.0);
-            const vpd = (svp - avp).toFixed(2);
-
-            document.getElementById('valTemp').innerText = temp;
-            document.getElementById('valHum').innerText = hum;
-            document.getElementById('valSoilMoist').innerText = soilMoist;
-            document.getElementById('valVpd').innerText = vpd;
-            document.getElementById('pingValue').innerText = Math.floor(15 + Math.random() * 8) + 'ms';
-
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'ซิงค์ข้อมูลล่าสุดผ่าน Wi-Fi สำเร็จ',
-                showConfirmButton: false,
-                timer: 1200
-            });
-        }
-
+        // Modal Handlers
         function openWifiModal() {
             document.getElementById('wifiModal').classList.remove('hidden');
         }
-
         function closeWifiModal() {
             document.getElementById('wifiModal').classList.add('hidden');
         }
-
         function saveWifiConfig() {
             const ip = document.getElementById('inputBoardIp').value.trim();
             if (ip) {
-                document.getElementById('headerBoardIp').innerText = `ESP32-S3 • ${ip}`;
+                document.getElementById('navBoardIp').innerText = ip;
             }
             closeWifiModal();
             Swal.fire({
                 icon: 'success',
                 title: 'บันทึกการตั้งค่า Wi-Fi แล้ว',
-                text: `เชื่อมต่อกับบอร์ดที่ ${ip} สำเร็จ`,
+                text: `เชื่อมต่อกับบอร์ดที่ ${ip} เรียบร้อย`,
                 timer: 1500,
                 showConfirmButton: false
             });
         }
 
-        // Periodic live heartbeat
+        function captureLiveSnapshot() {
+            playBeep(1200, 0.1);
+            Swal.fire({
+                title: 'กำลังถ่ายภาพจากกล้อง OV2640...',
+                text: 'ประมวลผลโมเดล Edge AI YOLOv8 บน ESP32-S3',
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: () => { Swal.showLoading(); }
+            }).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ตรวจจับสำเร็จ!',
+                    text: 'ตรวจพบ: ใบพืชสมบูรณ์ (Healthy Leaf) 98.4%',
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+            });
+        }
+
+        // Subtle sensor heartbeat simulation
         setInterval(() => {
-            const currentTemp = parseFloat(document.getElementById('valTemp').innerText);
-            const delta = (Math.random() * 0.2 - 0.1);
-            document.getElementById('valTemp').innerText = (currentTemp + delta).toFixed(1);
-        }, 5000);
+            const tempEl = document.getElementById('gaugeValTemp');
+            if (tempEl) {
+                const current = parseFloat(tempEl.innerText);
+                const delta = (Math.random() * 0.2 - 0.1);
+                tempEl.innerText = (current + delta).toFixed(1);
+            }
+        }, 4000);
     </script>
 </body>
 </html>
