@@ -365,10 +365,10 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
 
             <!-- Key Metric Statistics Bar (cmu_aiot style) -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-8">
-                <div class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition">
-                    <div class="text-3xl md:text-4xl font-black font-tech text-emerald-600">30 คน</div>
-                    <div class="text-xs text-gray-500 mt-1 font-medium">นักเรียน ครู และเกษตรกร</div>
-                </div>
+                <a href="#capstone" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-black font-tech text-emerald-600 group-hover:text-emerald-500 transition">6 Tracks</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">6 แทร็กโครงงานนวัตกรรม</div>
+                </a>
                 <div class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition">
                     <div class="text-3xl md:text-4xl font-black font-tech text-cyan-600">7 Modules</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">ทฤษฎี 30% + ปฏิบัติการ 70%</div>
