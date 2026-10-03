@@ -229,29 +229,77 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                 <div class="relative animate-float order-last md:order-first">
                     <div class="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-[3.5rem] opacity-25 blur-3xl"></div>
                     
-                    <div class="relative rounded-[2.5rem] shadow-2xl border-4 border-white/80 overflow-hidden transform -rotate-1 hover:rotate-0 transition-all duration-700 ease-in-out bg-white p-3">
-                        <div class="relative rounded-2xl overflow-hidden shadow-md">
+                    <div class="relative rounded-[2.5rem] shadow-2xl border-4 border-white/80 overflow-hidden transform -rotate-1 hover:rotate-0 transition-all duration-700 ease-in-out bg-white p-3 space-y-3">
+                        
+                        <!-- 1. Hero Artwork Carousel (สลับเปลี่ยนภาพผลงานและกิจกรรม) -->
+                        <div class="relative rounded-2xl overflow-hidden shadow-md group">
                             <img id="heroImage" 
                                  src="assets/images/cv_cover_artwork.jpg" 
                                  alt="LEQs-xAI Agricultural AI & Environmental Vision" 
-                                 class="w-full object-cover aspect-[4/3] rounded-2xl">
-                            <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-[10px] font-tech font-bold uppercase tracking-wider">
-                                <i class="fa-solid fa-microchip mr-1"></i> Edge AI • Computer Vision • IoT
+                                 class="w-full object-cover aspect-[4/3] rounded-2xl transition-all duration-700">
+                            <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-[10px] font-tech font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <i class="fa-solid fa-microchip"></i> Edge AI • Computer Vision • IoT
+                            </div>
+                            <!-- Artwork Caption Bar -->
+                            <div class="absolute bottom-2.5 left-2.5 right-2.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-[11px] flex items-center justify-between">
+                                <span id="heroImageCaption" class="truncate font-medium text-emerald-300">
+                                    🌾 Computer Vision & Precision AgriTech 2026
+                                </span>
+                                <span class="text-[9px] font-mono text-gray-400 bg-white/10 px-2 py-0.5 rounded ml-2">Auto-play</span>
                             </div>
                         </div>
 
-                        <!-- ATD3.5-S3 Screen Preview Sub-bar -->
-                        <div class="mt-3 p-3 rounded-2xl bg-slate-900 border border-slate-800 text-white flex items-center justify-between cursor-pointer" onclick="openScreenModal('assets/images/atd35/01_overview_dashboard.png', 'Overview Dashboard (จอที่ 1)', 'แดชบอร์ดหลัก 4 มิติ ตรวจวัดสภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 7-in-1 แบบเรียลไทม์ 60 FPS')">
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
-                                <div>
-                                    <div class="text-xs font-bold text-cyan-300 font-tech">ATD3.5-S3 SMART CONTROLLER</div>
-                                    <div class="text-[10px] text-gray-400">จอแสดงผลระบบสัมผัส 3.5 นิ้ว ควบคุมแปลงจริง</div>
+                        <!-- 2. ATD3.5-S3 Touch Screen Rotating Live Frame (สลับเปลี่ยนภาพวนไป 10 หน้าจอ) -->
+                        <div id="atdScreenContainer" 
+                             class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-white shadow-lg cursor-pointer group hover:border-emerald-500/50 transition-all duration-300" 
+                             onclick="openActiveAtdScreenModal()" 
+                             title="คลิกเพื่อขยายดูภาพหน้าจอขนาดใหญ่">
+                            
+                            <!-- Header Bar -->
+                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span class="font-bold text-cyan-300 font-tech tracking-wider text-[11px]">ATD3.5-S3 CONTROLLER</span>
+                                    <span id="atdScreenBadge" class="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-mono text-[9px] border border-slate-700">
+                                        Screen 01/10
+                                    </span>
+                                </div>
+                                <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition flex items-center gap-1">
+                                    <span id="atdScreenName" class="font-medium text-slate-300">01. Overview Dashboard</span>
+                                    <i class="fa-solid fa-expand text-[9px] text-cyan-400"></i>
+                                </span>
+                            </div>
+                            
+                            <!-- Screen Display Area (Aspect Ratio 480x320) -->
+                            <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-black aspect-[480/320] flex items-center justify-center shadow-inner">
+                                <img id="atdScreenImg" 
+                                     src="assets/images/atd35/01_overview_dashboard.png" 
+                                     alt="ATD3.5-S3 Active Screen" 
+                                     class="w-full h-full object-cover transition-all duration-500 transform group-hover:scale-105">
+                                
+                                <div class="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] text-emerald-400 font-mono border border-slate-700/80 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 60 FPS • Realtime
+                                </div>
+                                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] text-cyan-300 font-mono border border-slate-700/80">
+                                    3.5" Capacitive Touch
                                 </div>
                             </div>
-                            <span class="text-xs text-emerald-400 font-bold flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-lg">
-                                ดู 10 จอ <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                            </span>
+
+                            <!-- Screen Progress Dot Navigation -->
+                            <div class="flex items-center justify-center gap-1.5 mt-2.5 pt-1" onclick="event.stopPropagation()">
+                                <button onclick="jumpToAtdScreen(0)" class="atd-dot w-4 h-1.5 rounded-full bg-emerald-400 transition-all duration-300" title="01. Overview"></button>
+                                <button onclick="jumpToAtdScreen(1)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="02. Big Numbers"></button>
+                                <button onclick="jumpToAtdScreen(2)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="03. Graphs"></button>
+                                <button onclick="jumpToAtdScreen(3)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="04. Relay"></button>
+                                <button onclick="jumpToAtdScreen(4)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="05. Wi-Fi"></button>
+                                <button onclick="jumpToAtdScreen(5)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="06. SHT45"></button>
+                                <button onclick="jumpToAtdScreen(6)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="07. PAR"></button>
+                                <button onclick="jumpToAtdScreen(7)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="08. Soil Stick"></button>
+                                <button onclick="jumpToAtdScreen(8)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="09. TinyML"></button>
+                                <button onclick="jumpToAtdScreen(9)" class="atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300" title="00. Nexus Boot"></button>
+                            </div>
+
                         </div>
                     </div>
                 </div>

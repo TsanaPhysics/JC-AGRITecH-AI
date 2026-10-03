@@ -64,7 +64,228 @@ function toggleMobileMenu() {
 }
 
 // ==========================================
-// HERO TICKER SEQUENCE (cmu_aiot style)
+// 1. NAVBAR LOGO CAROUSEL ANIMATION
+// ==========================================
+function initNavbarLogoCarousel() {
+    const logoElement = document.getElementById('navbarLogo');
+    if (!logoElement) return;
+
+    const logoImages = [
+        'assets/images/nong_smartscience.png',
+        'assets/images/nong_robot_v1.png',
+        'assets/images/nong_robot_v2.png',
+        'assets/images/nong_space.png'
+    ];
+    let logoIndex = 0;
+
+    setInterval(() => {
+        logoElement.style.opacity = '0';
+        logoElement.style.transform = 'scale(0.8) rotate(-180deg)';
+        setTimeout(() => {
+            logoIndex = (logoIndex + 1) % logoImages.length;
+            logoElement.src = logoImages[logoIndex];
+            logoElement.style.opacity = '1';
+            logoElement.style.transform = 'scale(1) rotate(0deg)';
+        }, 400);
+    }, 4000);
+}
+
+// ==========================================
+// 2. HERO MAIN ARTWORK CAROUSEL
+// ==========================================
+function initHeroImageCarousel() {
+    const heroImg = document.getElementById('heroImage');
+    const heroCaption = document.getElementById('heroImageCaption');
+    if (!heroImg) return;
+
+    const heroArtworks = [
+        {
+            src: 'assets/images/cv_cover_artwork.jpg',
+            caption: '🌾 Computer Vision & Precision AgriTech 2026'
+        },
+        {
+            src: 'assets/images/cv_hardware_setup.jpg',
+            caption: '🔬 ชุดบอร์ดทดลอง ATD3.5-S3 & เซนเซอร์ Modbus'
+        },
+        {
+            src: 'assets/images/cv_agri_vision.jpg',
+            caption: '🌱 การตรวจจับโรคใบทุเรียนและผลผลิตด้วย YOLOv8'
+        },
+        {
+            src: 'assets/images/soil_7in1_dashboard_ui.jpg',
+            caption: '📊 แดชบอร์ดติดตามค่า NPK, EC, pH และความชื้นดิน'
+        },
+        {
+            src: 'assets/images/soil_probe_atd_lcd_render.jpg',
+            caption: '⚡ โพรบสเตนเลส RS485 Modbus RTU สำหรับสวนผลไม้'
+        },
+        {
+            src: 'assets/images/card_plant_ai.png',
+            caption: '🤖 โมเดล TinyML On-Device วิเคราะห์สุขภาพใบพืช'
+        }
+    ];
+
+    let currentIdx = 0;
+    setInterval(() => {
+        heroImg.style.opacity = '0';
+        heroImg.style.transform = 'scale(0.96) rotate(0deg)';
+        setTimeout(() => {
+            currentIdx = (currentIdx + 1) % heroArtworks.length;
+            const item = heroArtworks[currentIdx];
+            heroImg.src = item.src;
+            if (heroCaption) heroCaption.innerText = item.caption;
+            heroImg.style.opacity = '1';
+            heroImg.style.transform = 'scale(1) rotate(-1deg)';
+        }, 500);
+    }, 4800);
+}
+
+// ==========================================
+// 3. ATD3.5-S3 SCREEN CYCLING CAROUSEL (หน้าจอหมุนวนสลับภาพ)
+// ==========================================
+const atdScreens = [
+    {
+        num: '01/10',
+        name: '01. Overview Dashboard',
+        file: 'assets/images/atd35/01_overview_dashboard.png',
+        title: 'Screen 01: Overview Dashboard',
+        desc: 'แดชบอร์ดหลัก 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน, เขตราก 7-in-1 แบบเรียลไทม์ 60 FPS'
+    },
+    {
+        num: '02/10',
+        name: '02. Big Numbers Telemetry',
+        file: 'assets/images/atd35/02_big_numbers.png',
+        title: 'Screen 02: Big Numbers Telemetry',
+        desc: 'โหมดตัวเลขอักษรขนาดใหญ่พิเศษ สำหรับมองเห็นชัดเจนในระยะ 5-10 เมตรในแปลง'
+    },
+    {
+        num: '03/10',
+        name: '03. Realtime Sensors Graph',
+        file: 'assets/images/atd35/03_realtime_graphs.png',
+        title: 'Screen 03: Realtime Graphs',
+        desc: 'กราฟบันทึกแนวโน้มอุณหภูมิและความชื้นย้อนหลัง 24 ชั่วโมงแบบเรียลไทม์'
+    },
+    {
+        num: '04/10',
+        name: '04. Relay & Solenoid Control',
+        file: 'assets/images/atd35/04_relay_control.png',
+        title: 'Screen 04: Relay & Solenoid Control',
+        desc: 'แผงควบคุมสวิตช์รีเลย์และวาล์วไฟฟ้า 12V/24V ควบคุมการให้น้ำอัตโนมัติ'
+    },
+    {
+        num: '05/10',
+        name: '05. Wi-Fi Captive Portal',
+        file: 'assets/images/atd35/05_wifi_captive_portal.png',
+        title: 'Screen 05: Wi-Fi Captive Portal',
+        desc: 'ระบบจับคู่การเชื่อมต่ออินเทอร์เน็ตผ่าน QR Code แบบ Zero-Configuration'
+    },
+    {
+        num: '06/10',
+        name: '06. SHT45 Microclimate & VPD',
+        file: 'assets/images/atd35/06_sht45_air_vpd.png',
+        title: 'Screen 06: SHT45 Microclimate & VPD',
+        desc: 'การวิเคราะห์สภาพอากาศย่อย ค่าความดันไอขาดดุล และสถานะความเสี่ยงโรครา'
+    },
+    {
+        num: '07/10',
+        name: '07. Solar Spectrum & PAR',
+        file: 'assets/images/atd35/07_bh1750_solar_par.png',
+        title: 'Screen 07: Solar Spectrum & PAR',
+        desc: 'การวัดความเข้มแสงแดด Lux และคำนวณโฟตอนสังเคราะห์แสง PAR (umol/m2/s)'
+    },
+    {
+        num: '08/10',
+        name: '08. Soil Stick Surface Moisture',
+        file: 'assets/images/atd35/08_soil_stick_surface.png',
+        title: 'Screen 08: Soil Stick Surface Moisture',
+        desc: 'การตรวจสอบความชื้นผิวดิน 0-10 cm เฝ้าระวังการระเหยน้ำและการแตกระแหง'
+    },
+    {
+        num: '09/10',
+        name: '09. Soil 7in1 TinyML Inference',
+        file: 'assets/images/atd35/09_soil_7in1_tinyml.png',
+        title: 'Screen 09: Soil 7in1 TinyML Inference',
+        desc: 'ผลการทำนายความต้องการปุ๋ยและน้ำจากโมเดล TinyML ที่รันบน ESP32 โดยตรง'
+    },
+    {
+        num: '10/10',
+        name: '00. Nexus Boot Splash',
+        file: 'assets/images/atd35/00_splash_nexus.png',
+        title: 'Screen 00: Nexus Boot Splash',
+        desc: 'หน้าจอต้อนรับและบูตระบบเฟิร์มแวร์ LEQs-xAI Smart Controller v3.5'
+    }
+];
+
+let currentAtdIndex = 0;
+let atdScreenTimer = null;
+
+function renderAtdScreen(index) {
+    currentAtdIndex = (index + atdScreens.length) % atdScreens.length;
+    const item = atdScreens[currentAtdIndex];
+
+    const screenImg = document.getElementById('atdScreenImg');
+    const screenBadge = document.getElementById('atdScreenBadge');
+    const screenName = document.getElementById('atdScreenName');
+
+    if (screenImg) {
+        screenImg.style.opacity = '0.3';
+        screenImg.style.transform = 'scale(0.97)';
+        setTimeout(() => {
+            screenImg.src = item.file;
+            screenImg.style.opacity = '1';
+            screenImg.style.transform = 'scale(1)';
+        }, 250);
+    }
+
+    if (screenBadge) screenBadge.innerText = 'Screen ' + item.num;
+    if (screenName) screenName.innerText = item.name;
+
+    // Update Dots indicator if present
+    const dots = document.querySelectorAll('.atd-dot');
+    dots.forEach((dot, idx) => {
+        if (idx === currentAtdIndex) {
+            dot.className = 'atd-dot w-4 h-1.5 rounded-full bg-emerald-400 transition-all duration-300';
+        } else {
+            dot.className = 'atd-dot w-1.5 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-300';
+        }
+    });
+}
+
+function jumpToAtdScreen(index) {
+    renderAtdScreen(index);
+    resetAtdScreenTimer();
+}
+
+function openActiveAtdScreenModal() {
+    const item = atdScreens[currentAtdIndex];
+    openScreenModal(item.file, item.title, item.desc);
+}
+
+function resetAtdScreenTimer() {
+    if (atdScreenTimer) clearInterval(atdScreenTimer);
+    atdScreenTimer = setInterval(() => {
+        renderAtdScreen(currentAtdIndex + 1);
+    }, 3500);
+}
+
+function initAtdScreenCarousel() {
+    const container = document.getElementById('atdScreenContainer');
+    if (!container) return;
+
+    renderAtdScreen(0);
+    resetAtdScreenTimer();
+
+    // Pause on hover
+    container.addEventListener('mouseenter', () => {
+        if (atdScreenTimer) clearInterval(atdScreenTimer);
+    });
+    container.addEventListener('mouseleave', () => {
+        resetAtdScreenTimer();
+    });
+}
+
+// ==========================================
+// 4. HERO TICKER SEQUENCE (cmu_aiot style)
 // ==========================================
 function initHeroTicker() {
     const ticker = document.getElementById('hero-ticker');
@@ -119,13 +340,11 @@ function updateVPDSimulator() {
     const T = parseFloat(tempInput.value);
     const RH = parseFloat(humInput.value);
 
-    // Update displayed range values
     const dispTemp = document.getElementById('val-vpd-temp');
     const dispHum = document.getElementById('val-vpd-hum');
     if (dispTemp) dispTemp.innerText = T.toFixed(1) + ' °C';
     if (dispHum) dispHum.innerText = RH.toFixed(0) + ' %';
 
-    // SVP = 0.61078 * exp((17.27 * T) / (T + 237.3))
     const SVP = 0.61078 * Math.exp((17.27 * T) / (T + 237.3));
     const AVP = SVP * (RH / 100.0);
     const VPD = SVP - AVP;
@@ -138,7 +357,6 @@ function updateVPDSimulator() {
     if (outSvp) outSvp.innerText = SVP.toFixed(2);
     if (outAvp) outAvp.innerText = AVP.toFixed(2);
 
-    // Advisory Status
     const box = document.getElementById('box-vpd-advisory');
     const title = document.getElementById('title-vpd-advisory');
     const desc = document.getElementById('desc-vpd-advisory');
@@ -151,7 +369,7 @@ function updateVPDSimulator() {
         } else if (VPD <= 1.25) {
             box.className = "mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 text-xs flex items-start gap-3";
             title.innerText = "สภาวะเหมาะสมสมบูรณ์แบบ (VPD 0.8 - 1.25 kPa)";
-            desc.innerText = "การคายน้ำและการดูดซึมธาตุอาหาร NPK ดำเนินไปอย่างสมบูรณ์แบบ ทุเรียน ผลไม้ และพืชแปลงขยายขนาดอย่างมีประสิทธิภาพ";
+            desc.innerText = "การคายน้ำและการดูดซึมธาตุอาหาร NPK ดำเนินไปอย่างสมบูรณ์แบบ ทุเรียนและพืชแปลงขยายขนาดได้อย่างมีประสิทธิภาพ";
         } else if (VPD <= 1.6) {
             box.className = "mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs flex items-start gap-3";
             title.innerText = "สภาวะเริ่มเครียดน้ำ (VPD 1.25 - 1.60 kPa)";
@@ -184,7 +402,6 @@ function updateAquaSimulator() {
     if (valSal) valSal.innerText = S.toFixed(0) + ' ppt';
     if (valDo) valDo.innerText = DO.toFixed(2) + ' mg/L';
 
-    // Benson & Krause DO Saturation model
     const Tk = T + 273.15;
     const lnC = -139.34411 + (1.575701e5 / Tk) - (6.642308e7 / Math.pow(Tk, 2)) + (1.2438e10 / Math.pow(Tk, 3)) - (8.621949e11 / Math.pow(Tk, 4));
     let DO_sat = Math.exp(lnC);
@@ -196,16 +413,15 @@ function updateAquaSimulator() {
 
     let freq = 50.0;
     if (DO < 3.5) {
-        freq = 50.0; // Full crisis speed
+        freq = 50.0;
     } else if (DO < 4.5) {
         freq = 44.0;
     } else if (DO < 6.0) {
         freq = 38.0;
     } else {
-        freq = 30.0; // Idle minimum speed
+        freq = 30.0;
     }
 
-    // Affinity law power ratio: (f / 50)^3
     const powerRatio = Math.pow(freq / 50.0, 3);
     const powerSavePct = (1.0 - powerRatio) * 100.0;
 
@@ -289,7 +505,6 @@ function selectPlantSample(key) {
     const data = plantSampleData[key];
     if (!data) return;
 
-    // Highlight button
     document.querySelectorAll('.plant-btn').forEach(btn => {
         btn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-700');
         btn.classList.add('bg-white', 'text-gray-700');
@@ -300,7 +515,6 @@ function selectPlantSample(key) {
         activeBtn.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-700');
     }
 
-    // Update diagnosis views
     const diagTitle = document.getElementById('diag-title');
     const diagClass = document.getElementById('diag-class');
     const diagConf = document.getElementById('diag-conf');
@@ -350,6 +564,9 @@ function closeScreenModal() {
 
 // Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
+    initNavbarLogoCarousel();
+    initHeroImageCarousel();
+    initAtdScreenCarousel();
     initHeroTicker();
     updateVPDSimulator();
     updateAquaSimulator();
