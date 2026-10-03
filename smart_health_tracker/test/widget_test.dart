@@ -64,18 +64,18 @@ void main() {
     });
   });
 
-  testWidgets('LEQsAgriSciApp boots and renders responsive layout', (WidgetTester tester) async {
+  testWidgets('SmartHealthTrackerApp boots and renders responsive layout', (WidgetTester tester) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => MovementSensorService()),
           ChangeNotifierProvider(create: (_) => GpsTrackingService()),
         ],
-        child: const LEQsAgriSciApp(),
+        child: const SmartHealthTrackerApp(),
       ),
     );
 
-    expect(find.byType(LEQsAgriSciApp), findsOneWidget);
-    expect(find.textContaining('LEQs'), findsWidgets);
+    expect(find.byType(SmartHealthTrackerApp), findsOneWidget);
+    expect(find.textContaining('HEALTH'), findsWidgets);
   });
 }

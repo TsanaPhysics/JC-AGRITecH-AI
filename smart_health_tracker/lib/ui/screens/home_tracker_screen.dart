@@ -156,7 +156,7 @@ class _HomeTrackerScreenState extends State<HomeTrackerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'LEQs AgriSci xAI',
+                            'SMART HEALTH TRACKER',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
