@@ -16,7 +16,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@400;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,19 +39,19 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
 <body class="bg-slate-950 text-slate-100 antialiased font-sans selection:bg-cyan-500 selection:text-white">
 
     <!-- ========================================================================= -->
-    <!-- 1. NAVIGATION BAR -->
+    <!-- 1. NAVIGATION BAR (EXACTLY 5 MAIN MENUS)                                  -->
     <!-- ========================================================================= -->
-    <nav class="fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800" id="navbar">
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 bg-slate-900/85 backdrop-blur-xl border-b border-slate-800" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 
-                <!-- Brand Logo & Title -->
+                <!-- Brand Logo (Incorporating nong_smartscience from cmu_aiot) -->
                 <a href="index.php" class="flex items-center gap-3.5 group">
                     <div class="relative w-12 h-12 flex-shrink-0">
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 rounded-2xl blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse-ring"></div>
-                        <div class="relative w-full h-full bg-slate-900 rounded-2xl border border-cyan-500/40 flex items-center justify-center p-2 shadow-inner">
-                            <i class="fa-solid fa-microchip text-2xl text-cyan-400 group-hover:rotate-12 transition-transform duration-300"></i>
-                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+                        <img src="assets/images/nong_smartscience.png" 
+                             alt="LEQs Mascot" 
+                             class="relative w-full h-full object-cover rounded-full shadow-lg border border-cyan-400/50 group-hover:scale-110 transition-all duration-500">
                         <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900 animate-ping"></span>
                     </div>
                     <div class="flex flex-col">
@@ -69,18 +69,20 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                     </div>
                 </a>
 
-                <!-- Desktop Navigation Menu -->
-                <div class="hidden lg:flex items-center gap-1.5 font-medium text-sm text-slate-300">
-                    <a href="#overview" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-compass text-cyan-400"></i> ภาพรวม
+                <!-- Desktop Navigation Menu: EXACTLY 5 MAIN ITEMS -->
+                <div class="hidden lg:flex items-center gap-2 font-medium text-sm text-slate-300">
+                    
+                    <!-- MENU 1: ภาพรวมโครงการ (Overview) -->
+                    <a href="#overview" class="px-3.5 py-2 rounded-xl hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-house text-cyan-400"></i> ภาพรวม
                     </a>
                     
-                    <!-- Dropdown: Student System -->
+                    <!-- MENU 2: ระบบผู้เรียน (Student System Dropdown) -->
                     <div class="relative group" x-data="{ open: false }">
-                        <button @click="open = !open" @click.outside="open = false" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                        <button @click="open = !open" @click.outside="open = false" class="px-3.5 py-2 rounded-xl hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
                             <i class="fa-solid fa-user-graduate text-emerald-400"></i> ระบบผู้เรียน <i class="fa-solid fa-chevron-down text-xs ml-0.5 opacity-60"></i>
                         </button>
-                        <div x-show="open" x-transition class="absolute left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-800 p-2 z-50">
+                        <div x-show="open" x-transition class="absolute left-0 mt-2 w-64 bg-slate-900/98 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-800 p-2 z-50">
                             <a href="pages/register.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
                                 <i class="fa-solid fa-id-card text-emerald-400 w-5"></i>
                                 <div>
@@ -113,27 +115,60 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                         </div>
                     </div>
 
-                    <a href="#modules" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-book-bookmark text-sky-400"></i> 7 โมดูล
+                    <!-- MENU 3: หลักสูตร 7 โมดูล (Curriculum) -->
+                    <a href="#modules" class="px-3.5 py-2 rounded-xl hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open text-sky-400"></i> 7 โมดูล
                     </a>
-                    <a href="#simulators" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
+
+                    <!-- MENU 4: ห้องแล็บเสมือน (Virtual Labs) -->
+                    <a href="#simulators" class="px-3.5 py-2 rounded-xl hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-flask-vial text-purple-400"></i> Virtual Lab
                     </a>
-                    <a href="#screens" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-desktop text-amber-400"></i> จอ ATD3.5-S3
-                    </a>
-                    <a href="#capstone" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-diagram-project text-rose-400"></i> โครงงาน
-                    </a>
-                    <a href="#documents" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-pdf text-emerald-400"></i> เอกสารขออนุมัติ
-                    </a>
+
+                    <!-- MENU 5: นวัตกรรม & เอกสาร (Showcase & Docs Dropdown) -->
+                    <div class="relative group" x-data="{ openDocs: false }">
+                        <button @click="openDocs = !openDocs" @click.outside="openDocs = false" class="px-3.5 py-2 rounded-xl hover:text-cyan-400 hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-folder-open text-amber-400"></i> นวัตกรรม & เอกสาร <i class="fa-solid fa-chevron-down text-xs ml-0.5 opacity-60"></i>
+                        </button>
+                        <div x-show="openDocs" x-transition class="absolute right-0 mt-2 w-72 bg-slate-900/98 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-800 p-2 z-50">
+                            <a href="#screens" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
+                                <i class="fa-solid fa-desktop text-amber-400 w-5"></i>
+                                <div>
+                                    <div class="font-semibold text-sm">แกลเลอรี 10 จอ ATD3.5-S3</div>
+                                    <div class="text-[11px] text-slate-400">สกรีนช็อตฮาร์ดแวร์จริง 480x320</div>
+                                </div>
+                            </a>
+                            <a href="#capstone" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
+                                <i class="fa-solid fa-diagram-project text-rose-400 w-5"></i>
+                                <div>
+                                    <div class="font-semibold text-sm">โครงงาน Capstone 6 แทร็ก</div>
+                                    <div class="text-[11px] text-slate-400">Mini Projects นวัตกรรมเกษตร</div>
+                                </div>
+                            </a>
+                            <a href="#documents" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
+                                <i class="fa-solid fa-file-signature text-emerald-400 w-5"></i>
+                                <div>
+                                    <div class="font-semibold text-sm">เอกสารขออนุมัติงบ 76,000 บ.</div>
+                                    <div class="text-[11px] text-slate-400">แบบฟอร์ม มรภ.รำไพพรรณี พ.ศ. 2569</div>
+                                </div>
+                            </a>
+                            <div class="my-1 border-t border-slate-800"></div>
+                            <a href="admin/index.php" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
+                                <i class="fa-solid fa-shield-halved text-cyan-400 w-5"></i>
+                                <div>
+                                    <div class="font-semibold text-sm">ระบบผู้ดูแล (Admin CMS)</div>
+                                    <div class="text-[11px] text-slate-400">ติดตาม KPI และส่งออกข้อมูล CSV</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Admin Action Button -->
                 <div class="hidden sm:flex items-center gap-3">
-                    <a href="admin/index.php" class="px-4 py-2 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700/80 hover:border-cyan-500/50 text-cyan-300 font-semibold text-xs tracking-wider uppercase transition-all shadow-md hover:shadow-cyan-500/20 flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved text-cyan-400"></i> Admin CMS
+                    <a href="pages/register.php" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 text-slate-950 font-bold text-xs tracking-wider uppercase transition-all shadow-md hover:shadow-cyan-500/20 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-plus"></i> ลงทะเบียน
                     </a>
                 </div>
 
@@ -142,16 +177,26 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                     <button @click="mobileNav = !mobileNav" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
                         <i class="fa-solid fa-bars text-lg"></i>
                     </button>
-                    <!-- Mobile Menu Overlay -->
+                    <!-- Mobile Menu Overlay (5 Main Items) -->
                     <div x-show="mobileNav" @click.outside="mobileNav = false" class="absolute top-20 left-0 w-full bg-slate-900/98 border-b border-slate-800 p-5 shadow-2xl flex flex-col gap-3 z-50">
-                        <a href="#overview" @click="mobileNav = false" class="py-2 px-3 rounded-lg hover:bg-slate-800">ภาพรวมโครงการ</a>
-                        <a href="pages/register.php" class="py-2 px-3 rounded-lg hover:bg-slate-800 text-emerald-400">ลงทะเบียนเข้าอบรม</a>
-                        <a href="pages/student_list.php" class="py-2 px-3 rounded-lg hover:bg-slate-800 text-cyan-400">ประกาศรายชื่อผู้สมัคร</a>
-                        <a href="#modules" @click="mobileNav = false" class="py-2 px-3 rounded-lg hover:bg-slate-800">หลักสูตร 7 โมดูล</a>
-                        <a href="#simulators" @click="mobileNav = false" class="py-2 px-3 rounded-lg hover:bg-slate-800">Virtual Lab เสมือนจริง</a>
-                        <a href="#screens" @click="mobileNav = false" class="py-2 px-3 rounded-lg hover:bg-slate-800">แกลเลอรีหน้าจอ ATD3.5-S3</a>
-                        <a href="#documents" @click="mobileNav = false" class="py-2 px-3 rounded-lg hover:bg-slate-800">เอกสารโครงการ</a>
-                        <a href="admin/index.php" class="py-2 px-3 rounded-lg bg-slate-800 text-cyan-300 text-center font-bold">เข้าสู่ระบบ Admin</a>
+                        <a href="#overview" @click="mobileNav = false" class="py-2.5 px-3 rounded-xl hover:bg-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-house text-cyan-400 w-5"></i> 1. ภาพรวมโครงการ
+                        </a>
+                        <a href="pages/register.php" class="py-2.5 px-3 rounded-xl hover:bg-slate-800 text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-user-graduate text-emerald-400 w-5"></i> 2. ระบบผู้เรียน (ลงทะเบียน/รายชื่อ/สอบ)
+                        </a>
+                        <a href="#modules" @click="mobileNav = false" class="py-2.5 px-3 rounded-xl hover:bg-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-sky-400 w-5"></i> 3. หลักสูตร 7 โมดูล
+                        </a>
+                        <a href="#simulators" @click="mobileNav = false" class="py-2.5 px-3 rounded-xl hover:bg-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-flask-vial text-purple-400 w-5"></i> 4. Virtual Lab เสมือนจริง
+                        </a>
+                        <a href="#screens" @click="mobileNav = false" class="py-2.5 px-3 rounded-xl hover:bg-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-folder-open text-amber-400 w-5"></i> 5. นวัตกรรม & เอกสารโครงการ
+                        </a>
+                        <a href="admin/index.php" class="py-2.5 px-3 rounded-xl bg-slate-800 text-cyan-300 text-center font-bold mt-2">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> เข้าสู่ระบบ Admin CMS
+                        </a>
                     </div>
                 </div>
 
@@ -160,7 +205,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </nav>
 
     <!-- ========================================================================= -->
-    <!-- 2. HERO SECTION -->
+    <!-- 2. HERO SECTION WITH CMU_AIOT ARTWORK & ATD3.5-S3                        -->
     <!-- ========================================================================= -->
     <section id="overview" class="relative pt-32 pb-20 overflow-hidden hero-pattern">
         <!-- Ambient Glowing Orbs -->
@@ -173,8 +218,8 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                 <!-- Left Column: Copy & Taglines -->
                 <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-300 backdrop-blur-md">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        โครงการความร่วมมือ มรภ.รำไพพรรณี & โรงเรียนประณีตวิทยาคม
+                        <img src="assets/images/nong_smartscience.png" class="w-5 h-5 rounded-full object-cover">
+                        ศูนย์พัฒนานวัตกรรมเกษตรดิจิทัลรำไพพรรณี-ประณีตวิทยาคม
                     </div>
 
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black font-tech tracking-tight leading-none text-white">
@@ -226,50 +271,39 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                     </div>
                 </div>
 
-                <!-- Right Column: Interactive Hardware Preview Card -->
+                <!-- Right Column: Hero Visual Showcase (Incorporating cv_cover_artwork.jpg & ATD3.5-S3) -->
                 <div class="lg:col-span-5 relative">
                     <div class="relative mx-auto max-w-md">
                         <!-- Neon Glow Frame -->
-                        <div class="absolute -inset-1.5 bg-gradient-to-r from-cyan-500 via-emerald-500 to-purple-500 rounded-3xl blur-xl opacity-40 animate-pulse-slow"></div>
+                        <div class="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-emerald-500 to-purple-500 rounded-3xl blur-2xl opacity-35 animate-pulse-slow"></div>
                         
-                        <!-- Device Mockup Card -->
-                        <div class="relative glass-card-dark rounded-3xl p-5 border border-slate-700/80 shadow-2xl">
-                            <!-- Screen Top Status -->
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                                    <span class="font-mono text-cyan-400 font-bold">ATD3.5-S3 ONLINE</span>
+                        <!-- Combined Hero Artwork Card -->
+                        <div class="relative glass-card-dark rounded-3xl p-4 border border-slate-700/80 shadow-2xl space-y-4">
+                            
+                            <!-- Cover Artwork from cmu_aiot -->
+                            <div class="relative rounded-2xl overflow-hidden border border-slate-700 shadow-md group">
+                                <img src="assets/images/cv_cover_artwork.jpg" alt="Computer Vision & AI Camera 2026 Artwork" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-500">
+                                <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-cyan-400/40 text-cyan-300 text-[10px] font-tech font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-camera mr-1"></i> Computer Vision & IoT
                                 </div>
-                                <span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]">
-                                    ESP32-S3 Dual-Core
-                                </span>
                             </div>
 
-                            <!-- Image of Overview Screen -->
-                            <div class="mt-4 rounded-2xl overflow-hidden border border-slate-700/50 shadow-inner group relative cursor-pointer" onclick="openScreenModal('assets/images/atd35/01_overview_dashboard.png', 'Overview Dashboard (จอที่ 1)', 'แดชบอร์ดหลัก 4 มิติ ตรวจวัดสภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 7-in-1 แบบเรียลไทม์ 60 FPS')">
-                                <img src="assets/images/atd35/01_overview_dashboard.png" alt="ATD3.5-S3 Overview Dashboard" class="w-full h-auto object-cover transform group-hover:scale-105 transition-all duration-500">
-                                <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <span class="px-4 py-2 rounded-xl bg-slate-900/90 text-cyan-300 font-bold text-xs border border-cyan-500/40 shadow-xl">
-                                        <i class="fa-solid fa-magnifying-glass-plus mr-1"></i> คลิกเพื่อดูภาพขยาย
+                            <!-- Screen Status & ATD3.5-S3 Mockup -->
+                            <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-xs">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                        <span class="font-mono text-cyan-400 font-bold text-[11px]">ATD3.5-S3 CONTROLLER</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]">
+                                        3.5" Capacitive Touch
                                     </span>
                                 </div>
+                                <div class="mt-2.5 rounded-xl overflow-hidden border border-slate-800 cursor-pointer" onclick="openScreenModal('assets/images/atd35/01_overview_dashboard.png', 'Overview Dashboard (จอที่ 1)', 'แดชบอร์ดหลัก 4 มิติ ตรวจวัดสภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 7-in-1 แบบเรียลไทม์ 60 FPS')">
+                                    <img src="assets/images/atd35/01_overview_dashboard.png" alt="Dashboard Screen" class="w-full h-auto object-cover hover:scale-105 transition duration-300">
+                                </div>
                             </div>
 
-                            <!-- Hardware Specs Row -->
-                            <div class="grid grid-cols-3 gap-2 mt-4 text-center">
-                                <div class="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800">
-                                    <div class="text-[10px] text-slate-400 uppercase font-mono">LCD Touch</div>
-                                    <div class="text-xs font-bold text-cyan-400">3.5" IPS 480x320</div>
-                                </div>
-                                <div class="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800">
-                                    <div class="text-[10px] text-slate-400 uppercase font-mono">Sensors</div>
-                                    <div class="text-xs font-bold text-emerald-400">4 Probes (10 Pars)</div>
-                                </div>
-                                <div class="p-2.5 rounded-xl bg-slate-900/70 border border-slate-800">
-                                    <div class="text-[10px] text-slate-400 uppercase font-mono">Inference</div>
-                                    <div class="text-xs font-bold text-purple-400">Edge TinyML</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -299,7 +333,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 3. LEQs FRAMEWORK & CORE OPERATING LOOP -->
+    <!-- 3. LEQs FRAMEWORK & CORE OPERATING LOOP                                   -->
     <!-- ========================================================================= -->
     <section class="py-20 bg-slate-900/40 relative border-t border-b border-slate-800/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -413,7 +447,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 4. INTERACTIVE VIRTUAL LABS & SIMULATORS -->
+    <!-- 4. INTERACTIVE VIRTUAL LABS (WITH CMU_AIOT ASSETS)                         -->
     <!-- ========================================================================= -->
     <section id="simulators" class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -431,9 +465,9 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                <!-- LAB 1: VPD & Fungal Disease Risk Simulator -->
-                <div class="p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
-                    <div>
+                <!-- LAB 1: VPD & Fungal Disease Risk Simulator (Incorporating climate_carbon_bg.png) -->
+                <div class="p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="relative z-10">
                         <div class="flex items-center justify-between pb-4 border-b border-slate-800">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg">
@@ -477,7 +511,6 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
 
                         <!-- Interactive Sliders -->
                         <div class="space-y-5">
-                            <!-- Temp Slider -->
                             <div>
                                 <div class="flex justify-between text-xs font-semibold mb-1">
                                     <span class="text-slate-300"><i class="fa-solid fa-temperature-half text-rose-400 mr-1"></i> อุณหภูมิอากาศ (Air Temp)</span>
@@ -488,7 +521,6 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                                        class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
                             </div>
 
-                            <!-- RH Slider -->
                             <div>
                                 <div class="flex justify-between text-xs font-semibold mb-1">
                                     <span class="text-slate-300"><i class="fa-solid fa-droplet text-sky-400 mr-1"></i> ความชื้นสัมพัทธ์ (Relative Humidity)</span>
@@ -502,12 +534,12 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                     </div>
 
                     <!-- xAI Explanation Box -->
-                    <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs leading-relaxed text-slate-300">
+                    <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs leading-relaxed text-slate-300 relative z-10">
                         <div id="vpd-recommendation-text"></div>
                     </div>
                 </div>
 
-                <!-- LAB 2: Dual-Depth Soil Irrigation Simulator -->
+                <!-- LAB 2: Dual-Depth Soil Irrigation (Incorporating soil_kit.png) -->
                 <div class="p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -578,7 +610,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
 
             </div>
 
-            <!-- LAB 3: Edge AI Plant Vision Simulator -->
+            <!-- LAB 3: Edge AI Plant Vision Simulator (Incorporating cv_agri_vision & card_plant_ai) -->
             <div class="mt-8 p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
                     <div class="flex items-center gap-3">
@@ -608,12 +640,12 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6 items-center">
-                    <!-- Leaf Inspection Visualizer with Bounding Box -->
-                    <div class="md:col-span-5 relative bg-slate-950 rounded-2xl p-4 border border-slate-800 flex items-center justify-center min-h-[220px]">
-                        <div id="diag-bbox" class="relative w-48 h-48 border-2 border-dashed rounded-2xl flex items-center justify-center transition-all duration-500">
-                            <i class="fa-solid fa-leaf text-6xl text-slate-700 animate-pulse"></i>
-                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-900/90 text-[10px] font-mono text-cyan-400 border border-slate-700">
-                                ROI: Leaf #01
+                    <!-- Leaf Inspection Visualizer (With cv_agri_vision.jpg from cmu_aiot) -->
+                    <div class="md:col-span-5 relative bg-slate-950 rounded-2xl p-3 border border-slate-800 overflow-hidden group">
+                        <img src="assets/images/cv_agri_vision.jpg" alt="Agricultural Vision in Orchard" class="w-full h-56 object-cover rounded-xl opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div id="diag-bbox" class="absolute top-8 left-8 w-36 h-36 border-2 border-dashed rounded-xl flex items-center justify-center transition-all duration-500">
+                            <div class="absolute -top-3 left-2 px-2 py-0.5 rounded bg-slate-900/90 text-[10px] font-mono text-cyan-400 border border-slate-700">
+                                ROI: AI-Detect
                             </div>
                         </div>
                     </div>
@@ -648,7 +680,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 5. ATD3.5-S3 HARDWARE SCREENS SHOWCASE -->
+    <!-- 5. ATD3.5-S3 HARDWARE SCREENS SHOWCASE                                    -->
     <!-- ========================================================================= -->
     <section id="screens" class="py-20 bg-slate-900/40 relative border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -789,7 +821,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 6. 7 LEARNING MODULES CURRICULUM -->
+    <!-- 6. 7 LEARNING MODULES CURRICULUM (WITH CMU_AIOT HARDWARE ASSETS)           -->
     <!-- ========================================================================= -->
     <section id="modules" class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -803,6 +835,28 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                 <p class="text-slate-400 text-sm sm:text-base mt-3">
                     ออกแบบตามมาตรฐาน Active Learning และ Problem-based Learning (PBL) มุ่งสร้างทักษะจริง 70%
                 </p>
+            </div>
+
+            <!-- Hardware & Sensors Setup Feature (From cmu_aiot cv_hardware_setup.jpg) -->
+            <div class="mb-12 p-6 rounded-3xl bg-slate-900 border border-slate-800 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-5 rounded-2xl overflow-hidden border border-slate-700 shadow-xl">
+                    <img src="assets/images/cv_hardware_setup.jpg" alt="Hardware Setup Kit" class="w-full h-auto object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="lg:col-span-7 space-y-3">
+                    <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold uppercase tracking-wider font-tech">
+                        Hardware Training Kit
+                    </span>
+                    <h3 class="text-xl font-bold text-white">ชุดอุปกรณ์ฮาร์ดแวร์ฝึกอบรมมาตรฐานอุตสาหกรรม</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        ประกอบด้วยบอร์ดประมวลผลหลัก ATD3.5-S3 (ESP32-S3 Dual-Core, 8MB PSRAM, หน้าจอสี IPS Capacitive Touch 3.5 นิ้ว 480x320 พิกเซล), โมดูลกล้องวิทัศน์ AI Camera, เซนเซอร์สภาพอากาศ SHT45 (VPD), เซนเซอร์แสง BH1750 (PAR), โพรบวัดผิวดิน Soil Stick (0-10 cm), และโพรบสเตนเลส Soil 7-in-1 Modbus RS485 (10-30 cm) พร้อมโมดูลรีเลย์ควบคุม 4 ช่อง
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-cyan-300 text-[11px] font-mono border border-slate-800">ATD3.5-S3 Controller</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-emerald-300 text-[11px] font-mono border border-slate-800">SHT45 VPD Sensor</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-amber-300 text-[11px] font-mono border border-slate-800">Soil 7-in-1 RS485</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-purple-300 text-[11px] font-mono border border-slate-800">Vision Camera</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Modules Vertical Stack -->
@@ -865,7 +919,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                     </div>
                 </div>
 
-                <!-- Module 4 -->
+                <!-- Module 4 (Colab & Deep Learning) -->
                 <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div class="flex items-start gap-4">
@@ -946,7 +1000,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 7. CAPSTONE MINI PROJECTS & 6 TRACKS -->
+    <!-- 7. CAPSTONE MINI PROJECTS & 6 TRACKS                                      -->
     <!-- ========================================================================= -->
     <section id="capstone" class="py-20 bg-slate-900/40 relative border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1041,7 +1095,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 8. PROJECT PROPOSAL DOCUMENTS & DOWNLOADS -->
+    <!-- 8. PROJECT PROPOSAL DOCUMENTS & APPROVALS (WITH AI_PROPOSAL IMAGE)        -->
     <!-- ========================================================================= -->
     <section id="documents" class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1059,11 +1113,11 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- Doc 1: Official Approval -->
-                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+                <!-- Doc 1: Official Approval (Featuring ai_proposal.png from cmu_aiot) -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between group">
                     <div>
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
-                            <i class="fa-solid fa-file-signature"></i>
+                        <div class="rounded-2xl overflow-hidden border border-slate-800 mb-4 bg-slate-950 p-2">
+                            <img src="assets/images/ai_proposal.png" alt="AI Project Proposal" class="w-full h-36 object-contain group-hover:scale-105 transition duration-300">
                         </div>
                         <h3 class="font-bold text-white text-base">โครงการขออนุมัติงบประมาณ พ.ศ. 2569</h3>
                         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
@@ -1121,7 +1175,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 9. FOOTER (4-COLUMN MODEL) -->
+    <!-- 9. FOOTER (4-COLUMN MODEL)                                                -->
     <!-- ========================================================================= -->
     <footer class="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 text-slate-400 text-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1130,9 +1184,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                 <!-- Col 1: Identity -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-slate-900 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl font-tech font-bold">
-                            L
-                        </div>
+                        <img src="assets/images/nong_smartscience.png" class="w-10 h-10 rounded-full object-cover border border-cyan-400/50">
                         <div>
                             <div class="font-tech text-lg font-black text-white">LEQs-xAI</div>
                             <div class="text-[10px] text-slate-400">Digital Agriculture & Environmental AI</div>
@@ -1178,7 +1230,6 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                         โรงเรียนประณีตวิทยาคม ตำบลประณีต อำเภอเขาสมิง จังหวัดตราด 23150
                     </p>
                     <div class="rounded-xl overflow-hidden border border-slate-800 bg-slate-900 h-28 relative">
-                        <!-- Embedded Mini Map Representation -->
                         <iframe class="w-full h-full border-0 opacity-80 hover:opacity-100 transition" 
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3896.793739775082!2d102.4069678!3d12.4013697!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3104683058a9da95%3A0xc48c0a87a71f021e!2z4LmC4Lij4LiH4LmA4Lij4Li14Lii4LiZ4Lib4Lij4Liw4LiT4Li14LiV4Lin4Li04Lii4Liy4LiE4Lih!5e0!3m2!1sth!2sth!4v1700000000000!5m2!1sth!2sth"
                                 allowfullscreen="" loading="lazy"></iframe>
@@ -1201,7 +1252,7 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
     </footer>
 
     <!-- ========================================================================= -->
-    <!-- 10. SCREEN LIGHTBOX MODAL -->
+    <!-- 10. SCREEN LIGHTBOX MODAL                                                 -->
     <!-- ========================================================================= -->
     <div id="screen-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl hidden items-center justify-center p-4">
         <div class="relative max-w-4xl w-full bg-slate-900 border border-slate-700/80 rounded-3xl p-6 shadow-2xl">
