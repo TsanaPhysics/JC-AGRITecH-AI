@@ -1,10 +1,10 @@
 /**
- * LEQs-xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม
- * Main Interactive Portal Script & Live Simulation Engines
+ * LEQs-xAI Portal - Main Script
+ * Styled and engineered following cmu_aiot Portal standard
  * Faculty of Science & Technology, Rambhai Barni Rajabhat University
  */
 
-// Initialize Tailwind Theme Extension
+// Configure Tailwind
 if (typeof tailwind !== 'undefined') {
     tailwind.config = {
         theme: {
@@ -18,12 +18,22 @@ if (typeof tailwind !== 'undefined') {
                     brand: {
                         emerald: '#10B981',
                         cyan: '#06B6D4',
-                        sky: '#0284C7',
-                        amber: '#F59E0B',
-                        purple: '#8B5CF6',
-                        rose: '#F43F5E',
-                        dark: '#0B1120',
-                        surface: '#0F172A'
+                        blue: '#007ACC',
+                        orange: '#FF8C00',
+                        pink: '#EC4899',
+                        dark: '#0f172a',
+                        light: '#f8fafc',
+                        purple: '#8B5CF6'
+                    }
+                },
+                animation: {
+                    'float': 'float 6s ease-in-out infinite',
+                    'bounce-slow': 'bounce 3s infinite',
+                },
+                keyframes: {
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-15px)' },
                     }
                 }
             }
@@ -31,184 +41,198 @@ if (typeof tailwind !== 'undefined') {
     };
 }
 
-// Copy to Clipboard with Toast Notification
+// Copy to Clipboard with Toast
 function copyToClipboard(elementId) {
     const el = document.getElementById(elementId);
     if (!el) return;
     const text = el.innerText || el.textContent;
     navigator.clipboard.writeText(text).then(function() {
-        showToast('คัดลอกโค้ดสำเร็จแล้ว! (Copied to Clipboard)', 'success');
-    }).catch(function(err) {
-        console.error('Async clipboard error:', err);
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50 animate-bounce transition-all duration-300 border border-white/20';
+        toast.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> คัดลอกโค้ดสำเร็จ!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }).catch(function() {
+        alert('คัดลอกโค้ด: ' + text.substring(0, 50) + '...');
     });
 }
 
-// Global Toast Notification
-function showToast(message, type = 'success') {
-    const existing = document.getElementById('global-toast');
-    if (existing) existing.remove();
-
-    const toast = document.createElement('div');
-    toast.id = 'global-toast';
-    const isSuccess = type === 'success';
-    toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 ${
-        isSuccess ? 'bg-slate-900/95 border-emerald-500/50' : 'bg-rose-900/95 border-rose-500/50'
-    } text-white px-6 py-3.5 rounded-full shadow-2xl flex items-center gap-3 z-50 animate-bounce border backdrop-blur-md transition-all duration-300`;
-    
-    toast.innerHTML = `
-        <i class="fa-solid ${isSuccess ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'} text-lg"></i>
-        <span class="font-medium text-sm font-sans">${message}</span>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('opacity-0');
-        setTimeout(() => toast.remove(), 300);
-    }, 2400);
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    if (menu) menu.classList.toggle('hidden');
 }
 
 // ==========================================
-// SIMULATOR 1: VPD & Disease Risk Engine
+// HERO TICKER SEQUENCE (cmu_aiot style)
+// ==========================================
+function initHeroTicker() {
+    const ticker = document.getElementById('hero-ticker');
+    if (!ticker) return;
+
+    const baseClass = "inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300";
+    const colors = ['#059669', '#0284c7', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
+    const animations = ['anim-zoom', 'anim-slide-up', 'anim-slide-down', 'anim-wobble'];
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    const runTickerSequence = async () => {
+        while (true) {
+            // Stage 1: Faculty / Initiative name
+            ticker.className = baseClass + " text-emerald-700 anim-blink";
+            ticker.innerHTML = "🏛️ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี x งบประมาณ 76,000 บ.";
+            await wait(3400);
+
+            // Stage 2: Program Title
+            let anim = getRandom(animations);
+            ticker.className = `${baseClass} ${anim}`;
+            ticker.style.color = getRandom(colors);
+            ticker.innerHTML = "🌾 LEQs-xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม 2026";
+            await wait(4200);
+
+            // Stage 3: Modules Marquee
+            ticker.className = `${baseClass} anim-marquee`;
+            ticker.style.color = getRandom(colors);
+            ticker.innerHTML = "🚀 7 โมดูลปฏิบัติการ: M1 AIoT Sensor Hub | M2 TinyML Edge AI | M3 Computer Vision | M4 LoRaWAN & Zigbee Mesh | M5 VPD & Irrigation | M6 Cloud & Telegram Bot | M7 Capstone Showcase";
+            await wait(24000);
+
+            // Stage 4: Motto
+            anim = getRandom(animations);
+            ticker.className = `${baseClass} ${anim}`;
+            ticker.style.color = getRandom(colors);
+            ticker.innerHTML = "💡 “จากข้อมูลสู่ปัญญา จาก AI สู่เกษตรอัจฉริยะ และจากห้องเรียนสู่ภาคสนาม”";
+            await wait(3800);
+        }
+    };
+
+    runTickerSequence();
+}
+
+// ==========================================
+// SIMULATOR 1: VPD (Vapor Pressure Deficit)
 // ==========================================
 function updateVPDSimulator() {
-    const tempInput = document.getElementById('vpd-temp-slider');
-    const rhInput = document.getElementById('vpd-rh-slider');
-    if (!tempInput || !rhInput) return;
+    const tempInput = document.getElementById('vpd-temp');
+    const humInput = document.getElementById('vpd-humidity');
+    if (!tempInput || !humInput) return;
 
     const T = parseFloat(tempInput.value);
-    const RH = parseFloat(rhInput.value);
+    const RH = parseFloat(humInput.value);
 
-    // Update Slider Display Labels
-    const tempVal = document.getElementById('vpd-temp-val');
-    const rhVal = document.getElementById('vpd-rh-val');
-    if (tempVal) tempVal.innerText = `${T.toFixed(1)} °C`;
-    if (rhVal) rhVal.innerText = `${RH.toFixed(0)} %`;
+    // Update displayed range values
+    const dispTemp = document.getElementById('val-vpd-temp');
+    const dispHum = document.getElementById('val-vpd-hum');
+    if (dispTemp) dispTemp.innerText = T.toFixed(1) + ' °C';
+    if (dispHum) dispHum.innerText = RH.toFixed(0) + ' %';
 
-    // Saturated Vapor Pressure: VPsat (kPa) using Tetens equation
-    const VPsat = 0.61078 * Math.exp((17.27 * T) / (T + 237.3));
-    // Actual Vapor Pressure: VPact (kPa)
-    const VPact = VPsat * (RH / 100.0);
-    // Vapor Pressure Deficit: VPD (kPa)
-    const VPD = VPsat - VPact;
+    // SVP = 0.61078 * exp((17.27 * T) / (T + 237.3))
+    const SVP = 0.61078 * Math.exp((17.27 * T) / (T + 237.3));
+    const AVP = SVP * (RH / 100.0);
+    const VPD = SVP - AVP;
 
-    // Dew Point Calculation (°C)
-    const a = 17.27;
-    const b = 237.3;
-    const alpha = ((a * T) / (b + T)) + Math.log(RH / 100.0);
-    const Tdew = (b * alpha) / (a - alpha);
+    const outVpd = document.getElementById('out-vpd-val');
+    const outSvp = document.getElementById('out-svp-val');
+    const outAvp = document.getElementById('out-avp-val');
 
-    // Update Numerical Outputs
-    const vpdDisplay = document.getElementById('vpd-kpa-display');
-    const dewDisplay = document.getElementById('vpd-dew-display');
-    const statusBadge = document.getElementById('vpd-status-badge');
-    const recText = document.getElementById('vpd-recommendation-text');
-    const vpdGauge = document.getElementById('vpd-gauge-fill');
+    if (outVpd) outVpd.innerText = VPD.toFixed(2);
+    if (outSvp) outSvp.innerText = SVP.toFixed(2);
+    if (outAvp) outAvp.innerText = AVP.toFixed(2);
 
-    if (vpdDisplay) vpdDisplay.innerText = VPD.toFixed(2);
-    if (dewDisplay) dewDisplay.innerText = `${Tdew.toFixed(1)} °C`;
+    // Advisory Status
+    const box = document.getElementById('box-vpd-advisory');
+    const title = document.getElementById('title-vpd-advisory');
+    const desc = document.getElementById('desc-vpd-advisory');
 
-    // Gauge width (0.0 to 2.5 kPa map to 0 - 100%)
-    if (vpdGauge) {
-        const pct = Math.min(Math.max((VPD / 2.2) * 100, 5), 100);
-        vpdGauge.style.width = `${pct}%`;
-    }
-
-    // Determine Agronomic State & Explainable AI Interpretation
-    if (VPD < 0.40) {
-        if (statusBadge) {
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30';
-            statusBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> ความเสี่ยงโรคราสูงมาก (Danger: High Fungal Risk)';
+    if (box && title && desc) {
+        if (VPD < 0.4) {
+            box.className = "mt-6 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-800 text-xs flex items-start gap-3";
+            title.innerText = "ภาวะเสี่ยงเชื้อราและโรคพืช (VPD < 0.4 kPa) - ความชื้นสูงเกินไป";
+            desc.innerText = "ปากใบพืชปิด ไม่มีการคายน้ำ เสี่ยงต่อโรคราสนิม ราแป้ง และโรครากเน่า ควรเพิ่มการระบายอากาศ เปิดพัดลมระบายความชื้น";
+        } else if (VPD <= 1.25) {
+            box.className = "mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 text-xs flex items-start gap-3";
+            title.innerText = "สภาวะเหมาะสมสมบูรณ์แบบ (VPD 0.8 - 1.25 kPa)";
+            desc.innerText = "การคายน้ำและการดูดซึมธาตุอาหาร NPK ดำเนินไปอย่างสมบูรณ์แบบ ทุเรียน ผลไม้ และพืชแปลงขยายขนาดอย่างมีประสิทธิภาพ";
+        } else if (VPD <= 1.6) {
+            box.className = "mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs flex items-start gap-3";
+            title.innerText = "สภาวะเริ่มเครียดน้ำ (VPD 1.25 - 1.60 kPa)";
+            desc.innerText = "อากาศเริ่มแห้งและร้อน แนะนำให้เพิ่มรอบการให้น้ำทางดิน หรือเปิดสปริงเกลอร์ใต้ทรงพุ่มรักษาความชื้น";
+        } else {
+            box.className = "mt-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-700 text-xs flex items-start gap-3";
+            title.innerText = "วิกฤตความแห้งแล้งสูง (VPD > 1.60 kPa) - อันตราย";
+            desc.innerText = "พืชปิดปากใบสนิท เสี่ยงสลัดผลอ่อนและหนามไหม้แดง ต้องเปิดระบบพ่นหมอก/สปริงเกลอร์ช่วยระบายความร้อนด่วน";
         }
-        if (vpdGauge) vpdGauge.className = 'h-full rounded-full transition-all duration-300 bg-gradient-to-r from-blue-400 to-rose-500';
-        if (recText) recText.innerHTML = '<b class="text-rose-400">คำอธิบาย xAI:</b> อากาศชื้นจัด พืชไม่สามารถคายน้ำได้ ปากใบปิด เสี่ยงต่อโรคราสนิม ราน้ำค้าง และผลแตก <span class="text-emerald-400">แนะนำ:</span> เปิดพัดลมระบายอากาศ หยุดการให้น้ำ พ่นสารชีวภัณฑ์ดักจับสปอร์รา';
-    } else if (VPD >= 0.40 && VPD <= 0.80) {
-        if (statusBadge) {
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-sky-500/20 text-sky-400 border border-sky-500/30';
-            statusBadge.innerHTML = '<i class="fa-solid fa-seedling mr-1"></i> ระยะการเจริญเติบโตต้นกล้า (Early Vegetative)';
-        }
-        if (vpdGauge) vpdGauge.className = 'h-full rounded-full transition-all duration-300 bg-gradient-to-r from-blue-400 to-cyan-400';
-        if (recText) recText.innerHTML = '<b class="text-sky-400">คำอธิบาย xAI:</b> อากาศชุ่มชื้น เหมาะสมอย่างยิ่งสำหรับต้นกล้าเพาะชำ และการแตกยอดอ่อนของทุเรียน ไม่พบความเครียดจากความร้อน';
-    } else if (VPD > 0.80 && VPD <= 1.25) {
-        if (statusBadge) {
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-            statusBadge.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i> โซนสังเคราะห์แสงสมบูรณ์ (Optimal Transpiration)';
-        }
-        if (vpdGauge) vpdGauge.className = 'h-full rounded-full transition-all duration-300 bg-gradient-to-r from-cyan-400 to-emerald-500';
-        if (recText) recText.innerHTML = '<b class="text-emerald-400">คำอธิบาย xAI:</b> ปากใบพืชเปิดกว้าง อัตราการดูดซึมธาตุอาหาร N-P-K และแคลเซียมสูงสุด สมดุลการคายน้ำเหมาะสมที่สุดสำหรับการสร้างเนื้อและขยายผลผลิต';
-    } else if (VPD > 1.25 && VPD <= 1.60) {
-        if (statusBadge) {
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30';
-            statusBadge.innerHTML = '<i class="fa-solid fa-sun mr-1"></i> เริ่มมีความเครียดน้ำ (Moderate Water Stress)';
-        }
-        if (vpdGauge) vpdGauge.className = 'h-full rounded-full transition-all duration-300 bg-gradient-to-r from-emerald-500 to-amber-500';
-        if (recText) recText.innerHTML = '<b class="text-amber-400">คำอธิบาย xAI:</b> อากาศแห้งและร้อน พืชเริ่มคายน้ำเร็วกว่าการดูดน้ำจากราก <span class="text-cyan-400">ระบบสั่งการ:</span> เตรียมเปิดสปริงเกลอร์พ่นหมอกใต้ทรงพุ่มเพื่อลดอุณหภูมิอากาศ';
-    } else {
-        if (statusBadge) {
-            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-600/30 text-rose-300 border border-rose-500';
-            statusBadge.innerHTML = '<i class="fa-solid fa-fire mr-1"></i> ภาวะวิกฤตแห้งแล้งรุนแรง (Severe Stress / Wilting)';
-        }
-        if (vpdGauge) vpdGauge.className = 'h-full rounded-full transition-all duration-300 bg-gradient-to-r from-amber-500 to-rose-600';
-        if (recText) recText.innerHTML = '<b class="text-rose-400">คำอธิบาย xAI:</b> ปากใบพืชปิดสนิทเพื่อรักษาชีวิต การสังเคราะห์แสงหยุดชะงัก ดอกและผลอ่อนร่วง <span class="text-rose-400 font-bold">เตือนด่วน:</span> สั่งระบบรดน้ำอัตโนมัติทำงานทันที!';
     }
 }
 
 // ==========================================
-// SIMULATOR 2: Dual-Depth Soil Irrigation Engine
+// SIMULATOR 2: Coastal Aquaculture DO & VFD
 // ==========================================
-function updateSoilSimulator() {
-    const s1Input = document.getElementById('soil-surf-slider');
-    const s2Input = document.getElementById('soil-deep-slider');
-    if (!s1Input || !s2Input) return;
+function updateAquaSimulator() {
+    const tempInput = document.getElementById('inputAquaTemp');
+    const salInput = document.getElementById('inputAquaSal');
+    const doInput = document.getElementById('inputAquaDo');
+    if (!tempInput || !salInput || !doInput) return;
 
-    const S1 = parseFloat(s1Input.value); // Surface 0-10cm (%)
-    const S2 = parseFloat(s2Input.value); // Deep 10-30cm (%)
+    const T = parseFloat(tempInput.value);
+    const S = parseFloat(salInput.value);
+    const DO = parseFloat(doInput.value);
 
-    const s1Val = document.getElementById('soil-surf-val');
-    const s2Val = document.getElementById('soil-deep-val');
-    if (s1Val) s1Val.innerText = `${S1.toFixed(0)} %`;
-    if (s2Val) s2Val.innerText = `${S2.toFixed(0)} %`;
+    const valTemp = document.getElementById('valAquaTemp');
+    const valSal = document.getElementById('valAquaSal');
+    const valDo = document.getElementById('valAquaDo');
+    if (valTemp) valTemp.innerText = T.toFixed(1) + ' °C';
+    if (valSal) valSal.innerText = S.toFixed(0) + ' ppt';
+    if (valDo) valDo.innerText = DO.toFixed(2) + ' mg/L';
 
-    // Visual indicators
-    const surfBar = document.getElementById('soil-surf-bar');
-    const deepBar = document.getElementById('soil-deep-bar');
-    if (surfBar) surfBar.style.width = `${S1}%`;
-    if (deepBar) deepBar.style.width = `${S2}%`;
+    // Benson & Krause DO Saturation model
+    const Tk = T + 273.15;
+    const lnC = -139.34411 + (1.575701e5 / Tk) - (6.642308e7 / Math.pow(Tk, 2)) + (1.2438e10 / Math.pow(Tk, 3)) - (8.621949e11 / Math.pow(Tk, 4));
+    let DO_sat = Math.exp(lnC);
+    const Fs = S * (0.017674 - (10.754 / Tk) + (2140.7 / Math.pow(Tk, 2)));
+    DO_sat = DO_sat * Math.exp(-Fs);
 
-    const pumpStatus = document.getElementById('pump-relay-indicator');
-    const soilDecisionText = document.getElementById('soil-decision-text');
+    const outDoSat = document.getElementById('outDoSat');
+    if (outDoSat) outDoSat.innerText = DO_sat.toFixed(2) + ' mg/L';
 
-    // Dual-Depth Irrigation Intelligent Decision Logic
-    let isPumpOn = false;
-    let explanation = '';
-
-    if (S2 < 30.0) {
-        // Critical deep moisture shortage at root zone
-        isPumpOn = true;
-        explanation = '<span class="text-rose-400 font-bold">สั่งเปิดปั๊มน้ำ (Relay 1: ON):</span> ความชื้นเขตรากดูดซึม (10-30 cm) ต่ำกว่า 30% พืชขาดน้ำรุนแรง ระบบรดน้ำหลักทำงานต่อเนื่อง 15 นาที';
-    } else if (S1 < 25.0 && S2 >= 30.0 && S2 <= 55.0) {
-        // Surface dry, root zone moderate
-        isPumpOn = true;
-        explanation = '<span class="text-amber-400 font-bold">สั่งเปิดสปริงเกลอร์เบา (Relay 2: ON):</span> หน้าดินแห้งแตกผาก แต่เขตรากยังพอมีความชื้น ระบบพ่นละอองผิวดิน 5 นาทีเพื่อรักษาโครงสร้างหน้าดินและจุลินทรีย์';
-    } else if (S2 > 65.0) {
-        // Oversaturated / Waterlogged
-        isPumpOn = false;
-        explanation = '<span class="text-sky-400 font-bold">สั่งปิดปั๊มน้ำ (Relay OFF):</span> ดินชั้นล่างมีความชื้นสูงเกิน 65% เสี่ยงต่อภาวะรากเน่าโคนเน่า (Phytophthora) สั่งระบายน้ำและงดให้น้ำเด็ดขาด';
+    let freq = 50.0;
+    if (DO < 3.5) {
+        freq = 50.0; // Full crisis speed
+    } else if (DO < 4.5) {
+        freq = 44.0;
+    } else if (DO < 6.0) {
+        freq = 38.0;
     } else {
-        // Optimal moisture balance
-        isPumpOn = false;
-        explanation = '<span class="text-emerald-400 font-bold">สถานะสมบูรณ์ (Standby):</span> ความชื้นผิวดินและเขตรากพืชอยู่ในเกณฑ์สมดุล (Field Capacity) ประหยัดน้ำได้ 45% เมื่อเทียบกับระบบตั้งเวลาทั่วไป';
+        freq = 30.0; // Idle minimum speed
     }
 
-    if (pumpStatus) {
-        if (isPumpOn) {
-            pumpStatus.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold animate-pulse';
-            pumpStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> ปั๊มน้ำกำลังทำงาน (Active ON)';
+    // Affinity law power ratio: (f / 50)^3
+    const powerRatio = Math.pow(freq / 50.0, 3);
+    const powerSavePct = (1.0 - powerRatio) * 100.0;
+
+    const outFreq = document.getElementById('outVfdFreq');
+    const outSave = document.getElementById('outPowerSave');
+    if (outFreq) outFreq.innerText = freq.toFixed(1) + ' Hz';
+    if (outSave) outSave.innerText = powerSavePct.toFixed(1) + ' %';
+
+    const box = document.getElementById('boxAquaAdvisory');
+    const title = document.getElementById('titleAquaAdvisory');
+    const desc = document.getElementById('descAquaAdvisory');
+
+    if (box && title && desc) {
+        if (DO < 3.5) {
+            box.className = "mt-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-700 text-xs flex items-start gap-3";
+            title.innerText = "ระดับออกซิเจนวิกฤต (DO < 3.5 mg/L) - กุ้งเสี่ยงตายเฉียบพลัน";
+            desc.innerText = "สั่งการมอเตอร์กังหันตีน้ำทำงานเต็มพิกัด 100% (50.0 Hz) พร้อมเปิดท่อฟองอากาศใต้น้ำช่วยเสริมออกซิเจนด่วน";
+        } else if (DO < 4.5) {
+            box.className = "mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs flex items-start gap-3";
+            title.innerText = "ระดับออกซิเจนปานกลาง (DO 3.5 - 4.5 mg/L)";
+            desc.innerText = "รักษารอบมอเตอร์ที่ 44.0 Hz ป้องกันการขาดออกซิเจนช่วงเช้ามืด ประหยัดไฟ 31.8%";
         } else {
-            pumpStatus.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-xs font-medium';
-            pumpStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> ปั๊มน้ำหยุดพัก (Standby OFF)';
+            box.className = "mt-6 p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-800 text-xs flex items-start gap-3";
+            title.innerText = "ออกซิเจนสมบูรณ์แบบ (DO > 4.5 mg/L) - ประหยัดพลังงานสูงสุด";
+            desc.innerText = `ระบบ VFD ชะลอความถี่ลงเหลือ ${freq.toFixed(1)} Hz ช่วยลดกำลังไฟฟ้าได้ถึง ${powerSavePct.toFixed(1)}% ลดต้นทุนค่าไฟได้หลักหมื่นบาทต่อรอบการเลี้ยง`;
         }
     }
-
-    if (soilDecisionText) soilDecisionText.innerHTML = explanation;
 }
 
 // ==========================================
@@ -220,8 +244,8 @@ const plantSampleData = {
         cls: 'Healthy - No Infection',
         conf: '99.4%',
         infTime: '42 ms (ESP32-S3 TinyML)',
-        status: 'text-emerald-400',
-        badge: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
+        status: 'text-emerald-600',
+        badge: 'bg-emerald-100 text-emerald-700',
         color: '#10B981',
         desc: 'พืชสังเคราะห์แสงได้เต็มที่ คลอโรฟิลล์สม่ำเสมอ ผิวใบมันวาว ไร้ร่องรอยสปอร์เชื้อราหรือแมลงดูดกินน้ำเลี้ยง',
         action: 'คงการให้น้ำและธาตุอาหารตามตารางมาตรฐาน ไม่จำเป็นต้องใช้สารควบคุมศัตรูพืช'
@@ -231,8 +255,8 @@ const plantSampleData = {
         cls: 'Cercospora / Rust Disease',
         conf: '96.8%',
         infTime: '48 ms (ESP32-S3 TinyML)',
-        status: 'text-rose-400',
-        badge: 'bg-rose-500/20 border-rose-500/40 text-rose-400',
+        status: 'text-rose-600',
+        badge: 'bg-rose-100 text-rose-700',
         color: '#F43F5E',
         desc: 'พบจุดแผลสีน้ำตาลไหม้ขอบเหลืองกระจายตัวทั่วใบ สัมพันธ์กับค่า VPD < 0.35 kPa ในช่วงสัปดาห์ที่ผ่านมา',
         action: 'ตัดแต่งใบที่เป็นโรคไปทำลายทิ้ง งดการพ่นน้ำโดนใบ ใช้สารไตรโคเดอร์มาหรือคอปเปอร์ไฮดรอกไซด์ควบคุม'
@@ -242,8 +266,8 @@ const plantSampleData = {
         cls: 'Interveinal Chlorosis (Mg/Fe Def)',
         conf: '93.2%',
         infTime: '45 ms (ESP32-S3 TinyML)',
-        status: 'text-amber-400',
-        badge: 'bg-amber-500/20 border-amber-500/40 text-amber-400',
+        status: 'text-amber-600',
+        badge: 'bg-amber-100 text-amber-700',
         color: '#F59E0B',
         desc: 'ใบมีอาการซีดเหลืองระหว่างเส้นใบ (เส้นใบยังคงเขียว) สัมพันธ์กับค่า pH ดินที่สูงเกิน 7.2 ทำให้รากดูดซึมจุลธาตุไม่ได้',
         action: 'ปรับค่า pH ดินให้อยู่ที่ 6.0-6.5 และเสริมปุ๋ยทางใบธาตุอาหารรองแมกนีเซียมและคีเลตเหล็ก'
@@ -253,8 +277,8 @@ const plantSampleData = {
         cls: 'Thrips / Red Mite Infestation',
         conf: '94.5%',
         infTime: '44 ms (ESP32-S3 TinyML)',
-        status: 'text-purple-400',
-        badge: 'bg-purple-500/20 border-purple-500/40 text-purple-400',
+        status: 'text-purple-600',
+        badge: 'bg-purple-100 text-purple-700',
         color: '#8B5CF6',
         desc: 'ผิวใบมีรอยสะกิดจุดเงินบรอนซ์ ใบหงิกงอผิดรูป พบการระบาดในช่วงสภาพอากาศแห้งจัดและแดดแรง',
         action: 'ใช้น้ำแรงดันสูงฉีดใต้ใบช่วงเช้า ฉีดพ่นน้ำมันกำจัดศัตรูพืช (White Oil) หรือปล่อยแมลงตัวห้ำธรรมชาติ'
@@ -267,10 +291,14 @@ function selectPlantSample(key) {
 
     // Highlight button
     document.querySelectorAll('.plant-btn').forEach(btn => {
-        btn.classList.remove('ring-2', 'ring-cyan-400', 'bg-slate-700/80');
+        btn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+        btn.classList.add('bg-white', 'text-gray-700');
     });
     const activeBtn = document.getElementById(`pbtn-${key}`);
-    if (activeBtn) activeBtn.classList.add('ring-2', 'ring-cyan-400', 'bg-slate-700/80');
+    if (activeBtn) {
+        activeBtn.classList.remove('bg-white', 'text-gray-700');
+        activeBtn.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+    }
 
     // Update diagnosis views
     const diagTitle = document.getElementById('diag-title');
@@ -288,19 +316,16 @@ function selectPlantSample(key) {
     }
     if (diagConf) diagConf.innerText = data.conf;
     if (diagSpeed) diagSpeed.innerText = data.infTime;
-    if (diagDesc) diagDesc.innerHTML = `<span class="text-slate-300">${data.desc}</span>`;
-    if (diagAction) diagAction.innerHTML = `<span class="text-emerald-300">${data.action}</span>`;
+    if (diagDesc) diagDesc.innerHTML = `<span class="text-gray-700">${data.desc}</span>`;
+    if (diagAction) diagAction.innerHTML = `<span class="text-emerald-700 font-medium">${data.action}</span>`;
 
-    // Simulated Bounding Box
     if (diagBox) {
         diagBox.style.borderColor = data.color;
         diagBox.style.boxShadow = `0 0 15px ${data.color}40`;
     }
 }
 
-// ==========================================
 // ATD3.5-S3 Screen Lightbox Modal
-// ==========================================
 function openScreenModal(src, title, desc) {
     const modal = document.getElementById('screen-modal');
     const modalImg = document.getElementById('modal-screen-img');
@@ -323,22 +348,22 @@ function closeScreenModal() {
     }
 }
 
-// Setup Event Listeners on DOM Ready
+// Initialize on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial calculation of simulators
+    initHeroTicker();
     updateVPDSimulator();
-    updateSoilSimulator();
+    updateAquaSimulator();
     selectPlantSample('healthy');
 
     // Navbar Scroll Effect
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 20) {
-            navbar?.classList.add('bg-slate-900/95', 'shadow-xl', 'border-slate-800');
-            navbar?.classList.remove('bg-slate-900/80');
+            navbar?.classList.add('bg-white/95', 'shadow-md', 'border-gray-200');
+            navbar?.classList.remove('bg-white/90');
         } else {
-            navbar?.classList.remove('bg-slate-900/95', 'shadow-xl', 'border-slate-800');
-            navbar?.classList.add('bg-slate-900/80');
+            navbar?.classList.remove('bg-white/95', 'shadow-md', 'border-gray-200');
+            navbar?.classList.add('bg-white/90');
         }
     });
 });
