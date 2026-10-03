@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-JC-AGRITecH2026 - High-Resolution Digital Screen Graphics Generator
+LEQs AgriSci xAI - High-Resolution Digital Screen Graphics Generator
 Renders ultra-crisp, beautiful, modern cyber-agritech UI screen mockups
 for the 4 sensor detail views and a unified showcase graphic.
 """
@@ -316,7 +316,7 @@ def render_composite_showcase(img1, img2, img3, img4):
         font_sub_title = ImageFont.load_default()
         font_label = ImageFont.load_default()
 
-    draw.text((cw // 2, 40), "JC AGRITecH + AI: SMART SENSOR TELEMETRY & DISPLAY OVERVIEW", font=font_main_title, fill=(0, 229, 255), anchor="mm")
+    draw.text((cw // 2, 40), "LEQs AgriSci xAI: SMART SENSOR TELEMETRY & DISPLAY OVERVIEW", font=font_main_title, fill=(0, 229, 255), anchor="mm")
     draw.text((cw // 2, 80), "ระบบตรวจวัดและวิเคราะห์ฟิสิกส์เกษตรแม่นยำ พร้อมการชดเชยสัญญาณรบกวนด้วย TinyML Edge AI บนจอ IPS 3.5 นิ้ว", font=font_sub_title, fill=(203, 213, 225), anchor="mm")
 
     # Grid Placement (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
@@ -340,7 +340,7 @@ def render_composite_showcase(img1, img2, img3, img4):
 
 
 def main():
-    print(">>> Rendering 4K/Retina Digital Screens for JC-AGRITecH2026...")
+    print(">>> Rendering 4K/Retina Digital Screens for LEQs AgriSci xAI...")
     os.makedirs("latex_book/figures", exist_ok=True)
 
     img_sht45 = render_screen_sht45()

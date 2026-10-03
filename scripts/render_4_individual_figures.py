@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-JC-AGRITecH2026 - Standalone Presentation Figures Generator
+LEQs AgriSci xAI - Standalone Presentation Figures Generator
 Renders 4 separate, ultra-premium, high-resolution showcase graphics
 with hardware bezel frame, tech metadata, and agronomic callouts.
 """
@@ -64,7 +64,7 @@ def create_standalone_showcase(
 
     # --- 1. Top Title Header ---
     # Category Pill
-    badge_text = f"JC AGRITecH + AI  |  SENSOR FIGURE {sensor_num}"
+    badge_text = f"LEQs AgriSci xAI  |  SENSOR FIGURE {sensor_num}"
     bw, bh = 340, 32
     draw.rounded_rectangle([40, 26, 40 + bw, 26 + bh], radius=8, fill=(16, 26, 46), outline=accent_color, width=2)
     draw.text((40 + bw // 2, 26 + bh // 2), badge_text, font=font_badge_cat, fill=accent_color, anchor="mm")
