@@ -131,6 +131,13 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                             <i class="fa-solid fa-folder-open text-amber-400"></i> นวัตกรรม & เอกสาร <i class="fa-solid fa-chevron-down text-xs ml-0.5 opacity-60"></i>
                         </button>
                         <div x-show="openDocs" x-transition class="absolute right-0 mt-2 w-72 bg-slate-900/98 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-800 p-2 z-50">
+                            <a href="#learning-resources" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
+                                <i class="fa-solid fa-graduation-cap text-cyan-400 w-5"></i>
+                                <div>
+                                    <div class="font-semibold text-sm">แหล่งเรียนรู้เพิ่มเติม (9 ระบบ)</div>
+                                    <div class="text-[11px] text-slate-400">cmu_aiot, คู่มือ, Dashboard, Textbooks</div>
+                                </div>
+                            </a>
                             <a href="#screens" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-cyan-300 transition">
                                 <i class="fa-solid fa-desktop text-amber-400 w-5"></i>
                                 <div>
@@ -265,8 +272,8 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
                         <a href="#simulators" class="px-6 py-3.5 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-sm hover:border-cyan-400 transition-all flex items-center gap-2">
                             <i class="fa-solid fa-laptop-code text-cyan-400"></i> ทดลอง Virtual Lab เสมือนจริง
                         </a>
-                        <a href="#documents" class="px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 font-medium text-sm hover:text-white transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-lines text-amber-400"></i> เอกสารงบ 76,000 บ.
+                        <a href="#learning-resources" class="px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 font-medium text-sm hover:text-cyan-300 hover:border-cyan-500/50 transition flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-cyan-400"></i> แหล่งเรียนรู้เพิ่มเติม
                         </a>
                     </div>
                 </div>
@@ -1094,7 +1101,229 @@ $page_title = "LEQs-xAI | ปัญญาประดิษฐ์เพื่อ
         </div>
     </section>
 
+        <!-- ========================================================================= -->
+    <!-- 8. EXTENDED LEARNING RESOURCES (CMU_AIOT ECOSYSTEM: 9 SYSTEMS)             -->
     <!-- ========================================================================= -->
+    <section id="learning-resources" class="py-20 relative bg-slate-900/60 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <span class="px-3.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold uppercase tracking-wider font-tech">
+                    Extended Learning Ecosystem
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black text-white font-heading mt-3">
+                    คลังแหล่งเรียนรู้และระบบปฏิบัติการเพิ่มเติม
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-3">
+                    เชื่อมโยง 9 ระบบวิจัย นวัตกรรม และคลังคู่มือปฏิบัติการขั้นสูงจากระบบ cmu_aiot เพื่อการเรียนรู้ตลอดชีวิต
+                </p>
+            </div>
+
+            <!-- 9 Resource Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- 1. SciRBRU AIoT 207 Center -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-network-wired"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-cyan-300 text-[10px] font-mono border border-slate-700">scirbru_aiot207</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-cyan-300 transition">SciRBRU AIoT 207 Center</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            พอร์ทัลศูนย์วิทยาศาสตร์และเทคโนโลยี AIoT อาคาร 207 มรภ.รำไพพรรณี รวบรวมองค์ความรู้ งานวิจัย และโครงสร้างพื้นฐานดิจิทัล
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">ศูนย์วิจัยและนวัตกรรม</span>
+                        <a href="http://localhost/cmu_aiot/scirbru_aiot207/" target="_blank" class="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. Computer Vision Lab -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-purple-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-purple-300 text-[10px] font-mono border border-slate-700">computer_vision</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-purple-300 transition">Computer Vision & OpenCV Lab</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            คลังปฏิบัติการคอมพิวเตอร์วิทัศน์ การประมวลผลภาพถ่ายพืช การสกัดคุณลักษณะ (Feature Extraction) และโมเดลจำแนกวัตถุ
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">OpenCV & AI Vision</span>
+                        <a href="http://localhost/cmu_aiot/computer_vision/" target="_blank" class="px-3 py-1.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500 hover:text-white font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Smart Farm Dashboard -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-300 text-[10px] font-mono border border-slate-700">smart_farm_dashboard</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-emerald-300 transition">Smart Farm Dashboard & Lovelace AI</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            แดชบอร์ดติดตามข้อมูลฟาร์มเกษตรอัจฉริยะแบบเรียลไทม์ กราฟแสดงผลสภาพแวดล้อม และระบบ Lovelace AI ช่วยบริหารจัดการแปลง
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">IoT Live Dashboard</span>
+                        <a href="http://localhost/cmu_aiot/smart_farm_dashboard/" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. คู่มือปฏิบัติการ 12 กิจกรรม -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-amber-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-300 text-[10px] font-mono border border-slate-700">คู่มือปฏิบัติการ</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-amber-300 transition">คู่มือปฏิบัติการ 12 กิจกรรม (Hands-on Guides)</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            ชุดคู่มือการทดลองทีละขั้นตอน 12 กิจกรรม (Sense, Act, Logic, Think, Failure Lab, ESP-NOW, และ Leaf Vision) พร้อมเอกสาร HTML/MD
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">12 Activities Guides</span>
+                        <a href="http://localhost/cmu_aiot/คู่มือ/" target="_blank" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เปิดคู่มือ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 5. Industrial Zigbee Mesh System -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-tower-cell"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-rose-300 text-[10px] font-mono border border-slate-700">zigbee_system</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-rose-300 transition">Industrial Zigbee Mesh System</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            สถาปัตยกรรมเครือข่ายเซนเซอร์ไร้สายระยะไกล Zigbee Mesh เชื่อมต่อเกตเวย์สำหรับการเกษตรแปลงใหญ่และฟาร์มทุเรียน
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">Mesh Protocol</span>
+                        <a href="http://localhost/cmu_aiot/zigbee_system/" target="_blank" class="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6. LEQs_AIoT Mobile Ecosystem -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-sky-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-sky-300 text-[10px] font-mono border border-slate-700">LEQs_AIoT</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-sky-300 transition">LEQs Mobile App (Flutter AIoT)</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            แอปพลิเคชันมือถือ Flutter Multiplatform สำหรับตรวจสอบสภาพแวดล้อม ควบคุมอุปกรณ์แปลงเกษตร และแสดงผลการวิเคราะห์ AI
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">Mobile App & APK</span>
+                        <a href="http://localhost/cmu_aiot/LEQs_AIoT/" target="_blank" class="px-3 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 7. Leaf AI System -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-300 text-[10px] font-mono border border-slate-700">leaf_ai_system</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-emerald-300 transition">Leaf AI & Disease Vision System</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            ระบบปัญญาประดิษฐ์ตรวจวินิจฉัยโรคพืชและแมลงศัตรูพืช พร้อมไฟล์ Colab Notebooks และโมเดล Deep Learning สำเร็จรูป
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">Colab & Model Hub</span>
+                        <a href="http://localhost/cmu_aiot/leaf_ai_system/" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 8. IoT Training Workshop -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-cyan-300 text-[10px] font-mono border border-slate-700">iot_training_workshop</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-cyan-300 transition">IoT Training Workshop & Worksheets</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            สื่อประกอบการจัดค่ายฝึกอบรม สไลด์บรรยาย ใบงานประเมินผล และเฟิร์มแวร์ทดลองสำหรับผู้เรียนทุกระดับ
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">Worksheets & Slides</span>
+                        <a href="http://localhost/cmu_aiot/iot_training_workshop/" target="_blank" class="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1.5">
+                            เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 9. LaTeX Academic Textbook -->
+                <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-purple-500/40 transition flex flex-col justify-between group shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-purple-300 text-[10px] font-mono border border-slate-700">latex_textbook</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white group-hover:text-purple-300 transition">LaTeX Academic Textbook Masterclass</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            คลังซอร์สโค้ดตำราวิชาการระดับ Masterclass (XeLaTeX, วงจร TikZ, ภาษาไทยมาตรฐาน) พร้อมไฟล์ PDF ฉบับสมบูรณ์ (3.5 MB)
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-mono">Textbook PDF 3.5 MB</span>
+                        <a href="http://localhost/cmu_aiot/latex_textbook/main.pdf" target="_blank" class="px-3 py-1.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500 hover:text-white font-bold text-xs transition flex items-center gap-1.5">
+                            ดาวน์โหลด PDF <i class="fa-solid fa-download text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+<!-- ========================================================================= -->
     <!-- 8. PROJECT PROPOSAL DOCUMENTS & APPROVALS (WITH AI_PROPOSAL IMAGE)        -->
     <!-- ========================================================================= -->
     <section id="documents" class="py-20 relative">
