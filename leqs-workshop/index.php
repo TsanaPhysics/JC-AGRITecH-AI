@@ -314,7 +314,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <!-- Hero Ticker Container -->
                     <div class="min-h-[56px] flex items-center overflow-hidden max-w-full">
                         <span id="hero-ticker" class="inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300">
-                            🏛️ พัฒนาโดย ทีม LEQs  มหาวิทยาลัยราชภัฏรำไพพรรณี
+                            🏛️ พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                         </span>
                     </div>
 
@@ -386,10 +386,10 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div class="text-2xl md:text-3xl font-black font-tech text-amber-600 group-hover:text-amber-500 transition">Virtual XR Lab</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">ห้องทดลองเสมือนจริง 3 มิติ</div>
                 </a>
-                <div class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition">
-                    <div class="text-3xl md:text-4xl font-black font-tech text-purple-600">100% Cert</div>
-                    <div class="text-xs text-gray-500 mt-1 font-medium">วุฒิบัตรรับรองสมรรถนะ AIoT</div>
-                </div>
+                <a href="#iot-platform" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-black font-tech text-purple-600 group-hover:text-purple-500 transition">5+ Smart App</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium leading-snug">คุณภาพดิน น้ำ อากาศ<br>โรคและแมลงศัตรูพืช</div>
+                </a>
             </div>
         </header>
 
