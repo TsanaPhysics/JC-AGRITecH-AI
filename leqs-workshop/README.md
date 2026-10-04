@@ -77,9 +77,19 @@ JC-AGRITecH2026/
 * **SQLite / SQLAlchemy:** ระบบจัดเก็บข้อมูล 30 มิติ พร้อมระบบปรับสคีมาอัตโนมัติ (Auto-Migration)
 * **Streamlit Agricultural Cockpit:** หน้าปัดควบคุมแปลงปลูก 5 หน้า พร้อมกราฟิกจำลองหน้าจอ LCD 3.5 นิ้ว และระบบพยากรณ์ Time-Series (LSTM / Ridge)
 
-### 3. 📖 คู่มือและตำราวิชาการระดับ Masterclass (LaTeX)
+### 3. 🧠 Autonomous Predictive AI Mode (Edge Virtual Agronomist & Tri-Mode Control)
+* ยกระดับการควบคุมปั๊มน้ำชลประทานและวาล์วพ่นหมอกจาก Rule-Based สู่ **Autonomous Smart Brain Mode**
+* สถาปัตยกรรมสลับโหมด 3 ทาง (Tri-Mode Switching): `[MANUAL]` | `[AUTO (RULE)]` | `[AI MODE]`
+* ทำงานบน **เวกเตอร์ตัวแปรนำเข้า 9 มิติ** ($\theta_{\text{stick}}, \theta_{\text{root}}, \Delta\theta_{\text{slope}}, T_{\text{air}}, \text{RH}, \text{VPD}, R_{\text{solar}}, T_{\text{soil}}, \text{Hour}$)
+* ทำนายดัชนีความเครียดน้ำของพืช (Crop Water Stress Index: CWSI), ปรับระยะเวลาสูบน้ำพอดีความจุอุ้มน้ำ ($\hat{t}_{\text{pump}}$ วินาที), ความต้องการพ่นหมอกลดความเครียดใบ, และมี **Physics-Aware Guardrails (5 ชั้น)**
+
+### 4. 📍 Real-Field Installation GPS Setup & Single-Decimal Standard
+* **One-Click Live Geolocation:** ดึงพิกัดดาวเทียม GNSS แปลงจริงความแม่นยำสูงจากสมาร์ทโฟน ณ จุดติดตั้งผ่าน HTML5 Geolocation API บันทึกซิงก์สู่บอร์ด ESP32, Web Dashboard, Mobile App และ Google Maps
+* **Single-Decimal Soil Metric Standard:** จัดมาตรฐานการแสดงผลค่าคุณสมบัติดิน (pH, N, P, K, EC, Moisture) เป็นทศนิยม 1 ตำแหน่ง (`%.1f` / `.toFixed(1)`) ตัดทอนสัญญาณรบกวน ขณะคงสภาพอากาศที่ทศนิยม 2 ตำแหน่ง (`%.2f`)
+
+### 5. 📖 คู่มือและตำราวิชาการระดับ Masterclass (LaTeX & Prompt Book)
 * จัดทำตามระเบียบมหาวิทยาลัยราชภัฏรำไพพรรณี (RBRU) ผสมผสานความประณีตระดับ Springer / Cambridge University Press
-* บรรจุสมการฟิสิกส์เคมีดิน, แผนผังวงจร, ผลการทดลอง, สารบบพรอมพ์บริบท (ภาคผนวก ก) และพิมพ์เขียวซอร์สโค้ดระบบครบวงจร (ภาคผนวก ข)
+* บรรจุสมการฟิสิกส์เคมีดิน, แผนผังวงจร, ผลการทดลอง, สารบบพรอมพ์บริบท (Prompts 1-42) และพิมพ์เขียวสถาปัตยกรรมโหมดสมองกล (บทที่ 11) ใน [MANUAL_AND_PROMPT_BOOK.md](MANUAL_AND_PROMPT_BOOK.md)
 
 ---
 
