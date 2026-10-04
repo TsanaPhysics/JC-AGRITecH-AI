@@ -162,7 +162,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <a href="#screens" class="px-3.5 py-2.5 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition flex items-center gap-3">
                                 <i class="fa-solid fa-display text-amber-500 w-5"></i>
                                 <div>
-                                    <span class="font-bold text-xs block text-gray-800">จอแสดงผล ATD3.5-S3 (10 Screens)</span>
+                                    <span class="font-bold text-xs block text-gray-800">จอแสดงผล ATD3.5-S3 (11 Screens)</span>
                                     <span class="text-[10px] text-gray-500">สกรีนช็อตฮาร์ดแวร์จริง 480x320</span>
                                 </div>
                             </a>
@@ -217,7 +217,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <a href="#modules" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-cyan-600"><i class="fa-solid fa-cubes w-6 text-cyan-500"></i> 3. หลักสูตร 7 โมดูล</a>
             <a href="#simulators" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-flask-vial w-6 text-amber-500"></i> 4. Virtual Lab เสมือนจริง</a>
             <a href="#learning-resources" onclick="toggleMobileMenu()" class="block py-2 text-indigo-700 font-bold"><i class="fa-solid fa-graduation-cap w-6 text-indigo-600"></i> 5. แหล่งเรียนรู้เพิ่มเติม 9 ระบบ</a>
-            <a href="#screens" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-display w-6 text-amber-500"></i> จอแสดงผล ATD3.5-S3 (10 จอ)</a>
+            <a href="#screens" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-display w-6 text-amber-500"></i> จอแสดงผล ATD3.5-S3 (11 จอ)</a>
             <a href="#documents" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-emerald-600"><i class="fa-solid fa-file-invoice-dollar w-6 text-emerald-600"></i> เอกสารงบประมาณ 76,000 บ.</a>
             <hr class="border-gray-100">
             <a href="admin/index.php" class="block py-2 text-slate-900 font-bold"><i class="fa-solid fa-shield-halved w-6 text-cyan-500"></i> แผงควบคุมระบบ Admin CMS</a>
@@ -314,7 +314,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <!-- Hero Ticker Container -->
                     <div class="min-h-[56px] flex items-center overflow-hidden max-w-full">
                         <span id="hero-ticker" class="inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300">
-                            🏛️ พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                            🏛️ พัฒนาโดย ทีม LEQs  มหาวิทยาลัยราชภัฏรำไพพรรณี
                         </span>
                     </div>
 
@@ -755,7 +755,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     Hardware &amp; Firmware Architecture
                 </span>
                 <h2 class="text-3xl md:text-4xl font-heading font-bold text-gray-900">
-                    ฮาร์ดแวร์จริงและ 10 หน้าจอแสดงผล ATD3.5-S3
+                    ฮาร์ดแวร์จริงและ 11 หน้าจอแสดงผล ATD3.5-S3
                 </h2>
                 <p class="text-gray-500 text-sm">
                     คอนโทรลเลอร์หน้าจอสัมผัสแบบ Capacitive Touch 3.5 นิ้ว ความละเอียด 480x320 พิกเซล ควบคุมแปลงจริง
@@ -802,8 +802,8 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                 </div>
             </div>
 
-            <!-- 10 ATD3.5-S3 Screens Grid (Clickable Lightbox) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+            <!-- 11 ATD3.5-S3 Screens Grid (Clickable Lightbox) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
                 
                 <!-- 01 Overview -->
                 <div class="glass-card p-2 rounded-2xl border border-gray-100 hover:border-cyan-400 transition cursor-pointer shadow-sm hover:shadow-md"
@@ -897,7 +897,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
 
                 <!-- 10 Master Showcase -->
                 <div class="glass-card p-2 rounded-2xl border border-gray-100 hover:border-cyan-400 transition cursor-pointer shadow-sm hover:shadow-md"
-                     onclick="openScreenModal('assets/images/atd35/master_pr_showcase_poster.jpg', 'Screen 10: Master PR Showcase Poster', 'โปสเตอร์ประชาสัมพันธ์ความละเอียดสูง Ultra-HD แสดงครบทั้ง 10 หน้าจอ')">
+                     onclick="openScreenModal('assets/images/atd35/master_pr_showcase_poster.jpg', 'Screen 10: Master PR Showcase Poster', 'โปสเตอร์ประชาสัมพันธ์ความละเอียดสูง Ultra-HD แสดงครบทุกหน้าจอ')">
                     <img src="assets/images/atd35/master_pr_showcase_poster.jpg" alt="10 Poster" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
                     <div class="mt-2 text-center">
                         <span class="text-xs font-bold text-gray-800 block">10. Ultra-HD Poster</span>
@@ -905,6 +905,75 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     </div>
                 </div>
 
+                <!-- 11 QR Portal & Verification (New Screen) -->
+                <div class="glass-card p-2 rounded-2xl border-2 border-cyan-400 bg-cyan-50/40 hover:border-cyan-500 transition cursor-pointer shadow-sm hover:shadow-md"
+                     onclick="openScreenModal('assets/images/atd35/11_qr_portal_screen.png', 'Screen 11: Official QR Portal &amp; Identity Verification', 'หน้าจอใหม่สำหรับแสดง QR Code ทางการ: 2026.10.04 วันอาทิตย์ • 09:03 ชีวะ ทัศนา • https://aidar.rbru.ac.th/leqsxai')">
+                    <img src="assets/images/atd35/11_qr_portal_screen.png" alt="11 QR Portal" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
+                    <div class="mt-2 text-center">
+                        <span class="text-xs font-bold text-cyan-900 block flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-qrcode text-cyan-600"></i> 11. QR Portal
+                        </span>
+                        <span class="text-[10px] text-cyan-700 font-semibold block truncate">2026.10.04 ชีวะ ทัศนา</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- New Screen 11 & Official QR Portal Spotlight Feature -->
+            <div class="glass-card rounded-[2.5rem] p-6 md:p-8 border-2 border-cyan-400/80 bg-gradient-to-br from-cyan-900/90 via-slate-900 to-indigo-950 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
+                    
+                    <!-- Left: ESP32 Screen 11 Preview -->
+                    <div class="md:col-span-6 rounded-2xl overflow-hidden border border-cyan-500/40 shadow-xl bg-black/60 p-2 cursor-pointer group"
+                         onclick="openScreenModal('assets/images/atd35/11_qr_portal_screen.png', 'Screen 11: Official QR Portal (ESP32-S3 ATD3.5)', 'หน้าจอใหม่แสดงผลบนบอร์ด ESP32-S3 ATD3.5 Smart Touch: 2026.10.04 วันอาทิตย์ | 09:03 ชีวะ ทัศนา | https://aidar.rbru.ac.th/leqsxai')">
+                        <div class="flex items-center justify-between px-3 py-1.5 bg-slate-900/80 rounded-t-xl text-[11px] font-mono text-cyan-300 border-b border-cyan-500/30">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-microchip"></i> ESP32-S3 ATD3.5 Screen 11</span>
+                            <span class="text-emerald-400 font-bold">ONLINE</span>
+                        </div>
+                        <img src="assets/images/atd35/11_qr_portal_screen.png" alt="Screen 11 ATD3.5" class="w-full h-auto object-cover rounded-b-xl group-hover:scale-[1.02] transition duration-300">
+                    </div>
+
+                    <!-- Right: QR Code & Metadata Card -->
+                    <div class="md:col-span-6 space-y-4">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-mono">
+                            <i class="fa-solid fa-qrcode"></i> หน้าจอใหม่ในบอร์ด ESP32 • QR Code Portal
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-heading font-bold text-white leading-tight">
+                            ระบบลงทะเบียนและเชื่อมต่อแปลงเกษตรอัจฉริยะ LEQs-xAI
+                        </h3>
+                        
+                        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+                            <div class="w-24 h-24 bg-white p-1.5 rounded-xl shadow-md flex-shrink-0 flex items-center justify-center">
+                                <img src="assets/images/qr_leqs-agri-workshop.png" alt="QR LEQs Agri Workshop" class="w-full h-full object-contain">
+                            </div>
+                            <div class="space-y-1 text-xs">
+                                <div class="font-mono text-cyan-300 font-bold flex items-center gap-1.5">
+                                    <i class="fa-regular fa-calendar-check"></i> 2026.10.04 วันอาทิตย์
+                                </div>
+                                <div class="font-mono text-amber-300 font-bold flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock"></i> 09:03 ชีวะ ทัศนา
+                                </div>
+                                <div class="text-[11px] text-gray-200 break-all font-mono">
+                                    <i class="fa-solid fa-link text-emerald-400 mr-1"></i>
+                                    <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" class="text-emerald-300 hover:underline">
+                                        https://aidar.rbru.ac.th/leqsxai
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2.5">
+                            <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดลิงก์ระบบ aidar.rbru.ac.th/leqsxai
+                            </a>
+                            <a href="assets/images/qr_leqs-agri-workshop.png" download class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-download"></i> ดาวน์โหลด QR Code
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </section>

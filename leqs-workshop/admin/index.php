@@ -523,27 +523,33 @@ $checked_in_count = count(array_filter($participants, fn($p) => ($p['status'] ??
                 <!-- 3. SERVER DIAGNOSTICS & QR CODE QUICK SHARE GRID -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     
-                    <!-- Quick QR Code share module -->
-                    <div class="bg-[#0e1424] p-6 lg:p-8 rounded-3xl border border-white/5 flex flex-col sm:flex-row items-center gap-8 shadow-xl">
-                        <div class="shrink-0 p-3 bg-slate-950/40 rounded-2xl border border-white/5">
-                            <?php 
-                                $project_url = "http://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/handysense/leqs-workshop/";
-                                $qr_api = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($project_url);
-                            ?>
-                            <img src="<?php echo $qr_api; ?>" alt="Project QR Code" class="w-40 h-40 rounded-xl shadow-md border border-white/10 select-none">
+                    <!-- Quick QR Code share module with User Specific QR & Metadata -->
+                    <div class="bg-[#0e1424] p-6 lg:p-8 rounded-3xl border border-white/5 flex flex-col sm:flex-row items-center gap-6 shadow-xl">
+                        <div class="shrink-0 p-3 bg-white rounded-2xl border-2 border-cyan-400/40 shadow-lg shadow-cyan-500/10">
+                            <img src="../assets/images/qr_leqs-agri-workshop.png" alt="LEQs-xAI Official QR Code" class="w-36 h-36 object-contain select-none">
                         </div>
-                        <div class="flex-1 text-center sm:text-left space-y-4">
+                        <div class="flex-1 text-center sm:text-left space-y-3">
                             <div>
-                                <h3 class="font-extrabold text-xl text-white">QR Code สแกนเข้าเว็บ</h3>
-                                <p class="text-xs text-slate-500 tracking-wider font-bold uppercase mt-1">สแกนเพื่อเปิดหน้าแรกของโครงการ (LEQs-xAI)</p>
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono font-bold mb-1">
+                                    <i class="fas fa-qrcode"></i> Official QR Portal
+                                </div>
+                                <h3 class="font-extrabold text-lg text-white">QR Code สแกนเข้าเว็บทางการ</h3>
+                                <div class="space-y-1 text-xs text-slate-300 mt-2 font-mono">
+                                    <div class="text-emerald-400 font-bold"><i class="fas fa-calendar-day mr-1"></i> 2026.10.04 วันอาทิตย์</div>
+                                    <div class="text-amber-400 font-bold"><i class="fas fa-clock mr-1"></i> 09:03 ชีวะ ทัศนา</div>
+                                    <div class="text-cyan-400 font-bold truncate"><i class="fas fa-link mr-1"></i> https://aidar.rbru.ac.th/leqsxai</div>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
-                                <a href="<?php echo $qr_api; ?>" target="_blank" download="leqs_xai_qr_code.png" class="px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand/10 flex items-center gap-2">
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start pt-1">
+                                <a href="../assets/images/qr_leqs-agri-workshop.png" target="_blank" download="qr_leqs-agri-workshop.png" class="px-3.5 py-2 bg-brand hover:bg-brand-dark text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand/10 flex items-center gap-2">
                                     <i class="fas fa-download text-[10px]"></i> ดาวน์โหลด QR
                                 </a>
-                                <div class="px-4 py-2 bg-slate-950/50 text-slate-400 rounded-xl text-xs font-mono border border-white/5 select-all truncate max-w-[200px]">
-                                    <?php echo $project_url; ?>
-                                </div>
+                                <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" class="px-3.5 py-2 bg-slate-950/60 hover:bg-slate-900 text-cyan-300 rounded-xl text-xs font-mono border border-cyan-500/20 transition flex items-center gap-1.5">
+                                    <i class="fas fa-arrow-up-right-from-square text-[10px]"></i> เปิดลิงก์ตรง
+                                </a>
+                                <a href="../assets/images/atd35/11_qr_portal_screen.png" target="_blank" class="px-3.5 py-2 bg-slate-950/60 hover:bg-slate-900 text-amber-300 rounded-xl text-xs font-mono border border-amber-500/20 transition flex items-center gap-1.5">
+                                    <i class="fas fa-display text-[10px]"></i> ดูจอ ESP32 ที่ 11
+                                </a>
                             </div>
                         </div>
                     </div>

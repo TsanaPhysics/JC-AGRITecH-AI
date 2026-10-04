@@ -133,6 +133,10 @@
             </div>
 
             <div class="flex items-center gap-2">
+                <button onclick="openMobileQrModal()" class="px-2.5 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-xs font-tech font-bold flex items-center gap-1 transition">
+                    <i class="fa-solid fa-qrcode text-[11px]"></i>
+                    <span class="hidden sm:inline">QR Portal</span>
+                </button>
                 <button onclick="openWifiModal()" class="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-xs font-tech font-bold flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-wifi text-[10px]"></i>
                     <span id="navBoardIp">192.168.1.105</span>
@@ -461,6 +465,55 @@
 
             </div>
 
+            <!-- 5. ESP32-S3 ATD3.5 จอที่ 11: OFFICIAL QR CODE PORTAL & IDENTITY -->
+            <div class="glass-inner-panel rounded-2xl p-4 border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/80 space-y-3">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span class="text-xs font-bold text-cyan-300 font-tech flex items-center gap-1.5">
+                        <i class="fa-solid fa-qrcode text-cyan-400"></i> ESP32-S3 ATD3.5 จอที่ 11: Official QR Portal
+                    </span>
+                    <span class="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                        ONLINE SYNC
+                    </span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3.5">
+                    <!-- QR Code Image -->
+                    <div class="w-20 h-20 bg-white p-1 rounded-xl shadow-md flex-shrink-0 cursor-pointer hover:scale-105 transition" onclick="openMobileQrModal()">
+                        <img src="../assets/images/qr_leqs-agri-workshop.png" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+
+                    <!-- Metadata Stamp & Link -->
+                    <div class="space-y-1 text-center sm:text-left flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-[10px] font-mono">
+                            <span class="text-emerald-400 font-bold bg-emerald-950/90 px-1.5 py-0.5 rounded border border-emerald-800/80">
+                                2026.10.04 วันอาทิตย์
+                            </span>
+                            <span class="text-amber-300 font-bold bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-800/80">
+                                09:03 ชีวะ ทัศนา
+                            </span>
+                        </div>
+                        <div class="text-xs font-tech font-bold text-white truncate">
+                            LEQs-xAI Smart Farm Portal
+                        </div>
+                        <div class="text-[11px] font-mono text-cyan-300 truncate">
+                            <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" class="hover:underline flex items-center justify-center sm:justify-start gap-1">
+                                <i class="fa-solid fa-link text-[10px]"></i> https://aidar.rbru.ac.th/leqsxai
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex sm:flex-col gap-1.5 flex-shrink-0 w-full sm:w-auto">
+                        <button onclick="openMobileQrModal()" class="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-tech font-bold text-xs shadow-md transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-expand text-[10px]"></i> สแกน QR
+                        </button>
+                        <button onclick="openScreen11Modal()" class="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-tech font-bold text-xs border border-white/10 transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-display text-[10px]"></i> ดูจอที่ 11
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -626,6 +679,57 @@
                 tempEl.innerText = (current + delta).toFixed(1);
             }
         }, 4000);
+
+        function openMobileQrModal() {
+            playBeep(950, 0.05);
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; color: #06b6d4;">Official QR Code Portal</span>',
+                html: `
+                    <div style="text-align: center; padding: 5px;">
+                        <div style="background: white; padding: 12px; border-radius: 16px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.6); margin-bottom: 12px;">
+                            <img src="../assets/images/qr_leqs-agri-workshop.png" alt="QR Portal" style="width: 200px; height: 200px; object-fit: contain;">
+                        </div>
+                        <div style="font-family: Orbitron, monospace; font-size: 12px; line-height: 1.7; color: #f1f5f9; background: #0b1329; padding: 10px; border-radius: 12px; border: 1px solid #1e293b;">
+                            <div style="color: #10b981; font-weight: bold;">📅 2026.10.04 วันอาทิตย์</div>
+                            <div style="color: #f59e0b; font-weight: bold;">⏰ 09:03 ชีวะ ทัศนา</div>
+                            <div style="color: #38bdf8; word-break: break-all; margin-top: 3px;">
+                                🔗 <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" style="color: #38bdf8; text-decoration: underline;">https://aidar.rbru.ac.th/leqsxai</a>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                background: '#070d1e',
+                color: '#fff',
+                confirmButtonText: '<i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดระบบ aidar',
+                confirmButtonColor: '#06b6d4',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#334155'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    window.open('https://aidar.rbru.ac.th/leqsxai', '_blank');
+                }
+            });
+        }
+
+        function openScreen11Modal() {
+            playBeep(1100, 0.05);
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; color: #38bdf8;">ESP32-S3 ATD3.5 - จอที่ 11</span>',
+                html: `
+                    <div style="text-align: center; padding: 5px;">
+                        <img src="../assets/images/atd35/11_qr_portal_screen.png" alt="Screen 11" style="width: 100%; border-radius: 14px; border: 1px solid #0284c7; box-shadow: 0 10px 25px rgba(0,0,0,0.7);">
+                        <div style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-top: 8px;">
+                            2026.10.04 วันอาทิตย์ • 09:03 ชีวะ ทัศนา • aidar.rbru.ac.th/leqsxai
+                        </div>
+                    </div>
+                `,
+                background: '#070d1e',
+                color: '#fff',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#0284c7'
+            });
+        }
     </script>
 </body>
 </html>

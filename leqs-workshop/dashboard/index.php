@@ -87,6 +87,9 @@
 
             <!-- Top Actions & Navigation Links -->
             <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                <button onclick="openQrModal()" class="px-3 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-xs text-cyan-300 font-mono flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-qrcode text-[11px]"></i> QR Portal
+                </button>
                 <button onclick="promptChangeIp()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-network-wired text-[10px]"></i> ตั้งค่า IP บอร์ด
                 </button>
@@ -107,6 +110,51 @@
     <!-- Main Dashboard Container -->
     <main class="container mx-auto px-4 md:px-6 py-6 space-y-6 flex-1">
         
+        <!-- HIGHLIGHT: Official QR Portal & Identity Verification (ESP32-S3 ATD3.5 Screen 11) -->
+        <div class="glass-box rounded-3xl p-5 border border-cyan-500/40 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-indigo-950/70 flex flex-col lg:flex-row items-center justify-between gap-5 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left relative z-10">
+                <!-- QR Image -->
+                <div class="w-20 h-20 bg-white p-1 rounded-2xl shadow-lg flex-shrink-0 cursor-pointer hover:scale-105 transition" onclick="openQrModal()">
+                    <img src="../assets/images/qr_leqs-agri-workshop.png" alt="QR Code" class="w-full h-full object-contain">
+                </div>
+                <!-- Metadata Stamp -->
+                <div class="space-y-1">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/30 font-bold">
+                            <i class="fa-solid fa-microchip mr-1"></i> ESP32-S3 ATD3.5 จอที่ 11
+                        </span>
+                        <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+                            2026.10.04 วันอาทิตย์
+                        </span>
+                        <span class="text-xs font-mono font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
+                            09:03 ชีวะ ทัศนา
+                        </span>
+                    </div>
+                    <h3 class="text-sm sm:text-base font-bold text-white font-tech">
+                        พอร์ทัลสแกนเชื่อมต่อและระบบยืนยันตัวตน Smart Farm AIoT
+                    </h3>
+                    <p class="text-xs text-slate-300 font-mono">
+                        URL: <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" class="text-cyan-400 hover:text-cyan-300 underline font-semibold">https://aidar.rbru.ac.th/leqsxai</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- ESP32 Screen 11 Thumbnail & Quick Actions -->
+            <div class="flex items-center gap-3 flex-shrink-0 relative z-10">
+                <div class="relative rounded-xl overflow-hidden border border-cyan-500/40 w-36 aspect-[3/2] cursor-pointer group shadow-md" onclick="previewScreen11()">
+                    <img src="../assets/images/atd35/11_qr_portal_screen.png" alt="ESP32 Screen 11" class="w-full h-full object-cover group-hover:scale-105 transition">
+                    <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition flex items-center justify-center">
+                        <span class="px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-cyan-300 border border-cyan-400/40">ESP32 จอที่ 11</span>
+                    </div>
+                </div>
+                <button onclick="openQrModal()" class="px-4 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs font-tech shadow-lg shadow-cyan-600/30 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-qrcode"></i> แสดง QR Code
+                </button>
+            </div>
+        </div>
+
         <!-- ROW 1: 4 Real-time Telemetry Metrics Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
@@ -622,6 +670,55 @@
                 text: 'ดาวน์โหลดชุดข้อมูลสถิติเซนเซอร์เรียบร้อยแล้ว',
                 timer: 1800,
                 showConfirmButton: false
+            });
+        }
+
+        function openQrModal() {
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; color: #06b6d4;">Official QR Code Portal</span>',
+                html: `
+                    <div style="text-align: center; padding: 10px;">
+                        <div style="background: white; padding: 12px; border-radius: 18px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 15px;">
+                            <img src="../assets/images/qr_leqs-agri-workshop.png" alt="QR Portal" style="width: 220px; height: 220px; object-fit: contain;">
+                        </div>
+                        <div style="font-family: Orbitron, monospace; font-size: 13px; line-height: 1.8; color: #e2e8f0; background: #0f172a; padding: 12px; border-radius: 14px; border: 1px solid #1e293b;">
+                            <div style="color: #10b981; font-weight: bold;">📅 2026.10.04 วันอาทิตย์</div>
+                            <div style="color: #f59e0b; font-weight: bold;">⏰ 09:03 ชีวะ ทัศนา</div>
+                            <div style="color: #38bdf8; word-break: break-all; margin-top: 4px;">
+                                🔗 <a href="https://aidar.rbru.ac.th/leqsxai" target="_blank" style="color: #38bdf8; text-decoration: underline;">https://aidar.rbru.ac.th/leqsxai</a>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                background: '#0b1120',
+                color: '#fff',
+                confirmButtonText: '<i class="fa-solid fa-arrow-up-right-from-square"></i> ไปยังลิงก์ระบบ',
+                confirmButtonColor: '#06b6d4',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#334155'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    window.open('https://aidar.rbru.ac.th/leqsxai', '_blank');
+                }
+            });
+        }
+
+        function previewScreen11() {
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; color: #38bdf8;">ESP32-S3 ATD3.5 - Screen 11 (QR Portal)</span>',
+                html: `
+                    <div style="text-align: center; padding: 5px;">
+                        <img src="../assets/images/atd35/11_qr_portal_screen.png" alt="Screen 11" style="width: 100%; max-width: 540px; border-radius: 16px; border: 1px solid #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.7);">
+                        <div style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                            Hardware Resolution: 480x320 Capacitive Touch (Retina @2x 960x640)
+                        </div>
+                    </div>
+                `,
+                background: '#0a0f1d',
+                color: '#fff',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#0284c7'
             });
         }
     </script>
