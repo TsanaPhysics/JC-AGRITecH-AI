@@ -129,6 +129,72 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
                     </select>
                 </div>
 
+                <!-- LINE Official Group QR Code Section (Mandatory) -->
+                <div id="line_group_card" class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900/90 to-slate-950 border-2 border-emerald-500/40 shadow-xl shadow-emerald-950/40 relative overflow-hidden transition-all duration-300">
+                    <div class="absolute -top-10 -right-10 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-emerald-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-[#06C755] text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/30 shrink-0">
+                                <i class="fa-brands fa-line"></i>
+                            </span>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                                    เข้าร่วมกลุ่มไลน์ทางการ (LEQs-xAI Workshop)
+                                </h3>
+                                <p class="text-[11px] sm:text-xs text-emerald-400">ช่องทางหลักสำหรับแจ้งกำหนดการ นัดหมาย ลิงก์ดาวน์โหลดสื่อ และประสานงานวิทยากร</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[11px] font-bold shrink-0 animate-pulse">
+                            * บังคับเข้าร่วม
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                        <!-- QR Code Image -->
+                        <div class="sm:col-span-5 flex flex-col items-center justify-center p-3.5 rounded-xl bg-slate-950/90 border border-emerald-500/30">
+                            <div class="p-2.5 bg-white rounded-2xl shadow-xl inline-block">
+                                <img src="../assets/images/qr_line_group.jpg" alt="LINE Group QR Code LEQs-xAI" class="w-40 h-40 sm:w-44 sm:h-44 object-contain rounded-xl">
+                            </div>
+                            <span class="text-[11px] text-slate-400 mt-2 font-medium flex items-center gap-1.5">
+                                <i class="fa-solid fa-qrcode text-emerald-400"></i> สแกน QR Code ด้วย LINE
+                            </span>
+                        </div>
+
+                        <!-- Instructions & Direct Link -->
+                        <div class="sm:col-span-7 space-y-3.5">
+                            <div class="space-y-2 text-xs text-slate-300">
+                                <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+                                    <i class="fa-solid fa-desktop text-emerald-400 mt-0.5 text-xs shrink-0"></i>
+                                    <span><strong>เข้าใช้งานผ่านคอมพิวเตอร์:</strong> เปิดแอปพลิเคชัน LINE บนมือถือ แล้วเปิดกล้องสแกน QR Code ด้านซ้าย</span>
+                                </div>
+                                <div class="flex items-start gap-2 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+                                    <i class="fa-solid fa-mobile-screen-button text-cyan-400 mt-0.5 text-xs shrink-0"></i>
+                                    <span><strong>เข้าใช้งานผ่านมือถือ:</strong> แตะปุ่มสีเขียวด้านล่างเพื่อเปิดกลุ่ม LINE และกดเข้าร่วมกลุ่มได้ทันที</span>
+                                </div>
+                            </div>
+
+                            <a href="https://line.me/R/ti/g/svZ-F2msk-" target="_blank" rel="noopener noreferrer"
+                               class="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.01] transition-all">
+                                <i class="fa-brands fa-line text-lg"></i>
+                                <span>แตะที่นี่เพื่อเข้าร่วมกลุ่มไลน์ทันที</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[11px] opacity-80"></i>
+                            </a>
+
+                            <!-- Mandatory Checkbox Confirmation -->
+                            <div class="p-3.5 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/40 transition-colors hover:bg-emerald-500/15">
+                                <label class="flex items-start gap-3 cursor-pointer select-none">
+                                    <input type="checkbox" id="line_group_joined" name="line_group_joined" required
+                                           class="mt-0.5 w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 accent-emerald-500 cursor-pointer shrink-0">
+                                    <span class="text-xs sm:text-sm font-semibold text-emerald-200 leading-snug">
+                                        ข้าพเจ้าได้สแกน QR Code หรือกดเข้าร่วมกลุ่มไลน์ทางการ "LEQs-xAI Workshop" เรียบร้อยแล้ว <span class="text-rose-400 font-bold">* (จำเป็นต้องยืนยัน)</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="pt-4">
                     <button type="submit" id="btnSubmit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 text-slate-950 font-bold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
@@ -149,6 +215,31 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
     <script>
     async function submitRegistration(e) {
         e.preventDefault();
+
+        // 1. Mandatory check: Must join LINE Group
+        const lineJoined = document.getElementById('line_group_joined');
+        if (!lineJoined || !lineJoined.checked) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณาเข้าร่วมกลุ่มไลน์ก่อน',
+                html: '<div class="space-y-2 text-sm text-slate-300 text-left sm:text-center">' +
+                      '<p>โครงการกำหนดให้ผู้สมัครทุกคนต้องสแกน QR Code หรือกดเข้าร่วมกลุ่มไลน์ทางการ <b>LEQs-xAI Workshop</b></p>' +
+                      '<p class="text-emerald-400 text-xs font-semibold">เพื่อรับการแจ้งเตือนกำหนดการ ลิงก์สื่อการสอน และประสานงานกับทีมวิทยากร</p>' +
+                      '</div>',
+                confirmButtonColor: '#10B981',
+                confirmButtonText: '<i class="fa-brands fa-line mr-1"></i> ไปที่ QR Code กลุ่มไลน์'
+            }).then(() => {
+                const card = document.getElementById('line_group_card');
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('ring-4', 'ring-emerald-400', 'border-emerald-400');
+                    setTimeout(() => card.classList.remove('ring-4', 'ring-emerald-400'), 3000);
+                }
+                if (lineJoined) lineJoined.focus();
+            });
+            return false;
+        }
+
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังบันทึกข้อมูล...';
@@ -160,7 +251,8 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
             organization: document.getElementById('organization').value,
             phone: document.getElementById('phone').value,
             email: document.getElementById('email').value,
-            project_track: document.getElementById('project_track').value
+            project_track: document.getElementById('project_track').value,
+            line_group_joined: true
         };
 
         try {
@@ -175,11 +267,24 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
                 Swal.fire({
                     icon: 'success',
                     title: 'ลงทะเบียนสำเร็จ!',
-                    text: 'ยินดีต้อนรับเข้าสู่โครงการอบรม LEQs-xAI ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม',
+                    html: '<div class="space-y-3 text-sm text-slate-300">' +
+                          '<p>ยินดีต้อนรับเข้าสู่โครงการอบรม LEQs-xAI ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม</p>' +
+                          '<div class="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/40 text-emerald-300 text-xs">' +
+                          '<i class="fa-brands fa-line text-base mr-1"></i> หากท่านยังไม่ได้เข้าร่วมกลุ่มไลน์ กรุณากดปุ่มด้านล่างนี้' +
+                          '</div>' +
+                          '</div>',
+                    showCancelButton: true,
                     confirmButtonColor: '#06B6D4',
-                    confirmButtonText: 'ดูรายชื่อผู้สมัคร'
-                }).then(() => {
-                    window.location.href = 'student_list.php';
+                    cancelButtonColor: '#06C755',
+                    confirmButtonText: '<i class="fa-solid fa-list mr-1"></i> ดูรายชื่อผู้สมัคร',
+                    cancelButtonText: '<i class="fa-brands fa-line mr-1"></i> เปิดกลุ่มไลน์ทันที'
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.open('https://line.me/R/ti/g/svZ-F2msk-', '_blank');
+                        setTimeout(() => { window.location.href = 'student_list.php'; }, 1000);
+                    } else {
+                        window.location.href = 'student_list.php';
+                    }
                 });
             } else {
                 Swal.fire({
