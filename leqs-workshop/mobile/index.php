@@ -469,9 +469,9 @@
                     <!-- 4-Grid Sensor Readings -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
-                            <span class="text-[10px] text-gray-400 block font-tech">pH ดิน</span>
-                            <span id="detailPh" class="font-bold text-emerald-400 text-sm">6.4</span>
-                            <span class="text-[9px] text-gray-500 block">Stick: <span id="detailStickPh">6.3</span></span>
+                            <span class="text-[10px] text-gray-400 block font-tech">pH ดิน (7-in-1)</span>
+                            <span id="detailPh" class="font-bold text-emerald-400 text-sm">8.60</span>
+                            <span class="text-[9px] text-gray-400 block">Stick: <span id="detailStickPh" class="text-amber-300">5.77</span></span>
                         </div>
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
                             <span class="text-[10px] text-gray-400 block font-tech">EC ดิน (µS/cm)</span>
@@ -801,79 +801,81 @@
                     // Update Gauges & Detailed Physical Sensor Telemetry
                     if (data.sensors) {
                         const s = data.sensors;
+                        const ai = data.ai_calibrated || {};
+
+                        // 4 Main Gauges - ทศนิยม 2 ตำแหน่ง
                         const tempEl = document.getElementById('gaugeValTemp');
-                        if (tempEl) tempEl.innerText = Number(s.temperature).toFixed(1);
+                        if (tempEl) tempEl.innerText = Number(s.temperature).toFixed(2);
 
                         const humEl = document.getElementById('gaugeValHum');
-                        if (humEl) humEl.innerText = Math.round(s.humidity);
+                        if (humEl) humEl.innerText = Number(s.humidity).toFixed(2);
 
                         const soilEl = document.getElementById('gaugeValSoil');
-                        if (soilEl) soilEl.innerText = Math.round(s.soil_moisture);
+                        if (soilEl) soilEl.innerText = Number(s.soil_moisture).toFixed(2);
 
                         const vpdEl = document.getElementById('gaugeValVpd');
                         if (vpdEl) vpdEl.innerText = Number(s.vpd).toFixed(2);
 
-                        // Soil 7-in-1 & Stick
+                        // Soil 7-in-1 & Stick - ทศนิยม 2 ตำแหน่ง
                         const phEl = document.getElementById('detailPh');
-                        if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(1);
+                        if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(2);
 
                         const stickPhEl = document.getElementById('detailStickPh');
-                        if (stickPhEl) stickPhEl.innerText = Number(s.stick_ph || s.soil_ph).toFixed(1);
+                        if (stickPhEl) stickPhEl.innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(2);
 
                         const ecEl = document.getElementById('detailEc');
-                        if (ecEl) ecEl.innerText = Math.round(s.soil_ec);
+                        if (ecEl) ecEl.innerText = Number(s.soil_ec).toFixed(2);
 
                         const soilTempEl = document.getElementById('detailSoilTemp');
-                        if (soilTempEl) soilTempEl.innerText = Number(s.soil_temperature || 27.5).toFixed(1);
+                        if (soilTempEl) soilTempEl.innerText = Number(s.soil_temperature || 27.5).toFixed(2);
 
-                        // Light & Solar Radiation
+                        // Light & Solar Radiation - ทศนิยม 2 ตำแหน่ง
                         const parEl = document.getElementById('detailPar');
                         if (parEl) {
-                            if (s.par_lux >= 1000) {
-                                parEl.innerText = `${(s.par_lux / 1000).toFixed(1)}k`;
-                            } else {
-                                parEl.innerText = `${Math.round(s.par_lux)} Lx`;
-                            }
+                            parEl.innerText = `${Number(s.par_lux).toFixed(2)} Lx`;
                         }
                         const solarRadEl = document.getElementById('detailSolarRad');
                         if (solarRadEl) solarRadEl.innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
 
-                        // NPK Raw Sensor Metrics
+                        // NPK Raw Sensor Metrics vs AI Fallback (ถ้าเซนเซอร์เป็น 0 ให้ดึง AI Calibrated มาแสดงเพื่อไม่ให้ว่างเปล่า)
+                        const dispN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
+                        const dispP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
+                        const dispK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
+
                         const nEl = document.getElementById('detailN');
-                        if (nEl) nEl.innerText = Number(s.nitrogen || 0).toFixed(1);
+                        if (nEl) nEl.innerText = dispN.toFixed(2);
 
                         const pEl = document.getElementById('detailP');
-                        if (pEl) pEl.innerText = Number(s.phosphorus || 0).toFixed(1);
+                        if (pEl) pEl.innerText = dispP.toFixed(2);
 
                         const kEl = document.getElementById('detailK');
-                        if (kEl) kEl.innerText = Number(s.potassium || 0).toFixed(1);
+                        if (kEl) kEl.innerText = dispK.toFixed(2);
 
-                        // TinyML Edge AI Calibrated NPK
-                        const ai = data.ai_calibrated || {};
+                        // TinyML Edge AI Calibrated NPK - ทศนิยม 2 ตำแหน่ง
                         const aiNEl = document.getElementById('aiN');
-                        if (aiNEl) aiNEl.innerText = Number(ai.nitrogen || s.nitrogen || 0).toFixed(1);
+                        if (aiNEl) aiNEl.innerText = Number(ai.nitrogen || s.nitrogen || 0).toFixed(2);
 
                         const aiPEl = document.getElementById('aiP');
-                        if (aiPEl) aiPEl.innerText = Number(ai.phosphorus || s.phosphorus || 0).toFixed(1);
+                        if (aiPEl) aiPEl.innerText = Number(ai.phosphorus || s.phosphorus || 0).toFixed(2);
 
                         const aiKEl = document.getElementById('aiK');
-                        if (aiKEl) aiKEl.innerText = Number(ai.potassium || s.potassium || 0).toFixed(1);
+                        if (aiKEl) aiKEl.innerText = Number(ai.potassium || s.potassium || 0).toFixed(2);
 
                         const confEl = document.getElementById('aiConfidence');
-                        if (confEl) confEl.innerText = `${Number(ai.confidence || 99.2).toFixed(1)}%`;
+                        if (confEl) confEl.innerText = `${Number(ai.confidence ? ai.confidence * 100 : 99.2).toFixed(2)}%`;
 
                         const ratioEl = document.getElementById('npkRatio');
-                        if (ratioEl) ratioEl.innerText = ai.npk_ratio || '1.4 : 1 : 5.6';
+                        if (ratioEl) ratioEl.innerText = ai.npk_ratio || `${(dispN/(dispP||1)).toFixed(2)} : 1 : ${(dispK/(dispP||1)).toFixed(2)}`;
 
                         const totalEl = document.getElementById('npkTotal');
-                        if (totalEl) totalEl.innerText = `รวม: ${Math.round(ai.npk_total || (Number(s.nitrogen||0)+Number(s.phosphorus||0)+Number(s.potassium||0)))} mg/kg`;
+                        if (totalEl) totalEl.innerText = `รวม: ${(dispN + dispP + dispK).toFixed(2)} mg/kg`;
 
-                        // Microclimate Dew Point & Vapor Pressures
+                        // Microclimate Dew Point & Vapor Pressures - ทศนิยม 2 ตำแหน่ง
                         const dewPtEl = document.getElementById('detailDewPoint');
-                        if (dewPtEl) dewPtEl.innerText = Number(s.dew_point || 28.4).toFixed(1);
+                        if (dewPtEl) dewPtEl.innerText = Number(s.dew_point || 28.4).toFixed(2);
 
                         const dewMgEl = document.getElementById('detailDewMargin');
-                        if (dewMgEl) dewMgEl.innerText = Number(s.dew_margin || 3.0).toFixed(1);
+                        if (dewMgEl) dewMgEl.innerText = Number(s.dew_margin || 3.0).toFixed(2);
 
                         const vpsatEl = document.getElementById('detailVpsat');
                         if (vpsatEl) vpsatEl.innerText = Number(s.vpsat || 4.61).toFixed(2);

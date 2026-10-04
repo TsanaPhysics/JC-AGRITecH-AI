@@ -254,17 +254,23 @@
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashSoilMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">65.0</span>
+                        <span id="dashSoilMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">4.80</span>
                         <span class="text-xs text-slate-400">%</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashSoilEc" class="text-lg lg:text-xl font-bold font-mono text-emerald-400">120</span>
+                        <span id="dashSoilEc" class="text-lg lg:text-xl font-bold font-mono text-emerald-400">0.00</span>
                         <span class="text-[10px] text-slate-400">µS/cm</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
-                    <span>pH: <strong id="dashSoilPh" class="text-cyan-300">6.2</strong></span>
-                    <span>Temp: <strong id="dashSoilTemp" class="text-slate-300">27.5°C</strong></span>
+                    <span>pH: <strong id="dashSoilPh" class="text-emerald-400 text-xs">8.60</strong></span>
+                    <span>Temp: <strong id="dashSoilTemp" class="text-slate-300">27.50°C</strong></span>
+                </div>
+                <!-- NPK Capsules เหมือนหน้าจอบอร์ด ESP32 -->
+                <div class="flex items-center justify-between gap-1 pt-1 font-mono text-[10px]">
+                    <span class="bg-indigo-950/80 text-indigo-300 border border-indigo-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4N">N 24.20</span>
+                    <span class="bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4P">P 14.10</span>
+                    <span class="bg-amber-950/80 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4K">K 0.00</span>
                 </div>
             </div>
 
@@ -793,11 +799,14 @@
                     // Update Real Sensors
                     if (data.sensors) {
                         const s = data.sensors;
-                        if (document.getElementById('dashTemp')) document.getElementById('dashTemp').innerText = Number(s.temperature).toFixed(1);
-                        if (document.getElementById('dashTempF')) document.getElementById('dashTempF').innerText = `(${Number(s.temperature_f || ((s.temperature * 1.8) + 32)).toFixed(1)}°F)`;
-                        if (document.getElementById('dashHum')) document.getElementById('dashHum').innerText = Number(s.humidity).toFixed(1);
-                        if (document.getElementById('dashDewPoint')) document.getElementById('dashDewPoint').innerText = `${Number(s.dew_point).toFixed(1)}°C`;
-                        if (document.getElementById('dashDewMargin')) document.getElementById('dashDewMargin').innerText = `${Number(s.dew_margin || (s.temperature - s.dew_point)).toFixed(1)}°C`;
+                        const ai = data.ai_calibrated || {};
+
+                        // อัปเดตค่าพารามิเตอร์ทุกตัวเป็นทศนิยม 2 ตำแหน่งตามข้อกำหนด
+                        if (document.getElementById('dashTemp')) document.getElementById('dashTemp').innerText = Number(s.temperature).toFixed(2);
+                        if (document.getElementById('dashTempF')) document.getElementById('dashTempF').innerText = `(${Number(s.temperature_f || ((s.temperature * 1.8) + 32)).toFixed(2)}°F)`;
+                        if (document.getElementById('dashHum')) document.getElementById('dashHum').innerText = Number(s.humidity).toFixed(2);
+                        if (document.getElementById('dashDewPoint')) document.getElementById('dashDewPoint').innerText = `${Number(s.dew_point).toFixed(2)}°C`;
+                        if (document.getElementById('dashDewMargin')) document.getElementById('dashDewMargin').innerText = `${Number(s.dew_margin || (s.temperature - s.dew_point)).toFixed(2)}°C`;
                         
                         if (document.getElementById('dashVpd')) document.getElementById('dashVpd').innerText = Number(s.vpd).toFixed(2);
                         if (document.getElementById('dashVpSat')) document.getElementById('dashVpSat').innerText = Number(s.vpsat || 4.60).toFixed(2);
@@ -816,39 +825,46 @@
                             }
                         }
 
-                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(1);
-                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Math.round(s.soil_ec);
-                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
-                        if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(1)}°C`;
+                        // Root 7-in-1 Soil Sensor
+                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(2);
+                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Number(s.soil_ec).toFixed(2);
+                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(2);
+                        if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(2)}°C`;
                         
                         // Surface Soil Stick
-                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = Number(s.soil_stick_moisture || s.soil_moisture).toFixed(1);
-                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(1);
+                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = Number(s.soil_stick_moisture || s.soil_moisture).toFixed(2);
+                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(2);
                         if (document.getElementById('dashStickAdc')) document.getElementById('dashStickAdc').innerText = s.soil_stick_adc || 1850;
                         if (document.getElementById('dashStickVolt')) document.getElementById('dashStickVolt').innerText = `${Number(s.soil_stick_ph_volt || 1.85).toFixed(2)}V`;
 
-                        if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toLocaleString();
+                        if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toFixed(2);
                         if (document.getElementById('dashKlux')) document.getElementById('dashKlux').innerText = Number(s.klux || (s.par_lux / 1000.0)).toFixed(2);
                         if (document.getElementById('dashSolarRad')) {
                             document.getElementById('dashSolarRad').innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
                         }
 
-                        // NPK Elements
-                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${Number(s.nitrogen).toFixed(1)} mg/kg`;
-                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${Number(s.phosphorus).toFixed(1)} mg/kg`;
-                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${Number(s.potassium).toFixed(1)} mg/kg`;
+                        // NPK Elements: แสดงค่าจริงจากเซนเซอร์ หากเป็น 0 (แปลงทดสอบแห้ง) จะดึงค่า AI Calibrated มาแสดงเพื่อไม่ให้ว่างเปล่า
+                        const valN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
+                        const valP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
+                        const valK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
+
+                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${valN.toFixed(2)} mg/kg`;
+                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${valP.toFixed(2)} mg/kg`;
+                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${valK.toFixed(2)} mg/kg`;
+
+                        // Card 4 Capsules (ตรงกับหน้าจอ ESP32)
+                        if (document.getElementById('dashCard4N')) document.getElementById('dashCard4N').innerText = `N ${valN.toFixed(2)}`;
+                        if (document.getElementById('dashCard4P')) document.getElementById('dashCard4P').innerText = `P ${valP.toFixed(2)}`;
+                        if (document.getElementById('dashCard4K')) document.getElementById('dashCard4K').innerText = `K ${valK.toFixed(2)}`;
 
                         // AI Calibrated Elements
-                        if (data.ai_calibrated) {
-                            const ai = data.ai_calibrated;
-                            if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `AI: ${Number(ai.nitrogen).toFixed(1)}`;
-                            if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `AI: ${Number(ai.phosphorus).toFixed(1)}`;
-                            if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `AI: ${Number(ai.potassium).toFixed(1)}`;
-                            if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || '1.4:1:5.6';
-                            if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${ai.npk_total} mg/kg`;
-                            if (document.getElementById('dashAiConfidence') && ai.confidence) {
-                                document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
-                            }
+                        if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `AI: ${Number(ai.nitrogen || 0).toFixed(2)}`;
+                        if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `AI: ${Number(ai.phosphorus || 0).toFixed(2)}`;
+                        if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `AI: ${Number(ai.potassium || 0).toFixed(2)}`;
+                        if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || `${(valN/(valP||1)).toFixed(2)}:1:${(valK/(valP||1)).toFixed(2)}`;
+                        if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${(valN + valP + valK).toFixed(2)} mg/kg`;
+                        if (document.getElementById('dashAiConfidence') && ai.confidence) {
+                            document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
                         }
 
                         // SD Card & SQLite Storage Indicators
@@ -886,9 +902,9 @@
                         // Update Radar Chart
                         if (npkRadarChart && npkRadarChart.data && npkRadarChart.data.datasets[0]) {
                             npkRadarChart.data.datasets[0].data = [
-                                Number(s.nitrogen),
-                                Number(s.phosphorus),
-                                Number(s.potassium),
+                                valN,
+                                valP,
+                                valK,
                                 Number(s.soil_moisture),
                                 Number(s.soil_ph) * 10,
                                 Math.min(100, Number(s.soil_ec) / 5)
