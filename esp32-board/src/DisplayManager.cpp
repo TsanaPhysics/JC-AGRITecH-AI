@@ -775,9 +775,12 @@ static void drawOverviewTopHeader() {
     lcd.drawString("xAI", brandX + (aiW / 2), brandY);
     lcd.setTextDatum(textdatum_t::top_left);
 
-    // พิกัด GPS สถานที่ดำเนินงาน (มรภ.รำไพพรรณี จันทบุรี: 12.6644° N, 102.1039° E)
+    // พิกัด GPS สถานที่ดำเนินงานจริงตามจุดติดตั้งเซนเซอร์
+    char gpsHeaderBuf[64];
+    snprintf(gpsHeaderBuf, sizeof(gpsHeaderBuf), "GPS: %.4f N, %.4f E (%s)",
+             SENSOR_GPS_LATITUDE, SENSOR_GPS_LONGITUDE, SENSOR_GPS_LOCATION_NAME);
     lcd.setTextColor(0x07E0, 0x0862);
-    lcd.drawString("GPS: 12.6644 N, 102.1039 E (RBRU)", 12, 32, &fonts::Font0);
+    lcd.drawString(gpsHeaderBuf, 12, 32, &fonts::Font0);
 
     // ========================================================================
     // แคปซูลแสดง วันที่และเวลาเรียลไทม์ (Date & Time Capsule) - Option A

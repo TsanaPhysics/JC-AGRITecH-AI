@@ -170,10 +170,11 @@
                         </div>
                         <div class="flex items-center gap-2 flex-wrap mt-0.5">
                             <span id="subNetworkText" class="text-[10px] text-gray-400">SSID: JC_Home • IP: 192.168.0.111</span>
-                            <a href="https://maps.google.com/?q=12.6644,102.1039" target="_blank" id="mobGpsBadge" class="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-700/60 hover:bg-cyan-900/80 transition" title="คลิกเพื่อดูพิกัดบน Google Maps">
+                            <button onclick="openGpsConfigModal()" id="mobGpsBadge" class="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-700/60 hover:bg-cyan-900/80 transition cursor-pointer" title="คลิกเพื่อดูหรือปรับพิกัด GPS จริงจุดติดตั้ง">
                                 <i class="fa-solid fa-location-dot text-rose-400 text-[9px]"></i>
                                 <span id="mobGpsCoords">12.6644° N, 102.1039° E (RBRU)</span>
-                            </a>
+                                <i class="fa-solid fa-pen-to-square text-[8px] text-gray-400 ml-0.5"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1102,6 +1103,160 @@
                         color: '#fff'
                     });
                 }
+            });
+        }
+
+        // Interactive Field GPS Configuration Modal (Mobile App)
+        window.acquireDeviceGeo = function() {
+            playBeep(880, 0.04);
+            const statusEl = document.getElementById('geoStatusText');
+            if (!navigator.geolocation) {
+                if (statusEl) {
+                    statusEl.innerText = 'เบราว์เซอร์มือถือไม่รองรับ Geolocation API';
+                    statusEl.style.color = '#f87171';
+                }
+                return;
+            }
+            if (statusEl) {
+                statusEl.innerText = 'กำลังตรวจจับดาวเทียม GPS จากสมาร์ทโฟน...';
+                statusEl.style.color = '#38bdf8';
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    playBeep(1200, 0.08);
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    const acc = pos.coords.accuracy;
+                    const inputLat = document.getElementById('swalInputLat');
+                    const inputLon = document.getElementById('swalInputLon');
+                    if (inputLat) inputLat.value = lat.toFixed(6);
+                    if (inputLon) inputLon.value = lon.toFixed(6);
+                    if (statusEl) {
+                        statusEl.innerText = `ดึงพิกัดจริงสำเร็จ! (${lat.toFixed(5)}, ${lon.toFixed(5)} แม่นยำ ±${acc.toFixed(1)} ม.)`;
+                        statusEl.style.color = '#34d399';
+                    }
+                },
+                (err) => {
+                    if (statusEl) {
+                        statusEl.innerText = 'ไม่สามารถดึงพิกัดได้: ' + err.message;
+                        statusEl.style.color = '#f87171';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        };
+
+        function openGpsConfigModal() {
+            playBeep(980, 0.05);
+            let currentLat = (window.currentGps && window.currentGps.latitude) ? window.currentGps.latitude : 12.6644;
+            let currentLon = (window.currentGps && window.currentGps.longitude) ? window.currentGps.longitude : 102.1039;
+            let currentLocName = (window.currentGps && window.currentGps.location_name) ? window.currentGps.location_name : 'คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี (RBRU)';
+
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; font-size: 15px; color: #f43f5e;"><i class="fa-solid fa-location-crosshairs mr-1"></i> พิกัด GPS จุดติดตั้งเซนเซอร์จริง</span>',
+                html: `
+                    <div style="text-align: left; font-size: 12px; font-family: sans-serif; color: #cbd5e1;">
+                        <p style="margin-bottom: 10px; color: #94a3b8; font-size: 11px; line-height: 1.5;">
+                            ระบุพิกัดจริงของแปลงที่ติดตั้งบอร์ด ESP32 หรือกดปุ่มดึงพิกัดจาก GPS สมาร์ทโฟนของท่านได้ทันที
+                        </p>
+                        
+                        <div style="background: rgba(13, 19, 34, 0.9); border: 1px solid #334155; border-radius: 12px; padding: 10px; margin-bottom: 12px;">
+                            <button id="btnAutoGeo" onclick="acquireDeviceGeo()" type="button" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; font-weight: bold; font-size: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <i class="fa-solid fa-crosshairs"></i> ดึงพิกัดจาก GPS มือถือเดี๋ยวนี้
+                            </button>
+                            <span id="geoStatusText" style="font-size: 10px; color: #64748b; display: block; text-align: center; margin-top: 5px;">High-Accuracy GNSS Phone Sensor</span>
+                        </div>
+
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: block; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; font-size: 11px;">ละติจูด (Latitude):</label>
+                            <input id="swalInputLat" type="number" step="0.000001" value="${currentLat}" style="width: 100%; padding: 7px; border-radius: 8px; background: #0f172a; border: 1px solid #475569; color: #38bdf8; font-family: monospace; font-size: 12px;">
+                        </div>
+
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: block; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; font-size: 11px;">ลองจิจูด (Longitude):</label>
+                            <input id="swalInputLon" type="number" step="0.000001" value="${currentLon}" style="width: 100%; padding: 7px; border-radius: 8px; background: #0f172a; border: 1px solid #475569; color: #38bdf8; font-family: monospace; font-size: 12px;">
+                        </div>
+
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; font-size: 11px;">ชื่อสถานที่ / แปลงติดตั้ง:</label>
+                            <input id="swalInputLocName" type="text" value="${currentLocName}" style="width: 100%; padding: 7px; border-radius: 8px; background: #0f172a; border: 1px solid #475569; color: #fff; font-size: 12px;">
+                        </div>
+
+                        <div style="text-align: center; margin-top: 6px;">
+                            <a href="https://maps.google.com/?q=${currentLat},${currentLon}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-size: 11px;">
+                                <i class="fa-solid fa-map-location-dot"></i> เปิดดูตำแหน่งพิกัดนี้บน Google Maps
+                            </a>
+                        </div>
+                    </div>
+                `,
+                background: '#070d1e',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-floppy-disk"></i> บันทึกพิกัดจริง',
+                confirmButtonColor: '#059669',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const lat = parseFloat(document.getElementById('swalInputLat').value);
+                    const lon = parseFloat(document.getElementById('swalInputLon').value);
+                    const locName = document.getElementById('swalInputLocName').value.trim();
+                    if (isNaN(lat) || isNaN(lon)) {
+                        Swal.showValidationMessage('กรุณากรอกตัวเลขละติจูดและลองจิจูดให้ถูกต้อง');
+                        return false;
+                    }
+                    return { lat, lon, locName };
+                }
+            }).then((res) => {
+                if (res.isConfirmed && res.value) {
+                    saveMobileGpsCoordinates(res.value.lat, res.value.lon, res.value.locName);
+                }
+            });
+        }
+
+        function saveMobileGpsCoordinates(lat, lon, locName) {
+            playBeep(1100, 0.05);
+            Swal.fire({
+                title: 'กำลังบันทึกพิกัดจริง...',
+                didOpen: () => { Swal.showLoading(); },
+                background: '#070d1e',
+                color: '#fff'
+            });
+
+            fetch('../api/api.php?action=update_gps', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    latitude: lat,
+                    longitude: lon,
+                    location_name: locName
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.currentGps = data.gps;
+                    if (document.getElementById('mobGpsCoords')) {
+                        document.getElementById('mobGpsCoords').innerText = `${data.gps.formatted} (${data.gps.location_name})`;
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกพิกัดจริงสำเร็จ',
+                        html: `
+                            <div style="font-size: 12px; line-height: 1.8;">
+                                <div><strong>พิกัด:</strong> ${data.gps.formatted}</div>
+                                <div><strong>สถานที่:</strong> ${data.gps.location_name}</div>
+                            </div>
+                        `,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#070d1e',
+                        color: '#fff'
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'บันทึกล้มเหลว', text: data.message, background: '#070d1e', color: '#fff' });
+                }
+            })
+            .catch(err => {
+                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: err.toString(), background: '#070d1e', color: '#fff' });
             });
         }
 

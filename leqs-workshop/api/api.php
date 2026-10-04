@@ -645,6 +645,50 @@ if ($action === 'toggle_auto') {
 }
 
 // =========================================================================
+// 3.1 UPDATE GPS FIELD COORDINATES (จุดติดตั้งเซนเซอร์จริง)
+// =========================================================================
+if ($action === 'update_gps') {
+    $lat = isset($input_json['latitude']) ? floatval($input_json['latitude']) : (isset($_POST['latitude']) ? floatval($_POST['latitude']) : (isset($_GET['latitude']) ? floatval($_GET['latitude']) : null));
+    $lon = isset($input_json['longitude']) ? floatval($input_json['longitude']) : (isset($_POST['longitude']) ? floatval($_POST['longitude']) : (isset($_GET['longitude']) ? floatval($_GET['longitude']) : null));
+    $loc_name = strval($input_json['location_name'] ?? ($_POST['location_name'] ?? ($_GET['location_name'] ?? 'จุดติดตั้งเซนเซอร์ภาคสนาม')));
+    $prov = strval($input_json['province'] ?? ($_POST['province'] ?? ($_GET['province'] ?? 'จันทบุรี (Chanthaburi)')));
+    $elevation = floatval($input_json['elevation_m'] ?? ($_POST['elevation_m'] ?? 24.5));
+
+    if ($lat === null || $lon === null) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing latitude or longitude']);
+        exit();
+    }
+
+    $state = get_current_state($telemetry_file, $default_state);
+    $lat_dir = $lat >= 0 ? 'N' : 'S';
+    $lon_dir = $lon >= 0 ? 'E' : 'W';
+    $lat_abs = abs($lat);
+    $lon_abs = abs($lon);
+
+    $state['gps'] = [
+        'latitude' => round($lat, 6),
+        'longitude' => round($lon, 6),
+        'latitude_deg' => sprintf("%.4f° %s", $lat_abs, $lat_dir),
+        'longitude_deg' => sprintf("%.4f° %s", $lon_abs, $lon_dir),
+        'formatted' => sprintf("%.4f° %s, %.4f° %s", $lat_abs, $lat_dir, $lon_abs, $lon_dir),
+        'location_name' => $loc_name,
+        'province' => $prov,
+        'elevation_m' => round($elevation, 1),
+        'maps_url' => "https://maps.google.com/?q={$lat},{$lon}",
+        'status' => 'ACTIVE (REAL-FIELD GPS)',
+        'updated_at' => date('Y-m-d H:i:s')
+    ];
+    save_current_state($telemetry_file, $state);
+
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Field GPS coordinates updated successfully',
+        'gps' => $state['gps']
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
 // 4. UPDATE TELEMETRY (POSTED DIRECTLY FROM ESP32 / CLOUD BRIDGE)
 // =========================================================================
 if ($action === 'update_telemetry' || $action === 'post_data') {
