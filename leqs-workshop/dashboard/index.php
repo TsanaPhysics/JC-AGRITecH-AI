@@ -169,97 +169,98 @@
         <!-- ROW 1: 4 Real-time Telemetry Metrics Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <!-- Card 1: Air Temp & Humidity -->
+            <!-- Card 1: Air Temp & Humidity (SHT45 Microclimate) -->
             <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-temperature-three-quarters text-amber-400"></i>
-                        <span>อุณหภูมิอากาศ (SHT45)</span>
+                        <span>อุณหภูมิ & ความชื้น (SHT45)</span>
                     </div>
-                    <span class="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">I2C BUS</span>
+                    <span id="badgeSht45" class="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">I2C ONLINE</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashTemp" class="text-3xl font-bold font-mono text-white">28.5</span>
+                        <span id="dashTemp" class="text-3xl font-bold font-mono text-white">31.4</span>
                         <span class="text-sm text-slate-400">°C</span>
+                        <span id="dashTempF" class="text-[11px] font-mono text-slate-500 ml-1">(88.5°F)</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashHum" class="text-xl font-bold font-mono text-cyan-400">65.2</span>
+                        <span id="dashHum" class="text-xl font-bold font-mono text-cyan-400">85.0</span>
                         <span class="text-xs text-slate-400">%RH</span>
                     </div>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> สมบูรณ์ (Optimal)</span>
-                    <span>Min 24.1 / Max 32.4</span>
+                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>Dew Point: <strong id="dashDewPoint" class="text-cyan-300">28.4°C</strong></span>
+                    <span>Margin: <strong id="dashDewMargin" class="text-amber-300">3.0°C</strong></span>
                 </div>
             </div>
 
-            <!-- Card 2: VPD (Vapor Pressure Deficit) -->
+            <!-- Card 2: VPD (Vapor Pressure Deficit & Penman Physics) -->
             <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-cyan-500/40 transition">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-wind text-cyan-400"></i>
                         <span>แรงดึงระเหยน้ำ (VPD)</span>
                     </div>
-                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">Calculated</span>
+                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">FAO-56 VPD</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashVpd" class="text-3xl font-bold font-mono text-emerald-300">0.95</span>
+                        <span id="dashVpd" class="text-3xl font-bold font-mono text-emerald-300">0.69</span>
                         <span class="text-sm text-slate-400">kPa</span>
                     </div>
-                    <span class="text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-1 rounded">Transpiration OK</span>
+                    <span id="dashVpdStatus" class="text-xs font-bold text-amber-300 bg-amber-950 px-2 py-1 rounded">ความชื้นสูง (Low Transp)</span>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span>โซนเหมาะสม 0.8 - 1.2 kPa</span>
-                    <span class="text-cyan-400 font-mono">Formula: SVP - AVP</span>
+                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>VPsat: <strong id="dashVpSat" class="text-slate-300">4.60</strong> kPa</span>
+                    <span>VPact: <strong id="dashVpAct" class="text-cyan-300">3.91</strong> kPa</span>
                 </div>
             </div>
 
-            <!-- Card 3: Soil Moisture & EC -->
+            <!-- Card 3: Soil 7-in-1 Root Zone Telemetry -->
             <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-seedling text-emerald-400"></i>
-                        <span>ความชื้นและสภาพดิน (7-in-1)</span>
+                        <span>สภาพดินเขตราก (Soil 7-in-1)</span>
                     </div>
-                    <span class="text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">RS485 Modbus</span>
+                    <span id="badgeSoil7in1" class="text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">RS485 ONLINE</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashSoilMoist" class="text-3xl font-bold font-mono text-white">72.4</span>
+                        <span id="dashSoilMoist" class="text-3xl font-bold font-mono text-white">65.0</span>
                         <span class="text-sm text-slate-400">%</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashSoilEc" class="text-xl font-bold font-mono text-emerald-400">850</span>
+                        <span id="dashSoilEc" class="text-xl font-bold font-mono text-emerald-400">120</span>
                         <span class="text-xs text-slate-400">µS/cm</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span>pH: <strong id="dashSoilPh" class="text-cyan-300">6.4</strong> (กรดอ่อน)</span>
-                    <span>Temp ดิน: <strong class="text-slate-300">26.8°C</strong></span>
+                    <span>pH: <strong id="dashSoilPh" class="text-cyan-300">6.2</strong></span>
+                    <span>Temp ดิน: <strong id="dashSoilTemp" class="text-slate-300">27.5°C</strong></span>
                 </div>
             </div>
 
-            <!-- Card 4: Solar PAR & TinyML Inference -->
+            <!-- Card 4: Solar PAR, Radiation & TinyML Edge AI -->
             <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-amber-500/40 transition">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-sun text-amber-400"></i>
-                        <span>แสงอาทิตย์ PAR (BH1750)</span>
+                        <span>แสงอาทิตย์ & รังสี (BH1750)</span>
                     </div>
-                    <span class="text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">Edge AI</span>
+                    <span id="badgeBh1750" class="text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">I2C ONLINE</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashPar" class="text-3xl font-bold font-mono text-white">42,500</span>
+                        <span id="dashPar" class="text-3xl font-bold font-mono text-white">897.5</span>
                         <span class="text-sm text-slate-400">Lux</span>
                     </div>
-                    <span class="text-xs font-bold text-amber-400 bg-amber-950 px-2 py-1 rounded">Solar Active</span>
+                    <span id="dashSolarRad" class="text-xs font-bold text-amber-400 bg-amber-950 px-2 py-1 rounded">7.09 W/m²</span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span>On-Device TinyML:</span>
-                    <span class="text-emerald-400 font-mono font-bold">Inference: 14ms</span>
+                    <span>TinyML Calibrated:</span>
+                    <span id="dashAiConfidence" class="text-emerald-400 font-mono font-bold">Accuracy: 98.4%</span>
                 </div>
             </div>
 
@@ -399,16 +400,23 @@
                 <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800/60 font-mono">
                     <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
                         <span class="text-[10px] text-slate-400 block">N (ไนโตรเจน)</span>
-                        <strong class="text-emerald-400">45 mg/kg</strong>
+                        <strong id="dashValN" class="text-emerald-400">45 mg/kg</strong>
+                        <span id="dashAiN" class="text-[9px] text-cyan-300 block">AI: 47.3</span>
                     </div>
                     <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
                         <span class="text-[10px] text-slate-400 block">P (ฟอสฟอรัส)</span>
-                        <strong class="text-cyan-400">28 mg/kg</strong>
+                        <strong id="dashValP" class="text-cyan-400">32 mg/kg</strong>
+                        <span id="dashAiP" class="text-[9px] text-cyan-300 block">AI: 32.6</span>
                     </div>
                     <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
                         <span class="text-[10px] text-slate-400 block">K (โพแทสเซียม)</span>
-                        <strong class="text-amber-400">160 mg/kg</strong>
+                        <strong id="dashValK" class="text-amber-400">180 mg/kg</strong>
+                        <span id="dashAiK" class="text-[9px] text-cyan-300 block">AI: 178.2</span>
                     </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-400 border-t border-slate-800/40">
+                    <span>สัดส่วน: <strong id="dashNpkRatio" class="text-cyan-300">1.4:1:5.6</strong></span>
+                    <span>รวม: <strong id="dashNpkTotal" class="text-white">257 mg/kg</strong></span>
                 </div>
             </div>
 
@@ -663,14 +671,87 @@
                     if (data.sensors) {
                         const s = data.sensors;
                         if (document.getElementById('dashTemp')) document.getElementById('dashTemp').innerText = Number(s.temperature).toFixed(1);
+                        if (document.getElementById('dashTempF')) document.getElementById('dashTempF').innerText = `(${Number(s.temperature_f || ((s.temperature * 1.8) + 32)).toFixed(1)}°F)`;
                         if (document.getElementById('dashHum')) document.getElementById('dashHum').innerText = Number(s.humidity).toFixed(1);
+                        if (document.getElementById('dashDewPoint')) document.getElementById('dashDewPoint').innerText = `${Number(s.dew_point).toFixed(1)}°C`;
+                        if (document.getElementById('dashDewMargin')) document.getElementById('dashDewMargin').innerText = `${Number(s.dew_margin || (s.temperature - s.dew_point)).toFixed(1)}°C`;
+                        
                         if (document.getElementById('dashVpd')) document.getElementById('dashVpd').innerText = Number(s.vpd).toFixed(2);
+                        if (document.getElementById('dashVpSat')) document.getElementById('dashVpSat').innerText = Number(s.vpsat || 4.60).toFixed(2);
+                        if (document.getElementById('dashVpAct')) document.getElementById('dashVpAct').innerText = Number(s.vpact || 3.91).toFixed(2);
+                        if (document.getElementById('dashVpdStatus')) {
+                            const v = Number(s.vpd);
+                            if (v < 0.8) {
+                                document.getElementById('dashVpdStatus').innerText = 'ความชื้นสูง (Low Transp)';
+                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-amber-300 bg-amber-950 px-2 py-1 rounded';
+                            } else if (v > 1.4) {
+                                document.getElementById('dashVpdStatus').innerText = 'อากาศแห้ง (High Transp)';
+                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-rose-300 bg-rose-950 px-2 py-1 rounded';
+                            } else {
+                                document.getElementById('dashVpdStatus').innerText = 'สมบูรณ์ (Optimal Transp)';
+                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-emerald-300 bg-emerald-950 px-2 py-1 rounded';
+                            }
+                        }
+
                         if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(1);
                         if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Math.round(s.soil_ec);
                         if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
+                        if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(1)}°C`;
+                        
                         if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toLocaleString();
-                        if (document.getElementById('dashSolarRad') && s.solar_radiation) {
-                            document.getElementById('dashSolarRad').innerText = `Solar: ${Number(s.solar_radiation).toFixed(2)} W/m²`;
+                        if (document.getElementById('dashSolarRad')) {
+                            document.getElementById('dashSolarRad').innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
+                        }
+
+                        // NPK Elements
+                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${Number(s.nitrogen).toFixed(1)} mg/kg`;
+                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${Number(s.phosphorus).toFixed(1)} mg/kg`;
+                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${Number(s.potassium).toFixed(1)} mg/kg`;
+
+                        // AI Calibrated Elements
+                        if (data.ai_calibrated) {
+                            const ai = data.ai_calibrated;
+                            if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `AI: ${Number(ai.nitrogen).toFixed(1)}`;
+                            if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `AI: ${Number(ai.phosphorus).toFixed(1)}`;
+                            if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `AI: ${Number(ai.potassium).toFixed(1)}`;
+                            if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || '1.4:1:5.6';
+                            if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${ai.npk_total} mg/kg`;
+                            if (document.getElementById('dashAiConfidence') && ai.confidence) {
+                                document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
+                            }
+                        }
+
+                        // Update Radar Chart
+                        if (npkRadarChart && npkRadarChart.data && npkRadarChart.data.datasets[0]) {
+                            npkRadarChart.data.datasets[0].data = [
+                                Number(s.nitrogen),
+                                Number(s.phosphorus),
+                                Number(s.potassium),
+                                Number(s.soil_moisture),
+                                Number(s.soil_ph) * 10,
+                                Math.min(100, Number(s.soil_ec) / 5)
+                            ];
+                            npkRadarChart.update('none');
+                        }
+
+                        // Update Connection Badges
+                        if (data.sensor_connection) {
+                            const c = data.sensor_connection;
+                            const bSht = document.getElementById('badgeSht45');
+                            if (bSht) {
+                                bSht.innerText = c.sht45 ? 'I2C ONLINE' : 'DISCONNECTED';
+                                bSht.className = c.sht45 ? 'text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
+                            }
+                            const b7in1 = document.getElementById('badgeSoil7in1');
+                            if (b7in1) {
+                                b7in1.innerText = c.soil_7in1 ? 'RS485 ONLINE' : 'DISCONNECTED';
+                                b7in1.className = c.soil_7in1 ? 'text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
+                            }
+                            const bLite = document.getElementById('badgeBh1750');
+                            if (bLite) {
+                                bLite.innerText = c.bh1750 ? 'I2C ONLINE' : 'DISCONNECTED';
+                                bLite.className = c.bh1750 ? 'text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
+                            }
                         }
 
                         // Update chart

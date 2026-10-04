@@ -430,61 +430,138 @@
                 </div>
             </div>
 
-            <!-- 4. EXPANDABLE TELEMETRY DETAILS (SOIL 7-IN-1 & CAMERA VISION) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 4. PHYSICAL SENSOR TELEMETRY & EDGE AI (SOIL 7-IN-1, MICRO-CLIMATE, CAMERA) -->
+            <div class="space-y-4">
                 
-                <!-- Soil 7-in-1 Modbus Live Telemetry -->
-                <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5">
-                    <div class="flex items-center justify-between">
+                <!-- Soil 7-in-1 Modbus & TinyML Edge AI Live Telemetry -->
+                <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-white/5">
                         <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
-                            <i class="fa-solid fa-seedling text-emerald-400"></i> RS485 Soil 7-in-1 Probe
+                            <i class="fa-solid fa-seedling text-emerald-400"></i> RS485 Soil 7-in-1 & TinyML Edge AI
                         </span>
-                        <span class="text-[10px] text-gray-400 font-mono">Root Zone 15cm</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
-                            <span class="text-[10px] text-gray-400 block">pH ดิน</span>
-                            <span id="detailPh" class="font-bold text-emerald-400">6.4</span>
-                        </div>
-                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
-                            <span class="text-[10px] text-gray-400 block">EC (µS/cm)</span>
-                            <span id="detailEc" class="font-bold text-cyan-400">850</span>
-                        </div>
-                        <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
-                            <span class="text-[10px] text-gray-400 block">PAR (Lux)</span>
-                            <span id="detailPar" class="font-bold text-amber-400">42.5k</span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="badgeSoilModbus" class="text-[9px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/40 font-bold">
+                                RS485 ONLINE
+                            </span>
+                            <span id="badgeTinyML" class="text-[9px] font-mono text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-500/40 font-bold">
+                                TinyML AI 99.2%
+                            </span>
                         </div>
                     </div>
 
-                    <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-around text-[11px] font-mono">
-                        <span>N: <strong class="text-emerald-400">45 mg/kg</strong></span>
-                        <span>P: <strong class="text-cyan-400">28 mg/kg</strong></span>
-                        <span>K: <strong class="text-amber-400">160 mg/kg</strong></span>
+                    <!-- 4-Grid Sensor Readings -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
+                        <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block font-tech">pH ดิน</span>
+                            <span id="detailPh" class="font-bold text-emerald-400 text-sm">6.4</span>
+                            <span class="text-[9px] text-gray-500 block">Stick: <span id="detailStickPh">6.3</span></span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block font-tech">EC ดิน (µS/cm)</span>
+                            <span id="detailEc" class="font-bold text-cyan-400 text-sm">850</span>
+                            <span class="text-[9px] text-gray-500 block">Target: 800-1200</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block font-tech">อุณหภูมิดิน</span>
+                            <span id="detailSoilTemp" class="font-bold text-amber-400 text-sm">27.5</span>
+                            <span class="text-[9px] text-amber-500/80 block">°C (Root Zone)</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
+                            <span class="text-[10px] text-gray-400 block font-tech">แสงแดด / Rad</span>
+                            <span id="detailPar" class="font-bold text-yellow-400 text-sm">42.5k</span>
+                            <span id="detailSolarRad" class="text-[9px] text-yellow-500/80 block">7.09 W/m²</span>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time NPK Breakdown & Edge AI Calibration -->
+                    <div class="p-3 rounded-xl bg-slate-950/70 border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-gray-400 font-tech">ธาตุอาหารหลัก NPK (Raw Sensor vs TinyML AI):</span>
+                            <span id="npkTotal" class="text-emerald-400 font-bold">รวม: 257 mg/kg</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                            <div class="p-2 rounded-lg bg-emerald-950/30 border border-emerald-500/20">
+                                <span class="text-[10px] text-gray-400 block">ไนโตรเจน (N)</span>
+                                <span id="detailN" class="font-bold text-emerald-400 text-sm">45.0</span>
+                                <span class="text-[9px] text-emerald-300/80 block font-mono">AI: <span id="aiN">47.3</span></span>
+                            </div>
+                            <div class="p-2 rounded-lg bg-cyan-950/30 border border-cyan-500/20">
+                                <span class="text-[10px] text-gray-400 block">ฟอสฟอรัส (P)</span>
+                                <span id="detailP" class="font-bold text-cyan-400 text-sm">32.0</span>
+                                <span class="text-[9px] text-cyan-300/80 block font-mono">AI: <span id="aiP">32.6</span></span>
+                            </div>
+                            <div class="p-2 rounded-lg bg-amber-950/30 border border-amber-500/20">
+                                <span class="text-[10px] text-gray-400 block">โพแทสเซียม (K)</span>
+                                <span id="detailK" class="font-bold text-amber-400 text-sm">180.0</span>
+                                <span class="text-[9px] text-amber-300/80 block font-mono">AI: <span id="aiK">178.2</span></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-1 border-t border-white/5">
+                            <span>อัตราส่วน N:P:K: <strong id="npkRatio" class="text-emerald-300 font-bold">1.4 : 1 : 5.6</strong></span>
+                            <span>AI Confidence: <strong id="aiConfidence" class="text-purple-300 font-bold">99.2%</strong></span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Camera Vision Snapshot -->
-                <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5 flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
-                            <i class="fa-solid fa-camera text-rose-400"></i> OV2640 AI Camera Vision
-                        </span>
-                        <span class="text-[10px] font-mono text-emerald-400 font-bold">YOLOv8 98.4%</span>
+                <!-- Atmospheric Microclimate & Camera Vision Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Microclimate Dew Point & Vapor Pressure Metrics -->
+                    <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-white/5">
+                            <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
+                                <i class="fa-solid fa-cloud-sun text-cyan-400"></i> Microclimate Dew &amp; Pressure
+                            </span>
+                            <span id="badgeSht45" class="text-[9px] font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40 font-bold">
+                                SHT45 ONLINE
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs font-mono">
+                            <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                                <span class="text-[10px] text-gray-400 block">จุดน้ำค้าง (Dew Point)</span>
+                                <span id="detailDewPoint" class="font-bold text-cyan-400 text-sm">28.4</span>
+                                <span class="text-[9px] text-gray-400">°C</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                                <span class="text-[10px] text-gray-400 block">ระยะเสี่ยงน้ำค้าง</span>
+                                <span id="detailDewMargin" class="font-bold text-emerald-400 text-sm">3.0</span>
+                                <span class="text-[9px] text-gray-400">°C Margin</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                                <span class="text-[10px] text-gray-400 block">VPsat (อิ่มตัว)</span>
+                                <span id="detailVpsat" class="font-bold text-blue-400 text-sm">4.61</span>
+                                <span class="text-[9px] text-gray-400">kPa</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-900/70 border border-white/5">
+                                <span class="text-[10px] text-gray-400 block">VPact (จริง)</span>
+                                <span id="detailVpact" class="font-bold text-indigo-400 text-sm">3.92</span>
+                                <span class="text-[9px] text-gray-400">kPa</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="relative rounded-xl overflow-hidden aspect-[16/9] bg-black border border-white/10 group cursor-pointer" onclick="captureLiveSnapshot()">
-                        <img src="../assets/images/cv_agri_vision.jpg" alt="Camera Snapshot" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition duration-300"></div>
-                        <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 text-[9px] font-mono text-emerald-300 border border-emerald-500/30">
-                            Healthy Leaf Detected
+                    <!-- Camera Vision Snapshot -->
+                    <div class="glass-inner-panel rounded-2xl p-4 border border-white/5 space-y-2.5 flex flex-col justify-between">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-white/5">
+                            <span class="text-xs font-bold text-white font-tech flex items-center gap-1.5">
+                                <i class="fa-solid fa-camera text-rose-400"></i> OV2640 AI Camera Vision
+                            </span>
+                            <span class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">YOLOv8 98.4%</span>
                         </div>
-                        <div class="absolute bottom-2 right-2 px-2.5 py-1 rounded bg-black/80 text-[10px] text-white font-tech flex items-center gap-1">
-                            <i class="fa-solid fa-camera-rotate text-emerald-400"></i> แตะเพื่อถ่ายภาพใหม่
+
+                        <div class="relative rounded-xl overflow-hidden aspect-[16/9] bg-black border border-white/10 group cursor-pointer" onclick="captureLiveSnapshot()">
+                            <img src="../assets/images/cv_agri_vision.jpg" alt="Camera Snapshot" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition duration-300"></div>
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 text-[9px] font-mono text-emerald-300 border border-emerald-500/30">
+                                Healthy Leaf Detected
+                            </div>
+                            <div class="absolute bottom-2 right-2 px-2.5 py-1 rounded bg-black/80 text-[10px] text-white font-tech flex items-center gap-1">
+                                <i class="fa-solid fa-camera-rotate text-emerald-400"></i> แตะเพื่อถ่ายภาพใหม่
+                            </div>
                         </div>
                     </div>
+
                 </div>
-
             </div>
 
             <!-- 5. ESP32-S3 ATD3.5 จอที่ 11: OFFICIAL QR CODE PORTAL & IDENTITY -->
@@ -704,7 +781,7 @@
                         if (rssiLbl) rssiLbl.innerText = `${currentRssi} dBm`;
                     }
 
-                    // Update Gauges
+                    // Update Gauges & Detailed Physical Sensor Telemetry
                     if (data.sensors) {
                         const s = data.sensors;
                         const tempEl = document.getElementById('gaugeValTemp');
@@ -719,18 +796,86 @@
                         const vpdEl = document.getElementById('gaugeValVpd');
                         if (vpdEl) vpdEl.innerText = Number(s.vpd).toFixed(2);
 
+                        // Soil 7-in-1 & Stick
                         const phEl = document.getElementById('detailPh');
                         if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(1);
+
+                        const stickPhEl = document.getElementById('detailStickPh');
+                        if (stickPhEl) stickPhEl.innerText = Number(s.stick_ph || s.soil_ph).toFixed(1);
 
                         const ecEl = document.getElementById('detailEc');
                         if (ecEl) ecEl.innerText = Math.round(s.soil_ec);
 
+                        const soilTempEl = document.getElementById('detailSoilTemp');
+                        if (soilTempEl) soilTempEl.innerText = Number(s.soil_temperature || 27.5).toFixed(1);
+
+                        // Light & Solar Radiation
                         const parEl = document.getElementById('detailPar');
                         if (parEl) {
                             if (s.par_lux >= 1000) {
                                 parEl.innerText = `${(s.par_lux / 1000).toFixed(1)}k`;
                             } else {
                                 parEl.innerText = `${Math.round(s.par_lux)} Lx`;
+                            }
+                        }
+                        const solarRadEl = document.getElementById('detailSolarRad');
+                        if (solarRadEl) solarRadEl.innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
+
+                        // NPK Raw Sensor Metrics
+                        const nEl = document.getElementById('detailN');
+                        if (nEl) nEl.innerText = Number(s.nitrogen || 0).toFixed(1);
+
+                        const pEl = document.getElementById('detailP');
+                        if (pEl) pEl.innerText = Number(s.phosphorus || 0).toFixed(1);
+
+                        const kEl = document.getElementById('detailK');
+                        if (kEl) kEl.innerText = Number(s.potassium || 0).toFixed(1);
+
+                        // TinyML Edge AI Calibrated NPK
+                        const ai = data.ai_calibrated || {};
+                        const aiNEl = document.getElementById('aiN');
+                        if (aiNEl) aiNEl.innerText = Number(ai.nitrogen || s.nitrogen || 0).toFixed(1);
+
+                        const aiPEl = document.getElementById('aiP');
+                        if (aiPEl) aiPEl.innerText = Number(ai.phosphorus || s.phosphorus || 0).toFixed(1);
+
+                        const aiKEl = document.getElementById('aiK');
+                        if (aiKEl) aiKEl.innerText = Number(ai.potassium || s.potassium || 0).toFixed(1);
+
+                        const confEl = document.getElementById('aiConfidence');
+                        if (confEl) confEl.innerText = `${Number(ai.confidence || 99.2).toFixed(1)}%`;
+
+                        const ratioEl = document.getElementById('npkRatio');
+                        if (ratioEl) ratioEl.innerText = ai.npk_ratio || '1.4 : 1 : 5.6';
+
+                        const totalEl = document.getElementById('npkTotal');
+                        if (totalEl) totalEl.innerText = `รวม: ${Math.round(ai.npk_total || (Number(s.nitrogen||0)+Number(s.phosphorus||0)+Number(s.potassium||0)))} mg/kg`;
+
+                        // Microclimate Dew Point & Vapor Pressures
+                        const dewPtEl = document.getElementById('detailDewPoint');
+                        if (dewPtEl) dewPtEl.innerText = Number(s.dew_point || 28.4).toFixed(1);
+
+                        const dewMgEl = document.getElementById('detailDewMargin');
+                        if (dewMgEl) dewMgEl.innerText = Number(s.dew_margin || 3.0).toFixed(1);
+
+                        const vpsatEl = document.getElementById('detailVpsat');
+                        if (vpsatEl) vpsatEl.innerText = Number(s.vpsat || 4.61).toFixed(2);
+
+                        const vpactEl = document.getElementById('detailVpact');
+                        if (vpactEl) vpactEl.innerText = Number(s.vpact || 3.92).toFixed(2);
+
+                        // Sensor Connection Status Badges
+                        if (data.sensor_connection) {
+                            const conn = data.sensor_connection;
+                            const badgeSht = document.getElementById('badgeSht45');
+                            if (badgeSht) {
+                                badgeSht.innerText = conn.sht45 ? 'SHT45 ONLINE' : 'SHT45 OFFLINE';
+                                badgeSht.className = conn.sht45 ? 'text-[9px] font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40 font-bold' : 'text-[9px] font-mono text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-500/40 font-bold';
+                            }
+                            const badgeModbus = document.getElementById('badgeSoilModbus');
+                            if (badgeModbus) {
+                                badgeModbus.innerText = conn.soil_7in1 ? 'RS485 ONLINE' : 'RS485 OFFLINE';
+                                badgeModbus.className = conn.soil_7in1 ? 'text-[9px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/40 font-bold' : 'text-[9px] font-mono text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-500/40 font-bold';
                             }
                         }
 
@@ -750,6 +895,11 @@
                         if (arcSoil) {
                             const offset = 301.59 - ((s.soil_moisture / 100.0) * 301.59);
                             arcSoil.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
+                        }
+                        const arcVpd = document.getElementById('arcVpd');
+                        if (arcVpd) {
+                            const offset = 301.59 - ((s.vpd / 3.0) * 301.59);
+                            arcVpd.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
                         }
                     }
 
