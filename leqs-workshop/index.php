@@ -282,10 +282,10 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <!-- Bottom Floating Title Overlay -->
                             <div class="absolute bottom-2.5 left-2.5 right-2.5 px-3.5 py-2.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/10 text-white shadow-lg">
                                 <div class="font-bold text-xs md:text-sm text-emerald-300 truncate" id="heroSingleScreenTitle">
-                                    LEQs xAI: Digital Agriculture - Environment
+                                    LEQs xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม
                                 </div>
                                 <div class="text-[11px] text-gray-300 truncate mt-0.5" id="heroSingleScreenDesc">
-                                    Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                                    Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                                 </div>
                             </div>
                         </div>
@@ -323,19 +323,24 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         <span class="text-sm md:text-base text-gray-400 block mb-2 font-['Orbitron'] tracking-widest uppercase opacity-90">
                             &lt; Smart_Agricultural_Intelligence /&gt;
                         </span>
-                        <span class="text-4xl md:text-6xl block font-extrabold">
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">LEQs</span>
-                            <span class="text-blue-600">xAI</span>
-                        </span>
-                        <span class="text-2xl md:text-4xl block mt-2 font-heading font-bold text-gray-900">
-                            <span class="text-emerald-600">Digital Agriculture</span> 
-                            <span class="text-teal-600 font-light">- Environment</span>
+                        <div class="flex flex-wrap items-baseline gap-2.5">
+                            <span class="text-4xl md:text-6xl font-extrabold tracking-tight">
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">LEQs</span>
+                                <span class="text-blue-600">xAI</span>
+                            </span>
+                            <span class="text-xl md:text-2xl font-tech font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">
+                                Digital Agriculture - Environment
+                            </span>
+                        </div>
+                        <span class="text-2xl md:text-4xl block mt-2.5 font-heading font-bold text-gray-900 leading-snug">
+                            <span class="text-emerald-600">ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัล</span> 
+                            <span class="text-amber-500 font-normal">และสิ่งแวดล้อม</span>
                         </span>
                     </h1>
 
                     <p class="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
                         <strong class="dynamic-color-text font-bold block text-emerald-700 text-lg md:text-xl mb-1.5">Edge AI • Deep Learning • Computer Vision • Environmental IoT</strong>
-                        งานวิจัยและนวัตกรรมปัญญาประดิษฐ์เพื่อการเกษตรและสิ่งแวดล้อม พัฒนาโดย <strong class="text-gray-900 font-bold">ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</strong> ✨
+                        โครงการวิจัยและพัฒนาปัญญาประดิษฐ์เพื่อการเกษตรและสิ่งแวดล้อม พัฒนาโดย <strong class="text-gray-900 font-bold">ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</strong> ✨
                     </p>
 
                     <!-- Action Buttons -->

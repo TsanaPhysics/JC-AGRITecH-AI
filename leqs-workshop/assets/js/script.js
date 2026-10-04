@@ -98,8 +98,8 @@ const heroSlides = [
         file: 'assets/images/leqs_xai_hero_cover.jpg',
         category: 'LEQs xAI Master Showcase',
         categoryDot: 'bg-emerald-400',
-        title: 'LEQs xAI: Digital Agriculture - Environment',
-        desc: 'Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี',
+        title: 'LEQs xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม',
+        desc: 'Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี',
         badge: 'Slide 01/10'
     },
     {
