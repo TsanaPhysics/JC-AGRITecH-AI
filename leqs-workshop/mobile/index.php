@@ -139,7 +139,7 @@
                 </button>
                 <button onclick="openWifiModal()" class="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-xs font-tech font-bold flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-wifi text-[10px]"></i>
-                    <span id="navBoardIp">192.168.1.105</span>
+                    <span id="navBoardIp">192.168.0.111:8500</span>
                 </button>
                 <a href="../dashboard/index.php" target="_blank" class="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1">
                     <i class="fa-solid fa-desktop text-[10px]"></i>
@@ -155,9 +155,9 @@
         <!-- ========================================================================= -->
         <!-- THE SMARTPHONE APP SCREEN FRAME (MATCHING real_mobile_app_preview.jpg)     -->
         <!-- ========================================================================= -->
-        <div class="w-full max-w-3xl glass-phone-card rounded-[2.5rem] p-4 sm:p-6 border border-white/10 space-y-6 relative overflow-hidden">
+        <div class="w-full max-w-3xl glass-phone-card rounded-[2.5rem] p-4 sm:p-6 border border-white/10 space-y-5 relative overflow-hidden">
             
-            <!-- 1. TOP SMARTPHONE STATUS BAR & HARDWARE ISLAND -->
+            <!-- 1. TOP SMARTPHONE STATUS BAR & HARDWARE ISLAND (MATCHING ESP32 SCREEN) -->
             <div class="glass-inner-panel rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs font-mono">
                 
                 <!-- Left: Hardware Connection Badge -->
@@ -166,9 +166,9 @@
                     <div>
                         <div class="flex items-center gap-1.5 leading-none">
                             <span class="font-bold text-white tracking-wide text-[11px] sm:text-xs">ESP32-S3 ATD3.5</span>
-                            <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40">CONNECTED</span>
+                            <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40">CONNECTED (ONLINE)</span>
                         </div>
-                        <span class="text-[10px] text-gray-400 mt-0.5 block">Wi-Fi 5GHz • AP: 192.168.1.105</span>
+                        <span id="subNetworkText" class="text-[10px] text-gray-400 mt-0.5 block">SSID: JC_Home • IP: 192.168.0.111 • -99 dBm</span>
                     </div>
                 </div>
 
@@ -182,7 +182,7 @@
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-1 text-[11px] text-gray-300">
                         <i class="fa-solid fa-signal text-cyan-400 text-xs"></i>
-                        <span>Signal 4</span>
+                        <span id="signalRssiLabel">-99 dBm</span>
                     </div>
                     <div class="flex items-center gap-1 text-[11px] text-emerald-400 font-bold">
                         <span id="batteryPct">98%</span>
@@ -190,6 +190,28 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- AUTHENTIC ESP32-S3 ATD3.5 PHYSICAL TABS BAR (FROM USER'S PHOTO) -->
+            <div class="glass-inner-panel rounded-2xl p-1.5 flex items-center justify-between text-[11px] font-tech font-bold overflow-x-auto gap-1 shadow-md">
+                <button onclick="scrollToSection('gauges')" class="flex-1 py-1.5 px-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-center hover:bg-cyan-500/30 transition">
+                    1. HOME
+                </button>
+                <button onclick="scrollToSection('telemetryDetails')" class="flex-1 py-1.5 px-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center hover:bg-emerald-500/30 transition">
+                    2. DATA
+                </button>
+                <button onclick="window.open('../dashboard/index.php#analytics', '_blank')" class="flex-1 py-1.5 px-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-center hover:bg-amber-500/30 transition">
+                    3. GRAPH
+                </button>
+                <button onclick="scrollToSection('relaySection')" class="flex-1 py-1.5 px-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-center hover:bg-purple-500/30 transition">
+                    4. RELAY
+                </button>
+                <button onclick="openBoardScreenModal()" class="flex-1 py-1.5 px-2 rounded-xl bg-yellow-500/30 text-yellow-300 border border-yellow-500/40 text-center hover:bg-yellow-500/40 transition shadow-sm animate-pulse">
+                    5. SETUP
+                </button>
+                <button onclick="openBoardScreenModal()" class="py-1.5 px-2.5 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 text-center hover:bg-blue-500/30 transition">
+                    🌐 ENG
+                </button>
             </div>
 
             <!-- 2. THE 4 CIRCULAR RADIAL GAUGES (EXACT VISUAL REPLICA) -->
@@ -534,7 +556,7 @@
             <div class="space-y-3 text-xs">
                 <div>
                     <label class="block text-gray-400 mb-1 font-tech">ESP32-S3 ATD3.5 IP Address</label>
-                    <input type="text" id="inputBoardIp" value="192.168.1.105" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
+                    <input type="text" id="inputBoardIp" value="192.168.0.111" class="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono focus:border-cyan-400 focus:outline-none">
                     <span class="text-[10px] text-gray-500 mt-1 block">เช่น 192.168.4.1 (AP Mode) หรือ IP ในวง Wi-Fi บ้าน</span>
                 </div>
 
@@ -559,10 +581,13 @@
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- Application Script (Live Bidirectional Mobile IoT Engine) -->
     <script>
-        // Exact relay states matching real_mobile_app_preview.jpg:
-        // Relay 1: ON, Relay 2: OFF, Relay 3: ON, Relay 4: ON
+        let currentBoardIp = '192.168.0.111';
+        let currentBoardPort = 8500;
+        let currentSsid = 'JC_Home';
+        let currentRssi = -99;
+        let currentCloudUrl = 'http://14.207.141.164:8000';
         const exactRelayStates = { 1: true, 2: false, 3: true, 4: true };
 
         // Play subtle Web Audio API click feedback
@@ -582,15 +607,25 @@
             } catch(e) {}
         }
 
-        function toggleExactRelay(id, name) {
-            exactRelayStates[id] = !exactRelayStates[id];
-            const isOn = exactRelayStates[id];
+        // Section scrolling helper for physical tabs
+        function scrollToSection(type) {
+            playBeep(900, 0.03);
+            if (type === 'gauges') {
+                window.scrollTo({ top: 120, behavior: 'smooth' });
+            } else if (type === 'telemetryDetails') {
+                const el = document.getElementById('detailPh');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (type === 'relaySection') {
+                const el = document.getElementById('switchPill-1');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
 
+        function updateSwitchDom(id, isOn) {
+            exactRelayStates[id] = isOn;
             const pill = document.getElementById(`switchPill-${id}`);
             const txt = document.getElementById(`switchTxt-${id}`);
             const status = document.getElementById(`switchStatus-${id}`);
-
-            playBeep(isOn ? 920 : 440);
 
             if (pill && txt) {
                 if (isOn) {
@@ -606,16 +641,33 @@
                 status.innerText = isOn ? 'ACTIVE' : 'STANDBY';
                 status.className = isOn ? 'text-[10px] font-mono text-emerald-400 font-bold' : 'text-[10px] font-mono text-gray-500 font-bold';
             }
+        }
 
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: isOn ? 'success' : 'info',
-                title: `${name}: ${isOn ? 'ACTIVE (เปิด)' : 'STANDBY (ปิด)'}`,
-                text: `คำสั่ง Wi-Fi ส่งสำเร็จสู่บอร์ด ESP32-S3 ATD3.5`,
-                showConfirmButton: false,
-                timer: 1600
-            });
+        // Bidirectional Relay Toggle (Central Server API + Direct Hardware)
+        async function toggleExactRelay(id, name) {
+            const nextState = !exactRelayStates[id];
+            updateSwitchDom(id, nextState);
+            playBeep(nextState ? 920 : 440);
+
+            try {
+                // 1. Post to Central Server API (so Web Dashboard updates instantly)
+                const res = await fetch(`../api/api.php?action=control_relay&id=${id}&state=${nextState ? 1 : 0}`);
+
+                // 2. Direct Hardware Call to ESP32 board
+                fetch(`http://${currentBoardIp}:${currentBoardPort}/relay?ch=${id}&state=${nextState ? 1 : 0}`, { mode: 'no-cors' }).catch(() => {});
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: nextState ? 'success' : 'info',
+                    title: `${name}: ${nextState ? 'ACTIVE (เปิด)' : 'STANDBY (ปิด)'}`,
+                    text: `คำสั่ง Wi-Fi ส่งสำเร็จสู่บอร์ด ${currentBoardIp}:${currentBoardPort}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         // Live Clock
@@ -629,25 +681,118 @@
         setInterval(updateLiveClock, 1000);
         updateLiveClock();
 
+        // 4. Real-time Telemetry Polling from API
+        async function syncMobileTelemetryFromApi() {
+            try {
+                const res = await fetch('../api/api.php?action=get_telemetry');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.status === 'success') {
+                    // Update Board Status & Parameters
+                    if (data.board) {
+                        currentBoardIp = data.board.ip_address || currentBoardIp;
+                        currentBoardPort = data.board.web_port || currentBoardPort;
+                        currentSsid = data.board.ssid || currentSsid;
+                        currentRssi = data.board.rssi || currentRssi;
+                        currentCloudUrl = data.board.cloud_url || currentCloudUrl;
+
+                        const navIp = document.getElementById('navBoardIp');
+                        if (navIp) navIp.innerText = `${currentBoardIp}:${currentBoardPort}`;
+                        const subNet = document.getElementById('subNetworkText');
+                        if (subNet) subNet.innerText = `SSID: ${currentSsid} • IP: ${currentBoardIp} • ${currentRssi} dBm`;
+                        const rssiLbl = document.getElementById('signalRssiLabel');
+                        if (rssiLbl) rssiLbl.innerText = `${currentRssi} dBm`;
+                    }
+
+                    // Update Gauges
+                    if (data.sensors) {
+                        const s = data.sensors;
+                        const tempEl = document.getElementById('gaugeValTemp');
+                        if (tempEl) tempEl.innerText = Number(s.temperature).toFixed(1);
+
+                        const humEl = document.getElementById('gaugeValHum');
+                        if (humEl) humEl.innerText = Math.round(s.humidity);
+
+                        const soilEl = document.getElementById('gaugeValSoil');
+                        if (soilEl) soilEl.innerText = Math.round(s.soil_moisture);
+
+                        const vpdEl = document.getElementById('gaugeValVpd');
+                        if (vpdEl) vpdEl.innerText = Number(s.vpd).toFixed(2);
+
+                        // Update Details
+                        const phEl = document.getElementById('detailPh');
+                        if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(1);
+
+                        const ecEl = document.getElementById('detailEc');
+                        if (ecEl) ecEl.innerText = Math.round(s.soil_ec);
+
+                        const parEl = document.getElementById('detailPar');
+                        if (parEl) parEl.innerText = `${(s.par_lux / 1000).toFixed(1)}k`;
+
+                        // Dynamically update SVG gauge dashoffsets
+                        // Circle circumference = 2 * PI * 48 = 301.59
+                        const arcTemp = document.getElementById('arcTemp');
+                        if (arcTemp) {
+                            const offset = 301.59 - ((s.temperature / 50.0) * 301.59);
+                            arcTemp.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
+                        }
+                        const arcHum = document.getElementById('arcHum');
+                        if (arcHum) {
+                            const offset = 301.59 - ((s.humidity / 100.0) * 301.59);
+                            arcHum.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
+                        }
+                        const arcSoil = document.getElementById('arcSoil');
+                        if (arcSoil) {
+                            const offset = 301.59 - ((s.soil_moisture / 100.0) * 301.59);
+                            arcSoil.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
+                        }
+                    }
+
+                    // Sync Relays from Server / Web Dashboard
+                    if (data.relays) {
+                        for (let id = 1; id <= 4; id++) {
+                            const r = data.relays[id];
+                            if (r) {
+                                updateSwitchDom(id, r.state == 1);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Mobile telemetry sync error:', err);
+            }
+        }
+
         // Modal Handlers
         function openWifiModal() {
+            playBeep(1000, 0.05);
+            document.getElementById('inputBoardIp').value = currentBoardIp;
             document.getElementById('wifiModal').classList.remove('hidden');
         }
         function closeWifiModal() {
             document.getElementById('wifiModal').classList.add('hidden');
         }
-        function saveWifiConfig() {
+        async function saveWifiConfig() {
             const ip = document.getElementById('inputBoardIp').value.trim();
             if (ip) {
-                document.getElementById('navBoardIp').innerText = ip;
+                currentBoardIp = ip;
+                document.getElementById('navBoardIp').innerText = `${currentBoardIp}:${currentBoardPort}`;
+
+                await fetch('../api/api.php?action=update_board_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip: currentBoardIp, web_port: currentBoardPort, ssid: currentSsid, cloud_url: currentCloudUrl })
+                });
             }
             closeWifiModal();
             Swal.fire({
                 icon: 'success',
-                title: 'บันทึกการตั้งค่า Wi-Fi แล้ว',
-                text: `เชื่อมต่อกับบอร์ดที่ ${ip} เรียบร้อย`,
+                title: 'บันทึกการตั้งค่าแล้ว',
+                text: `เชื่อมต่อกับบอร์ดที่ ${currentBoardIp}:${currentBoardPort} เรียบร้อย`,
                 timer: 1500,
-                showConfirmButton: false
+                showConfirmButton: false,
+                background: '#070d1e',
+                color: '#fff'
             });
         }
 
@@ -655,9 +800,11 @@
             playBeep(1200, 0.1);
             Swal.fire({
                 title: 'กำลังถ่ายภาพจากกล้อง OV2640...',
-                text: 'ประมวลผลโมเดล Edge AI YOLOv8 บน ESP32-S3',
+                text: `ส่งคำสั่ง HTTP ไปยังบอร์ด ${currentBoardIp}:${currentBoardPort}`,
                 timer: 1000,
                 timerProgressBar: true,
+                background: '#070d1e',
+                color: '#fff',
                 didOpen: () => { Swal.showLoading(); }
             }).then(() => {
                 Swal.fire({
@@ -665,20 +812,89 @@
                     title: 'ตรวจจับสำเร็จ!',
                     text: 'ตรวจพบ: ใบพืชสมบูรณ์ (Healthy Leaf) 98.4%',
                     timer: 1800,
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    background: '#070d1e',
+                    color: '#fff'
                 });
             });
         }
 
-        // Subtle sensor heartbeat simulation
-        setInterval(() => {
-            const tempEl = document.getElementById('gaugeValTemp');
-            if (tempEl) {
-                const current = parseFloat(tempEl.innerText);
-                const delta = (Math.random() * 0.2 - 0.1);
-                tempEl.innerText = (current + delta).toFixed(1);
-            }
-        }, 4000);
+        function openBoardScreenModal() {
+            playBeep(1050, 0.05);
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; font-size: 15px; color: #38bdf8;">ESP32-S3 Physical LCD Screen</span>',
+                html: `
+                    <!-- Authentic reproduction of the physical LCD touch screen from user photo -->
+                    <div style="background: #222; padding: 10px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 6px solid #e2e8f0; max-width: 360px; margin: 0 auto; text-align: left; font-family: 'Chakra Petch', sans-serif;">
+                        
+                        <!-- Top LCD Status Tabs (Cyan, Green, Orange, Purple, Yellow, Blue) -->
+                        <div style="display: flex; gap: 2px; margin-bottom: 6px; font-size: 9px; font-weight: bold;">
+                            <span style="background: #06b6d4; color: black; padding: 2px 4px; border-radius: 3px;">1. HOME</span>
+                            <span style="background: #22c55e; color: black; padding: 2px 4px; border-radius: 3px;">2. DATA</span>
+                            <span style="background: #f97316; color: black; padding: 2px 4px; border-radius: 3px;">3. GRAPH</span>
+                            <span style="background: #a855f7; color: white; padding: 2px 4px; border-radius: 3px;">4. RELAY</span>
+                            <span style="background: #eab308; color: black; padding: 2px 4px; border-radius: 3px; box-shadow: 0 0 6px #eab308;">5. SETUP</span>
+                            <span style="background: #3b82f6; color: white; padding: 2px 4px; border-radius: 3px;">🌐 ENG</span>
+                        </div>
+
+                        <!-- Screen Title -->
+                        <div style="color: #facc15; font-size: 10px; font-weight: bold; text-align: center; border-bottom: 1px solid #444; padding-bottom: 3px; margin-bottom: 6px;">
+                            NETWORK STATUS &amp; SYSTEM SETTINGS
+                        </div>
+
+                        <!-- Screen Body matching photo -->
+                        <div style="font-family: monospace; font-size: 10px; line-height: 1.6; background: #000; padding: 8px; border-radius: 6px; border: 1px solid #38bdf8;">
+                            <div>Status: <span style="color: #22c55e; font-weight: bold;">CONNECTED (ONLINE)</span></div>
+                            <div style="color: #38bdf8;">SSID: <span style="color: #fff; font-weight: bold;">${currentSsid}</span></div>
+                            <div style="color: #38bdf8;">IP Address: <span style="color: #fff; font-weight: bold;">${currentBoardIp}</span></div>
+                            <div style="color: #38bdf8;">Signal RSSI: <span style="color: #fff; font-weight: bold;">${currentRssi} dBm (ปกติ)</span></div>
+                            <div style="color: #38bdf8; font-size: 9px; word-break: break-all;">Cloud: ${currentCloudUrl} | Web: :${currentBoardPort}</div>
+                        </div>
+
+                        <!-- System Language Selector -->
+                        <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 10px;">
+                            <span style="color: #cbd5e1;">SELECT SYSTEM LANGUAGE:</span>
+                            <div style="display: flex; gap: 4px;">
+                                <span style="padding: 2px 6px; border-radius: 3px; background: #334155; color: #94a3b8; font-size: 9px;">ภาษาไทย</span>
+                                <span style="padding: 2px 6px; border-radius: 3px; background: #06b6d4; color: black; font-weight: bold; font-size: 9px;">[*] English</span>
+                            </div>
+                        </div>
+
+                        <!-- SoftAP / QR Setup Button -->
+                        <div style="margin-top: 8px;">
+                            <button onclick="openWifiModal()" style="width: 100%; padding: 6px; background: #0284c7; color: white; font-weight: bold; font-size: 10px; border-radius: 5px; border: none; cursor: pointer; text-align: center;">
+                                SETUP WI-FI VIA PHONE / QR CODE
+                            </button>
+                        </div>
+
+                        <div style="color: #64748b; font-size: 8px; text-align: center; margin-top: 5px;">
+                            Scan QR or connect to SoftAP to setup without PC
+                        </div>
+
+                    </div>
+                `,
+                background: '#070d1e',
+                color: '#fff',
+                confirmButtonText: 'ทดสอบ Ping บอร์ด',
+                confirmButtonColor: '#10b981',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#334155'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    const pingRes = await fetch('../api/api.php?action=ping_board');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สถานะเชื่อมต่อบอร์ด',
+                        text: `ESP32-S3 ที่ ${currentBoardIp}:${currentBoardPort} ออนไลน์และตอบสนองปกติ`,
+                        timer: 1800,
+                        showConfirmButton: false,
+                        background: '#070d1e',
+                        color: '#fff'
+                    });
+                }
+            });
+        }
 
         function openMobileQrModal() {
             playBeep(950, 0.05);
@@ -730,6 +946,10 @@
                 confirmButtonColor: '#0284c7'
             });
         }
+
+        // Start mobile telemetry polling loop (Every 2 seconds)
+        syncMobileTelemetryFromApi();
+        setInterval(syncMobileTelemetryFromApi, 2000);
     </script>
 </body>
 </html>

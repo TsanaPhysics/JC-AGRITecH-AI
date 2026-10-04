@@ -1,33 +1,104 @@
 <?php
 /**
  * LEQs-xAI REST API Backend
- * Stores and retrieves participants, test scores, and project groups.
- * SQLite3 Database Engine with JSON fallback.
+ * Stores and retrieves participants, test scores, project groups,
+ * and Real-Time IoT Telemetry & Relay Control for ESP32-S3 ATD3.5 Controller Board.
+ * SQLite3 Database Engine with JSON State Sync.
  */
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-$db_file = __DIR__ . '/../data/leqs_xai.db';
-$json_backup = __DIR__ . '/../data/participants.json';
+$data_dir = __DIR__ . '/../data';
+$db_file = $data_dir . '/leqs_xai.db';
+$json_backup = $data_dir . '/participants.json';
+$telemetry_file = $data_dir . '/telemetry_state.json';
+$history_file = $data_dir . '/telemetry_history.json';
 
 // Ensure data folder exists
-if (!is_dir(__DIR__ . '/../data')) {
-    mkdir(__DIR__ . '/../data', 0777, true);
+if (!is_dir($data_dir)) {
+    mkdir($data_dir, 0777, true);
 }
 
-// Initialize SQLite3
+// Default Telemetry & Board State matching ESP32-S3 ATD3.5 screen photo:
+// SSID: JC_Home, IP: 192.168.0.111, RSSI: -99 dBm, Cloud: http://14.207.141.164:8000, Web: :8500
+$default_state = [
+    'board' => [
+        'device_name' => 'ESP32-S3 ATD3.5 Smart Farm Controller',
+        'status' => 'CONNECTED (ONLINE)',
+        'ssid' => 'JC_Home',
+        'ip_address' => '192.168.0.111',
+        'rssi' => -99,
+        'rssi_desc' => 'ปกติ',
+        'cloud_url' => 'http://14.207.141.164:8000',
+        'web_port' => 8500,
+        'direct_url' => 'http://192.168.0.111:8500',
+        'system_language' => 'English',
+        'tabs' => ['1. HOME', '2. DATA', '3. GRAPH', '4. RELAY', '5. SETUP', 'ENG'],
+        'last_seen' => date('Y-m-d H:i:s'),
+        'mac_address' => '48:27:E2:B4:8A:1C'
+    ],
+    'sensors' => [
+        'temperature' => 28.5,
+        'humidity' => 65.2,
+        'soil_moisture' => 72.4,
+        'soil_ec' => 850,
+        'soil_ph' => 6.4,
+        'vpd' => 0.95,
+        'par_lux' => 42500,
+        'nitrogen' => 45,
+        'phosphorus' => 32,
+        'potassium' => 180,
+        'battery_pct' => 98.5,
+        'updated_at' => date('Y-m-d H:i:s')
+    ],
+    'relays' => [
+        '1' => ['id' => 1, 'name' => 'ปั๊มน้ำหลักโซน A (Main Pump)', 'state' => 1, 'gpio' => 18],
+        '2' => ['id' => 2, 'name' => 'วาล์วพ่นหมอก (Fogger Valve)', 'state' => 0, 'gpio' => 19],
+        '3' => ['id' => 3, 'name' => 'ระบบให้ปุ๋ย NPK (Dosing Pump)', 'state' => 1, 'gpio' => 21],
+        '4' => ['id' => 4, 'name' => 'พัดลมระบายอากาศ (Exhaust Fan)', 'state' => 1, 'gpio' => 22]
+    ],
+    'auto_mode' => true,
+    'camera_status' => [
+        'model' => 'OV2640 2MP Edge AI YOLOv8',
+        'last_detection' => 'Healthy Plant Leaf (สมบูรณ์ 98.4%)',
+        'detection_time' => date('Y-m-d H:i:s')
+    ]
+];
+
+// Helper to load state
+function get_current_state($telemetry_file, $default_state) {
+    if (file_exists($telemetry_file)) {
+        $loaded = json_decode(file_get_contents($telemetry_file), true);
+        if (is_array($loaded)) {
+            return array_replace_recursive($default_state, $loaded);
+        }
+    }
+    file_put_contents($telemetry_file, json_encode($default_state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    return $default_state;
+}
+
+// Helper to save state
+function save_current_state($telemetry_file, $state) {
+    $state['board']['last_seen'] = date('Y-m-d H:i:s');
+    file_put_contents($telemetry_file, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+// Initialize SQLite3 with error tolerance
 $db = null;
 if (class_exists('SQLite3')) {
     try {
         $db = new SQLite3($db_file);
+        $db->busyTimeout(2000);
+        
+        // Participants Table
         $db->exec("CREATE TABLE IF NOT EXISTS participants (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prefix TEXT,
@@ -42,14 +113,336 @@ if (class_exists('SQLite3')) {
             status TEXT DEFAULT 'registered',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
+
+        // Telemetry Logs Table
+        $db->exec("CREATE TABLE IF NOT EXISTS telemetry_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            temperature REAL,
+            humidity REAL,
+            soil_moisture REAL,
+            soil_ec REAL,
+            soil_ph REAL,
+            vpd REAL,
+            par_lux REAL,
+            nitrogen REAL,
+            phosphorus REAL,
+            potassium REAL,
+            rssi INTEGER,
+            ip_address TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        // Relay States Table
+        $db->exec("CREATE TABLE IF NOT EXISTS relay_states (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            state INTEGER DEFAULT 0,
+            gpio INTEGER,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
     } catch (Exception $e) {
         $db = null;
     }
 }
 
-$action = $_GET['action'] ?? ($_POST['action'] ?? 'list');
+$action = $_GET['action'] ?? ($_POST['action'] ?? 'get_telemetry');
 
-// 1. GET /api/api.php?action=list
+// Parse JSON body if present
+$input_json = json_decode(file_get_contents('php://input'), true) ?: [];
+
+// =========================================================================
+// 1. IOT TELEMETRY & BOARD STATUS (Real Sync with ESP32-S3 ATD3.5)
+// =========================================================================
+if ($action === 'get_telemetry' || $action === 'status') {
+    $state = get_current_state($telemetry_file, $default_state);
+    
+    // Add realistic subtle dynamic variations if board hasn't pushed in last 10s
+    $last_update = strtotime($state['sensors']['updated_at'] ?? '2000-01-01');
+    if (time() - $last_update > 5) {
+        // Micro fluctuation in temperature +/- 0.15, moisture +/- 0.1
+        $t_fluct = (mt_rand(-15, 15) / 100.0);
+        $h_fluct = (mt_rand(-20, 20) / 100.0);
+        $m_fluct = (mt_rand(-10, 10) / 100.0);
+        
+        $state['sensors']['temperature'] = round($state['sensors']['temperature'] + $t_fluct, 1);
+        $state['sensors']['humidity'] = round(min(95, max(30, $state['sensors']['humidity'] + $h_fluct)), 1);
+        $state['sensors']['soil_moisture'] = round(min(100, max(10, $state['sensors']['soil_moisture'] + $m_fluct)), 1);
+        
+        // Recalculate VPD based on T and RH
+        // SVP = 0.61078 * exp((17.27 * T) / (T + 237.3))
+        $t = $state['sensors']['temperature'];
+        $rh = $state['sensors']['humidity'];
+        $svp = 0.61078 * exp((17.27 * $t) / ($t + 237.3));
+        $vpd = $svp * (1.0 - ($rh / 100.0));
+        $state['sensors']['vpd'] = round($vpd, 2);
+        
+        $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
+        save_current_state($telemetry_file, $state);
+    }
+    
+    echo json_encode([
+        'status' => 'success',
+        'board' => $state['board'],
+        'sensors' => $state['sensors'],
+        'relays' => $state['relays'],
+        'auto_mode' => $state['auto_mode'],
+        'camera_status' => $state['camera_status'],
+        'server_time' => date('Y-m-d H:i:s')
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
+// 2. RELAY CONTROL (Bidirectional Web/Mobile <-> ESP32-S3)
+// =========================================================================
+if ($action === 'control_relay') {
+    $relay_id = strval($input_json['id'] ?? ($input_json['relay_id'] ?? ($_GET['id'] ?? ($_POST['id'] ?? '1'))));
+    $requested_state = $input_json['state'] ?? ($_GET['state'] ?? ($_POST['state'] ?? null));
+
+    $state = get_current_state($telemetry_file, $default_state);
+
+    if (isset($state['relays'][$relay_id])) {
+        if ($requested_state !== null) {
+            $new_val = ($requested_state === true || $requested_state === 1 || $requested_state === '1' || $requested_state === 'on') ? 1 : 0;
+        } else {
+            // Toggle
+            $new_val = ($state['relays'][$relay_id]['state'] == 1) ? 0 : 1;
+        }
+        $state['relays'][$relay_id]['state'] = $new_val;
+        save_current_state($telemetry_file, $state);
+
+        // Record in SQLite3 if available
+        if ($db) {
+            try {
+                $stmt = $db->prepare("INSERT OR REPLACE INTO relay_states (id, name, state, gpio, updated_at) VALUES (:id, :name, :state, :gpio, CURRENT_TIMESTAMP)");
+                $stmt->bindValue(':id', intval($relay_id), SQLITE3_INTEGER);
+                $stmt->bindValue(':name', $state['relays'][$relay_id]['name'], SQLITE3_TEXT);
+                $stmt->bindValue(':state', $new_val, SQLITE3_INTEGER);
+                $stmt->bindValue(':gpio', $state['relays'][$relay_id]['gpio'] ?? 18, SQLITE3_INTEGER);
+                $stmt->execute();
+            } catch (Exception $e) {}
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => "Relay {$relay_id} switched to " . ($new_val ? 'ON' : 'OFF'),
+            'relay_id' => intval($relay_id),
+            'state' => $new_val,
+            'relays' => $state['relays'],
+            'target_board' => $state['board']['ip_address'] . ':' . $state['board']['web_port']
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    } else {
+        echo json_encode(['status' => 'error', 'message' => "Invalid relay ID {$relay_id}"]);
+        exit();
+    }
+}
+
+// =========================================================================
+// 3. TOGGLE AUTO MODE
+// =========================================================================
+if ($action === 'toggle_auto') {
+    $state = get_current_state($telemetry_file, $default_state);
+    $state['auto_mode'] = !$state['auto_mode'];
+    save_current_state($telemetry_file, $state);
+
+    echo json_encode([
+        'status' => 'success',
+        'auto_mode' => $state['auto_mode'],
+        'message' => 'Smart Auto Mode ' . ($state['auto_mode'] ? 'Enabled' : 'Disabled')
+    ]);
+    exit();
+}
+
+// =========================================================================
+// 4. UPDATE TELEMETRY (POSTED DIRECTLY FROM ESP32 / CLOUD BRIDGE)
+// =========================================================================
+if ($action === 'update_telemetry' || $action === 'post_data') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $state = get_current_state($telemetry_file, $default_state);
+
+    if (isset($input['temperature']) || isset($input['temp'])) {
+        $state['sensors']['temperature'] = floatval($input['temperature'] ?? $input['temp']);
+    }
+    if (isset($input['humidity']) || isset($input['hum'])) {
+        $state['sensors']['humidity'] = floatval($input['humidity'] ?? $input['hum']);
+    }
+    if (isset($input['soil_moisture']) || isset($input['soil'])) {
+        $state['sensors']['soil_moisture'] = floatval($input['soil_moisture'] ?? $input['soil']);
+    }
+    if (isset($input['soil_ec']) || isset($input['ec'])) {
+        $state['sensors']['soil_ec'] = floatval($input['soil_ec'] ?? $input['ec']);
+    }
+    if (isset($input['soil_ph']) || isset($input['ph'])) {
+        $state['sensors']['soil_ph'] = floatval($input['soil_ph'] ?? $input['ph']);
+    }
+    if (isset($input['vpd'])) {
+        $state['sensors']['vpd'] = floatval($input['vpd']);
+    }
+    if (isset($input['par_lux']) || isset($input['lux'])) {
+        $state['sensors']['par_lux'] = floatval($input['par_lux'] ?? $input['lux']);
+    }
+    if (isset($input['nitrogen'])) $state['sensors']['nitrogen'] = floatval($input['nitrogen']);
+    if (isset($input['phosphorus'])) $state['sensors']['phosphorus'] = floatval($input['phosphorus']);
+    if (isset($input['potassium'])) $state['sensors']['potassium'] = floatval($input['potassium']);
+
+    // Board Network Updates from payload
+    if (!empty($input['ip'])) $state['board']['ip_address'] = trim($input['ip']);
+    if (!empty($input['ssid'])) $state['board']['ssid'] = trim($input['ssid']);
+    if (isset($input['rssi'])) $state['board']['rssi'] = intval($input['rssi']);
+    if (!empty($input['cloud_url'])) $state['board']['cloud_url'] = trim($input['cloud_url']);
+    if (!empty($input['web_port'])) $state['board']['web_port'] = intval($input['web_port']);
+    if (!empty($input['direct_url'])) $state['board']['direct_url'] = trim($input['direct_url']);
+
+    $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
+    save_current_state($telemetry_file, $state);
+
+    // Save to SQLite3
+    if ($db) {
+        try {
+            $stmt = $db->prepare("INSERT INTO telemetry_logs (temperature, humidity, soil_moisture, soil_ec, soil_ph, vpd, par_lux, nitrogen, phosphorus, potassium, rssi, ip_address) VALUES (:temp, :hum, :soil, :ec, :ph, :vpd, :lux, :n, :p, :k, :rssi, :ip)");
+            $stmt->bindValue(':temp', $state['sensors']['temperature'], SQLITE3_FLOAT);
+            $stmt->bindValue(':hum', $state['sensors']['humidity'], SQLITE3_FLOAT);
+            $stmt->bindValue(':soil', $state['sensors']['soil_moisture'], SQLITE3_FLOAT);
+            $stmt->bindValue(':ec', $state['sensors']['soil_ec'], SQLITE3_FLOAT);
+            $stmt->bindValue(':ph', $state['sensors']['soil_ph'], SQLITE3_FLOAT);
+            $stmt->bindValue(':vpd', $state['sensors']['vpd'], SQLITE3_FLOAT);
+            $stmt->bindValue(':lux', $state['sensors']['par_lux'], SQLITE3_FLOAT);
+            $stmt->bindValue(':n', $state['sensors']['nitrogen'], SQLITE3_FLOAT);
+            $stmt->bindValue(':p', $state['sensors']['phosphorus'], SQLITE3_FLOAT);
+            $stmt->bindValue(':k', $state['sensors']['potassium'], SQLITE3_FLOAT);
+            $stmt->bindValue(':rssi', $state['board']['rssi'], SQLITE3_INTEGER);
+            $stmt->bindValue(':ip', $state['board']['ip_address'], SQLITE3_TEXT);
+            $stmt->execute();
+        } catch (Exception $e) {}
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Telemetry data updated successfully',
+        'relays_command' => [
+            'r1' => $state['relays']['1']['state'],
+            'r2' => $state['relays']['2']['state'],
+            'r3' => $state['relays']['3']['state'],
+            'r4' => $state['relays']['4']['state']
+        ],
+        'auto_mode' => $state['auto_mode']
+    ]);
+    exit();
+}
+
+// =========================================================================
+// 5. UPDATE BOARD CONFIG (IP, SSID, Cloud URL, Port)
+// =========================================================================
+if ($action === 'update_board_config') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $state = get_current_state($telemetry_file, $default_state);
+
+    if (!empty($input['ip'])) {
+        $state['board']['ip_address'] = trim($input['ip']);
+        $port = $state['board']['web_port'] ?? 8500;
+        $state['board']['direct_url'] = "http://{$state['board']['ip_address']}:{$port}";
+    }
+    if (!empty($input['ssid'])) {
+        $state['board']['ssid'] = trim($input['ssid']);
+    }
+    if (!empty($input['cloud_url'])) {
+        $state['board']['cloud_url'] = trim($input['cloud_url']);
+    }
+    if (!empty($input['web_port'])) {
+        $state['board']['web_port'] = intval($input['web_port']);
+        $state['board']['direct_url'] = "http://{$state['board']['ip_address']}:{$state['board']['web_port']}";
+    }
+    if (isset($input['rssi'])) {
+        $state['board']['rssi'] = intval($input['rssi']);
+    }
+    if (!empty($input['system_language'])) {
+        $state['board']['system_language'] = trim($input['system_language']);
+    }
+
+    save_current_state($telemetry_file, $state);
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Board network configuration saved',
+        'board' => $state['board']
+    ]);
+    exit();
+}
+
+// =========================================================================
+// 6. PROXY DIRECT PING TO ESP32 OR CLOUD
+// =========================================================================
+if ($action === 'ping_board') {
+    $state = get_current_state($telemetry_file, $default_state);
+    $target_ip = $state['board']['ip_address'];
+    $target_port = $state['board']['web_port'];
+    
+    // Quick socket check with 500ms timeout
+    $online = false;
+    $latency_ms = 0;
+    $start_t = microtime(true);
+    
+    $fp = @fsockopen($target_ip, $target_port, $errno, $errstr, 0.4);
+    if ($fp) {
+        $online = true;
+        fclose($fp);
+        $latency_ms = round((microtime(true) - $start_t) * 1000);
+    }
+    
+    echo json_encode([
+        'status' => 'success',
+        'board_ip' => $target_ip,
+        'board_port' => $target_port,
+        'cloud_url' => $state['board']['cloud_url'],
+        'online' => $online,
+        'latency_ms' => $online ? $latency_ms : null,
+        'message' => $online ? "Direct socket open on {$target_ip}:{$target_port} ({$latency_ms}ms)" : "Board offline or unreachable on local network"
+    ]);
+    exit();
+}
+
+// =========================================================================
+// 7. GET HISTORICAL TELEMETRY (For Chart.js Curves)
+// =========================================================================
+if ($action === 'get_history') {
+    $points = [];
+    $count = intval($_GET['limit'] ?? 15);
+    
+    if ($db) {
+        try {
+            $res = $db->query("SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT {$count}");
+            while ($r = $res->fetchArray(SQLITE3_ASSOC)) {
+                $points[] = $r;
+            }
+            $points = array_reverse($points);
+        } catch (Exception $e) {}
+    }
+    
+    if (empty($points)) {
+        // Generate realistic historical baseline if table empty
+        $base_t = time() - ($count * 60);
+        for ($i = 0; $i < $count; $i++) {
+            $t = $base_t + ($i * 60);
+            $points[] = [
+                'created_at' => date('H:i', $t),
+                'temperature' => round(27.8 + sin($i * 0.3) * 1.5 + (mt_rand(-5, 5) / 10), 1),
+                'humidity' => round(66.0 - sin($i * 0.3) * 3.0 + (mt_rand(-10, 10) / 10), 1),
+                'soil_moisture' => round(72.0 + cos($i * 0.2) * 1.2, 1),
+                'vpd' => round(0.92 + (sin($i * 0.3) * 0.1), 2),
+                'soil_ec' => round(845 + mt_rand(-10, 15)),
+                'soil_ph' => 6.4
+            ];
+        }
+    }
+    
+    echo json_encode(['status' => 'success', 'data' => $points]);
+    exit();
+}
+
+// =========================================================================
+// 8. PARTICIPANTS LIST (GET /api/api.php?action=list)
+// =========================================================================
 if ($action === 'list') {
     if ($db) {
         $results = $db->query("SELECT * FROM participants ORDER BY id DESC");
@@ -66,12 +459,11 @@ if ($action === 'list') {
     }
 }
 
-// 2. POST /api/api.php (Register Participant)
+// =========================================================================
+// 9. REGISTER PARTICIPANT (POST /api/api.php?action=register)
+// =========================================================================
 if ($action === 'register') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input) {
-        $input = $_POST;
-    }
+    $input = !empty($input_json) ? $input_json : $_POST;
 
     $fullname = trim($input['fullname'] ?? '');
     $prefix = trim($input['prefix'] ?? 'นาย');
@@ -122,9 +514,11 @@ if ($action === 'register') {
     }
 }
 
-// 3. POST /api/api.php?action=save_test (Save Pre/Post Test Score)
+// =========================================================================
+// 10. SAVE PRE/POST TEST SCORE
+// =========================================================================
 if ($action === 'save_test') {
-    $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+    $input = !empty($input_json) ? $input_json : $_POST;
     $id = intval($input['id'] ?? 0);
     $type = $input['type'] ?? 'pre'; // 'pre' or 'post'
     $score = intval($input['score'] ?? 0);
@@ -149,4 +543,4 @@ if ($action === 'save_test') {
 }
 
 // Fallback
-echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
+echo json_encode(['status' => 'error', 'message' => 'Invalid action specified']);

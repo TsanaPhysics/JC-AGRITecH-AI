@@ -64,3 +64,4 @@ server/smartfarm.db
 **/.pub-cache/
 **/.pub/
 
+*.db

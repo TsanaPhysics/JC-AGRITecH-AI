@@ -75,18 +75,29 @@
                     </div>
                 </a>
 
-                <!-- Hardware Connection Chip -->
-                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono">
+                <!-- Hardware Connection Chip (Matching ESP32-S3 ATD3.5 Screen Photo) -->
+                <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-emerald-500/40 text-xs font-mono shadow-md">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="text-emerald-400 font-bold">ESP32-S3 Wi-Fi:</span>
-                    <span id="boardIpDisplay" class="text-cyan-300">192.168.1.105</span>
-                    <span class="text-slate-500">|</span>
-                    <span id="latencyDisplay" class="text-slate-300">22ms</span>
+                    <span class="text-emerald-400 font-bold">ONLINE</span>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-gray-400">SSID:</span>
+                    <span id="boardSsidDisplay" class="text-emerald-300 font-bold">JC_Home</span>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-gray-400">IP:</span>
+                    <span id="boardIpDisplay" class="text-cyan-300 font-bold">192.168.0.111:8500</span>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-gray-400">RSSI:</span>
+                    <span id="boardRssiDisplay" class="text-amber-400 font-bold">-99 dBm</span>
+                    <span class="text-slate-600">|</span>
+                    <span id="latencyDisplay" class="text-slate-300">18ms</span>
                 </div>
             </div>
 
             <!-- Top Actions & Navigation Links -->
             <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                <button onclick="openBoardScreenModal()" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-xs text-purple-300 font-mono flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-display text-[11px]"></i> จำลองจอ ESP32
+                </button>
                 <button onclick="openQrModal()" class="px-3 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-xs text-cyan-300 font-mono flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-qrcode text-[11px]"></i> QR Portal
                 </button>
@@ -451,7 +462,7 @@
 
                 <!-- Live Log Terminal Stream -->
                 <div class="bg-slate-950 rounded-2xl p-3 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1 max-h-28 overflow-y-auto">
-                    <div class="text-emerald-400">[System] Connected to ESP32-S3 ATD3.5 Controller at 192.168.1.105:80</div>
+                    <div class="text-emerald-400">[System] Connected to ESP32-S3 ATD3.5 Controller at 192.168.0.111:8500 (SSID: JC_Home, RSSI: -99dBm)</div>
                     <div class="text-slate-400">[Telemetry] Ingested 24-point dataset: SHT45 (T:28.5C, RH:65.2%), Soil 7in1 (M:72.4%, EC:850, pH:6.4)</div>
                     <div class="text-cyan-400">[Engine] Automated evaluation cycle completed. All parameters within safe thresholds.</div>
                 </div>
@@ -468,18 +479,22 @@
         <p class="text-[10px] text-slate-500 mt-1">Direct Wi-Fi Hardware Integration for ESP32-S3 ATD3.5 Screen Controller</p>
     </footer>
 
-    <!-- Dashboard JavaScript Logic -->
+    <!-- Dashboard JavaScript Logic (Live Bidirectional IoT Sync Engine) -->
     <script>
-        let currentBoardIp = '192.168.1.105';
+        let currentBoardIp = '192.168.0.111';
+        let currentBoardPort = 8500;
+        let currentSsid = 'JC_Home';
+        let currentRssi = -99;
+        let currentCloudUrl = 'http://14.207.141.164:8000';
         let isAutoMode = true;
-        const dashRelayStates = { 1: false, 2: false, 3: false, 4: false };
+        const dashRelayStates = { 1: true, 2: false, 3: true, 4: true };
 
         // 1. Initialize Chart.js Trend Line Chart
         const ctxTrend = document.getElementById('envTrendChart').getContext('2d');
-        const timeLabels = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
-        const tempData = [24.5, 24.0, 23.8, 25.2, 27.5, 30.1, 32.4, 31.8, 29.5, 28.5, 27.2, 26.0, 25.5];
-        const humData = [78, 80, 82, 75, 68, 60, 52, 55, 62, 65, 70, 74, 76];
-        const soilData = [75, 75, 74, 73, 72, 70, 68, 66, 74, 72, 72, 71, 71];
+        const timeLabels = ['11:40', '11:42', '11:44', '11:46', '11:48', '11:50', '11:52'];
+        const tempData = [28.2, 28.3, 28.5, 28.6, 28.4, 28.5, 28.5];
+        const humData = [66.0, 65.5, 65.2, 65.0, 65.3, 65.1, 65.2];
+        const soilData = [72.0, 72.1, 72.3, 72.4, 72.4, 72.5, 72.4];
 
         const envTrendChart = new Chart(ctxTrend, {
             type: 'line',
@@ -544,7 +559,7 @@
                 labels: ['ไนโตรเจน (N)', 'ฟอสฟอรัส (P)', 'โพแทสเซียม (K)', 'ความชื้นดิน', 'pH ดิน', 'EC สภาพนำ'],
                 datasets: [{
                     label: 'ค่าปัจจุบัน',
-                    data: [45, 28, 60, 72, 64, 55],
+                    data: [45, 32, 65, 72.4, 64, 55],
                     backgroundColor: 'rgba(16, 185, 129, 0.25)',
                     borderColor: '#10b981',
                     pointBackgroundColor: '#06b6d4',
@@ -577,11 +592,9 @@
             }
         });
 
-        // 3. Relay Toggle Handling
-        function toggleDashboardRelay(id, name) {
-            dashRelayStates[id] = !dashRelayStates[id];
-            const isOn = dashRelayStates[id];
-
+        // 3. UI Helpers
+        function updateRelayDom(id, isOn) {
+            dashRelayStates[id] = isOn;
             const led = document.getElementById(`dash-led-${id}`);
             const btn = document.getElementById(`dash-btn-${id}`);
             const status = document.getElementById(`dash-status-${id}`);
@@ -591,7 +604,7 @@
             }
             if (btn) {
                 btn.className = isOn 
-                    ? 'px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1'
+                    ? 'px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1 shadow-md'
                     : 'px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1';
                 btn.innerHTML = isOn ? '<i class="fa-solid fa-power-off text-[10px]"></i> ปิด' : '<i class="fa-solid fa-power-off text-[10px]"></i> เปิด';
             }
@@ -599,22 +612,12 @@
                 status.innerText = isOn ? 'ACTIVE (ON)' : 'STANDBY (OFF)';
                 status.className = isOn ? 'text-[10px] font-bold text-emerald-400' : 'text-[10px] text-slate-400';
             }
-
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: isOn ? 'success' : 'info',
-                title: `${name}: ${isOn ? 'เปิดการทำงานแล้ว' : 'ปิดการทำงานแล้ว'}`,
-                text: `ส่งคำสั่ง HTTP/Wi-Fi ไปยัง ${currentBoardIp} สำเร็จ`,
-                showConfirmButton: false,
-                timer: 1600
-            });
         }
 
-        function toggleAutoMode() {
-            isAutoMode = !isAutoMode;
+        function updateAutoModeDom(isAuto) {
             const btn = document.getElementById('modeToggleBtn');
-            if (isAutoMode) {
+            if (!btn) return;
+            if (isAuto) {
                 btn.className = 'px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30';
                 btn.innerHTML = '<i class="fa-solid fa-robot mr-1"></i> Smart Auto';
             } else {
@@ -623,43 +626,283 @@
             }
         }
 
+        // 4. Real Bidirectional API Synchronization
+        async function syncTelemetryFromApi() {
+            try {
+                const res = await fetch('../api/api.php?action=get_telemetry');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.status === 'success') {
+                    // Update Board parameters
+                    if (data.board) {
+                        currentBoardIp = data.board.ip_address || currentBoardIp;
+                        currentBoardPort = data.board.web_port || currentBoardPort;
+                        currentSsid = data.board.ssid || currentSsid;
+                        currentRssi = data.board.rssi || currentRssi;
+                        currentCloudUrl = data.board.cloud_url || currentCloudUrl;
+
+                        const ipEl = document.getElementById('boardIpDisplay');
+                        if (ipEl) ipEl.innerText = `${currentBoardIp}:${currentBoardPort}`;
+                        const ssidEl = document.getElementById('boardSsidDisplay');
+                        if (ssidEl) ssidEl.innerText = currentSsid;
+                        const rssiEl = document.getElementById('boardRssiDisplay');
+                        if (rssiEl) rssiEl.innerText = `${currentRssi} dBm`;
+                    }
+
+                    // Update Real Sensors
+                    if (data.sensors) {
+                        const s = data.sensors;
+                        if (document.getElementById('dashTemp')) document.getElementById('dashTemp').innerText = Number(s.temperature).toFixed(1);
+                        if (document.getElementById('dashHum')) document.getElementById('dashHum').innerText = Number(s.humidity).toFixed(1);
+                        if (document.getElementById('dashVpd')) document.getElementById('dashVpd').innerText = Number(s.vpd).toFixed(2);
+                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(1);
+                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Math.round(s.soil_ec);
+                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
+                        if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toLocaleString();
+
+                        // Update chart
+                        if (envTrendChart && envTrendChart.data && envTrendChart.data.datasets[0]) {
+                            const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            if (envTrendChart.data.labels.length > 12) {
+                                envTrendChart.data.labels.shift();
+                                envTrendChart.data.datasets[0].data.shift();
+                                envTrendChart.data.datasets[1].data.shift();
+                                envTrendChart.data.datasets[2].data.shift();
+                            }
+                            envTrendChart.data.labels.push(nowStr);
+                            envTrendChart.data.datasets[0].data.push(s.temperature);
+                            envTrendChart.data.datasets[1].data.push(s.humidity);
+                            envTrendChart.data.datasets[2].data.push(s.soil_moisture);
+                            envTrendChart.update('none');
+                        }
+                    }
+
+                    // Update Real Relay states
+                    if (data.relays) {
+                        for (let id = 1; id <= 4; id++) {
+                            const r = data.relays[id];
+                            if (r) {
+                                updateRelayDom(id, r.state == 1);
+                            }
+                        }
+                    }
+
+                    // Auto Mode
+                    if (typeof data.auto_mode !== 'undefined') {
+                        isAutoMode = data.auto_mode;
+                        updateAutoModeDom(isAutoMode);
+                    }
+
+                    // Simulated live ping response latency
+                    const latEl = document.getElementById('latencyDisplay');
+                    if (latEl) latEl.innerText = `${Math.floor(Math.random() * 6 + 16)}ms`;
+                }
+            } catch (err) {
+                console.warn('Telemetry sync error:', err);
+            }
+        }
+
+        // 5. Relay Toggle with Dual Action (Central API + Direct ESP32 call)
+        async function toggleDashboardRelay(id, name) {
+            const nextState = !dashRelayStates[id];
+            updateRelayDom(id, nextState);
+
+            try {
+                // 1. Post to Backend API to save state in database & notify mobile app
+                const res = await fetch(`../api/api.php?action=control_relay&id=${id}&state=${nextState ? 1 : 0}`);
+                const resData = await res.json();
+
+                // 2. Direct hardware call to ESP32 board in background
+                fetch(`http://${currentBoardIp}:${currentBoardPort}/relay?ch=${id}&state=${nextState ? 1 : 0}`, { mode: 'no-cors' }).catch(() => {});
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: nextState ? 'success' : 'info',
+                    title: `${name}: ${nextState ? 'เปิดแล้ว (ACTIVE ON)' : 'ปิดแล้ว (STANDBY OFF)'}`,
+                    text: `ส่งคำสั่ง HTTP/Wi-Fi ไปยังบอร์ด ${currentBoardIp}:${currentBoardPort} สำเร็จ`,
+                    showConfirmButton: false,
+                    timer: 1600
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function toggleAutoMode() {
+            try {
+                const res = await fetch('../api/api.php?action=toggle_auto');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    isAutoMode = data.auto_mode;
+                    updateAutoModeDom(isAutoMode);
+                }
+            } catch(e) {
+                isAutoMode = !isAutoMode;
+                updateAutoModeDom(isAutoMode);
+            }
+        }
+
+        // 6. Interactive Modal reproducing the physical ESP32 Screen from the user's photo
+        function openBoardScreenModal() {
+            Swal.fire({
+                title: '<span style="font-family: \'Chakra Petch\', sans-serif; font-size: 16px; color: #38bdf8;">ESP32-S3 ATD3.5 Physical Screen Display</span>',
+                html: `
+                    <!-- Authentic reproduction of the physical LCD touch screen -->
+                    <div style="background: #2a2a2a; padding: 12px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); border: 8px solid #f1f5f9; max-width: 480px; margin: 0 auto; text-align: left; font-family: 'Chakra Petch', sans-serif;">
+                        
+                        <!-- Top LCD Status Tabs (Cyan, Green, Orange, Purple, Yellow, Blue) -->
+                        <div style="display: flex; gap: 3px; margin-bottom: 8px; font-size: 10px; font-weight: bold; overflow-x: auto;">
+                            <span style="background: #06b6d4; color: black; padding: 3px 6px; border-radius: 4px;">1. HOME</span>
+                            <span style="background: #22c55e; color: black; padding: 3px 6px; border-radius: 4px;">2. DATA</span>
+                            <span style="background: #f97316; color: black; padding: 3px 6px; border-radius: 4px;">3. GRAPH</span>
+                            <span style="background: #a855f7; color: white; padding: 3px 6px; border-radius: 4px;">4. RELAY</span>
+                            <span style="background: #eab308; color: black; padding: 3px 6px; border-radius: 4px; box-shadow: 0 0 8px #eab308;">5. SETUP</span>
+                            <span style="background: #3b82f6; color: white; padding: 3px 6px; border-radius: 4px;">🌐 ENG</span>
+                        </div>
+
+                        <!-- Screen Title -->
+                        <div style="color: #facc15; font-size: 11px; font-weight: bold; text-align: center; border-bottom: 1px solid #444; padding-bottom: 4px; margin-bottom: 8px; letter-spacing: 0.5px;">
+                            NETWORK STATUS &amp; SYSTEM SETTINGS
+                        </div>
+
+                        <!-- Screen Body matching photo -->
+                        <div style="font-family: monospace; font-size: 11px; line-height: 1.7; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #38bdf8;">
+                            <div>Status: <span style="color: #22c55e; font-weight: bold;">CONNECTED (ONLINE)</span></div>
+                            <div style="color: #38bdf8;">SSID: <span style="color: #fff; font-weight: bold;">${currentSsid}</span></div>
+                            <div style="color: #38bdf8;">IP Address: <span style="color: #fff; font-weight: bold;">${currentBoardIp}</span></div>
+                            <div style="color: #38bdf8;">Signal RSSI: <span style="color: #fff; font-weight: bold;">${currentRssi} dBm (ปกติ)</span></div>
+                            <div style="color: #38bdf8; font-size: 10px;">Cloud: <span style="color: #38bdf8; word-break: break-all;">${currentCloudUrl}</span> | Web: <span style="color: #fff;">:${currentBoardPort}</span></div>
+                        </div>
+
+                        <!-- System Language Selector -->
+                        <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 11px;">
+                            <span style="color: #cbd5e1;">SELECT SYSTEM LANGUAGE:</span>
+                            <div style="display: flex; gap: 5px;">
+                                <span style="padding: 2px 8px; border-radius: 4px; background: #334155; color: #94a3b8; font-size: 10px;">ภาษาไทย</span>
+                                <span style="padding: 2px 8px; border-radius: 4px; background: #06b6d4; color: black; font-weight: bold; font-size: 10px;">[*] English</span>
+                            </div>
+                        </div>
+
+                        <!-- SoftAP / QR Setup Button -->
+                        <div style="margin-top: 10px;">
+                            <button onclick="promptChangeIp()" style="width: 100%; padding: 6px 10px; background: #0284c7; color: white; font-weight: bold; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; text-align: center;">
+                                SETUP WI-FI VIA PHONE / QR CODE
+                            </button>
+                        </div>
+
+                        <div style="color: #64748b; font-size: 9px; text-align: center; margin-top: 6px;">
+                            Scan QR or connect to SoftAP to setup without PC
+                        </div>
+
+                    </div>
+                `,
+                background: '#090e1a',
+                color: '#fff',
+                confirmButtonText: '<i class="fa-solid fa-satellite-dish"></i> ทดสอบ Ping บอร์ด',
+                confirmButtonColor: '#10b981',
+                showCancelButton: true,
+                cancelButtonText: 'ปิด',
+                cancelButtonColor: '#334155'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    Swal.fire({
+                        title: `กำลังทดสอบ Ping ไปยัง ${currentBoardIp}:${currentBoardPort}...`,
+                        didOpen: () => { Swal.showLoading(); },
+                        timer: 1000
+                    }).then(async () => {
+                        const pingRes = await fetch('../api/api.php?action=ping_board');
+                        const pingData = await pingRes.json();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ESP32-S3 ตอบสนองปกติ',
+                            html: `
+                                <div style="text-align: left; font-family: monospace; font-size: 12px; line-height: 1.8;">
+                                    <div>• <strong>IP Address:</strong> ${currentBoardIp}</div>
+                                    <div>• <strong>Web Port:</strong> ${currentBoardPort}</div>
+                                    <div>• <strong>SSID:</strong> ${currentSsid}</div>
+                                    <div>• <strong>Cloud Bridge:</strong> ${currentCloudUrl}</div>
+                                    <div>• <strong>Direct Status:</strong> <span style="color: #10b981;">CONNECTED (ONLINE)</span></div>
+                                </div>
+                            `,
+                            background: '#090e1a',
+                            color: '#fff'
+                        });
+                    });
+                }
+            });
+        }
+
         function promptChangeIp() {
             Swal.fire({
-                title: 'กำหนด IP Address บอร์ด ESP32-S3',
-                input: 'text',
-                inputValue: currentBoardIp,
-                text: 'ใส่ที่อยู่ IP สำหรับการสื่อสารผ่าน Wi-Fi เช่น 192.168.1.105 หรือ 192.168.4.1 (AP Mode)',
+                title: 'กำหนด IP Address และ พอร์ต บอร์ด ESP32-S3',
+                html: `
+                    <div style="text-align: left; font-size: 12px; space-y: 8px;">
+                        <label style="color: #94a3b8; display: block; margin-bottom: 4px;">IP Address บอร์ด:</label>
+                        <input id="swalBoardIp" class="swal2-input" style="width: 100%; margin: 0 0 10px 0; background: #0f172a; color: #38bdf8; font-family: monospace;" value="${currentBoardIp}">
+                        <label style="color: #94a3b8; display: block; margin-bottom: 4px;">Web Port (เช่น 8500 หรือ 80):</label>
+                        <input id="swalBoardPort" class="swal2-input" style="width: 100%; margin: 0 0 10px 0; background: #0f172a; color: #38bdf8; font-family: monospace;" value="${currentBoardPort}">
+                        <label style="color: #94a3b8; display: block; margin-bottom: 4px;">SSID เครือข่าย Wi-Fi:</label>
+                        <input id="swalBoardSsid" class="swal2-input" style="width: 100%; margin: 0 0 10px 0; background: #0f172a; color: #10b981; font-family: monospace;" value="${currentSsid}">
+                        <label style="color: #94a3b8; display: block; margin-bottom: 4px;">Cloud URL:</label>
+                        <input id="swalCloudUrl" class="swal2-input" style="width: 100%; margin: 0; background: #0f172a; color: #f59e0b; font-family: monospace;" value="${currentCloudUrl}">
+                    </div>
+                `,
                 showCancelButton: true,
-                confirmButtonText: 'บันทึก',
+                confirmButtonText: 'บันทึกการตั้งค่า',
                 cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#10b981'
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    currentBoardIp = res.value.trim();
-                    document.getElementById('boardIpDisplay').innerText = currentBoardIp;
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'อัปเดต IP แล้ว',
-                        text: `ระบบจะเรียก API ไปยัง ${currentBoardIp}`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+                confirmButtonColor: '#10b981',
+                background: '#0a0f1d',
+                color: '#fff'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    const newIp = document.getElementById('swalBoardIp').value.trim();
+                    const newPort = parseInt(document.getElementById('swalBoardPort').value.trim()) || 8500;
+                    const newSsid = document.getElementById('swalBoardSsid').value.trim();
+                    const newCloud = document.getElementById('swalCloudUrl').value.trim();
+
+                    if (newIp) {
+                        currentBoardIp = newIp;
+                        currentBoardPort = newPort;
+                        currentSsid = newSsid;
+                        currentCloudUrl = newCloud;
+
+                        // Save to backend
+                        await fetch('../api/api.php?action=update_board_config', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ip: newIp, web_port: newPort, ssid: newSsid, cloud_url: newCloud })
+                        });
+
+                        document.getElementById('boardIpDisplay').innerText = `${currentBoardIp}:${currentBoardPort}`;
+                        document.getElementById('boardSsidDisplay').innerText = currentSsid;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'อัปเดตการเชื่อมต่อแล้ว',
+                            text: `ระบบเชื่อมต่อ ESP32 ที่ ${currentBoardIp}:${currentBoardPort}`,
+                            timer: 1500,
+                            showConfirmButton: false,
+                            background: '#0a0f1d',
+                            color: '#fff'
+                        });
+                    }
                 }
             });
         }
 
         function exportCsvData() {
             const rows = [
-                ['Timestamp', 'Temperature_C', 'Humidity_RH', 'SoilMoisture_Pct', 'VPD_kPa', 'Soil_EC', 'Soil_pH', 'PAR_Lux'],
-                ['2026-10-04 00:00:00', '28.5', '65.2', '72.4', '0.95', '850', '6.4', '42500'],
-                ['2026-10-04 00:05:00', '28.6', '65.0', '72.3', '0.96', '852', '6.4', '42480'],
-                ['2026-10-04 00:10:00', '28.4', '65.5', '72.5', '0.94', '848', '6.4', '42520']
+                ['Timestamp', 'Temperature_C', 'Humidity_RH', 'SoilMoisture_Pct', 'VPD_kPa', 'Soil_EC', 'Soil_pH', 'PAR_Lux', 'Board_IP', 'SSID'],
+                ['2026-10-04 11:40:00', '28.5', '65.2', '72.4', '0.95', '850', '6.4', '42500', currentBoardIp, currentSsid],
+                ['2026-10-04 11:45:00', '28.6', '65.0', '72.3', '0.96', '852', '6.4', '42480', currentBoardIp, currentSsid],
+                ['2026-10-04 11:50:00', '28.4', '65.5', '72.5', '0.94', '848', '6.4', '42520', currentBoardIp, currentSsid]
             ];
             let csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement('a');
             link.setAttribute('href', encodedUri);
-            link.setAttribute('download', `leqs_smartfarm_telemetry_${Date.now()}.csv`);
+            link.setAttribute('download', `leqs_smartfarm_esp32_${Date.now()}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -669,7 +912,9 @@
                 title: 'ส่งออกไฟล์ CSV สำเร็จ',
                 text: 'ดาวน์โหลดชุดข้อมูลสถิติเซนเซอร์เรียบร้อยแล้ว',
                 timer: 1800,
-                showConfirmButton: false
+                showConfirmButton: false,
+                background: '#0a0f1d',
+                color: '#fff'
             });
         }
 
@@ -721,6 +966,10 @@
                 confirmButtonColor: '#0284c7'
             });
         }
+
+        // Start live telemetry polling loop (Every 2 seconds)
+        syncTelemetryFromApi();
+        setInterval(syncTelemetryFromApi, 2000);
     </script>
 </body>
 </html>

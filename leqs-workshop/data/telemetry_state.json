@@ -1,0 +1,70 @@
+{
+    "board": {
+        "device_name": "ESP32-S3 ATD3.5 Smart Farm Controller",
+        "status": "CONNECTED (ONLINE)",
+        "ssid": "JC_Home",
+        "ip_address": "192.168.0.111",
+        "rssi": -99,
+        "rssi_desc": "ปกติ",
+        "cloud_url": "http:\/\/14.207.141.164:8000",
+        "web_port": 8500,
+        "direct_url": "http:\/\/192.168.0.111:8500",
+        "system_language": "English",
+        "tabs": [
+            "1. HOME",
+            "2. DATA",
+            "3. GRAPH",
+            "4. RELAY",
+            "5. SETUP",
+            "ENG"
+        ],
+        "last_seen": "2026-10-04 06:57:50",
+        "mac_address": "48:27:E2:B4:8A:1C"
+    },
+    "sensors": {
+        "temperature": 29.800000000000000710542735760100185871124267578125,
+        "humidity": 62.2999999999999971578290569595992565155029296875,
+        "soil_moisture": 74,
+        "soil_ec": 850,
+        "soil_ph": 6.4000000000000003552713678800500929355621337890625,
+        "vpd": 1.5800000000000000710542735760100185871124267578125,
+        "par_lux": 42500,
+        "nitrogen": 45,
+        "phosphorus": 32,
+        "potassium": 180,
+        "battery_pct": 98.5,
+        "updated_at": "2026-10-04 06:57:50"
+    },
+    "relays": {
+        "1": {
+            "id": 1,
+            "name": "ปั๊มน้ำหลักโซน A (Main Pump)",
+            "state": 1,
+            "gpio": 18
+        },
+        "2": {
+            "id": 2,
+            "name": "วาล์วพ่นหมอก (Fogger Valve)",
+            "state": 0,
+            "gpio": 19
+        },
+        "3": {
+            "id": 3,
+            "name": "ระบบให้ปุ๋ย NPK (Dosing Pump)",
+            "state": 1,
+            "gpio": 21
+        },
+        "4": {
+            "id": 4,
+            "name": "พัดลมระบายอากาศ (Exhaust Fan)",
+            "state": 1,
+            "gpio": 22
+        }
+    },
+    "auto_mode": true,
+    "camera_status": {
+        "model": "OV2640 2MP Edge AI YOLOv8",
+        "last_detection": "Healthy Plant Leaf (สมบูรณ์ 98.4%)",
+        "detection_time": "2026-10-04 06:57:22"
+    }
+}
