@@ -719,7 +719,6 @@
                         const vpdEl = document.getElementById('gaugeValVpd');
                         if (vpdEl) vpdEl.innerText = Number(s.vpd).toFixed(2);
 
-                        // Update Details
                         const phEl = document.getElementById('detailPh');
                         if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(1);
 
@@ -727,7 +726,13 @@
                         if (ecEl) ecEl.innerText = Math.round(s.soil_ec);
 
                         const parEl = document.getElementById('detailPar');
-                        if (parEl) parEl.innerText = `${(s.par_lux / 1000).toFixed(1)}k`;
+                        if (parEl) {
+                            if (s.par_lux >= 1000) {
+                                parEl.innerText = `${(s.par_lux / 1000).toFixed(1)}k`;
+                            } else {
+                                parEl.innerText = `${Math.round(s.par_lux)} Lx`;
+                            }
+                        }
 
                         // Dynamically update SVG gauge dashoffsets
                         // Circle circumference = 2 * PI * 48 = 301.59

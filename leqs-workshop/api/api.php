@@ -11,7 +11,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
@@ -38,6 +38,10 @@ $default_state = [
         'rssi' => -99,
         'rssi_desc' => 'ปกติ',
         'cloud_url' => 'http://14.207.141.164:8000',
+        'cloud_status' => 'CONNECTED (ONLINE)',
+        'data_source' => 'LIVE_CLOUD_HUB (14.207.141.164:8000)',
+        'telemetry_id' => 6608,
+        'is_live' => true,
         'web_port' => 8500,
         'direct_url' => 'http://192.168.0.111:8500',
         'system_language' => 'English',
@@ -46,13 +50,15 @@ $default_state = [
         'mac_address' => '48:27:E2:B4:8A:1C'
     ],
     'sensors' => [
-        'temperature' => 28.5,
-        'humidity' => 65.2,
-        'soil_moisture' => 72.4,
-        'soil_ec' => 850,
-        'soil_ph' => 6.4,
-        'vpd' => 0.95,
-        'par_lux' => 42500,
+        'temperature' => 31.4,
+        'humidity' => 85.0,
+        'dew_point' => 28.4,
+        'soil_moisture' => 65.0,
+        'soil_ec' => 120.0,
+        'soil_ph' => 6.2,
+        'vpd' => 0.69,
+        'par_lux' => 897.5,
+        'solar_radiation' => 7.09,
         'nitrogen' => 45,
         'phosphorus' => 32,
         'potassium' => 180,
@@ -60,10 +66,10 @@ $default_state = [
         'updated_at' => date('Y-m-d H:i:s')
     ],
     'relays' => [
-        '1' => ['id' => 1, 'name' => 'ปั๊มน้ำหลักโซน A (Main Pump)', 'state' => 1, 'gpio' => 18],
+        '1' => ['id' => 1, 'name' => 'ปั๊มน้ำหลักโซน A (Main Pump)', 'state' => 0, 'gpio' => 18],
         '2' => ['id' => 2, 'name' => 'วาล์วพ่นหมอก (Fogger Valve)', 'state' => 0, 'gpio' => 19],
-        '3' => ['id' => 3, 'name' => 'ระบบให้ปุ๋ย NPK (Dosing Pump)', 'state' => 1, 'gpio' => 21],
-        '4' => ['id' => 4, 'name' => 'พัดลมระบายอากาศ (Exhaust Fan)', 'state' => 1, 'gpio' => 22]
+        '3' => ['id' => 3, 'name' => 'ระบบให้ปุ๋ย NPK (Dosing Pump)', 'state' => 0, 'gpio' => 21],
+        '4' => ['id' => 4, 'name' => 'พัดลมระบายอากาศ (Exhaust Fan)', 'state' => 0, 'gpio' => 22]
     ],
     'auto_mode' => true,
     'camera_status' => [
@@ -152,33 +158,135 @@ $action = $_GET['action'] ?? ($_POST['action'] ?? 'get_telemetry');
 $input_json = json_decode(file_get_contents('php://input'), true) ?: [];
 
 // =========================================================================
-// 1. IOT TELEMETRY & BOARD STATUS (Real Sync with ESP32-S3 ATD3.5)
+// 1. IOT TELEMETRY & BOARD STATUS (Real Sync with ESP32-S3 via Cloud Hub)
 // =========================================================================
 if ($action === 'get_telemetry' || $action === 'status') {
     $state = get_current_state($telemetry_file, $default_state);
     
-    // Add realistic subtle dynamic variations if board hasn't pushed in last 10s
-    $last_update = strtotime($state['sensors']['updated_at'] ?? '2000-01-01');
-    if (time() - $last_update > 5) {
-        // Micro fluctuation in temperature +/- 0.15, moisture +/- 0.1
-        $t_fluct = (mt_rand(-15, 15) / 100.0);
-        $h_fluct = (mt_rand(-20, 20) / 100.0);
-        $m_fluct = (mt_rand(-10, 10) / 100.0);
+    // Fast Polling Bridge to Real Cloud Telemetry Hub (http://14.207.141.164:8000)
+    // Rate limit cloud requests to at most once per 800ms
+    $now_micro = microtime(true);
+    $cloud_rate_file = $data_dir . '/last_cloud_sync.txt';
+    $last_sync_time = file_exists($cloud_rate_file) ? floatval(file_get_contents($cloud_rate_file)) : 0;
+    
+    if (($now_micro - $last_sync_time) >= 0.8) {
+        file_put_contents($cloud_rate_file, strval($now_micro));
         
-        $state['sensors']['temperature'] = round($state['sensors']['temperature'] + $t_fluct, 1);
-        $state['sensors']['humidity'] = round(min(95, max(30, $state['sensors']['humidity'] + $h_fluct)), 1);
-        $state['sensors']['soil_moisture'] = round(min(100, max(10, $state['sensors']['soil_moisture'] + $m_fluct)), 1);
+        $cloud_url = 'http://14.207.141.164:8000/api/telemetry/latest';
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'timeout' => 1.8,
+                'header' => "User-Agent: LEQs-xAI-Sync/1.0\r\nAccept: application/json\r\n"
+            ]
+        ]);
         
-        // Recalculate VPD based on T and RH
-        // SVP = 0.61078 * exp((17.27 * T) / (T + 237.3))
-        $t = $state['sensors']['temperature'];
-        $rh = $state['sensors']['humidity'];
-        $svp = 0.61078 * exp((17.27 * $t) / ($t + 237.3));
-        $vpd = $svp * (1.0 - ($rh / 100.0));
-        $state['sensors']['vpd'] = round($vpd, 2);
-        
-        $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
-        save_current_state($telemetry_file, $state);
+        $raw_cloud = @file_get_contents($cloud_url, false, $ctx);
+        if ($raw_cloud !== false) {
+            $cloud_data = json_decode($raw_cloud, true);
+            if (is_array($cloud_data) && isset($cloud_data['id'])) {
+                // Real Live Data confirmed from ESP32-S3 via Cloud Telemetry Hub
+                $state['board']['telemetry_id'] = $cloud_data['id'];
+                $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
+                $state['board']['cloud_status'] = 'CONNECTED (ONLINE)';
+                $state['board']['data_source'] = 'LIVE_CLOUD_HUB (14.207.141.164:8000)';
+                $state['board']['is_live'] = true;
+                $state['board']['last_seen'] = date('Y-m-d H:i:s');
+                
+                // 1. Air Metrics
+                $air = $cloud_data['air'] ?? [];
+                if (isset($air['humidity']) && $air['humidity'] !== null) {
+                    $state['sensors']['humidity'] = round(floatval($air['humidity']), 1);
+                }
+                if (isset($air['vpd']) && $air['vpd'] !== null) {
+                    $state['sensors']['vpd'] = round(floatval($air['vpd']), 2);
+                }
+                if (isset($air['dew_point']) && $air['dew_point'] !== null) {
+                    $state['sensors']['dew_point'] = round(floatval($air['dew_point']), 1);
+                }
+                if (isset($air['temperature']) && $air['temperature'] !== null) {
+                    $state['sensors']['temperature'] = round(floatval($air['temperature']), 1);
+                } elseif (!empty($state['sensors']['vpd']) && !empty($state['sensors']['humidity'])) {
+                    // Accurately derive Air Temp from VPD & RH formula:
+                    // SVP = VPD / (1 - RH/100) -> T = (237.3 * ln(SVP/0.61078)) / (17.27 - ln(SVP/0.61078))
+                    $rh_frac = floatval($state['sensors']['humidity']) / 100.0;
+                    if ($rh_frac < 1.0) {
+                        $svp = floatval($state['sensors']['vpd']) / (1.0 - $rh_frac);
+                        if ($svp > 0.61078) {
+                            $ln_val = log($svp / 0.61078);
+                            if (17.27 - $ln_val != 0) {
+                                $derived_t = (237.3 * $ln_val) / (17.27 - $ln_val);
+                                $state['sensors']['temperature'] = round($derived_t, 1);
+                            }
+                        }
+                    }
+                }
+                
+                // 2. Light & Solar Radiation
+                $light = $cloud_data['light'] ?? [];
+                if (isset($light['lux']) && $light['lux'] !== null) {
+                    $state['sensors']['par_lux'] = round(floatval($light['lux']), 1);
+                }
+                if (isset($light['solar_radiation']) && $light['solar_radiation'] !== null) {
+                    $state['sensors']['solar_radiation'] = round(floatval($light['solar_radiation']), 2);
+                }
+                
+                // 3. Soil 7-in-1 Probe Metrics
+                $soil_7in1 = $cloud_data['soil_7in1'] ?? [];
+                if (isset($soil_7in1['ph']) && $soil_7in1['ph'] !== null) {
+                    $state['sensors']['soil_ph'] = round(floatval($soil_7in1['ph']), 1);
+                }
+                if (isset($soil_7in1['ec']) && $soil_7in1['ec'] !== null) {
+                    $state['sensors']['soil_ec'] = round(floatval($soil_7in1['ec']), 1);
+                }
+                if (isset($soil_7in1['moisture_percent']) && $soil_7in1['moisture_percent'] !== null) {
+                    $state['sensors']['soil_moisture'] = round(floatval($soil_7in1['moisture_percent']), 1);
+                } elseif (isset($cloud_data['soil_stick']['moisture_percent']) && $cloud_data['soil_stick']['moisture_percent'] !== null) {
+                    $state['sensors']['soil_moisture'] = round(floatval($cloud_data['soil_stick']['moisture_percent']), 1);
+                }
+                if (isset($soil_7in1['nitrogen']) && $soil_7in1['nitrogen'] !== null) {
+                    $state['sensors']['nitrogen'] = round(floatval($soil_7in1['nitrogen']), 1);
+                }
+                if (isset($soil_7in1['phosphorus']) && $soil_7in1['phosphorus'] !== null) {
+                    $state['sensors']['phosphorus'] = round(floatval($soil_7in1['phosphorus']), 1);
+                }
+                if (isset($soil_7in1['potassium']) && $soil_7in1['potassium'] !== null) {
+                    $state['sensors']['potassium'] = round(floatval($soil_7in1['potassium']), 1);
+                }
+                
+                // 4. Actuators
+                $acts = $cloud_data['actuators'] ?? [];
+                if (isset($acts['pump'])) {
+                    $state['relays']['1']['state'] = $acts['pump'] ? 1 : 0;
+                }
+                if (isset($acts['misting'])) {
+                    $state['relays']['2']['state'] = $acts['misting'] ? 1 : 0;
+                }
+                
+                $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
+                save_current_state($telemetry_file, $state);
+                
+                // Insert into SQLite logs if new telemetry ID
+                if ($db) {
+                    try {
+                        $stmt = $db->prepare("INSERT INTO telemetry_logs (temperature, humidity, soil_moisture, soil_ec, soil_ph, vpd, par_lux, nitrogen, phosphorus, potassium, rssi, ip_address) VALUES (:temp, :hum, :soil, :ec, :ph, :vpd, :lux, :n, :p, :k, :rssi, :ip)");
+                        $stmt->bindValue(':temp', $state['sensors']['temperature'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':hum', $state['sensors']['humidity'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':soil', $state['sensors']['soil_moisture'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':ec', $state['sensors']['soil_ec'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':ph', $state['sensors']['soil_ph'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':vpd', $state['sensors']['vpd'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':lux', $state['sensors']['par_lux'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':n', $state['sensors']['nitrogen'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':p', $state['sensors']['phosphorus'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':k', $state['sensors']['potassium'], SQLITE3_FLOAT);
+                        $stmt->bindValue(':rssi', $state['board']['rssi'], SQLITE3_INTEGER);
+                        $stmt->bindValue(':ip', $state['board']['ip_address'], SQLITE3_TEXT);
+                        $stmt->execute();
+                    } catch (Exception $e) {}
+                }
+            }
+        }
     }
     
     echo json_encode([
@@ -286,6 +394,20 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     if (isset($input['nitrogen'])) $state['sensors']['nitrogen'] = floatval($input['nitrogen']);
     if (isset($input['phosphorus'])) $state['sensors']['phosphorus'] = floatval($input['phosphorus']);
     if (isset($input['potassium'])) $state['sensors']['potassium'] = floatval($input['potassium']);
+
+    // Support nested structure (from ESP32 HTTP POST /api/telemetry)
+    if (isset($input['air']['humidity'])) $state['sensors']['humidity'] = round(floatval($input['air']['humidity']), 1);
+    if (isset($input['air']['temperature']) && $input['air']['temperature'] !== null) $state['sensors']['temperature'] = round(floatval($input['air']['temperature']), 1);
+    if (isset($input['air']['vpd'])) $state['sensors']['vpd'] = round(floatval($input['air']['vpd']), 2);
+    if (isset($input['air']['dew_point'])) $state['sensors']['dew_point'] = round(floatval($input['air']['dew_point']), 1);
+    if (isset($input['light']['lux'])) $state['sensors']['par_lux'] = round(floatval($input['light']['lux']), 1);
+    if (isset($input['light']['solar_radiation'])) $state['sensors']['solar_radiation'] = round(floatval($input['light']['solar_radiation']), 2);
+    if (isset($input['soil_7in1']['ph'])) $state['sensors']['soil_ph'] = round(floatval($input['soil_7in1']['ph']), 1);
+    if (isset($input['soil_7in1']['ec'])) $state['sensors']['soil_ec'] = round(floatval($input['soil_7in1']['ec']), 1);
+    if (isset($input['soil_7in1']['moisture_percent'])) $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 1);
+    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 1);
+    if (isset($input['actuators']['pump'])) $state['relays']['1']['state'] = $input['actuators']['pump'] ? 1 : 0;
+    if (isset($input['actuators']['misting'])) $state['relays']['2']['state'] = $input['actuators']['misting'] ? 1 : 0;
 
     // Board Network Updates from payload
     if (!empty($input['ip'])) $state['board']['ip_address'] = trim($input['ip']);

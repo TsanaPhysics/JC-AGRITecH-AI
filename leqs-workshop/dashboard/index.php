@@ -78,7 +78,7 @@
                 <!-- Hardware Connection Chip (Matching ESP32-S3 ATD3.5 Screen Photo) -->
                 <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-emerald-500/40 text-xs font-mono shadow-md">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="text-emerald-400 font-bold">ONLINE</span>
+                    <span id="cloudStatusText" class="text-emerald-400 font-bold">ONLINE</span>
                     <span class="text-slate-600">|</span>
                     <span class="text-gray-400">SSID:</span>
                     <span id="boardSsidDisplay" class="text-emerald-300 font-bold">JC_Home</span>
@@ -86,10 +86,10 @@
                     <span class="text-gray-400">IP:</span>
                     <span id="boardIpDisplay" class="text-cyan-300 font-bold">192.168.0.111:8500</span>
                     <span class="text-slate-600">|</span>
-                    <span class="text-gray-400">RSSI:</span>
-                    <span id="boardRssiDisplay" class="text-amber-400 font-bold">-99 dBm</span>
+                    <span class="text-gray-400">Cloud Hub:</span>
+                    <span id="cloudSyncDisplay" class="text-indigo-300 font-bold">14.207.141.164:8000</span>
                     <span class="text-slate-600">|</span>
-                    <span id="latencyDisplay" class="text-slate-300">18ms</span>
+                    <span id="cloudTelemetryId" class="text-amber-300 font-bold">#6608</span>
                 </div>
             </div>
 
@@ -645,8 +645,18 @@
                         if (ipEl) ipEl.innerText = `${currentBoardIp}:${currentBoardPort}`;
                         const ssidEl = document.getElementById('boardSsidDisplay');
                         if (ssidEl) ssidEl.innerText = currentSsid;
-                        const rssiEl = document.getElementById('boardRssiDisplay');
-                        if (rssiEl) rssiEl.innerText = `${currentRssi} dBm`;
+                        const cloudEl = document.getElementById('cloudSyncDisplay');
+                        if (cloudEl && data.board.cloud_url) {
+                            cloudEl.innerText = data.board.cloud_url.replace('http://', '');
+                        }
+                        const idEl = document.getElementById('cloudTelemetryId');
+                        if (idEl && data.board.telemetry_id) {
+                            idEl.innerText = `#${data.board.telemetry_id}`;
+                        }
+                        const statEl = document.getElementById('cloudStatusText');
+                        if (statEl) {
+                            statEl.innerText = data.board.is_live ? 'LIVE CLOUD' : 'ONLINE';
+                        }
                     }
 
                     // Update Real Sensors
@@ -659,6 +669,9 @@
                         if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Math.round(s.soil_ec);
                         if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
                         if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toLocaleString();
+                        if (document.getElementById('dashSolarRad') && s.solar_radiation) {
+                            document.getElementById('dashSolarRad').innerText = `Solar: ${Number(s.solar_radiation).toFixed(2)} W/m²`;
+                        }
 
                         // Update chart
                         if (envTrendChart && envTrendChart.data && envTrendChart.data.datasets[0]) {
