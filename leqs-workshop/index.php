@@ -140,8 +140,13 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     </a>
 
                     <!-- MENU: SDGs -->
-                    <a href="#sdgs" class="px-3.5 py-2 rounded-xl hover:text-emerald-700 hover:bg-emerald-50 transition flex items-center gap-1.5">
+                    <a href="#sdgs" class="px-3 py-2 rounded-xl hover:text-emerald-700 hover:bg-emerald-50 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-earth-asia text-emerald-600"></i> SDGs
+                    </a>
+
+                    <!-- MENU: LEQs Teams -->
+                    <a href="#leqs-teams" class="px-3 py-2 rounded-xl hover:text-purple-700 hover:bg-purple-50 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-users text-purple-600"></i> LEQs Teams
                     </a>
 
                     <!-- MENU 5: นวัตกรรม & เอกสาร (Dropdown) -->
@@ -222,6 +227,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <a href="#modules" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-cyan-600"><i class="fa-solid fa-cubes w-6 text-cyan-500"></i> 3. หลักสูตร 7 โมดูล</a>
             <a href="#simulators" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-flask-vial w-6 text-amber-500"></i> 4. Virtual Lab เสมือนจริง</a>
             <a href="#sdgs" onclick="toggleMobileMenu()" class="block py-2 text-emerald-700 font-bold hover:text-emerald-800"><i class="fa-solid fa-earth-asia w-6 text-emerald-600"></i> เป้าหมายการพัฒนาที่ยั่งยืน (SDGs)</a>
+            <a href="#leqs-teams" onclick="toggleMobileMenu()" class="block py-2 text-purple-700 font-bold hover:text-purple-800"><i class="fa-solid fa-users w-6 text-purple-600"></i> ทีมวิทยากร &amp; นักวิจัย (LEQs Teams)</a>
             <a href="#learning-resources" onclick="toggleMobileMenu()" class="block py-2 text-indigo-700 font-bold"><i class="fa-solid fa-graduation-cap w-6 text-indigo-600"></i> 5. แหล่งเรียนรู้เพิ่มเติม 10 ระบบ</a>
             <a href="#screens" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-display w-6 text-amber-500"></i> จอแสดงผล ATD3.5-S3 (11 จอ)</a>
             <a href="#documents" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-emerald-600"><i class="fa-solid fa-file-invoice-dollar w-6 text-emerald-600"></i> เอกสารงบประมาณ 76,000 บ.</a>
@@ -694,6 +700,257 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-[#19486A] font-semibold">
                         <span>Quadruple Helix Partnership</span>
                         <i class="fa-solid fa-check-circle"></i>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- 3.6 LEQs TEAMS & RESEARCH FACULTY (GLOBE THAILAND 2026 TRAINERS)          -->
+        <!-- ========================================================================= -->
+        <section id="leqs-teams" class="space-y-8 scroll-mt-24">
+            
+            <div class="text-center max-w-3xl mx-auto space-y-2">
+                <span class="px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-users text-purple-600"></i> LEQs-xAI &amp; Thailand GLOBE Faculty
+                </span>
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-gray-900">
+                    ทีมวิทยากรและนักวิจัยผู้ทรงคุณวุฒิ (LEQs Teams)
+                </h2>
+                <p class="text-gray-600 text-sm md:text-base leading-relaxed">
+                    คณะอาจารย์นักวิจัยผู้เชี่ยวชาญจากมหาวิทยาลัยราชภัฏรำไพพรรณี และเครือข่ายวิทยากร Thailand GLOBE Program บูรณาการสหวิทยาการ 4 สเฟียร์ (บรรยากาศ อุทกมณฑล ธรณีมณฑล ชีวมณฑล) ร่วมกับเทคโนโลยี Edge AIoT เพื่อการเกษตรแม่นยำและสิ่งแวดล้อม
+                </p>
+                <div class="pt-1">
+                    <a href="https://scicenter.rbru.ac.th/globe2026/pages/project_2569.php" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-semibold border border-purple-200 transition shadow-sm hover:shadow">
+                        <i class="fa-solid fa-globe text-purple-600"></i> เชื่อมโยงเครือข่ายวิทยากร: ศูนย์วิทยาศาสตร์ GLOBE 2026 (scicenter.rbru.ac.th) <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6 Faculty & Trainer Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- 1. Asst. Prof. Dr. Chewa Thassana -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-blue-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-blue-100 bg-blue-50">
+                            <img src="assets/images/trainers/speaker_chewa.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_chewa.png'"
+                                 alt="ผศ.ดร.ชีวะ ทัศนา" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-blue-600 transition">ผศ.ดร.ชีวะ ทัศนา</h3>
+                        <p class="text-xs text-gray-500 mb-3">Asst. Prof. Dr. Chewa Thassana</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
+                                <i class="fa-solid fa-award mr-1"></i> THAILAND GLOBE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">
+                                หัวหน้าชุดโครงการ LEQs-xAI
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-blue-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-blue-100/60">
+                            <div class="font-bold text-blue-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip text-blue-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                ฟิสิกส์ประยุกต์, Edge AI (TinyML), Environmental Sensing, Precision Agriculture, Embedded System &amp; HandySense Architecture
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-blue-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-blue-600 font-semibold flex items-center gap-1">AIoT &amp; Sensing <i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+
+                <!-- 2. Assoc. Prof. Dr. Niphat Piam-arun -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-purple-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-purple-100 bg-purple-50">
+                            <img src="assets/images/trainers/speaker_niphat.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_niphat.png'"
+                                 alt="รศ.ดร.นิภัทร เปี่ยมอรุณ" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-purple-600 transition">รศ.ดร.นิภัทร เปี่ยมอรุณ</h3>
+                        <p class="text-xs text-gray-500 mb-3">Assoc. Prof. Dr. Niphat Piam-arun</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-bold text-xs">
+                                <i class="fa-solid fa-cloud-sun mr-1"></i> ATMOSPHERE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 font-semibold text-[11px] border border-purple-200">
+                                ผู้เชี่ยวชาญด้านบรรยากาศ
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-purple-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-purple-100/60">
+                            <div class="font-bold text-purple-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-wind text-purple-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                ฟิสิกส์บรรยากาศ, สภาพอากาศจุลภาค (Microclimate), Vapor Pressure Deficit (VPD), ก๊าซเรือนกระจก และการตรวจวัดคุณภาพอากาศ
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-purple-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-purple-600 font-semibold flex items-center gap-1">Atmosphere <i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+
+                <!-- 3. Asst. Prof. Atthakorn Khamchat -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-emerald-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-emerald-100 bg-emerald-50">
+                            <img src="assets/images/trainers/speaker_attaporn.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_attaporn.png'"
+                                 alt="ผศ.อรรภกร คำฉัตร" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-emerald-600 transition">ผศ.อรรภกร คำฉัตร</h3>
+                        <p class="text-xs text-gray-500 mb-3">Asst. Prof. Atthakorn Khamchat</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs">
+                                <i class="fa-solid fa-temperature-arrow-up mr-1"></i> CLIMATE CHANGE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-semibold text-[11px] border border-emerald-200">
+                                วิทยาศาสตร์สิ่งแวดล้อม
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-emerald-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-emerald-100/60">
+                            <div class="font-bold text-emerald-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-seedling text-emerald-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                วิทยาศาสตร์สิ่งแวดล้อม, การเปลี่ยนแปลงสภาพภูมิอากาศ, Carbon Footprint &amp; Sequestration ในสวนผลไม้, นิเวศวิทยาเกษตร
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-emerald-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-emerald-600 font-semibold flex items-center gap-1">Climate Change <i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+
+                <!-- 4. Asst. Prof. Dr. Jirapat Janthamalee -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-amber-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-amber-100 bg-amber-50">
+                            <img src="assets/images/trainers/speaker_jiraporn.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_jiraporn.png'"
+                                 alt="ผศ.ดร.จิรภัทร จันทมาลี" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-amber-600 transition">ผศ.ดร.จิรภัทร จันทมาลี</h3>
+                        <p class="text-xs text-gray-500 mb-3">Asst. Prof. Dr. Jirapat Janthamalee</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-xs">
+                                <i class="fa-solid fa-mountain-sun mr-1"></i> PEDOSPHERE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 font-semibold text-[11px] border border-amber-200">
+                                จุลชีววิทยา &amp; ธรณีมณฑล
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-amber-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-amber-100/60">
+                            <div class="font-bold text-amber-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bacteria text-amber-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                จุลชีววิทยาประยุกต์, ไมโครไบโอมในดิน (Soil Microbiome), พลวัตธาตุอาหาร NPK, pH &amp; EC ดิน, การฟื้นฟูความอุดมสมบูรณ์ของดิน
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-amber-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-amber-600 font-semibold flex items-center gap-1">Pedosphere <i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+
+                <!-- 5. Asst. Prof. Dr. Nanthaporn Moonrangsee -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-teal-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-teal-100 bg-teal-50">
+                            <img src="assets/images/trainers/speaker_nantaporn.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_nantaporn.png'"
+                                 alt="ผศ.ดร.นันทพร มูลรังษี" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-teal-600 transition">ผศ.ดร.นันทพร มูลรังษี</h3>
+                        <p class="text-xs text-gray-500 mb-3">Asst. Prof. Dr. Nanthaporn Moonrangsee</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-bold text-xs">
+                                <i class="fa-solid fa-droplet mr-1"></i> HYDROSPHERE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 font-semibold text-[11px] border border-teal-200">
+                                วิทยาศาสตร์ทางน้ำ
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-teal-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-teal-100/60">
+                            <div class="font-bold text-teal-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-water text-teal-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                วิทยาศาสตร์ทางน้ำ, อุทกวิทยาสิ่งแวดล้อม (Hydrosphere), การประเมินคุณภาพน้ำเพื่อการชลประทาน, การจัดการน้ำต้นทุนในแปลงเกษตร
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-teal-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-teal-600 font-semibold flex items-center gap-1">Hydrosphere <i class="fa-solid fa-circle-check"></i></span>
+                    </div>
+                </div>
+
+                <!-- 6. Asst. Prof. Dr. Namonrak Khamchat -->
+                <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-pink-500 shadow-sm hover:shadow-2xl transition duration-500 transform hover:-translate-y-2 group bg-white/95 flex flex-col justify-between">
+                    <div>
+                        <div class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white shadow-xl group-hover:scale-105 transition duration-500 ring-4 ring-pink-100 bg-pink-50">
+                            <img src="assets/images/trainers/speaker_namonruk.png" 
+                                 onerror="this.src='https://scicenter.rbru.ac.th/globe2026/assets/images/speaker_namonruk.png'"
+                                 alt="ผศ.ดร.ณมนรัก คำฉัตร" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1 group-hover:text-pink-600 transition">ผศ.ดร.ณมนรัก คำฉัตร</h3>
+                        <p class="text-xs text-gray-500 mb-3">Asst. Prof. Dr. Namonrak Khamchat</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-pink-100 text-pink-800 font-bold text-xs">
+                                <i class="fa-solid fa-leaf mr-1"></i> BIOSPHERE TRAINER
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-pink-50 text-pink-800 font-semibold text-[11px] border border-pink-200">
+                                ชีววิทยา &amp; ชีวมณฑล
+                            </span>
+                        </div>
+
+                        <div class="text-left bg-pink-50/60 rounded-2xl p-3.5 space-y-1.5 text-xs text-gray-600 border border-pink-100/60">
+                            <div class="font-bold text-pink-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-tree text-pink-500"></i> สาขาความเชี่ยวชาญ:
+                            </div>
+                            <p class="leading-relaxed">
+                                พฤกษศาสตร์, ชีวมณฑล (Biosphere), ฟีโนโลยีของพืชผลไม้, การวินิจฉัยโรคพืชและแมลงศัตรูพืช, ความหลากหลายทางชีวภาพ
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                        <span class="truncate"><i class="fa-solid fa-building-columns text-pink-500 mr-1"></i> มรภ.รำไพพรรณี</span>
+                        <span class="text-pink-600 font-semibold flex items-center gap-1">Biosphere <i class="fa-solid fa-circle-check"></i></span>
                     </div>
                 </div>
 
