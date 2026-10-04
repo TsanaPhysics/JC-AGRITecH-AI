@@ -59,6 +59,17 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
                 <p class="text-xs sm:text-sm text-slate-400 mt-2">
                     โครงการ LEQs-xAI ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม (ไม่มีค่าใช้จ่าย)
                 </p>
+                <!-- SDG Badges Banner -->
+                <div class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mr-1">ขับเคลื่อน UN SDGs:</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#DDA63A]/20 text-[#f3ca65] border border-[#DDA63A]/40 text-[10px] font-bold">SDG 2 เกษตรยั่งยืน</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#C5192D]/20 text-[#ff808f] border border-[#C5192D]/40 text-[10px] font-bold">SDG 4 การศึกษา</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#FF6925]/20 text-[#ffa67a] border border-[#FF6925]/40 text-[10px] font-bold">SDG 9 นวัตกรรม</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#BF8B2E]/20 text-[#eed088] border border-[#BF8B2E]/40 text-[10px] font-bold">SDG 12 ทรัพยากร</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#3F7E44]/20 text-[#85e18d] border border-[#3F7E44]/40 text-[10px] font-bold">SDG 13 สภาพอากาศ</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#56C02B]/20 text-[#9bfb76] border border-[#56C02B]/40 text-[10px] font-bold">SDG 15 นิเวศดิน</span>
+                    <span class="px-2 py-0.5 rounded-md bg-[#19486A]/30 text-[#8fc3ea] border border-[#19486A]/50 text-[10px] font-bold">SDG 17 เครือข่าย</span>
+                </div>
             </div>
 
             <form id="regForm" onsubmit="submitRegistration(event)" class="space-y-5 text-xs sm:text-sm">
