@@ -285,7 +285,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                                     LEQs xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม
                                 </div>
                                 <div class="text-[11px] text-gray-300 truncate mt-0.5" id="heroSingleScreenDesc">
-                                    Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                                    Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย LEQs-TEAMS คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                                 </div>
                             </div>
                         </div>
@@ -314,7 +314,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <!-- Hero Ticker Container -->
                     <div class="min-h-[56px] flex items-center overflow-hidden max-w-full">
                         <span id="hero-ticker" class="inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300">
-                            🏛️ พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                            🏛️ พัฒนาโดย LEQs-Teams  คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                         </span>
                     </div>
 
@@ -340,7 +340,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
 
                     <p class="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
                         <strong class="dynamic-color-text font-bold block text-emerald-700 text-lg md:text-xl mb-1.5">Edge AI • Deep Learning • Computer Vision • Environmental IoT</strong>
-                        โครงการวิจัยและพัฒนาปัญญาประดิษฐ์เพื่อการเกษตรและสิ่งแวดล้อม พัฒนาโดย <strong class="text-gray-900 font-bold">ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</strong> ✨
+                        โครงการวิจัยและพัฒนาปัญญาประดิษฐ์เพื่อการเกษตรและสิ่งแวดล้อม  <br><strong class="text-orange-500 font-bold">LEQs</strong> คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ✨
                     </p>
 
                     <!-- Action Buttons -->
@@ -388,7 +388,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                 </a>
                 <a href="#iot-platform" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
                     <div class="text-2xl md:text-3xl lg:text-4xl font-black font-tech text-purple-600 group-hover:text-purple-500 transition">5+ Smart App</div>
-                    <div class="text-xs text-gray-500 mt-1 font-medium leading-snug">คุณภาพดิน น้ำ อากาศ<br>โรคและแมลงศัตรูพืช</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium leading-snug">คุณภาพดิน  น้ำ อากาศ<br>โรคและแมลงศัตรูพืช</div>
                 </a>
             </div>
         </header>
