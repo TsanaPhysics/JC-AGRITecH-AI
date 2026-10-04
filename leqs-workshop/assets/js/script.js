@@ -95,11 +95,11 @@ function initNavbarLogoCarousel() {
 // ==========================================
 const heroSlides = [
     {
-        file: 'assets/images/cv_cover_artwork.jpg',
-        category: 'Computer Vision & AI',
+        file: 'assets/images/leqs_xai_hero_cover.jpg',
+        category: 'LEQs xAI Master Showcase',
         categoryDot: 'bg-emerald-400',
-        title: 'AI Camera & Computer Vision 2026',
-        desc: 'หลักสูตรอบรมเชิงปฏิบัติการ Zero to Hero ปูพื้นฐานการประมวลผลภาพดิจิทัล',
+        title: 'LEQs xAI: Digital Agriculture - Environment',
+        desc: 'Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี',
         badge: 'Slide 01/10'
     },
     {
@@ -339,15 +339,15 @@ function initHeroTicker() {
         while (true) {
             // Stage 1: Faculty / Initiative name
             ticker.className = baseClass + " text-emerald-700 anim-blink";
-            ticker.innerHTML = "🏛️ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี x งบประมาณ 76,000 บ.";
-            await wait(3400);
+            ticker.innerHTML = "🏛️ พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี";
+            await wait(3800);
 
             // Stage 2: Program Title
             let anim = getRandom(animations);
             ticker.className = `${baseClass} ${anim}`;
             ticker.style.color = getRandom(colors);
-            ticker.innerHTML = "🌾 LEQs-xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม 2026";
-            await wait(4200);
+            ticker.innerHTML = "🌱 LEQs xAI: Digital Agriculture - Environment (Edge AI • Deep Learning • Computer Vision • Environmental IoT)";
+            await wait(4500);
 
             // Stage 3: Modules Marquee
             ticker.className = `${baseClass} anim-marquee`;

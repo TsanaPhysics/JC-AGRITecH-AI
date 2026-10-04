@@ -243,7 +243,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         <div class="flex items-center justify-between px-2 pt-1 pb-2 border-b border-gray-100 text-xs">
                             <div class="flex items-center gap-2">
                                 <span id="heroCategoryDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                                <span id="heroCategoryName" class="font-bold text-gray-800 font-tech tracking-wider text-[11px]">Computer Vision AI</span>
+                                <span id="heroCategoryName" class="font-bold text-gray-800 font-tech tracking-wider text-[11px]">LEQs xAI Master Showcase</span>
                                 <span id="heroSlideBadge" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[9px] border border-emerald-200 font-semibold">
                                     Slide 01/10
                                 </span>
@@ -264,8 +264,8 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         <!-- Main Screen Display (16:10 high-clarity ratio) -->
                         <div class="relative rounded-2xl overflow-hidden bg-slate-950 aspect-[16/11] flex items-center justify-center shadow-inner cursor-pointer" onclick="openCurrentHeroSlideModal()">
                             <img id="heroSingleScreenImg" 
-                                 src="assets/images/cv_cover_artwork.jpg" 
-                                 alt="Smart Display Screen" 
+                                 src="assets/images/leqs_xai_hero_cover.jpg" 
+                                 alt="LEQs xAI: Digital Agriculture - Environment" 
                                  class="w-full h-full object-cover transition-all duration-500 transform group-hover:scale-[1.02]">
                             
                             <!-- Status Badges Overlay -->
@@ -282,10 +282,10 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <!-- Bottom Floating Title Overlay -->
                             <div class="absolute bottom-2.5 left-2.5 right-2.5 px-3.5 py-2.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/10 text-white shadow-lg">
                                 <div class="font-bold text-xs md:text-sm text-emerald-300 truncate" id="heroSingleScreenTitle">
-                                    Computer Vision & Precision AgriTech 2026
+                                    LEQs xAI: Digital Agriculture - Environment
                                 </div>
                                 <div class="text-[11px] text-gray-300 truncate mt-0.5" id="heroSingleScreenDesc">
-                                    ระบบกล้อง AI อัจฉริยะ ตรวจจับศัตรูพืชและวิเคราะห์ความสมบูรณ์ของใบพืช
+                                    Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                                 </div>
                             </div>
                         </div>
@@ -314,28 +314,28 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <!-- Hero Ticker Container -->
                     <div class="min-h-[56px] flex items-center overflow-hidden max-w-full">
                         <span id="hero-ticker" class="inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300">
-                            🏛️ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี x งบประมาณ 76,000 บ.
+                            🏛️ พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                         </span>
                     </div>
 
                     <!-- Heading -->
                     <h1 class="font-heading font-bold leading-tight text-shadow">
                         <span class="text-sm md:text-base text-gray-400 block mb-2 font-['Orbitron'] tracking-widest uppercase opacity-90">
-                            &lt; Hands_on_Workshop /&gt;
+                            &lt; Smart_Agricultural_Intelligence /&gt;
                         </span>
                         <span class="text-4xl md:text-6xl block font-extrabold">
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">LEQs</span>
-                            <span class="text-blue-600">-xAI</span>
-                            <span class="text-gray-800">2026</span>
+                            <span class="text-blue-600">xAI</span>
                         </span>
                         <span class="text-2xl md:text-4xl block mt-2 font-heading font-bold text-gray-900">
-                            <span class="text-emerald-600">ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัล</span> 
-                            <span class="text-amber-500 font-light">และสิ่งแวดล้อม</span>
+                            <span class="text-emerald-600">Digital Agriculture</span> 
+                            <span class="text-teal-600 font-light">- Environment</span>
                         </span>
                     </h1>
 
                     <p class="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
-                        โครงการอบรมเชิงปฏิบัติการพัฒนาทักษะ <span class="dynamic-color-text font-bold">Edge AI • Deep Learning • Computer Vision • Environmental IoT</span> เพื่อยกระดับนักเรียน ม.ปลาย ครู และเกษตรกรสู่นวัตกรเกษตรแม่นยำยุคใหม่ ✨
+                        <strong class="dynamic-color-text font-bold block text-emerald-700 text-lg md:text-xl mb-1.5">Edge AI • Deep Learning • Computer Vision • Environmental IoT</strong>
+                        งานวิจัยและนวัตกรรมปัญญาประดิษฐ์เพื่อการเกษตรและสิ่งแวดล้อม พัฒนาโดย <strong class="text-gray-900 font-bold">ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</strong> ✨
                     </p>
 
                     <!-- Action Buttons -->
