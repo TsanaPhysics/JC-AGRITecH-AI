@@ -108,7 +108,7 @@ $default_state = [
         'nitrogen' => 48.2,
         'phosphorus' => 33.1,
         'potassium' => 178.5,
-        'ph' => 6.25,
+        'ph' => 6.2,
         'moisture' => 65.4,
         'confidence' => 0.984,
         'npk_ratio' => '1.5:1:5.6',
@@ -125,6 +125,18 @@ $default_state = [
         'model' => 'OV2640 2MP Edge AI YOLOv8',
         'last_detection' => 'Healthy Plant Leaf (สมบูรณ์ 98.4%)',
         'detection_time' => date('Y-m-d H:i:s')
+    ],
+    'gps' => [
+        'latitude' => 12.6644,
+        'longitude' => 102.1039,
+        'latitude_deg' => "12°39'51.8\"N",
+        'longitude_deg' => "102°06'14.0\"E",
+        'formatted' => '12.6644° N, 102.1039° E',
+        'location_name' => 'คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี (RBRU)',
+        'province' => 'จันทบุรี (Chanthaburi)',
+        'elevation_m' => 24.5,
+        'maps_url' => 'https://maps.google.com/?q=12.6644,102.1039',
+        'status' => 'ACTIVE (FIXED GNSS)'
     ]
 ];
 
@@ -452,10 +464,10 @@ if ($action === 'get_telemetry' || $action === 'status') {
                 $state['sensor_connection']['soil_stick'] = !empty($stick['connected']) || isset($stick['adc_raw']);
                 if (isset($stick['adc_raw'])) $state['sensors']['soil_stick_adc'] = intval($stick['adc_raw']);
                 if (isset($stick['moisture_percent']) && $stick['moisture_percent'] !== null) {
-                    $state['sensors']['soil_stick_moisture'] = round(floatval($stick['moisture_percent']), 2);
+                    $state['sensors']['soil_stick_moisture'] = round(floatval($stick['moisture_percent']), 1);
                 }
                 if (isset($stick['ph']) && $stick['ph'] !== null) {
-                    $state['sensors']['soil_stick_ph'] = round(floatval($stick['ph']), 2);
+                    $state['sensors']['soil_stick_ph'] = round(floatval($stick['ph']), 1);
                 }
                 if (isset($stick['ph_raw_voltage'])) {
                     $state['sensors']['soil_stick_ph_volt'] = round(floatval($stick['ph_raw_voltage']), 2);
@@ -465,37 +477,37 @@ if ($action === 'get_telemetry' || $action === 'status') {
                 $soil_7in1 = $cloud_data['soil_7in1'] ?? [];
                 $state['sensor_connection']['soil_7in1'] = !empty($soil_7in1['connected']);
                 if (isset($soil_7in1['ph']) && $soil_7in1['ph'] !== null) {
-                    $state['sensors']['soil_ph'] = round(floatval($soil_7in1['ph']), 2);
+                    $state['sensors']['soil_ph'] = round(floatval($soil_7in1['ph']), 1);
                 }
                 if (isset($soil_7in1['ec']) && $soil_7in1['ec'] !== null) {
-                    $state['sensors']['soil_ec'] = round(floatval($soil_7in1['ec']), 2);
+                    $state['sensors']['soil_ec'] = round(floatval($soil_7in1['ec']), 1);
                 }
                 if (isset($soil_7in1['temperature']) && $soil_7in1['temperature'] !== null) {
                     $state['sensors']['soil_temperature'] = round(floatval($soil_7in1['temperature']), 2);
                 }
                 if (isset($soil_7in1['moisture_percent']) && $soil_7in1['moisture_percent'] !== null) {
-                    $state['sensors']['soil_moisture'] = round(floatval($soil_7in1['moisture_percent']), 2);
+                    $state['sensors']['soil_moisture'] = round(floatval($soil_7in1['moisture_percent']), 1);
                 } elseif (isset($state['sensors']['soil_stick_moisture'])) {
                     $state['sensors']['soil_moisture'] = $state['sensors']['soil_stick_moisture'];
                 }
                 if (isset($soil_7in1['nitrogen']) && $soil_7in1['nitrogen'] !== null) {
-                    $state['sensors']['nitrogen'] = round(floatval($soil_7in1['nitrogen']), 2);
+                    $state['sensors']['nitrogen'] = round(floatval($soil_7in1['nitrogen']), 1);
                 }
                 if (isset($soil_7in1['phosphorus']) && $soil_7in1['phosphorus'] !== null) {
-                    $state['sensors']['phosphorus'] = round(floatval($soil_7in1['phosphorus']), 2);
+                    $state['sensors']['phosphorus'] = round(floatval($soil_7in1['phosphorus']), 1);
                 }
                 if (isset($soil_7in1['potassium']) && $soil_7in1['potassium'] !== null) {
-                    $state['sensors']['potassium'] = round(floatval($soil_7in1['potassium']), 2);
+                    $state['sensors']['potassium'] = round(floatval($soil_7in1['potassium']), 1);
                 }
                 
                 // 5. TinyML AI Calibrated Metrics
                 $ai = $cloud_data['ai_calibrated'] ?? [];
                 if (!empty($ai)) {
-                    if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 2);
-                    if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 2);
-                    if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 2);
-                    if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 2);
-                    if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 2);
+                    if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 1);
+                    if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 1);
+                    if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 1);
+                    if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 1);
+                    if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 1);
                     if (isset($ai['confidence'])) $state['ai_calibrated']['confidence'] = round(floatval($ai['confidence']), 3);
                 } else {
                     // Compute edge calibrated values
@@ -505,7 +517,7 @@ if ($action === 'get_telemetry' || $action === 'status') {
                     $state['ai_calibrated']['nitrogen'] = round($n_eff * 1.05, 1);
                     $state['ai_calibrated']['phosphorus'] = round($p_eff * 1.02, 1);
                     $state['ai_calibrated']['potassium'] = round($k_eff * 0.99, 1);
-                    $state['ai_calibrated']['ph'] = round($state['sensors']['soil_ph'], 2);
+                    $state['ai_calibrated']['ph'] = round($state['sensors']['soil_ph'], 1);
                     $state['ai_calibrated']['moisture'] = round($state['sensors']['soil_moisture'], 1);
                 }
                 $base_p = max(1.0, floatval($state['sensors']['phosphorus']));
@@ -564,6 +576,7 @@ if ($action === 'get_telemetry' || $action === 'status') {
         'relays' => $state['relays'],
         'auto_mode' => $state['auto_mode'],
         'camera_status' => $state['camera_status'],
+        'gps' => $state['gps'] ?? $default_state['gps'],
         'server_time' => date('Y-m-d H:i:s')
     ], JSON_UNESCAPED_UNICODE);
     exit();
@@ -690,31 +703,31 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
 
     // Surface Soil Stick
     if (isset($input['soil_stick']['adc_raw'])) $state['sensors']['soil_stick_adc'] = intval($input['soil_stick']['adc_raw']);
-    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_stick_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 2);
-    if (isset($input['soil_stick']['ph'])) $state['sensors']['soil_stick_ph'] = round(floatval($input['soil_stick']['ph']), 2);
+    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_stick_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 1);
+    if (isset($input['soil_stick']['ph'])) $state['sensors']['soil_stick_ph'] = round(floatval($input['soil_stick']['ph']), 1);
     if (isset($input['soil_stick']['ph_raw_voltage'])) $state['sensors']['soil_stick_ph_volt'] = round(floatval($input['soil_stick']['ph_raw_voltage']), 2);
 
-    // Soil 7-in-1 Modbus
-    if (isset($input['soil_7in1']['ph'])) $state['sensors']['soil_ph'] = round(floatval($input['soil_7in1']['ph']), 2);
-    if (isset($input['soil_7in1']['ec'])) $state['sensors']['soil_ec'] = round(floatval($input['soil_7in1']['ec']), 2);
+    // Soil 7-in-1 Modbus (pH, EC, Moisture, N, P, K ทศนิยม 1 ตำแหน่งตามข้อกำหนด)
+    if (isset($input['soil_7in1']['ph'])) $state['sensors']['soil_ph'] = round(floatval($input['soil_7in1']['ph']), 1);
+    if (isset($input['soil_7in1']['ec'])) $state['sensors']['soil_ec'] = round(floatval($input['soil_7in1']['ec']), 1);
     if (isset($input['soil_7in1']['temperature'])) $state['sensors']['soil_temperature'] = round(floatval($input['soil_7in1']['temperature']), 2);
     if (isset($input['soil_7in1']['moisture_percent'])) {
-        $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 2);
+        $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 1);
     } elseif (isset($state['sensors']['soil_stick_moisture'])) {
         $state['sensors']['soil_moisture'] = $state['sensors']['soil_stick_moisture'];
     }
-    if (isset($input['soil_7in1']['nitrogen'])) $state['sensors']['nitrogen'] = round(floatval($input['soil_7in1']['nitrogen']), 2);
-    if (isset($input['soil_7in1']['phosphorus'])) $state['sensors']['phosphorus'] = round(floatval($input['soil_7in1']['phosphorus']), 2);
-    if (isset($input['soil_7in1']['potassium'])) $state['sensors']['potassium'] = round(floatval($input['soil_7in1']['potassium']), 2);
+    if (isset($input['soil_7in1']['nitrogen'])) $state['sensors']['nitrogen'] = round(floatval($input['soil_7in1']['nitrogen']), 1);
+    if (isset($input['soil_7in1']['phosphorus'])) $state['sensors']['phosphorus'] = round(floatval($input['soil_7in1']['phosphorus']), 1);
+    if (isset($input['soil_7in1']['potassium'])) $state['sensors']['potassium'] = round(floatval($input['soil_7in1']['potassium']), 1);
 
-    // TinyML AI Calibrated
+    // TinyML AI Calibrated (pH, N, P, K, Moisture ทศนิยม 1 ตำแหน่ง)
     if (isset($input['ai_calibrated'])) {
         $ai = $input['ai_calibrated'];
-        if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 2);
-        if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 2);
-        if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 2);
-        if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 2);
-        if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 2);
+        if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 1);
+        if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 1);
+        if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 1);
+        if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 1);
+        if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 1);
         if (isset($ai['confidence'])) $state['ai_calibrated']['confidence'] = round(floatval($ai['confidence']), 3);
     }
 

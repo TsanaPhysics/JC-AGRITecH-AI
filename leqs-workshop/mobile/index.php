@@ -168,7 +168,13 @@
                             <span class="font-bold text-white tracking-wide text-[11px] sm:text-xs">ESP32-S3 ATD3.5</span>
                             <span class="text-[9px] font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40">CONNECTED (ONLINE)</span>
                         </div>
-                        <span id="subNetworkText" class="text-[10px] text-gray-400 mt-0.5 block">SSID: JC_Home • IP: 192.168.0.111 • -99 dBm</span>
+                        <div class="flex items-center gap-2 flex-wrap mt-0.5">
+                            <span id="subNetworkText" class="text-[10px] text-gray-400">SSID: JC_Home • IP: 192.168.0.111</span>
+                            <a href="https://maps.google.com/?q=12.6644,102.1039" target="_blank" id="mobGpsBadge" class="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-700/60 hover:bg-cyan-900/80 transition" title="คลิกเพื่อดูพิกัดบน Google Maps">
+                                <i class="fa-solid fa-location-dot text-rose-400 text-[9px]"></i>
+                                <span id="mobGpsCoords">12.6644° N, 102.1039° E (RBRU)</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -321,10 +327,10 @@
 
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                             <div class="flex items-start">
-                                <span id="gaugeValSoil" class="text-2xl font-bold font-mono text-white leading-none">72</span>
+                                <span id="gaugeValSoil" class="text-2xl font-bold font-mono text-white leading-none">72.0</span>
                                 <span class="text-xs font-mono text-emerald-400 font-bold ml-0.5">%</span>
                             </div>
-                            <span class="text-[11px] font-mono text-emerald-400/90 font-bold mt-0.5">72</span>
+                            <span class="text-[11px] font-mono text-emerald-400/90 font-bold mt-0.5">72.0</span>
                         </div>
                     </div>
                     <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Soil Moisture</span>
@@ -470,17 +476,17 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
                             <span class="text-[10px] text-gray-400 block font-tech">pH ดิน (7-in-1)</span>
-                            <span id="detailPh" class="font-bold text-emerald-400 text-sm">8.60</span>
-                            <span class="text-[9px] text-gray-400 block">Stick: <span id="detailStickPh" class="text-amber-300">5.77</span></span>
+                            <span id="detailPh" class="font-bold text-emerald-400 text-sm">8.6</span>
+                            <span class="text-[9px] text-gray-400 block">Stick: <span id="detailStickPh" class="text-amber-300">5.8</span></span>
                         </div>
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
                             <span class="text-[10px] text-gray-400 block font-tech">EC ดิน (µS/cm)</span>
-                            <span id="detailEc" class="font-bold text-cyan-400 text-sm">850</span>
+                            <span id="detailEc" class="font-bold text-cyan-400 text-sm">0.0</span>
                             <span class="text-[9px] text-gray-500 block">Target: 800-1200</span>
                         </div>
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
                             <span class="text-[10px] text-gray-400 block font-tech">อุณหภูมิดิน</span>
-                            <span id="detailSoilTemp" class="font-bold text-amber-400 text-sm">27.5</span>
+                            <span id="detailSoilTemp" class="font-bold text-amber-400 text-sm">27.50</span>
                             <span class="text-[9px] text-amber-500/80 block">°C (Root Zone)</span>
                         </div>
                         <div class="p-2.5 rounded-xl bg-slate-900/70 border border-white/5">
@@ -494,23 +500,23 @@
                     <div class="p-3 rounded-xl bg-slate-950/70 border border-white/5 space-y-2">
                         <div class="flex items-center justify-between text-[11px] font-mono">
                             <span class="text-gray-400 font-tech">ธาตุอาหารหลัก NPK (Raw Sensor vs TinyML AI):</span>
-                            <span id="npkTotal" class="text-emerald-400 font-bold">รวม: 257 mg/kg</span>
+                            <span id="npkTotal" class="text-emerald-400 font-bold">รวม: 38.3 mg/kg</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                             <div class="p-2 rounded-lg bg-emerald-950/30 border border-emerald-500/20">
                                 <span class="text-[10px] text-gray-400 block">ไนโตรเจน (N)</span>
-                                <span id="detailN" class="font-bold text-emerald-400 text-sm">45.0</span>
-                                <span class="text-[9px] text-emerald-300/80 block font-mono">AI: <span id="aiN">47.3</span></span>
+                                <span id="detailN" class="font-bold text-emerald-400 text-sm">24.2</span>
+                                <span class="text-[9px] text-emerald-300/80 block font-mono">AI: <span id="aiN">24.2</span></span>
                             </div>
                             <div class="p-2 rounded-lg bg-cyan-950/30 border border-cyan-500/20">
                                 <span class="text-[10px] text-gray-400 block">ฟอสฟอรัส (P)</span>
-                                <span id="detailP" class="font-bold text-cyan-400 text-sm">32.0</span>
-                                <span class="text-[9px] text-cyan-300/80 block font-mono">AI: <span id="aiP">32.6</span></span>
+                                <span id="detailP" class="font-bold text-cyan-400 text-sm">14.1</span>
+                                <span class="text-[9px] text-cyan-300/80 block font-mono">AI: <span id="aiP">14.1</span></span>
                             </div>
                             <div class="p-2 rounded-lg bg-amber-950/30 border border-amber-500/20">
                                 <span class="text-[10px] text-gray-400 block">โพแทสเซียม (K)</span>
-                                <span id="detailK" class="font-bold text-amber-400 text-sm">180.0</span>
-                                <span class="text-[9px] text-amber-300/80 block font-mono">AI: <span id="aiK">178.2</span></span>
+                                <span id="detailK" class="font-bold text-amber-400 text-sm">0.0</span>
+                                <span class="text-[9px] text-amber-300/80 block font-mono">AI: <span id="aiK">0.0</span></span>
                             </div>
                         </div>
                         <div class="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-1 border-t border-white/5">
@@ -803,7 +809,7 @@
                         const s = data.sensors;
                         const ai = data.ai_calibrated || {};
 
-                        // 4 Main Gauges - ทศนิยม 2 ตำแหน่ง
+                        // 4 Main Gauges - Temp, Hum, VPD = 2 ตำแหน่ง, Soil Moisture = 1 ตำแหน่ง
                         const tempEl = document.getElementById('gaugeValTemp');
                         if (tempEl) tempEl.innerText = Number(s.temperature).toFixed(2);
 
@@ -811,20 +817,20 @@
                         if (humEl) humEl.innerText = Number(s.humidity).toFixed(2);
 
                         const soilEl = document.getElementById('gaugeValSoil');
-                        if (soilEl) soilEl.innerText = Number(s.soil_moisture).toFixed(2);
+                        if (soilEl) soilEl.innerText = Number(s.soil_moisture).toFixed(1);
 
                         const vpdEl = document.getElementById('gaugeValVpd');
                         if (vpdEl) vpdEl.innerText = Number(s.vpd).toFixed(2);
 
-                        // Soil 7-in-1 & Stick - ทศนิยม 2 ตำแหน่ง
+                        // Soil 7-in-1 & Stick - pH, EC แสดงทศนิยม 1 ตำแหน่งตามข้อกำหนด
                         const phEl = document.getElementById('detailPh');
-                        if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(2);
+                        if (phEl) phEl.innerText = Number(s.soil_ph).toFixed(1);
 
                         const stickPhEl = document.getElementById('detailStickPh');
-                        if (stickPhEl) stickPhEl.innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(2);
+                        if (stickPhEl) stickPhEl.innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(1);
 
                         const ecEl = document.getElementById('detailEc');
-                        if (ecEl) ecEl.innerText = Number(s.soil_ec).toFixed(2);
+                        if (ecEl) ecEl.innerText = Number(s.soil_ec).toFixed(1);
 
                         const soilTempEl = document.getElementById('detailSoilTemp');
                         if (soilTempEl) soilTempEl.innerText = Number(s.soil_temperature || 27.5).toFixed(2);
@@ -837,38 +843,38 @@
                         const solarRadEl = document.getElementById('detailSolarRad');
                         if (solarRadEl) solarRadEl.innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
 
-                        // NPK Raw Sensor Metrics vs AI Fallback (ถ้าเซนเซอร์เป็น 0 ให้ดึง AI Calibrated มาแสดงเพื่อไม่ให้ว่างเปล่า)
+                        // NPK Raw Sensor Metrics vs AI Fallback - ทศนิยม 1 ตำแหน่ง
                         const dispN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
                         const dispP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
                         const dispK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
 
                         const nEl = document.getElementById('detailN');
-                        if (nEl) nEl.innerText = dispN.toFixed(2);
+                        if (nEl) nEl.innerText = dispN.toFixed(1);
 
                         const pEl = document.getElementById('detailP');
-                        if (pEl) pEl.innerText = dispP.toFixed(2);
+                        if (pEl) pEl.innerText = dispP.toFixed(1);
 
                         const kEl = document.getElementById('detailK');
-                        if (kEl) kEl.innerText = dispK.toFixed(2);
+                        if (kEl) kEl.innerText = dispK.toFixed(1);
 
-                        // TinyML Edge AI Calibrated NPK - ทศนิยม 2 ตำแหน่ง
+                        // TinyML Edge AI Calibrated NPK - ทศนิยม 1 ตำแหน่ง
                         const aiNEl = document.getElementById('aiN');
-                        if (aiNEl) aiNEl.innerText = Number(ai.nitrogen || s.nitrogen || 0).toFixed(2);
+                        if (aiNEl) aiNEl.innerText = Number(ai.nitrogen || s.nitrogen || 0).toFixed(1);
 
                         const aiPEl = document.getElementById('aiP');
-                        if (aiPEl) aiPEl.innerText = Number(ai.phosphorus || s.phosphorus || 0).toFixed(2);
+                        if (aiPEl) aiPEl.innerText = Number(ai.phosphorus || s.phosphorus || 0).toFixed(1);
 
                         const aiKEl = document.getElementById('aiK');
-                        if (aiKEl) aiKEl.innerText = Number(ai.potassium || s.potassium || 0).toFixed(2);
+                        if (aiKEl) aiKEl.innerText = Number(ai.potassium || s.potassium || 0).toFixed(1);
 
                         const confEl = document.getElementById('aiConfidence');
                         if (confEl) confEl.innerText = `${Number(ai.confidence ? ai.confidence * 100 : 99.2).toFixed(2)}%`;
 
                         const ratioEl = document.getElementById('npkRatio');
-                        if (ratioEl) ratioEl.innerText = ai.npk_ratio || `${(dispN/(dispP||1)).toFixed(2)} : 1 : ${(dispK/(dispP||1)).toFixed(2)}`;
+                        if (ratioEl) ratioEl.innerText = ai.npk_ratio || `${(dispN/(dispP||1)).toFixed(1)} : 1 : ${(dispK/(dispP||1)).toFixed(1)}`;
 
                         const totalEl = document.getElementById('npkTotal');
-                        if (totalEl) totalEl.innerText = `รวม: ${(dispN + dispP + dispK).toFixed(2)} mg/kg`;
+                        if (totalEl) totalEl.innerText = `รวม: ${(dispN + dispP + dispK).toFixed(1)} mg/kg`;
 
                         // Microclimate Dew Point & Vapor Pressures - ทศนิยม 2 ตำแหน่ง
                         const dewPtEl = document.getElementById('detailDewPoint');
@@ -939,6 +945,14 @@
                         if (arcVpd) {
                             const offset = 301.59 - ((s.vpd / 3.0) * 301.59);
                             arcVpd.style.strokeDashoffset = Math.max(20, Math.min(300, offset));
+                        }
+                    }
+
+                    // Dynamically update GPS Coordinates from Telemetry API
+                    if (data.gps) {
+                        const mobGps = document.getElementById('mobGpsCoords');
+                        if (mobGps && data.gps.formatted) {
+                            mobGps.innerText = `${data.gps.formatted} (${data.gps.location_name || 'RBRU'})`;
                         }
                     }
 
@@ -1039,6 +1053,7 @@
                         <!-- Screen Body matching photo -->
                         <div style="font-family: monospace; font-size: 10px; line-height: 1.6; background: #000; padding: 8px; border-radius: 6px; border: 1px solid #38bdf8;">
                             <div>Status: <span style="color: #22c55e; font-weight: bold;">CONNECTED (ONLINE)</span></div>
+                            <div style="color: #facc15;">GPS: <a href="https://maps.google.com/?q=12.6644,102.1039" target="_blank" style="color: #38bdf8; text-decoration: underline;">12.6644 N, 102.1039 E (RBRU)</a></div>
                             <div style="color: #38bdf8;">SSID: <span style="color: #fff; font-weight: bold;">${currentSsid}</span></div>
                             <div style="color: #38bdf8;">IP Address: <span style="color: #fff; font-weight: bold;">${currentBoardIp}</span></div>
                             <div style="color: #38bdf8;">Signal RSSI: <span style="color: #fff; font-weight: bold;">${currentRssi} dBm (ปกติ)</span></div>

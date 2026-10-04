@@ -86,6 +86,12 @@
                     <span class="text-gray-400">IP:</span>
                     <span id="boardIpDisplay" class="text-cyan-300 font-bold">192.168.0.111:8500</span>
                     <span class="text-slate-600">|</span>
+                    <a href="https://maps.google.com/?q=12.6644,102.1039" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white flex items-center gap-1 group transition" title="เปิดพิกัดใน Google Maps">
+                        <i class="fa-solid fa-location-dot text-rose-400 group-hover:scale-110 transition"></i>
+                        <span>GPS:</span>
+                        <span id="boardGpsDisplay" class="text-rose-300 font-bold">12.6644° N, 102.1039° E</span>
+                    </a>
+                    <span class="text-slate-600">|</span>
                     <span class="text-gray-400">SD Card:</span>
                     <span id="sdCardStatusDisplay" class="text-slate-400 font-bold"><i class="fa-solid fa-sd-card mr-0.5 text-slate-500"></i> ไม่ได้ใส่การ์ด</span>
                     <span class="text-slate-600">|</span>
@@ -143,6 +149,9 @@
                         <span class="text-xs font-mono font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
                             09:03 ชีวะ ทัศนา
                         </span>
+                        <a href="https://maps.google.com/?q=12.6644,102.1039" target="_blank" rel="noopener noreferrer" class="text-xs font-mono font-bold text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded border border-rose-800 hover:bg-rose-900 transition flex items-center gap-1">
+                            <i class="fa-solid fa-location-crosshairs text-rose-400"></i> GPS: 12.6644° N, 102.1039° E (มรภ.รำไพพรรณี)
+                        </a>
                     </div>
                     <h3 class="text-sm sm:text-base font-bold text-white font-tech">
                         พอร์ทัลสแกนเชื่อมต่อและระบบยืนยันตัวตน Smart Farm AIoT
@@ -254,23 +263,23 @@
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashSoilMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">4.80</span>
+                        <span id="dashSoilMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">4.8</span>
                         <span class="text-xs text-slate-400">%</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashSoilEc" class="text-lg lg:text-xl font-bold font-mono text-emerald-400">0.00</span>
+                        <span id="dashSoilEc" class="text-lg lg:text-xl font-bold font-mono text-emerald-400">0.0</span>
                         <span class="text-[10px] text-slate-400">µS/cm</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
-                    <span>pH: <strong id="dashSoilPh" class="text-emerald-400 text-xs">8.60</strong></span>
+                    <span>pH: <strong id="dashSoilPh" class="text-emerald-400 text-xs">8.6</strong></span>
                     <span>Temp: <strong id="dashSoilTemp" class="text-slate-300">27.50°C</strong></span>
                 </div>
                 <!-- NPK Capsules เหมือนหน้าจอบอร์ด ESP32 -->
                 <div class="flex items-center justify-between gap-1 pt-1 font-mono text-[10px]">
-                    <span class="bg-indigo-950/80 text-indigo-300 border border-indigo-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4N">N 24.20</span>
-                    <span class="bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4P">P 14.10</span>
-                    <span class="bg-amber-950/80 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4K">K 0.00</span>
+                    <span class="bg-indigo-950/80 text-indigo-300 border border-indigo-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4N">N 24.2</span>
+                    <span class="bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4P">P 14.1</span>
+                    <span class="bg-amber-950/80 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded-full flex-1 text-center font-bold" id="dashCard4K">K 0.0</span>
                 </div>
             </div>
 
@@ -825,15 +834,15 @@
                             }
                         }
 
-                        // Root 7-in-1 Soil Sensor
-                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(2);
-                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Number(s.soil_ec).toFixed(2);
-                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(2);
+                        // Root 7-in-1 Soil Sensor (pH, EC, Moisture ทศนิยม 1 ตำแหน่งตามคำสั่ง)
+                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = Number(s.soil_moisture).toFixed(1);
+                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Number(s.soil_ec).toFixed(1);
+                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
                         if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(2)}°C`;
                         
-                        // Surface Soil Stick
-                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = Number(s.soil_stick_moisture || s.soil_moisture).toFixed(2);
-                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(2);
+                        // Surface Soil Stick (Moisture, pH ทศนิยม 1 ตำแหน่ง)
+                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = Number(s.soil_stick_moisture || s.soil_moisture).toFixed(1);
+                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(1);
                         if (document.getElementById('dashStickAdc')) document.getElementById('dashStickAdc').innerText = s.soil_stick_adc || 1850;
                         if (document.getElementById('dashStickVolt')) document.getElementById('dashStickVolt').innerText = `${Number(s.soil_stick_ph_volt || 1.85).toFixed(2)}V`;
 
@@ -843,28 +852,33 @@
                             document.getElementById('dashSolarRad').innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
                         }
 
-                        // NPK Elements: แสดงค่าจริงจากเซนเซอร์ หากเป็น 0 (แปลงทดสอบแห้ง) จะดึงค่า AI Calibrated มาแสดงเพื่อไม่ให้ว่างเปล่า
+                        // NPK Elements: ทศนิยม 1 ตำแหน่งตามข้อกำหนด (N, P, K)
                         const valN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
                         const valP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
                         const valK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
 
-                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${valN.toFixed(2)} mg/kg`;
-                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${valP.toFixed(2)} mg/kg`;
-                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${valK.toFixed(2)} mg/kg`;
+                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${valN.toFixed(1)} mg/kg`;
+                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${valP.toFixed(1)} mg/kg`;
+                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${valK.toFixed(1)} mg/kg`;
 
-                        // Card 4 Capsules (ตรงกับหน้าจอ ESP32)
-                        if (document.getElementById('dashCard4N')) document.getElementById('dashCard4N').innerText = `N ${valN.toFixed(2)}`;
-                        if (document.getElementById('dashCard4P')) document.getElementById('dashCard4P').innerText = `P ${valP.toFixed(2)}`;
-                        if (document.getElementById('dashCard4K')) document.getElementById('dashCard4K').innerText = `K ${valK.toFixed(2)}`;
+                        // Card 4 Capsules (ตรงกับหน้าจอ ESP32 - ทศนิยม 1 ตำแหน่ง)
+                        if (document.getElementById('dashCard4N')) document.getElementById('dashCard4N').innerText = `N ${valN.toFixed(1)}`;
+                        if (document.getElementById('dashCard4P')) document.getElementById('dashCard4P').innerText = `P ${valP.toFixed(1)}`;
+                        if (document.getElementById('dashCard4K')) document.getElementById('dashCard4K').innerText = `K ${valK.toFixed(1)}`;
 
-                        // AI Calibrated Elements
-                        if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `AI: ${Number(ai.nitrogen || 0).toFixed(2)}`;
-                        if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `AI: ${Number(ai.phosphorus || 0).toFixed(2)}`;
-                        if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `AI: ${Number(ai.potassium || 0).toFixed(2)}`;
-                        if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || `${(valN/(valP||1)).toFixed(2)}:1:${(valK/(valP||1)).toFixed(2)}`;
-                        if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${(valN + valP + valK).toFixed(2)} mg/kg`;
+                        // AI Calibrated Elements (ทศนิยม 1 ตำแหน่ง)
+                        if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `AI: ${Number(ai.nitrogen || 0).toFixed(1)}`;
+                        if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `AI: ${Number(ai.phosphorus || 0).toFixed(1)}`;
+                        if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `AI: ${Number(ai.potassium || 0).toFixed(1)}`;
+                        if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || `${(valN/(valP||1)).toFixed(1)}:1:${(valK/(valP||1)).toFixed(1)}`;
+                        if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${(valN + valP + valK).toFixed(1)} mg/kg`;
                         if (document.getElementById('dashAiConfidence') && ai.confidence) {
                             document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
+                        }
+
+                        // GPS Coordinate update
+                        if (data.gps && document.getElementById('boardGpsDisplay')) {
+                            document.getElementById('boardGpsDisplay').innerText = data.gps.formatted || '12.6644° N, 102.1039° E';
                         }
 
                         // SD Card & SQLite Storage Indicators

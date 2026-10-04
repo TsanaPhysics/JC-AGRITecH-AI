@@ -773,7 +773,11 @@ static void drawOverviewTopHeader() {
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.setTextColor(0xFFFF, 0x780F); // ตัวอักษรสีขาวสว่าง
     lcd.drawString("xAI", brandX + (aiW / 2), brandY);
-    lcd.setTextDatum(textdatum_t::middle_left);
+    lcd.setTextDatum(textdatum_t::top_left);
+
+    // พิกัด GPS สถานที่ดำเนินงาน (มรภ.รำไพพรรณี จันทบุรี: 12.6644° N, 102.1039° E)
+    lcd.setTextColor(0x07E0, 0x0862);
+    lcd.drawString("GPS: 12.6644 N, 102.1039 E (RBRU)", 12, 32, &fonts::Font0);
 
     // ========================================================================
     // แคปซูลแสดง วันที่และเวลาเรียลไทม์ (Date & Time Capsule) - Option A
@@ -1034,33 +1038,33 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // เส้นแบ่งระดับชั้นบางเบาอย่างหรูหราระหว่างแถว 1 และแถว 2
     lcd.drawFastHLine(20, 105, 204, 0x1A4F);
 
-    // --- แถวที่ 1 ด้านบน: ตัวเลขอุณหภูมิ (ซ้าย) e.g. 28.5 °C (เลื่อนลงมาที่ y: 74 เพื่อเว้นระยะจากหัวข้อให้อ่านง่ายขึ้น) ---
+    // --- แถวที่ 1 ด้านบน: ตัวเลขอุณหภูมิ (ซ้าย) e.g. 32.90 °C ---
     if (data.air.isConnected) {
-        snprintf(buf, sizeof(buf), "%.1f", data.air.temperature);
+        snprintf(buf, sizeof(buf), "%.2f", data.air.temperature);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 24, 74, &fonts::Font4);
+        lcd.drawString(buf, 20, 74, &fonts::Font4);
         int tW = lcd.textWidth(buf, &fonts::Font4);
         // สัญลักษณ์องศาเซลเซียส °C (สีฟ้าสว่างสดใส)
-        lcd.drawCircle(24 + tW + 5, 78, 3, 0x07FF);
+        lcd.drawCircle(20 + tW + 4, 78, 3, 0x07FF);
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("C", 24 + tW + 11, 74, &fonts::Font2);
+        lcd.drawString("C", 20 + tW + 9, 74, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--.-", 24, 74, &fonts::Font4);
+        lcd.drawString("--.--", 20, 74, &fonts::Font4);
     }
 
-    // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 68 %RH (เลื่อนลงมาที่ y: 74) ---
+    // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 78.10 %RH ---
     if (data.air.isConnected) {
-        snprintf(buf, sizeof(buf), "%.0f", data.air.humidity);
+        snprintf(buf, sizeof(buf), "%.2f", data.air.humidity);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 136, 74, &fonts::Font4);
+        lcd.drawString(buf, 126, 74, &fonts::Font4);
         int hW = lcd.textWidth(buf, &fonts::Font4);
         // หน่วย %RH (สีฟ้าสว่างสดใส)
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("%RH", 136 + hW + 4, 81, &fonts::Font2);
+        lcd.drawString("%RH", 126 + hW + 3, 81, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--", 136, 74, &fonts::Font4);
+        lcd.drawString("--.--", 126, 74, &fonts::Font4);
     }
 
     // --- แถวที่ 2 ด้านล่าง: ค่า VPD ให้อยู่กึ่งกลาง และฟอนต์ขนาดเท่ากับอุณหภูมิ (Font4) ---
@@ -1091,10 +1095,10 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 2: Solar Dome
     // ========================================================================
-    // แถวที่ 1: kLux e.g. 52.4 kLux
+    // แถวที่ 1: kLux e.g. 52.40 kLux
     lcd.fillRect(340, 72, 126, 32, 0x10E4);
     if (data.light.isConnected) {
-        snprintf(buf, sizeof(buf), "%.1f", data.light.lux / 1000.0f);
+        snprintf(buf, sizeof(buf), "%.2f", data.light.lux / 1000.0f);
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 342, 74, &fonts::Font4);
         int lW = lcd.textWidth(buf, &fonts::Font4);
@@ -1103,21 +1107,21 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.drawString("kLux", 342 + lW + 4, 78, &fonts::Font2);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("--.-", 342, 74, &fonts::Font4);
+        lcd.drawString("--.--", 342, 74, &fonts::Font4);
     }
 
-    // แถวที่ 2: W/m² e.g. 414 W/m²
+    // แถวที่ 2: W/m² e.g. 414.00 W/m²
     lcd.fillRect(340, 106, 126, 36, 0x10E4);
     if (data.light.isConnected) {
-        snprintf(buf, sizeof(buf), "%.0f", data.light.solarRadiation);
+        snprintf(buf, sizeof(buf), "%.2f", data.light.solarRadiation);
         lcd.setTextColor(0xFFFF, 0x10E4);
-        lcd.drawString(buf, 350, 110, &fonts::Font4);
+        lcd.drawString(buf, 342, 110, &fonts::Font4);
         int sW = lcd.textWidth(buf, &fonts::Font4);
         // หน่วย W/m² สีเหลืองทองสว่างสดใส
-        drawUnitW_m2(350 + sW + 4, 112, 0xFFE0, 0x10E4);
+        drawUnitW_m2(342 + sW + 4, 112, 0xFFE0, 0x10E4);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
-        lcd.drawString("---", 350, 110, &fonts::Font4);
+        lcd.drawString("--.--", 342, 110, &fonts::Font4);
     }
 
     // ========================================================================
@@ -1144,7 +1148,7 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.fillCircle(gcx + (int)(39.5f * cosf(rad)), gcy + (int)(39.5f * sinf(rad)), 3, 0x15D3);
     }
 
-    // ค่าตัวเลขใหญ่ตรงกลางเกจ e.g. 42.5 %
+    // ค่าตัวเลขใหญ่ตรงกลางเกจ e.g. 42.5 % (ทศนิยมตำแหน่งเดียว)
     snprintf(buf, sizeof(buf), "%.1f", data.soilStick.moisture);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_right);
@@ -1156,56 +1160,56 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     lcd.setTextDatum(textdatum_t::top_left);
 
     // ========================================================================
-    // อัปเดตข้อมูลการ์ด 4: Deep Soil NPK & pH
+    // อัปเดตข้อมูลการ์ด 4: Deep Soil NPK & pH (แสดงผลทศนิยม 1 ตำแหน่งตามข้อกำหนด)
     // ========================================================================
-    // แถวที่ 1: pH (ชดเชยด้วยโมเดล AI) และ EC
+    // แถวที่ 1: pH (Soil 7-in-1 จริง) และ EC
     lcd.fillRect(256, 192, 210, 30, 0x10E4);
     // ป้าย pH สีเขียวนีออนสว่าง
     lcd.setTextColor(0x07E0, 0x10E4);
     lcd.drawString("pH", 256, 197, &fonts::Font2);
-    snprintf(buf, sizeof(buf), "%.1f", (data.aiCalibrated.ph > 0.1f) ? data.aiCalibrated.ph : data.soil7in1.ph);
+    snprintf(buf, sizeof(buf), "%.1f", data.soil7in1.ph);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, 282, 194, &fonts::Font4);
 
     // ป้าย EC สีฟ้าไซแอนนีออนสว่าง
     lcd.setTextColor(0x07FF, 0x10E4);
-    lcd.drawString("EC", 338, 197, &fonts::Font2);
-    snprintf(buf, sizeof(buf), "%.0f", data.soil7in1.ec);
+    lcd.drawString("EC", 336, 197, &fonts::Font2);
+    snprintf(buf, sizeof(buf), "%.1f", data.soil7in1.ec);
     lcd.setTextColor(0xFFFF, 0x10E4);
-    lcd.drawString(buf, 364, 194, &fonts::Font4);
+    lcd.drawString(buf, 358, 194, &fonts::Font4);
     int ecW = lcd.textWidth(buf, &fonts::Font4);
     // หน่วย uS/cm สีฟ้าสว่างสดใส
     lcd.setTextColor(0x3DFF, 0x10E4);
-    lcd.drawString("uS/cm", 364 + ecW + 3, 200, &fonts::Font2);
+    lcd.drawString("uS/cm", 358 + ecW + 2, 200, &fonts::Font2);
 
-    // แถวที่ 2: แคปซูลเม็ดยาสามสี N, P, K (ค่าคำนวณจาก Deep Learning TinyML) + mg/kg
+    // แถวที่ 2: แคปซูลเม็ดยาสามสี N, P, K (ทศนิยม 1 ตำแหน่ง) + mg/kg
     lcd.fillRect(252, 224, 214, 28, 0x10E4);
     // แคปซูล N (ม่วงน้ำเงิน)
-    lcd.fillRoundRect(254, 226, 46, 22, 11, 0x633C);
+    lcd.fillRoundRect(254, 226, 48, 22, 11, 0x633C);
     lcd.setTextColor(0xFFFF, 0x633C);
     lcd.setTextDatum(textdatum_t::middle_center);
-    int dispN = (data.aiCalibrated.nitrogen > 0.1f) ? (int)roundf(data.aiCalibrated.nitrogen) : (int)data.soil7in1.nitrogen;
-    snprintf(buf, sizeof(buf), "N %d", dispN);
-    lcd.drawString(buf, 254 + 23, 226 + 11);
+    float dispN = (data.soil7in1.nitrogen > 0.05f) ? data.soil7in1.nitrogen : data.aiCalibrated.nitrogen;
+    snprintf(buf, sizeof(buf), "N %.1f", dispN);
+    lcd.drawString(buf, 254 + 24, 226 + 11, &fonts::Font0);
 
     // แคปซูล P (เขียวมรกต)
-    lcd.fillRoundRect(306, 226, 46, 22, 11, 0x15D3);
+    lcd.fillRoundRect(305, 226, 48, 22, 11, 0x15D3);
     lcd.setTextColor(0xFFFF, 0x15D3);
-    int dispP = (data.aiCalibrated.phosphorus > 0.1f) ? (int)roundf(data.aiCalibrated.phosphorus) : (int)data.soil7in1.phosphorus;
-    snprintf(buf, sizeof(buf), "P %d", dispP);
-    lcd.drawString(buf, 306 + 23, 226 + 11);
+    float dispP = (data.soil7in1.phosphorus > 0.05f) ? data.soil7in1.phosphorus : data.aiCalibrated.phosphorus;
+    snprintf(buf, sizeof(buf), "P %.1f", dispP);
+    lcd.drawString(buf, 305 + 24, 226 + 11, &fonts::Font0);
 
     // แคปซูล K (ส้มทอง)
-    lcd.fillRoundRect(358, 226, 52, 22, 11, 0xFC64);
+    lcd.fillRoundRect(356, 226, 50, 22, 11, 0xFC64);
     lcd.setTextColor(0xFFFF, 0xFC64);
-    int dispK = (data.aiCalibrated.potassium > 0.1f) ? (int)roundf(data.aiCalibrated.potassium) : (int)data.soil7in1.potassium;
-    snprintf(buf, sizeof(buf), "K %d", dispK);
-    lcd.drawString(buf, 358 + 26, 226 + 11);
+    float dispK = (data.soil7in1.potassium > 0.05f) ? data.soil7in1.potassium : data.aiCalibrated.potassium;
+    snprintf(buf, sizeof(buf), "K %.1f", dispK);
+    lcd.drawString(buf, 356 + 25, 226 + 11, &fonts::Font0);
 
     // หน่วย mg/kg สีเหลืองทองสว่างสดใส ชัดเจน
     lcd.setTextColor(0xFFE0, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_left);
-    lcd.drawString("mg/kg", 416, 226 + 11, &fonts::Font0);
+    lcd.drawString("mg/kg", 410, 226 + 11, &fonts::Font0);
     lcd.setTextDatum(textdatum_t::top_left);
 
     // อัปเดตแคปซูลเวลาและไอคอน Wi-Fi ด้านบนสดๆ ทุกวินาที
@@ -1264,25 +1268,25 @@ static void drawPageDetailAir(const FarmSensorTelemetry &data) {
     // บรรทัดตัวเลขหลัก: [TEMP] 27.3 °C (81.2 °F) & [RH%] 88.1 %RH (y: c1_y + 44)
     drawBadgeTag(16, c1_y + 42, "TEMP", 0xB222, 0xFFFF, 0xFD20, 44, 20);
     float fahrenheit = (data.air.temperature * 1.8f) + 32.0f;
-    snprintf(buf, sizeof(buf), "%.1f C  (%.1f F)", data.air.temperature, fahrenheit);
+    snprintf(buf, sizeof(buf), "%.2f C  (%.2f F)", data.air.temperature, fahrenheit);
     lcd.setTextColor(0xFD20, COLOR_CARD_BG);
     lcd.drawString(buf, 68, c1_y + 44);
 
     drawBadgeTag(240, c1_y + 42, "RH%", 0x0B34, 0xFFFF, 0x3DFF, 40, 20);
-    snprintf(buf, sizeof(buf), "%.1f %%RH", data.air.humidity);
+    snprintf(buf, sizeof(buf), "%.2f %%RH", data.air.humidity);
     lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
     lcd.drawString(buf, 288, c1_y + 44);
 
     // จุดน้ำค้าง Dew Point & ระยะห่างจุดน้ำค้าง Dew Margin (y: c1_y + 78, delta = 34px)
     float dewMargin = data.air.temperature - data.air.dewPoint;
-    snprintf(buf, sizeof(buf), "Dew Point: %.1f C   |   Dew Margin: %.1f C", data.air.dewPoint, dewMargin);
+    snprintf(buf, sizeof(buf), "Dew Point: %.2f C   |   Dew Margin: %.2f C", data.air.dewPoint, dewMargin);
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
     lcd.drawString(buf, 16, c1_y + 78);
 
     // เกจวัดความชื้นอากาศ: หัวข้อและตัวเลขเปอร์เซ็นต์ (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("เกจระดับความชื้นอากาศ:", "Air Humidity Gauge:", "空气湿度刻度:"), 16, c1_y + 112);
-    snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.air.humidity,
+    snprintf(buf, sizeof(buf), "%.2f %% (%s)", data.air.humidity,
              (data.air.humidity > 80.0f) ? L_STR("สูง", "High", "高") : ((data.air.humidity < 40.0f) ? L_STR("ต่ำ", "Low", "低") : L_STR("ปกติ", "Normal", "适宜")));
     uint16_t barColor = (data.air.humidity > 80.0f) ? 0xFD20 : ((data.air.humidity < 40.0f) ? COLOR_WARN : 0x07E0);
     lcd.setTextColor(barColor, COLOR_CARD_BG);
@@ -1419,17 +1423,17 @@ static void drawPageDetailLight(const FarmSensorTelemetry &data) {
                          "[BH1750] 太阳穹顶光合辐射通量密度"), 16, c1_y + 10);
 
     drawBadgeTag(16, c1_y + 42, "SOLAR", 0x9360, 0xFFFF, 0xFFE0, 50, 20);
-    snprintf(buf, sizeof(buf), "%.1f W/m2", data.light.solarRadiation);
+    snprintf(buf, sizeof(buf), "%.2f W/m2", data.light.solarRadiation);
     lcd.setTextColor(0xFFE0, COLOR_CARD_BG);
     lcd.drawString(buf, 74, c1_y + 44);
 
     drawBadgeTag(240, c1_y + 42, "LUX", 0x7BC1, 0xFFFF, 0xFF30, 38, 20);
-    snprintf(buf, sizeof(buf), "%.2f kLux (%.0f Lux)", data.light.lux / 1000.0f, data.light.lux);
+    snprintf(buf, sizeof(buf), "%.2f kLux (%.2f Lux)", data.light.lux / 1000.0f, data.light.lux);
     lcd.setTextColor(0xFF30, COLOR_CARD_BG);
     lcd.drawString(buf, 288, c1_y + 44);
 
     float solarConstRatio = (data.light.solarRadiation / 1361.0f) * 100.0f;
-    snprintf(buf, sizeof(buf), "%s: %.1f %% (จาก 1361 W/m2 Max Solar Constant)",
+    snprintf(buf, sizeof(buf), "%s: %.2f %% (จาก 1361 W/m2 Max Solar Constant)",
              L_STR("สัดส่วนคงที่สุริยะ", "Solar Constant Ratio", "太阳能常数占比"), solarConstRatio);
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
     lcd.drawString(buf, 16, c1_y + 78);
@@ -1437,7 +1441,7 @@ static void drawPageDetailLight(const FarmSensorTelemetry &data) {
     // ระดับรังสีดวงอาทิตย์: หัวข้อและตัวเลข (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("ระดับรังสีดวงอาทิตย์ (0 - 1000 W/m2):", "Solar Radiation Level (0 - 1000 W/m2):", "太阳辐射强度刻度:"), 16, c1_y + 112);
-    snprintf(buf, sizeof(buf), "%.1f W/m2", data.light.solarRadiation);
+    snprintf(buf, sizeof(buf), "%.2f W/m2", data.light.solarRadiation);
     lcd.setTextColor(0xFDE0, COLOR_CARD_BG);
     lcd.setTextDatum(textdatum_t::top_right);
     lcd.drawString(buf, 446, c1_y + 112);
@@ -1564,7 +1568,7 @@ static void drawPageDetailSoil1(const FarmSensorTelemetry &data) {
                          "[Soil Stick] 表层土壤湿度检测 (0 - 10 厘米)"), 16, c1_y + 10);
 
     drawBadgeTag(16, c1_y + 42, "SOIL", 0x0BCB, 0xFFFF, 0x3DFF, 46, 20);
-    snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.soilStick.moisture, L_STR("ผิวดิน", "Moist", "湿度"));
+    snprintf(buf, sizeof(buf), "%.2f %% (%s)", data.soilStick.moisture, L_STR("ผิวดิน", "Moist", "湿度"));
     lcd.setTextColor(0x3DFF, COLOR_CARD_BG);
     lcd.drawString(buf, 72, c1_y + 44);
 
@@ -1574,14 +1578,14 @@ static void drawPageDetailSoil1(const FarmSensorTelemetry &data) {
     lcd.setTextColor(0xFD20, COLOR_CARD_BG);
     lcd.drawString(buf, 290, c1_y + 44);
 
-    snprintf(buf, sizeof(buf), "%s: < 40.0%% [ระบบเตรียมพร้อมจ่ายน้ำอัตโนมัติ]", L_STR("เกณฑ์วิกฤตรดน้ำ", "Trigger Level", "浇水阈值"));
+    snprintf(buf, sizeof(buf), "%s: < 40.00%% [ระบบเตรียมพร้อมจ่ายน้ำอัตโนมัติ]", L_STR("เกณฑ์วิกฤตรดน้ำ", "Trigger Level", "浇水阈值"));
     lcd.setTextColor(0x87F0, COLOR_CARD_BG);
     lcd.drawString(buf, 16, c1_y + 78);
 
     // เกจระดับความชื้น: หัวข้อและตัวเลข (y: c1_y + 112, delta = 34px)
     lcd.setTextColor(COLOR_TEXT_DIM, COLOR_CARD_BG);
     lcd.drawString(L_STR("เกจระดับความชื้นผิวดิน (0 - 100%):", "Topsoil Moisture Gauge (0 - 100%):", "表层土壤湿度刻度:"), 16, c1_y + 112);
-    snprintf(buf, sizeof(buf), "%.1f %% (%s)", data.soilStick.moisture,
+    snprintf(buf, sizeof(buf), "%.2f %% (%s)", data.soilStick.moisture,
              (data.soilStick.moisture < 40.0f) ? L_STR("แห้ง", "Dry", "干旱") : ((data.soilStick.moisture > 75.0f) ? L_STR("แฉะ", "Wet", "过湿") : L_STR("ชุ่มชื้น", "Optimal", "适宜")));
     uint16_t soilCol = (data.soilStick.moisture < 40.0f) ? COLOR_WARN : ((data.soilStick.moisture > 75.0f) ? COLOR_CYAN : 0x07E0);
     lcd.setTextColor(soilCol, COLOR_CARD_BG);
@@ -1753,16 +1757,18 @@ static void drawCyberParamCard(int x, int y, int w, int h, int num, const char *
         lcd.setTextDatum(textdatum_t::top_left);
     }
 
-    // ตัวเลขค่าการวัดขนาดใหญ่ Big Bold
+    // ตัวเลขค่าการวัดขนาดใหญ่ Big Bold: ปรับ pH, N, P, K, EC, Moisture เป็น 1 ตำแหน่งตามข้อกำหนด
     char vbuf[32];
-    if (icon_type == 1) { // Moisture: "42.5%" ในตัวเดียว จบ ไม่ซ้ำ
+    if (icon_type == 1) { // Moisture: "4.8%" (1 ตำแหน่ง)
         snprintf(vbuf, sizeof(vbuf), "%.1f%%", val);
-    } else if (icon_type == 2) { // Temp: "28.6"
-        snprintf(vbuf, sizeof(vbuf), "%.1f", val);
-    } else if (icon_type == 3 || icon_type >= 5) { // EC, N, P, K: ตัวเลขจำนวนเต็ม
-        snprintf(vbuf, sizeof(vbuf), "%.0f", val);
-    } else if (icon_type == 4) { // pH: "6.45"
+    } else if (icon_type == 2) { // Temp: "28.60" (คง 2 ตำแหน่ง)
         snprintf(vbuf, sizeof(vbuf), "%.2f", val);
+    } else if (icon_type == 3) { // EC: "0.0" / "120.0" (1 ตำแหน่ง)
+        snprintf(vbuf, sizeof(vbuf), "%.1f", val);
+    } else if (icon_type >= 5) { // N, P, K: "24.2" (1 ตำแหน่ง)
+        snprintf(vbuf, sizeof(vbuf), "%.1f", val);
+    } else if (icon_type == 4) { // pH: "8.6" (1 ตำแหน่ง)
+        snprintf(vbuf, sizeof(vbuf), "%.1f", val);
     }
 
     lcd.setTextSize(2);
@@ -2130,18 +2136,18 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
     int leg_x = 118;
     // Dot 1: Cyan (N)
     lcd.fillCircle(leg_x, r3_y + 44, 4, 0x07FF);
-    snprintf(buf, sizeof(buf), "N: %.0f (%.0f%%)", disp_n, (disp_n / total_npk) * 100.0f);
+    snprintf(buf, sizeof(buf), "N: %.1f (%.1f%%)", disp_n, (disp_n / total_npk) * 100.0f);
     lcd.setTextColor(0xFFFF, 0x08A3);
     lcd.drawString(buf, leg_x + 8, r3_y + 38);
 
     // Dot 2: Green (P)
     lcd.fillCircle(leg_x, r3_y + 70, 4, 0x07E0);
-    snprintf(buf, sizeof(buf), "P: %.0f (%.0f%%)", disp_p, (disp_p / total_npk) * 100.0f);
+    snprintf(buf, sizeof(buf), "P: %.1f (%.1f%%)", disp_p, (disp_p / total_npk) * 100.0f);
     lcd.drawString(buf, leg_x + 8, r3_y + 64);
 
     // Dot 3: Orange (K)
     lcd.fillCircle(leg_x, r3_y + 96, 4, 0xFD00);
-    snprintf(buf, sizeof(buf), "K: %.0f (%.0f%%)", disp_k, (disp_k / total_npk) * 100.0f);
+    snprintf(buf, sizeof(buf), "K: %.1f (%.1f%%)", disp_k, (disp_k / total_npk) * 100.0f);
     lcd.drawString(buf, leg_x + 8, r3_y + 90);
 
     // Dot 4: Violet (AI/Trace)
@@ -2155,7 +2161,7 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
     lcd.setTextColor(COLOR_TEXT_DIM, 0x08A3);
     lcd.drawString(buf, leg_x + 8, r3_y + 144);
 
-    snprintf(buf, sizeof(buf), "Total: %.0f mg", total_npk);
+    snprintf(buf, sizeof(buf), "Total: %.1f mg", total_npk);
     lcd.drawString(buf, leg_x + 8, r3_y + 166);
 
     // --- Box B (Right): Soil Fertility Radar (w: 220, h: 196) ---
@@ -2225,7 +2231,7 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
     lcd.setTextColor(0xFFFF, 0x18A8);
     lcd.drawString("TinyML Edge AI Decoupling Engine", 44, n2_y + 9);
 
-    snprintf(buf, sizeof(buf), "Neural Denoised: AI-N:%.1f, P:%.1f, K:%.1f, pH:%.2f",
+    snprintf(buf, sizeof(buf), "Neural Denoised: AI-N:%.1f, P:%.1f, K:%.1f, pH:%.1f",
              data.aiCalibrated.nitrogen, data.aiCalibrated.phosphorus,
              data.aiCalibrated.potassium, data.aiCalibrated.ph);
     lcd.setTextColor(0x9CD3, 0x18A8);
@@ -2373,7 +2379,7 @@ static void drawPageGraphs(const FarmSensorTelemetry &data) {
         }
     }
 
-    snprintf(buf, sizeof(buf), "%s: %.1f W/m2 | %s: %.1f C",
+    snprintf(buf, sizeof(buf), "%s: %.2f W/m2 | %s: %.2f C",
              L_STR("รังสี", "Solar", "光合辐射"), data.light.solarRadiation,
              L_STR("อุณหภูมิอากาศ", "Air Temp", "气温"), data.air.temperature);
     lcd.setTextColor(COLOR_YELLOW, COLOR_CARD_BG);
