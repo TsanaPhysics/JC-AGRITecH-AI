@@ -1,6 +1,7 @@
 #include "CloudDataManager.h"
 #include "UserConfigs.h"
 #include "WiFiConfigManager.h"
+#include "SDCardManager.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
@@ -206,6 +207,13 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     doc["rssi"]      = WiFi.RSSI();
     doc["ssid"]      = WiFi.SSID();
     doc["device_id"] = "ESP32-S3-ATD35";
+
+    // ข้อมูลสถานะการบันทึกลง Micro-SD Card บนตัวบอร์ด
+    JsonObject sd = doc.createNestedObject("sd_card");
+    sd["mounted"]   = SDCardManager_isMounted();
+    sd["records"]   = SDCardManager_getRecordCount();
+    sd["cs_pin"]    = SDCardManager_getCsPin();
+    sd["size_mb"]   = (uint32_t)SDCardManager_getCardSizeMB();
 
     // ข้อมูลสภาพอากาศ SHT45
     JsonObject air = doc.createNestedObject("air");

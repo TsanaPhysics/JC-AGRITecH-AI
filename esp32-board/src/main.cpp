@@ -4,6 +4,7 @@
 #include "AgriSensors.h"
 #include "DisplayManager.h"
 #include "CloudDataManager.h"
+#include "SDCardManager.h"
 #include "WiFiConfigManager.h"
 
 // ตัวแปรจับเวลาการอ่านเซนเซอร์และประมวลผล
@@ -41,7 +42,10 @@ void setup() {
     // 4. เริ่มต้นระบบเซนเซอร์ทั้งหมด
     AgriSensors_init();
 
-    // 5. เริ่มต้นระบบเชื่อมต่อ Wi-Fi และส่งข้อมูล Cloud Data Logger (Non-blocking)
+    // 5. เริ่มต้นระบบ Micro-SD Card Logging บันทึกข้อมูลลงการ์ดในตัวบอร์ด
+    SDCardManager_init();
+
+    // 6. เริ่มต้นระบบเชื่อมต่อ Wi-Fi และส่งข้อมูล Cloud Data Logger (Non-blocking)
     CloudDataManager_init();
 
     Serial.println("[System] System setup completed successfully. Starting telemetry loop...\n");
@@ -139,8 +143,11 @@ void loop() {
         // อัปเดตหน้าจอ LCD 3.5 นิ้วทันทีที่มีข้อมูลใหม่
         DisplayManager_update(telemetry, isPumpActive, isMistingActive);
 
-        // ส่งข้อมูลขึ้น Firebase Realtime Database (ประมวลผลอัตโนมัติแบบ Non-blocking)
+        // ส่งข้อมูลขึ้น Cloud Telemetry Hub และ Local Web Server
         CloudDataManager_update(telemetry, isPumpActive, isMistingActive);
+
+        // บันทึกข้อมูลโทรมาตรลง Micro-SD Card บนบอร์ด (ไฟล์ CSV)
+        SDCardManager_log(telemetry, isPumpActive, isMistingActive);
     }
 
     // 2. แสดงผล Dashboard และสถานะออกทาง Serial ทุกๆ 3 วินาที

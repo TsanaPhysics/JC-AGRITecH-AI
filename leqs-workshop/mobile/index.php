@@ -214,6 +214,23 @@
                 </button>
             </div>
 
+            <!-- DUAL STORAGE ARCHITECTURE STATUS (ESP32 MICRO-SD & SERVER SQLITE3) -->
+            <div class="glass-inner-panel rounded-2xl p-2.5 flex items-center justify-between text-[11px] font-mono gap-2 border border-white/5">
+                <div class="flex items-center gap-1.5 text-amber-300">
+                    <i class="fa-solid fa-sd-card text-xs"></i>
+                    <span>SD Card:</span>
+                    <strong id="mobSdStatus" class="text-white">Mounted (142 rec)</strong>
+                </div>
+                <div class="flex items-center gap-1.5 text-emerald-300">
+                    <i class="fa-solid fa-database text-xs"></i>
+                    <span>SQLite DB:</span>
+                    <strong id="mobDbStatus" class="text-white">Active (Auto Sync)</strong>
+                </div>
+                <a href="../api/api.php?action=export_csv" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[10px] font-bold border border-amber-500/30 flex items-center gap-1 transition">
+                    <i class="fa-solid fa-file-csv"></i> CSV
+                </a>
+            </div>
+
             <!-- 2. THE 4 CIRCULAR RADIAL GAUGES (EXACT VISUAL REPLICA) -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 py-2">
                 
@@ -876,6 +893,20 @@
                             if (badgeModbus) {
                                 badgeModbus.innerText = conn.soil_7in1 ? 'RS485 ONLINE' : 'RS485 OFFLINE';
                                 badgeModbus.className = conn.soil_7in1 ? 'text-[9px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/40 font-bold' : 'text-[9px] font-mono text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-500/40 font-bold';
+                            }
+                        }
+
+                        // Dual Storage: Micro-SD Card & SQLite Database
+                        if (data.sd_card) {
+                            const mobSd = document.getElementById('mobSdStatus');
+                            if (mobSd) {
+                                mobSd.innerText = `${data.sd_card.mounted ? 'Mounted' : 'Unmounted'} (${Number(data.sd_card.records || 0).toLocaleString()} rec)`;
+                            }
+                        }
+                        if (data.database) {
+                            const mobDb = document.getElementById('mobDbStatus');
+                            if (mobDb) {
+                                mobDb.innerText = `${Number(data.database.total_records || 0).toLocaleString()} rec (SQLite)`;
                             }
                         }
 

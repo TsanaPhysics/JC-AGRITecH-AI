@@ -77,12 +77,26 @@ $default_state = [
         'soil_ec' => 120.0,
         'soil_ph' => 6.2,
         'nitrogen' => 45.0,
+        // Deep Root Zone Soil 7-in-1 (RS485 Modbus RTU)
+        'soil_moisture' => 65.0,
+        'soil_temperature' => 27.5,
+        'soil_ec' => 120.0,
+        'soil_ph' => 6.2,
+        'nitrogen' => 45.0,
         'phosphorus' => 32.0,
         'potassium' => 180.0,
         
         // Power
         'battery_pct' => 98.5,
         'updated_at' => date('Y-m-d H:i:s')
+    ],
+    'sd_card' => [
+        'mounted' => true,
+        'records' => 142,
+        'cs_pin' => 4,
+        'size_mb' => 15190,
+        'file_path' => '/telemetry_data.csv',
+        'status_text' => 'ACTIVE LOGGING'
     ],
     'sensor_connection' => [
         'sht45' => true,
@@ -132,6 +146,83 @@ function save_current_state($telemetry_file, $state) {
     file_put_contents($telemetry_file, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
+// Function to log complete telemetry parameters into SQLite3 database
+function log_telemetry_to_db($db, $state) {
+    if (!$db) return false;
+    try {
+        $s = $state['sensors'] ?? [];
+        $ai = $state['ai_calibrated'] ?? [];
+        $b = $state['board'] ?? [];
+        $rel = $state['relays'] ?? [];
+        $sd = $state['sd_card'] ?? [];
+
+        $stmt = $db->prepare("INSERT INTO telemetry_logs (
+            temperature, temperature_f, humidity, dew_point, dew_margin, vpd, vpsat, vpact,
+            par_lux, klux, solar_radiation,
+            soil_stick_adc, soil_stick_moisture, soil_stick_ph, soil_stick_ph_volt,
+            soil_temperature, soil_moisture, soil_ec, soil_ph,
+            nitrogen, phosphorus, potassium,
+            ai_nitrogen, ai_phosphorus, ai_potassium, ai_ph, ai_moisture, ai_confidence,
+            relay1, relay2, relay3, relay4,
+            sd_card_mounted, sd_card_records,
+            rssi, ip_address, ssid, data_source, created_at
+        ) VALUES (
+            :temp, :temp_f, :hum, :dew_point, :dew_margin, :vpd, :vpsat, :vpact,
+            :par_lux, :klux, :solar_radiation,
+            :soil_stick_adc, :soil_stick_moisture, :soil_stick_ph, :soil_stick_ph_volt,
+            :soil_temp, :soil_moist, :soil_ec, :soil_ph,
+            :n, :p, :k,
+            :ai_n, :ai_p, :ai_k, :ai_ph, :ai_moist, :ai_conf,
+            :r1, :r2, :r3, :r4,
+            :sd_mounted, :sd_records,
+            :rssi, :ip, :ssid, :data_source, CURRENT_TIMESTAMP
+        )");
+
+        $stmt->bindValue(':temp', isset($s['temperature']) ? floatval($s['temperature']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':temp_f', isset($s['temperature_f']) ? floatval($s['temperature_f']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':hum', isset($s['humidity']) ? floatval($s['humidity']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':dew_point', isset($s['dew_point']) ? floatval($s['dew_point']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':dew_margin', isset($s['dew_margin']) ? floatval($s['dew_margin']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':vpd', isset($s['vpd']) ? floatval($s['vpd']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':vpsat', isset($s['vpsat']) ? floatval($s['vpsat']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':vpact', isset($s['vpact']) ? floatval($s['vpact']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':par_lux', isset($s['par_lux']) ? floatval($s['par_lux']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':klux', isset($s['klux']) ? floatval($s['klux']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':solar_radiation', isset($s['solar_radiation']) ? floatval($s['solar_radiation']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_stick_adc', isset($s['soil_stick_adc']) ? intval($s['soil_stick_adc']) : null, SQLITE3_INTEGER);
+        $stmt->bindValue(':soil_stick_moisture', isset($s['soil_stick_moisture']) ? floatval($s['soil_stick_moisture']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_stick_ph', isset($s['soil_stick_ph']) ? floatval($s['soil_stick_ph']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_stick_ph_volt', isset($s['soil_stick_ph_volt']) ? floatval($s['soil_stick_ph_volt']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_temp', isset($s['soil_temperature']) ? floatval($s['soil_temperature']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_moist', isset($s['soil_moisture']) ? floatval($s['soil_moisture']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_ec', isset($s['soil_ec']) ? floatval($s['soil_ec']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':soil_ph', isset($s['soil_ph']) ? floatval($s['soil_ph']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':n', isset($s['nitrogen']) ? floatval($s['nitrogen']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':p', isset($s['phosphorus']) ? floatval($s['phosphorus']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':k', isset($s['potassium']) ? floatval($s['potassium']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_n', isset($ai['nitrogen']) ? floatval($ai['nitrogen']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_p', isset($ai['phosphorus']) ? floatval($ai['phosphorus']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_k', isset($ai['potassium']) ? floatval($ai['potassium']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_ph', isset($ai['ph']) ? floatval($ai['ph']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_moist', isset($ai['moisture']) ? floatval($ai['moisture']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':ai_conf', isset($ai['confidence']) ? floatval($ai['confidence']) : null, SQLITE3_FLOAT);
+        $stmt->bindValue(':r1', isset($rel['1']['state']) ? intval($rel['1']['state']) : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':r2', isset($rel['2']['state']) ? intval($rel['2']['state']) : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':r3', isset($rel['3']['state']) ? intval($rel['3']['state']) : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':r4', isset($rel['4']['state']) ? intval($rel['4']['state']) : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':sd_mounted', !empty($sd['mounted']) ? 1 : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':sd_records', intval($sd['records'] ?? 0), SQLITE3_INTEGER);
+        $stmt->bindValue(':rssi', $b['rssi'] ?? -99, SQLITE3_INTEGER);
+        $stmt->bindValue(':ip', $b['ip_address'] ?? '192.168.0.111', SQLITE3_TEXT);
+        $stmt->bindValue(':ssid', $b['ssid'] ?? 'JC_Home', SQLITE3_TEXT);
+        $stmt->bindValue(':data_source', $b['data_source'] ?? 'LIVE_ESP32_TELEMETRY', SQLITE3_TEXT);
+        $stmt->execute();
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 // Initialize SQLite3 with error tolerance
 $db = null;
 if (class_exists('SQLite3')) {
@@ -155,23 +246,91 @@ if (class_exists('SQLite3')) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
 
-        // Telemetry Logs Table
+        // Complete Telemetry Logs Table (30+ Parameters)
         $db->exec("CREATE TABLE IF NOT EXISTS telemetry_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             temperature REAL,
+            temperature_f REAL,
             humidity REAL,
+            dew_point REAL,
+            dew_margin REAL,
+            vpd REAL,
+            vpsat REAL,
+            vpact REAL,
+            par_lux REAL,
+            klux REAL,
+            solar_radiation REAL,
+            soil_stick_adc INTEGER,
+            soil_stick_moisture REAL,
+            soil_stick_ph REAL,
+            soil_stick_ph_volt REAL,
+            soil_temperature REAL,
             soil_moisture REAL,
             soil_ec REAL,
             soil_ph REAL,
-            vpd REAL,
-            par_lux REAL,
             nitrogen REAL,
             phosphorus REAL,
             potassium REAL,
+            ai_nitrogen REAL,
+            ai_phosphorus REAL,
+            ai_potassium REAL,
+            ai_ph REAL,
+            ai_moisture REAL,
+            ai_confidence REAL,
+            relay1 INTEGER DEFAULT 0,
+            relay2 INTEGER DEFAULT 0,
+            relay3 INTEGER DEFAULT 0,
+            relay4 INTEGER DEFAULT 0,
+            sd_card_mounted INTEGER DEFAULT 0,
+            sd_card_records INTEGER DEFAULT 0,
             rssi INTEGER,
             ip_address TEXT,
+            ssid TEXT,
+            data_source TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
+
+        // Auto-migrate any existing database table schema
+        $existing_cols = [];
+        $col_res = $db->query("PRAGMA table_info(telemetry_logs)");
+        while ($col_row = $col_res->fetchArray(SQLITE3_ASSOC)) {
+            $existing_cols[$col_row['name']] = true;
+        }
+
+        $expected_cols = [
+            'temperature_f' => 'REAL',
+            'dew_point' => 'REAL',
+            'dew_margin' => 'REAL',
+            'vpsat' => 'REAL',
+            'vpact' => 'REAL',
+            'klux' => 'REAL',
+            'solar_radiation' => 'REAL',
+            'soil_stick_adc' => 'INTEGER',
+            'soil_stick_moisture' => 'REAL',
+            'soil_stick_ph' => 'REAL',
+            'soil_stick_ph_volt' => 'REAL',
+            'soil_temperature' => 'REAL',
+            'ai_nitrogen' => 'REAL',
+            'ai_phosphorus' => 'REAL',
+            'ai_potassium' => 'REAL',
+            'ai_ph' => 'REAL',
+            'ai_moisture' => 'REAL',
+            'ai_confidence' => 'REAL',
+            'relay1' => 'INTEGER DEFAULT 0',
+            'relay2' => 'INTEGER DEFAULT 0',
+            'relay3' => 'INTEGER DEFAULT 0',
+            'relay4' => 'INTEGER DEFAULT 0',
+            'sd_card_mounted' => 'INTEGER DEFAULT 0',
+            'sd_card_records' => 'INTEGER DEFAULT 0',
+            'ssid' => 'TEXT',
+            'data_source' => 'TEXT'
+        ];
+
+        foreach ($expected_cols as $c_name => $c_type) {
+            if (!isset($existing_cols[$c_name])) {
+                @$db->exec("ALTER TABLE telemetry_logs ADD COLUMN {$c_name} {$c_type}");
+            }
+        }
 
         // Relay States Table
         $db->exec("CREATE TABLE IF NOT EXISTS relay_states (
@@ -354,35 +513,42 @@ if ($action === 'get_telemetry' || $action === 'status') {
                     $state['relays']['2']['state'] = $acts['misting'] ? 1 : 0;
                 }
                 
+                // 7. Micro-SD Card Onboard Storage Metrics
+                if (isset($cloud_data['sd_card'])) {
+                    $state['sd_card']['mounted'] = !empty($cloud_data['sd_card']['mounted']);
+                    if (isset($cloud_data['sd_card']['records'])) $state['sd_card']['records'] = intval($cloud_data['sd_card']['records']);
+                    if (isset($cloud_data['sd_card']['cs_pin'])) $state['sd_card']['cs_pin'] = intval($cloud_data['sd_card']['cs_pin']);
+                    if (isset($cloud_data['sd_card']['size_mb'])) $state['sd_card']['size_mb'] = intval($cloud_data['sd_card']['size_mb']);
+                }
+
                 $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
                 save_current_state($telemetry_file, $state);
                 
-                // Insert into SQLite logs if new telemetry ID
-                if ($db) {
-                    try {
-                        $stmt = $db->prepare("INSERT INTO telemetry_logs (temperature, humidity, soil_moisture, soil_ec, soil_ph, vpd, par_lux, nitrogen, phosphorus, potassium, rssi, ip_address) VALUES (:temp, :hum, :soil, :ec, :ph, :vpd, :lux, :n, :p, :k, :rssi, :ip)");
-                        $stmt->bindValue(':temp', $state['sensors']['temperature'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':hum', $state['sensors']['humidity'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':soil', $state['sensors']['soil_moisture'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':ec', $state['sensors']['soil_ec'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':ph', $state['sensors']['soil_ph'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':vpd', $state['sensors']['vpd'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':lux', $state['sensors']['par_lux'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':n', $state['sensors']['nitrogen'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':p', $state['sensors']['phosphorus'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':k', $state['sensors']['potassium'], SQLITE3_FLOAT);
-                        $stmt->bindValue(':rssi', $state['board']['rssi'], SQLITE3_INTEGER);
-                        $stmt->bindValue(':ip', $state['board']['ip_address'], SQLITE3_TEXT);
-                        $stmt->execute();
-                    } catch (Exception $e) {}
-                }
+                // Store complete telemetry into SQLite3 database table telemetry_logs
+                log_telemetry_to_db($db, $state);
             }
         }
     }
     
+    // Query database record count for real-time stats
+    $db_records_count = 0;
+    if ($db) {
+        try {
+            $cnt = $db->querySingle("SELECT COUNT(*) FROM telemetry_logs");
+            $db_records_count = intval($cnt);
+        } catch (Exception $e) {}
+    }
+
     echo json_encode([
         'status' => 'success',
         'board' => $state['board'],
+        'sd_card' => $state['sd_card'],
+        'database' => [
+            'engine' => 'SQLite3',
+            'file' => basename($db_file),
+            'total_records' => $db_records_count,
+            'table' => 'telemetry_logs'
+        ],
         'sensors' => $state['sensors'],
         'sensor_connection' => $state['sensor_connection'],
         'ai_calibrated' => $state['ai_calibrated'],
@@ -493,12 +659,65 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     if (isset($input['air']['temperature']) && $input['air']['temperature'] !== null) $state['sensors']['temperature'] = round(floatval($input['air']['temperature']), 1);
     if (isset($input['air']['vpd'])) $state['sensors']['vpd'] = round(floatval($input['air']['vpd']), 2);
     if (isset($input['air']['dew_point'])) $state['sensors']['dew_point'] = round(floatval($input['air']['dew_point']), 1);
-    if (isset($input['light']['lux'])) $state['sensors']['par_lux'] = round(floatval($input['light']['lux']), 1);
-    if (isset($input['light']['solar_radiation'])) $state['sensors']['solar_radiation'] = round(floatval($input['light']['solar_radiation']), 2);
+    
+    // Derive temperature metrics
+    $state['sensors']['temperature_f'] = round(($state['sensors']['temperature'] * 1.8) + 32.0, 1);
+    $state['sensors']['dew_margin'] = round($state['sensors']['temperature'] - $state['sensors']['dew_point'], 1);
+    $t = $state['sensors']['temperature'];
+    $svp_val = 0.61078 * exp((17.27 * $t) / ($t + 237.3));
+    $state['sensors']['vpsat'] = round($svp_val, 2);
+    $state['sensors']['vpact'] = round($svp_val * ($state['sensors']['humidity'] / 100.0), 2);
+
+    // Light
+    if (isset($input['light']['lux'])) {
+        $state['sensors']['par_lux'] = round(floatval($input['light']['lux']), 1);
+        $state['sensors']['klux'] = round(floatval($input['light']['lux']) / 1000.0, 2);
+    }
+    if (isset($input['light']['solar_radiation'])) {
+        $state['sensors']['solar_radiation'] = round(floatval($input['light']['solar_radiation']), 2);
+    } elseif (isset($state['sensors']['par_lux'])) {
+        $state['sensors']['solar_radiation'] = round($state['sensors']['par_lux'] * 0.0079, 2);
+    }
+
+    // Surface Soil Stick
+    if (isset($input['soil_stick']['adc_raw'])) $state['sensors']['soil_stick_adc'] = intval($input['soil_stick']['adc_raw']);
+    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_stick_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 1);
+    if (isset($input['soil_stick']['ph'])) $state['sensors']['soil_stick_ph'] = round(floatval($input['soil_stick']['ph']), 2);
+    if (isset($input['soil_stick']['ph_raw_voltage'])) $state['sensors']['soil_stick_ph_volt'] = round(floatval($input['soil_stick']['ph_raw_voltage']), 3);
+
+    // Soil 7-in-1 Modbus
     if (isset($input['soil_7in1']['ph'])) $state['sensors']['soil_ph'] = round(floatval($input['soil_7in1']['ph']), 1);
     if (isset($input['soil_7in1']['ec'])) $state['sensors']['soil_ec'] = round(floatval($input['soil_7in1']['ec']), 1);
-    if (isset($input['soil_7in1']['moisture_percent'])) $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 1);
-    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 1);
+    if (isset($input['soil_7in1']['temperature'])) $state['sensors']['soil_temperature'] = round(floatval($input['soil_7in1']['temperature']), 1);
+    if (isset($input['soil_7in1']['moisture_percent'])) {
+        $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 1);
+    } elseif (isset($state['sensors']['soil_stick_moisture'])) {
+        $state['sensors']['soil_moisture'] = $state['sensors']['soil_stick_moisture'];
+    }
+    if (isset($input['soil_7in1']['nitrogen'])) $state['sensors']['nitrogen'] = round(floatval($input['soil_7in1']['nitrogen']), 1);
+    if (isset($input['soil_7in1']['phosphorus'])) $state['sensors']['phosphorus'] = round(floatval($input['soil_7in1']['phosphorus']), 1);
+    if (isset($input['soil_7in1']['potassium'])) $state['sensors']['potassium'] = round(floatval($input['soil_7in1']['potassium']), 1);
+
+    // TinyML AI Calibrated
+    if (isset($input['ai_calibrated'])) {
+        $ai = $input['ai_calibrated'];
+        if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 1);
+        if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 1);
+        if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 1);
+        if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 2);
+        if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 1);
+        if (isset($ai['confidence'])) $state['ai_calibrated']['confidence'] = round(floatval($ai['confidence']), 3);
+    }
+
+    // Micro-SD Card Subsystem from ESP32
+    if (isset($input['sd_card'])) {
+        $state['sd_card']['mounted'] = !empty($input['sd_card']['mounted']);
+        if (isset($input['sd_card']['records'])) $state['sd_card']['records'] = intval($input['sd_card']['records']);
+        if (isset($input['sd_card']['cs_pin'])) $state['sd_card']['cs_pin'] = intval($input['sd_card']['cs_pin']);
+        if (isset($input['sd_card']['size_mb'])) $state['sd_card']['size_mb'] = intval($input['sd_card']['size_mb']);
+    }
+
+    // Actuators
     if (isset($input['actuators']['pump'])) $state['relays']['1']['state'] = $input['actuators']['pump'] ? 1 : 0;
     if (isset($input['actuators']['misting'])) $state['relays']['2']['state'] = $input['actuators']['misting'] ? 1 : 0;
 
@@ -509,33 +728,18 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     if (!empty($input['cloud_url'])) $state['board']['cloud_url'] = trim($input['cloud_url']);
     if (!empty($input['web_port'])) $state['board']['web_port'] = intval($input['web_port']);
     if (!empty($input['direct_url'])) $state['board']['direct_url'] = trim($input['direct_url']);
+    $state['board']['data_source'] = 'DIRECT_ESP32_PUSH';
 
     $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
     save_current_state($telemetry_file, $state);
 
-    // Save to SQLite3
-    if ($db) {
-        try {
-            $stmt = $db->prepare("INSERT INTO telemetry_logs (temperature, humidity, soil_moisture, soil_ec, soil_ph, vpd, par_lux, nitrogen, phosphorus, potassium, rssi, ip_address) VALUES (:temp, :hum, :soil, :ec, :ph, :vpd, :lux, :n, :p, :k, :rssi, :ip)");
-            $stmt->bindValue(':temp', $state['sensors']['temperature'], SQLITE3_FLOAT);
-            $stmt->bindValue(':hum', $state['sensors']['humidity'], SQLITE3_FLOAT);
-            $stmt->bindValue(':soil', $state['sensors']['soil_moisture'], SQLITE3_FLOAT);
-            $stmt->bindValue(':ec', $state['sensors']['soil_ec'], SQLITE3_FLOAT);
-            $stmt->bindValue(':ph', $state['sensors']['soil_ph'], SQLITE3_FLOAT);
-            $stmt->bindValue(':vpd', $state['sensors']['vpd'], SQLITE3_FLOAT);
-            $stmt->bindValue(':lux', $state['sensors']['par_lux'], SQLITE3_FLOAT);
-            $stmt->bindValue(':n', $state['sensors']['nitrogen'], SQLITE3_FLOAT);
-            $stmt->bindValue(':p', $state['sensors']['phosphorus'], SQLITE3_FLOAT);
-            $stmt->bindValue(':k', $state['sensors']['potassium'], SQLITE3_FLOAT);
-            $stmt->bindValue(':rssi', $state['board']['rssi'], SQLITE3_INTEGER);
-            $stmt->bindValue(':ip', $state['board']['ip_address'], SQLITE3_TEXT);
-            $stmt->execute();
-        } catch (Exception $e) {}
-    }
+    // Save complete telemetry into SQLite3 database
+    log_telemetry_to_db($db, $state);
 
     echo json_encode([
         'status' => 'success',
-        'message' => 'Telemetry data updated successfully',
+        'message' => 'Telemetry data stored in SQLite3 & SD Card acknowledged',
+        'sd_card' => $state['sd_card'],
         'relays_command' => [
             'r1' => $state['relays']['1']['state'],
             'r2' => $state['relays']['2']['state'],
@@ -544,6 +748,148 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
         ],
         'auto_mode' => $state['auto_mode']
     ]);
+    exit();
+}
+
+// =========================================================================
+// 4.1 GET DATABASE HISTORY TABLE & TOTAL RECORDS
+// =========================================================================
+if ($action === 'get_history_table') {
+    $limit = intval($_GET['limit'] ?? 20);
+    $offset = intval($_GET['offset'] ?? 0);
+    $total = 0;
+    $rows = [];
+
+    if ($db) {
+        try {
+            $total = intval($db->querySingle("SELECT COUNT(*) FROM telemetry_logs"));
+            $stmt = $db->prepare("SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT :limit OFFSET :offset");
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $res = $stmt->execute();
+            while ($r = $res->fetchArray(SQLITE3_ASSOC)) {
+                $rows[] = $r;
+            }
+        } catch (Exception $e) {}
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'total_records' => $total,
+        'limit' => $limit,
+        'offset' => $offset,
+        'data' => $rows
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
+// 4.2 EXPORT DATABASE TELEMETRY AS CSV DOWNLOAD
+// =========================================================================
+if ($action === 'export_csv') {
+    $filename = "leqs_telemetry_database_" . date('Ymd_His') . ".csv";
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    
+    $out = fopen('php://output', 'w');
+    // Write UTF-8 BOM for Thai support in Microsoft Excel
+    fputs($out, "\xEF\xBB\xBF");
+
+    // Comprehensive CSV Header
+    fputcsv($out, [
+        'ID',
+        'วัน-เวลา (Timestamp)',
+        'อุณหภูมิอากาศ (°C)',
+        'อุณหภูมิอากาศ (°F)',
+        'ความชื้นอากาศ (%RH)',
+        'จุดน้ำค้าง (°C)',
+        'ระยะน้ำค้าง (°C)',
+        'VPD (kPa)',
+        'VPsat (kPa)',
+        'VPact (kPa)',
+        'ความเข้มแสง (Lux)',
+        'kLux',
+        'รังสีอาทิตย์ (W/m²)',
+        'ดินผิวดิน Stick ADC',
+        'ความชื้นผิวดิน (%)',
+        'pH ผิวดิน',
+        'แรงดัน pH ผิวดิน (V)',
+        'อุณหภูมิดินลึก 7in1 (°C)',
+        'ความชื้นดินลึก 7in1 (%)',
+        'EC สภาพนำไฟฟ้าดิน (µS/cm)',
+        'pH ดินลึก 7in1',
+        'ไนโตรเจน N (mg/kg)',
+        'ฟอสฟอรัส P (mg/kg)',
+        'โพแทสเซียม K (mg/kg)',
+        'AI ไนโตรเจน (mg/kg)',
+        'AI ฟอสฟอรัส (mg/kg)',
+        'AI โพแทสเซียม (mg/kg)',
+        'AI pH ดิน',
+        'AI ความชื้นดิน (%)',
+        'ความเชื่อมั่น AI (Confidence)',
+        'รีเลย์ 1 (วาล์วน้ำโซลินอยด์)',
+        'รีเลย์ 2 (พ่นหมอก)',
+        'รีเลย์ 3 (ปั๊มปุ๋ย NPK)',
+        'รีเลย์ 4 (พัดลมระบายอากาศ)',
+        'สถานะ SD Card',
+        'จำนวนเรคอร์ดใน SD Card',
+        'สัญญาณ RSSI (dBm)',
+        'IP Address',
+        'SSID Wi-Fi',
+        'แหล่งข้อมูล (Data Source)'
+    ]);
+
+    if ($db) {
+        try {
+            $res = $db->query("SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT 10000");
+            while ($r = $res->fetchArray(SQLITE3_ASSOC)) {
+                fputcsv($out, [
+                    $r['id'] ?? '',
+                    $r['created_at'] ?? '',
+                    $r['temperature'] ?? '',
+                    $r['temperature_f'] ?? '',
+                    $r['humidity'] ?? '',
+                    $r['dew_point'] ?? '',
+                    $r['dew_margin'] ?? '',
+                    $r['vpd'] ?? '',
+                    $r['vpsat'] ?? '',
+                    $r['vpact'] ?? '',
+                    $r['par_lux'] ?? '',
+                    $r['klux'] ?? '',
+                    $r['solar_radiation'] ?? '',
+                    $r['soil_stick_adc'] ?? '',
+                    $r['soil_stick_moisture'] ?? '',
+                    $r['soil_stick_ph'] ?? '',
+                    $r['soil_stick_ph_volt'] ?? '',
+                    $r['soil_temperature'] ?? '',
+                    $r['soil_moisture'] ?? '',
+                    $r['soil_ec'] ?? '',
+                    $r['soil_ph'] ?? '',
+                    $r['nitrogen'] ?? '',
+                    $r['phosphorus'] ?? '',
+                    $r['potassium'] ?? '',
+                    $r['ai_nitrogen'] ?? '',
+                    $r['ai_phosphorus'] ?? '',
+                    $r['ai_potassium'] ?? '',
+                    $r['ai_ph'] ?? '',
+                    $r['ai_moisture'] ?? '',
+                    $r['ai_confidence'] ?? '',
+                    $r['relay1'] ?? 0,
+                    $r['relay2'] ?? 0,
+                    $r['relay3'] ?? 0,
+                    $r['relay4'] ?? 0,
+                    !empty($r['sd_card_mounted']) ? 'Mounted (ปกติ)' : 'Unmounted',
+                    $r['sd_card_records'] ?? 0,
+                    $r['rssi'] ?? '',
+                    $r['ip_address'] ?? '',
+                    $r['ssid'] ?? '',
+                    $r['data_source'] ?? ''
+                ]);
+            }
+        } catch (Exception $e) {}
+    }
+
+    fclose($out);
     exit();
 }
 

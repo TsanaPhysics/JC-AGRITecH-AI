@@ -86,10 +86,11 @@
                     <span class="text-gray-400">IP:</span>
                     <span id="boardIpDisplay" class="text-cyan-300 font-bold">192.168.0.111:8500</span>
                     <span class="text-slate-600">|</span>
-                    <span class="text-gray-400">Cloud Hub:</span>
-                    <span id="cloudSyncDisplay" class="text-indigo-300 font-bold">14.207.141.164:8000</span>
+                    <span class="text-gray-400">SD Card:</span>
+                    <span id="sdCardStatusDisplay" class="text-amber-300 font-bold"><i class="fa-solid fa-sd-card mr-0.5"></i> 142 rec</span>
                     <span class="text-slate-600">|</span>
-                    <span id="cloudTelemetryId" class="text-amber-300 font-bold">#6608</span>
+                    <span class="text-gray-400">DB:</span>
+                    <span id="dbRecordsStatusDisplay" class="text-emerald-300 font-bold"><i class="fa-solid fa-database mr-0.5"></i> SQLite</span>
                 </div>
             </div>
 
@@ -104,9 +105,9 @@
                 <button onclick="promptChangeIp()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-network-wired text-[10px]"></i> ตั้งค่า IP บอร์ด
                 </button>
-                <button onclick="exportCsvData()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-amber-300 font-mono flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-file-csv text-[10px]"></i> Export CSV
-                </button>
+                <a href="../api/api.php?action=export_csv" target="_blank" class="px-3 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-xs text-amber-300 font-mono flex items-center gap-1.5 transition shadow-sm" title="ดาวน์โหลดฐานข้อมูล telemetry_logs เป็น CSV">
+                    <i class="fa-solid fa-file-csv text-[11px]"></i> โหลด CSV ฐานข้อมูล
+                </a>
                 <a href="../mobile/index.php" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
                     <i class="fa-solid fa-mobile-screen-button"></i> Mobile App
                 </a>
@@ -166,101 +167,151 @@
             </div>
         </div>
 
-        <!-- ROW 1: 4 Real-time Telemetry Metrics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- ROW 1: 6 Real-time Telemetry Metrics Cards (All Quantities Completely Displayed) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             
             <!-- Card 1: Air Temp & Humidity (SHT45 Microclimate) -->
-            <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-temperature-three-quarters text-amber-400"></i>
-                        <span>อุณหภูมิ & ความชื้น (SHT45)</span>
+                        <span>สภาพอากาศ (SHT45)</span>
                     </div>
                     <span id="badgeSht45" class="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">I2C ONLINE</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashTemp" class="text-3xl font-bold font-mono text-white">31.4</span>
-                        <span class="text-sm text-slate-400">°C</span>
-                        <span id="dashTempF" class="text-[11px] font-mono text-slate-500 ml-1">(88.5°F)</span>
+                        <span id="dashTemp" class="text-2xl lg:text-3xl font-bold font-mono text-white">31.4</span>
+                        <span class="text-xs text-slate-400">°C</span>
+                        <span id="dashTempF" class="text-[10px] font-mono text-slate-500 block">(88.5°F)</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashHum" class="text-xl font-bold font-mono text-cyan-400">85.0</span>
+                        <span id="dashHum" class="text-xl lg:text-2xl font-bold font-mono text-cyan-400">85.0</span>
                         <span class="text-xs text-slate-400">%RH</span>
                     </div>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
-                    <span>Dew Point: <strong id="dashDewPoint" class="text-cyan-300">28.4°C</strong></span>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>Dew: <strong id="dashDewPoint" class="text-cyan-300">28.4°C</strong></span>
                     <span>Margin: <strong id="dashDewMargin" class="text-amber-300">3.0°C</strong></span>
                 </div>
             </div>
 
             <!-- Card 2: VPD (Vapor Pressure Deficit & Penman Physics) -->
-            <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-cyan-500/40 transition">
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-cyan-500/40 transition">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                         <i class="fa-solid fa-wind text-cyan-400"></i>
                         <span>แรงดึงระเหยน้ำ (VPD)</span>
                     </div>
-                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">FAO-56 VPD</span>
+                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">FAO-56</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashVpd" class="text-3xl font-bold font-mono text-emerald-300">0.69</span>
-                        <span class="text-sm text-slate-400">kPa</span>
+                        <span id="dashVpd" class="text-2xl lg:text-3xl font-bold font-mono text-emerald-300">0.69</span>
+                        <span class="text-xs text-slate-400">kPa</span>
                     </div>
-                    <span id="dashVpdStatus" class="text-xs font-bold text-amber-300 bg-amber-950 px-2 py-1 rounded">ความชื้นสูง (Low Transp)</span>
+                    <span id="dashVpdStatus" class="text-[10px] font-bold text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded">ชื้นสูง</span>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
-                    <span>VPsat: <strong id="dashVpSat" class="text-slate-300">4.60</strong> kPa</span>
-                    <span>VPact: <strong id="dashVpAct" class="text-cyan-300">3.91</strong> kPa</span>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>VPsat: <strong id="dashVpSat" class="text-slate-300">4.60</strong></span>
+                    <span>VPact: <strong id="dashVpAct" class="text-cyan-300">3.91</strong></span>
                 </div>
             </div>
 
-            <!-- Card 3: Soil 7-in-1 Root Zone Telemetry -->
-            <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
+            <!-- Card 3: Surface Soil Stick (0-10 cm) -->
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-amber-500/40 transition">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                        <i class="fa-solid fa-seedling text-emerald-400"></i>
-                        <span>สภาพดินเขตราก (Soil 7-in-1)</span>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                        <span>ผิวดิน (Soil Stick)</span>
                     </div>
-                    <span id="badgeSoil7in1" class="text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">RS485 ONLINE</span>
+                    <span id="badgeSoilStick" class="text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">ADC A1/A2</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashSoilMoist" class="text-3xl font-bold font-mono text-white">65.0</span>
-                        <span class="text-sm text-slate-400">%</span>
+                        <span id="dashStickMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">65.0</span>
+                        <span class="text-xs text-slate-400">%</span>
                     </div>
                     <div class="text-right">
-                        <span id="dashSoilEc" class="text-xl font-bold font-mono text-emerald-400">120</span>
-                        <span class="text-xs text-slate-400">µS/cm</span>
+                        <span class="text-[10px] text-slate-400">pH ผิวดิน</span>
+                        <span id="dashStickPh" class="text-lg lg:text-xl font-bold font-mono text-amber-300 block">6.2</span>
                     </div>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span>pH: <strong id="dashSoilPh" class="text-cyan-300">6.2</strong></span>
-                    <span>Temp ดิน: <strong id="dashSoilTemp" class="text-slate-300">27.5°C</strong></span>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>ADC: <strong id="dashStickAdc" class="text-slate-300">1850</strong></span>
+                    <span>Volt: <strong id="dashStickVolt" class="text-amber-300">1.85V</strong></span>
                 </div>
             </div>
 
-            <!-- Card 4: Solar PAR, Radiation & TinyML Edge AI -->
-            <div class="glass-box rounded-3xl p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-amber-500/40 transition">
+            <!-- Card 4: Deep Root Soil 7-in-1 (RS485 Modbus RTU) -->
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                        <i class="fa-solid fa-sun text-amber-400"></i>
-                        <span>แสงอาทิตย์ & รังสี (BH1750)</span>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                        <i class="fa-solid fa-seedling text-emerald-400"></i>
+                        <span>ดินเขตราก (7-in-1)</span>
                     </div>
-                    <span id="badgeBh1750" class="text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">I2C ONLINE</span>
+                    <span id="badgeSoil7in1" class="text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">RS485 MODBUS</span>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <div>
-                        <span id="dashPar" class="text-3xl font-bold font-mono text-white">897.5</span>
-                        <span class="text-sm text-slate-400">Lux</span>
+                        <span id="dashSoilMoist" class="text-2xl lg:text-3xl font-bold font-mono text-white">65.0</span>
+                        <span class="text-xs text-slate-400">%</span>
                     </div>
-                    <span id="dashSolarRad" class="text-xs font-bold text-amber-400 bg-amber-950 px-2 py-1 rounded">7.09 W/m²</span>
+                    <div class="text-right">
+                        <span id="dashSoilEc" class="text-lg lg:text-xl font-bold font-mono text-emerald-400">120</span>
+                        <span class="text-[10px] text-slate-400">µS/cm</span>
+                    </div>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/60">
-                    <span>TinyML Calibrated:</span>
-                    <span id="dashAiConfidence" class="text-emerald-400 font-mono font-bold">Accuracy: 98.4%</span>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>pH: <strong id="dashSoilPh" class="text-cyan-300">6.2</strong></span>
+                    <span>Temp: <strong id="dashSoilTemp" class="text-slate-300">27.5°C</strong></span>
+                </div>
+            </div>
+
+            <!-- Card 5: Solar PAR & Radiation (BH1750 Dome) -->
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-slate-800/80 space-y-3 relative overflow-hidden group hover:border-yellow-500/40 transition">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                        <i class="fa-solid fa-sun text-yellow-400"></i>
+                        <span>แสงแดด & รังสี</span>
+                    </div>
+                    <span id="badgeBh1750" class="text-[9px] font-mono text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded border border-yellow-800">BH1750 I2C</span>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <div>
+                        <span id="dashPar" class="text-2xl lg:text-3xl font-bold font-mono text-white">897.5</span>
+                        <span class="text-xs text-slate-400">Lux</span>
+                    </div>
+                    <span id="dashSolarRad" class="text-[10px] font-bold text-yellow-400 bg-yellow-950 px-1.5 py-0.5 rounded font-mono">7.09 W/m²</span>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/60 font-mono">
+                    <span>kLux: <strong id="dashKlux" class="text-yellow-300">0.90</strong></span>
+                    <span id="dashAiConfidence" class="text-emerald-400 font-bold">AI: 98.4%</span>
+                </div>
+            </div>
+
+            <!-- Card 6: Dual Storage (Micro-SD Card on ESP32 + SQLite3 Database) -->
+            <div class="glass-box rounded-3xl p-4 sm:p-5 border border-cyan-500/40 space-y-3 relative overflow-hidden group hover:border-cyan-400 transition bg-gradient-to-br from-slate-900/90 to-cyan-950/30">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5 text-xs text-cyan-300 font-medium font-tech">
+                        <i class="fa-solid fa-server text-cyan-400"></i>
+                        <span>การจัดเก็บข้อมูล 2 ชั้น</span>
+                    </div>
+                    <span id="dashSdBadge" class="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">DUAL STORAGE</span>
+                </div>
+                <div class="space-y-1.5 text-[11px] font-mono">
+                    <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                        <span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-sd-card"></i> SD Card:</span>
+                        <strong id="dashSdRecords" class="text-white">142 เรคอร์ด</strong>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                        <span class="text-emerald-300 flex items-center gap-1"><i class="fa-solid fa-database"></i> SQLite DB:</span>
+                        <strong id="dashDbRecords" class="text-white">Auto Sync</strong>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/60 font-mono">
+                    <span>File: <span class="text-amber-300 font-bold">.csv &amp; .db</span></span>
+                    <a href="../api/api.php?action=export_csv" class="text-cyan-400 hover:underline font-bold">โหลด CSV</a>
                 </div>
             </div>
 
@@ -477,6 +528,72 @@
 
             </div>
 
+        </div>
+
+        <!-- ROW 4: Live SQLite3 Database Telemetry Logs & Dual-Storage Architecture -->
+        <div class="glass-box rounded-3xl p-6 border border-slate-800/80 space-y-4 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-database text-emerald-400"></i>
+                        <h3 class="font-bold text-base text-white">บันทึกประวัติข้อมูลเซนเซอร์ลงฐานข้อมูล (SQLite3 Telemetry Database Logs)</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        จัดเก็บทุกปริมาณ ทุกค่าจากบอร์ด ESP32-S3 ATD3.5 ลงตาราง <code class="text-cyan-300 font-mono">telemetry_logs</code> (ฐานข้อมูลเซิร์ฟเวอร์) ควบคู่กับ <code class="text-amber-300 font-mono">/telemetry_data.csv</code> บน Micro-SD Card
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        เรคอร์ดใน DB: <strong id="tableDbTotalRecords" class="text-emerald-400">0</strong>
+                    </span>
+                    <button onclick="fetchDbHistoryTable()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-cyan-300 font-mono flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-arrows-rotate"></i> รีเฟรชตาราง
+                    </button>
+                    <a href="../api/api.php?action=export_csv" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-bold text-xs font-tech flex items-center gap-1.5 shadow-md transition">
+                        <i class="fa-solid fa-file-csv text-sm"></i> ดาวน์โหลดข้อมูลทั้งหมด (.CSV)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Responsive Table Container -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-950/60 max-h-96">
+                <table class="w-full text-left text-xs text-slate-300 font-mono">
+                    <thead class="bg-slate-900/90 text-[11px] text-slate-400 border-b border-slate-800 sticky top-0 backdrop-blur-sm z-10">
+                        <tr>
+                            <th class="p-3">#ID</th>
+                            <th class="p-3">วัน-เวลา</th>
+                            <th class="p-3">อากาศ (T/RH)</th>
+                            <th class="p-3">VPD</th>
+                            <th class="p-3">แสง &amp; Rad</th>
+                            <th class="p-3">ผิวดิน Stick</th>
+                            <th class="p-3">ดินลึก 7-in-1</th>
+                            <th class="p-3">NPK (mg/kg)</th>
+                            <th class="p-3">AI NPK</th>
+                            <th class="p-3">รีเลย์ 1-4</th>
+                            <th class="p-3">สถานะ SD Card</th>
+                        </tr>
+                    </thead>
+                    <tbody id="telemetryTableBody" class="divide-y divide-slate-800/60 text-[11px]">
+                        <tr>
+                            <td colspan="11" class="text-center p-6 text-slate-500">
+                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดข้อมูลประวัติจาก SQLite3...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 pt-2 font-mono gap-2">
+                <div>
+                    <span>แฟ้มข้อมูล SD Card: <strong class="text-amber-300">/telemetry_data.csv</strong></span>
+                    <span class="mx-2">•</span>
+                    <span>ฐานข้อมูลเซิร์ฟเวอร์: <strong class="text-emerald-300">data/leqs_xai.db</strong></span>
+                </div>
+                <div class="text-slate-500 text-[10px]">
+                    * อัปเดตอัตโนมัติทุก 5 วินาที พร้อมส่งออกไฟล์มาตรฐานรองรับ Excel และ R / Python
+                </div>
+            </div>
         </div>
 
     </main>
@@ -698,7 +815,14 @@
                         if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = Number(s.soil_ph).toFixed(1);
                         if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(1)}°C`;
                         
+                        // Surface Soil Stick
+                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = Number(s.soil_stick_moisture || s.soil_moisture).toFixed(1);
+                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(1);
+                        if (document.getElementById('dashStickAdc')) document.getElementById('dashStickAdc').innerText = s.soil_stick_adc || 1850;
+                        if (document.getElementById('dashStickVolt')) document.getElementById('dashStickVolt').innerText = `${Number(s.soil_stick_ph_volt || 1.85).toFixed(2)}V`;
+
                         if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toLocaleString();
+                        if (document.getElementById('dashKlux')) document.getElementById('dashKlux').innerText = Number(s.klux || (s.par_lux / 1000.0)).toFixed(2);
                         if (document.getElementById('dashSolarRad')) {
                             document.getElementById('dashSolarRad').innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
                         }
@@ -718,6 +842,26 @@
                             if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${ai.npk_total} mg/kg`;
                             if (document.getElementById('dashAiConfidence') && ai.confidence) {
                                 document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
+                            }
+                        }
+
+                        // SD Card & SQLite Storage Indicators
+                        if (data.sd_card) {
+                            const sd = data.sd_card;
+                            const sdRecText = `${Number(sd.records || 0).toLocaleString()} เรคอร์ด`;
+                            if (document.getElementById('dashSdRecords')) document.getElementById('dashSdRecords').innerText = sdRecText;
+                            if (document.getElementById('sdCardStatusDisplay')) {
+                                document.getElementById('sdCardStatusDisplay').innerHTML = `<i class="fa-solid fa-sd-card mr-0.5"></i> ${sdRecText}`;
+                            }
+                        }
+                        if (data.database) {
+                            const dbTotal = `${Number(data.database.total_records || 0).toLocaleString()} เรคอร์ด`;
+                            if (document.getElementById('dashDbRecords')) document.getElementById('dashDbRecords').innerText = dbTotal;
+                            if (document.getElementById('dbRecordsStatusDisplay')) {
+                                document.getElementById('dbRecordsStatusDisplay').innerHTML = `<i class="fa-solid fa-database mr-0.5"></i> ${dbTotal}`;
+                            }
+                            if (document.getElementById('tableDbTotalRecords')) {
+                                document.getElementById('tableDbTotalRecords').innerText = dbTotal;
                             }
                         }
 
@@ -986,30 +1130,65 @@
         }
 
         function exportCsvData() {
-            const rows = [
-                ['Timestamp', 'Temperature_C', 'Humidity_RH', 'SoilMoisture_Pct', 'VPD_kPa', 'Soil_EC', 'Soil_pH', 'PAR_Lux', 'Board_IP', 'SSID'],
-                ['2026-10-04 11:40:00', '28.5', '65.2', '72.4', '0.95', '850', '6.4', '42500', currentBoardIp, currentSsid],
-                ['2026-10-04 11:45:00', '28.6', '65.0', '72.3', '0.96', '852', '6.4', '42480', currentBoardIp, currentSsid],
-                ['2026-10-04 11:50:00', '28.4', '65.5', '72.5', '0.94', '848', '6.4', '42520', currentBoardIp, currentSsid]
-            ];
-            let csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', `leqs_smartfarm_esp32_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
+            window.location.href = '../api/api.php?action=export_csv';
             Swal.fire({
                 icon: 'success',
-                title: 'ส่งออกไฟล์ CSV สำเร็จ',
-                text: 'ดาวน์โหลดชุดข้อมูลสถิติเซนเซอร์เรียบร้อยแล้ว',
-                timer: 1800,
+                title: 'กำลังส่งออกไฟล์ CSV จากฐานข้อมูล',
+                text: 'ดาวน์โหลดชุดข้อมูลสถิติเซนเซอร์ทั้งหมดจาก SQLite3 (telemetry_logs) เรียบร้อยแล้ว',
+                timer: 2000,
                 showConfirmButton: false,
                 background: '#0a0f1d',
                 color: '#fff'
             });
+        }
+
+        async function fetchDbHistoryTable() {
+            try {
+                const res = await fetch('../api/api.php?action=get_history_table&limit=15');
+                if (!res.ok) return;
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const totalEl = document.getElementById('tableDbTotalRecords');
+                    if (totalEl) totalEl.innerText = Number(json.total_records || 0).toLocaleString();
+
+                    const tbody = document.getElementById('telemetryTableBody');
+                    if (!tbody) return;
+
+                    if (!json.data || json.data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="11" class="text-center p-6 text-slate-500">ยังไม่มีบันทึกข้อมูลในฐานข้อมูล SQLite3</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = json.data.map(r => {
+                        const r1 = r.relay1 == 1 ? '<span class="text-emerald-400 font-bold">R1:ON</span>' : '<span class="text-slate-600">R1:OFF</span>';
+                        const r2 = r.relay2 == 1 ? '<span class="text-emerald-400 font-bold">R2:ON</span>' : '<span class="text-slate-600">R2:OFF</span>';
+                        const r3 = r.relay3 == 1 ? '<span class="text-emerald-400 font-bold">R3:ON</span>' : '<span class="text-slate-600">R3:OFF</span>';
+                        const r4 = r.relay4 == 1 ? '<span class="text-emerald-400 font-bold">R4:ON</span>' : '<span class="text-slate-600">R4:OFF</span>';
+
+                        const sdTag = r.sd_card_mounted == 1 
+                            ? `<span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px] border border-amber-800"><i class="fa-solid fa-sd-card"></i> ${r.sd_card_records || 0} rec</span>`
+                            : `<span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-500 text-[10px]">Unmounted</span>`;
+
+                        return `
+                            <tr class="hover:bg-slate-900/60 transition font-mono">
+                                <td class="p-3 text-cyan-400 font-bold">#${r.id}</td>
+                                <td class="p-3 text-slate-300 whitespace-nowrap">${r.created_at}</td>
+                                <td class="p-3"><span class="text-amber-300 font-bold">${Number(r.temperature || 0).toFixed(1)}°C</span> / <span class="text-cyan-300">${Number(r.humidity || 0).toFixed(1)}%</span></td>
+                                <td class="p-3 text-emerald-300 font-bold">${Number(r.vpd || 0).toFixed(2)} kPa</td>
+                                <td class="p-3">${Number(r.par_lux || 0).toLocaleString()} lx <span class="text-[10px] text-yellow-400 block">${Number(r.solar_radiation || 0).toFixed(2)} W/m²</span></td>
+                                <td class="p-3">${Number(r.soil_stick_moisture || 0).toFixed(1)}% <span class="text-[10px] text-amber-300 block">pH ${Number(r.soil_stick_ph || 0).toFixed(1)}</span></td>
+                                <td class="p-3">${Number(r.soil_moisture || 0).toFixed(1)}% <span class="text-[10px] text-emerald-300 block">EC ${Math.round(r.soil_ec || 0)} | pH ${Number(r.soil_ph || 0).toFixed(1)}</span></td>
+                                <td class="p-3">${Number(r.nitrogen || 0).toFixed(0)}-${Number(r.phosphorus || 0).toFixed(0)}-${Number(r.potassium || 0).toFixed(0)}</td>
+                                <td class="p-3 text-cyan-300">${Number(r.ai_nitrogen || 0).toFixed(0)}-${Number(r.ai_phosphorus || 0).toFixed(0)}-${Number(r.ai_potassium || 0).toFixed(0)}</td>
+                                <td class="p-3 font-mono text-[9px] whitespace-nowrap">${r1} ${r2} ${r3} ${r4}</td>
+                                <td class="p-3 whitespace-nowrap">${sdTag}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.warn('DB Table fetch error:', err);
+            }
         }
 
         function openQrModal() {
@@ -1061,9 +1240,11 @@
             });
         }
 
-        // Start live telemetry polling loop (Every 2 seconds)
+        // Start live telemetry polling loop (Every 2 seconds) and DB table (Every 5 seconds)
         syncTelemetryFromApi();
+        fetchDbHistoryTable();
         setInterval(syncTelemetryFromApi, 2000);
+        setInterval(fetchDbHistoryTable, 5000);
     </script>
 </body>
 </html>
