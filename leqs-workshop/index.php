@@ -1259,33 +1259,33 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     </div>
                 </div>
 
-                <!-- 02 Microclimate -->
+                <!-- 02 Data (Big Numbers) -->
                 <div class="glass-card p-2 rounded-2xl border border-gray-100 hover:border-cyan-400 transition cursor-pointer shadow-sm hover:shadow-md"
-                     onclick="openScreenModal('assets/images/atd35/02_microclimate_vpd.png', 'Screen 02: Microclimate & VPD Zone', 'การวิเคราะห์สภาพอากาศย่อย ค่าความดันไอขาดดุล และสถานะความเสี่ยงโรครา')">
-                    <img src="assets/images/atd35/02_microclimate_vpd.png" alt="02 Microclimate" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
+                     onclick="openScreenModal('assets/images/atd35/02_big_numbers.png', 'Screen 02: Big Numbers Live Data', 'หน้าจอแสดงผลตัวเลขขนาดใหญ่ (Full Screen Big Digits) อุณหภูมิ SHT45, ความชื้นอากาศ RH%, ความชื้นผิวดิน และ AI pH')">
+                    <img src="assets/images/atd35/02_big_numbers.png" alt="02 Data Big Numbers" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
                     <div class="mt-2 text-center">
-                        <span class="text-xs font-bold text-gray-800 block">02. Microclimate</span>
-                        <span class="text-[10px] text-gray-500">VPD Safe Zone</span>
+                        <span class="text-xs font-bold text-gray-800 block">02. Data (ตัวเลขใหญ่)</span>
+                        <span class="text-[10px] text-gray-500">Big Numbers Display</span>
                     </div>
                 </div>
 
-                <!-- 03 Light PAR -->
+                <!-- 03 Graph (Realtime Trends) -->
                 <div class="glass-card p-2 rounded-2xl border border-gray-100 hover:border-cyan-400 transition cursor-pointer shadow-sm hover:shadow-md"
-                     onclick="openScreenModal('assets/images/atd35/03_light_solar_par.png', 'Screen 03: Light & Solar PAR', 'โฟตอนแสงสังเคราะห์แสง PAR (umol/m2/s) และการสะสมแสงรายวัน DLI')">
-                    <img src="assets/images/atd35/03_light_solar_par.png" alt="03 Light PAR" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
+                     onclick="openScreenModal('assets/images/atd35/03_realtime_graphs.png', 'Screen 03: Realtime Dynamic Trends', 'กราฟแนวโน้มอนุกรมเวลาเรียลไทม์ 60 วินาที แสดงพลวัตสภาพอากาศย่อยและความชื้นดินแบบไดนามิก')">
+                    <img src="assets/images/atd35/03_realtime_graphs.png" alt="03 Trends Graph" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
                     <div class="mt-2 text-center">
-                        <span class="text-xs font-bold text-gray-800 block">03. Light PAR</span>
-                        <span class="text-[10px] text-gray-500">BH1750 Sensor</span>
+                        <span class="text-xs font-bold text-gray-800 block">03. Graph (กราฟแนวโน้ม)</span>
+                        <span class="text-[10px] text-gray-500">Realtime Trends</span>
                     </div>
                 </div>
 
-                <!-- 04 Soil 7-in-1 -->
+                <!-- 04 Relay Control -->
                 <div class="glass-card p-2 rounded-2xl border border-gray-100 hover:border-cyan-400 transition cursor-pointer shadow-sm hover:shadow-md"
-                     onclick="openScreenModal('assets/images/atd35/04_soil_deep_7in1.png', 'Screen 04: Soil Deep Root 7-in-1', 'การวัดแร่ธาตุ NPK, ค่าการนำไฟฟ้า EC, ความเป็นกรดด่าง pH ในเขตราก')">
-                    <img src="assets/images/atd35/04_soil_deep_7in1.png" alt="04 Soil 7in1" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
+                     onclick="openScreenModal('assets/images/atd35/04_relay_control.png', 'Screen 04: Direct Relay Control', 'แผงสวิตช์สัมผัสควบคุมรีเลย์ปั๊มน้ำ โซลินอยด์วาล์ว ระบบพ่นหมอก และพัดลมระบายอากาศ พร้อมโหมดอัตโนมัติ AI')">
+                    <img src="assets/images/atd35/04_relay_control.png" alt="04 Relay Control" class="w-full h-auto rounded-xl object-cover hover:scale-105 transition">
                     <div class="mt-2 text-center">
-                        <span class="text-xs font-bold text-gray-800 block">04. Soil 7-in-1</span>
-                        <span class="text-[10px] text-gray-500">RS485 Modbus</span>
+                        <span class="text-xs font-bold text-gray-800 block">04. Relay (ควบคุมรีเลย์)</span>
+                        <span class="text-[10px] text-gray-500">Direct Actuators</span>
                     </div>
                 </div>
 

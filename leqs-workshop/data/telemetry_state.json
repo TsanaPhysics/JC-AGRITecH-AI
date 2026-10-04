@@ -22,7 +22,7 @@
             "5. SETUP",
             "ENG"
         ],
-        "last_seen": "2026-10-04 07:29:51",
+        "last_seen": "2026-10-04 07:37:11",
         "mac_address": "48:27:E2:B4:8A:1C",
         "telemetry_timestamp": "2026-09-12 13:03:33"
     },
@@ -50,7 +50,7 @@
         "phosphorus": 32,
         "potassium": 180,
         "battery_pct": 98.5,
-        "updated_at": "2026-10-04 07:29:51"
+        "updated_at": "2026-10-04 07:37:11"
     },
     "sensor_connection": {
         "sht45": true,
