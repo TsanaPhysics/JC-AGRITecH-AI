@@ -324,12 +324,15 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             &lt; Smart_Agricultural_Intelligence /&gt;
                         </span>
                         <div class="flex flex-wrap items-baseline gap-2.5">
-                            <span class="text-4xl md:text-6xl font-extrabold tracking-tight">
-                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">LEQs</span>
-                                <span class="text-blue-600">xAI</span>
+                            <span class="text-4xl md:text-6xl font-extrabold tracking-tight inline-flex items-baseline">
+                                <span class="text-emerald-500">L</span><span class="text-cyan-500">E</span><span class="text-purple-600">Q</span><span class="text-pink-500">s</span>
+                                <span class="ml-1.5 text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 font-black">xAI</span>
                             </span>
-                            <span class="text-xl md:text-2xl font-tech font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">
-                                Digital Agriculture - Environment
+                            <span class="text-xl md:text-2xl font-tech font-bold bg-white/95 px-3.5 py-1 rounded-2xl border border-gray-200 shadow-xs inline-flex items-center gap-2 flex-wrap">
+                                <span class="text-blue-600">Digital</span>
+                                <span class="text-emerald-600">Agriculture</span>
+                                <span class="text-amber-500 font-medium">-</span>
+                                <span class="text-teal-600">Environment</span>
                             </span>
                         </div>
                         <span class="text-2xl md:text-4xl block mt-2.5 font-heading font-bold text-gray-900 leading-snug">
@@ -383,7 +386,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div class="text-xs text-gray-500 mt-1 font-medium">ทฤษฎี 30% + ปฏิบัติการ 70%</div>
                 </div>
                 <a href="#simulators" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
-                    <div class="text-2xl md:text-3xl font-black font-tech text-amber-600 group-hover:text-amber-500 transition">Virtual XR Lab</div>
+                    <div class="text-2xl md:text-3xl font-black font-tech text-amber-600 group-hover:text-amber-500 transition">2+ Virtual XR Lab</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">ห้องทดลองเสมือนจริง 3 มิติ</div>
                 </a>
                 <a href="#iot-platform" class="glass-card p-5 rounded-3xl text-center shadow-sm hover:shadow-md transition block group">
