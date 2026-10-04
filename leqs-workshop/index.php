@@ -2411,77 +2411,158 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
     </main>
 
     <!-- ========================================================================= -->
-    <!-- 10. FOOTER (cmu_aiot CLEAN LIGHT AESTHETIC)                                -->
+    <!-- 10. FOOTER (MODERN SLEEK DARK CHARCOAL AESTHETIC - HIGH CONTRAST)         -->
     <!-- ========================================================================= -->
-    <footer class="bg-white/90 border-t border-gray-100 backdrop-blur-md pt-16 pb-12 text-gray-600 text-xs">
-        <div class="container mx-auto px-4 md:px-6">
+    <footer class="relative bg-slate-950 text-slate-300 border-t border-slate-800/80 pt-16 pb-12 text-xs overflow-hidden">
+        <!-- Top Subtle Glow Line -->
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent"></div>
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-24 bg-emerald-500/10 blur-3xl pointer-events-none rounded-full"></div>
+
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                 
-                <!-- Col 1: Identity -->
+                <!-- Col 1: Identity & Objectives -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <img src="assets/images/nong_smartscience.png" class="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-emerald-200">
+                        <div class="relative">
+                            <img src="assets/images/nong_smartscience.png" class="w-11 h-11 rounded-full object-cover shadow-md ring-2 ring-emerald-500/40 bg-slate-900">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-slate-950 animate-pulse"></span>
+                        </div>
                         <div>
-                            <div class="font-heading text-lg font-bold text-gray-900">LEQs-xAI Consortium</div>
-                            <div class="text-[10px] text-gray-400">Digital Agriculture &amp; Environmental AI</div>
+                            <div class="font-heading text-lg font-bold text-white tracking-wide">LEQs-AgriEnvi-xAI</div>
+                            <div class="text-[11px] text-emerald-400 font-medium">Digital Agriculture &amp; Environmental AI</div>
                         </div>
                     </div>
-                    <p class="text-gray-500 leading-relaxed">
-                        ศูนย์พัฒนานวัตกรรมเกษตรดิจิทัลรำไพพรรณี-ประณีตวิทยาคม (RBRU-Praneet Digital Agri-Innovation Center)
-                        คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                    <p class="text-slate-300 leading-relaxed text-xs">
+                        โครงการพัฒนาทักษะวิทยาศาสตร์เกษตรอัจฉริยะและการตรวจวัดสิ่งแวดล้อมเพื่อการเกษตรแม่นยำด้วยเทคโนโลยีปัญญาประดิษฐ์ (Edge AI) สู่การเรียนรู้ตลอดชีวิต
                     </p>
-                    <div class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check"></i> สอดคล้องเป้าหมายการพัฒนาที่ยั่งยืน (SDGs 2, 4, 13)
+                    <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                        <div class="font-semibold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-building-columns text-cyan-400"></i> หน่วยงานผู้รับผิดชอบหลักสูตร:
+                        </div>
+                        <div class="text-slate-300">
+                            คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-semibold">SDG 2 ขจัดความหิวโหย</span>
+                        <span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[10px] font-semibold">SDG 4 การศึกษา</span>
+                        <span class="px-2 py-0.5 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold">SDG 9 นวัตกรรม</span>
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">SDG 13 สภาพอากาศ</span>
                     </div>
                 </div>
 
-                <!-- Col 2: Navigation -->
+                <!-- Col 2: Navigation & Services -->
                 <div class="space-y-3">
-                    <div class="font-bold text-gray-800 uppercase tracking-wider text-xs font-heading">ระบบและบริการ</div>
-                    <ul class="space-y-2">
-                        <li><a href="pages/register.php" class="hover:text-emerald-600 transition flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-500 text-[10px]"></i> ลงทะเบียนเข้าร่วมอบรม</a></li>
-                        <li><a href="pages/student_list.php" class="hover:text-purple-600 transition flex items-center gap-2"><i class="fa-solid fa-list-check text-purple-500 text-[10px]"></i> ประกาศรายชื่อผู้สมัคร</a></li>
-                        <li><a href="pages/assessment_pre.php" class="hover:text-orange-600 transition flex items-center gap-2"><i class="fa-solid fa-file-pen text-orange-500 text-[10px]"></i> แบบทดสอบก่อนเรียน (Pre-test)</a></li>
-                        <li><a href="pages/assessment_post.php" class="hover:text-pink-600 transition flex items-center gap-2"><i class="fa-solid fa-file-circle-check text-pink-500 text-[10px]"></i> แบบทดสอบหลังเรียน &amp; วุฒิบัตร</a></li>
-                        <li><a href="admin/index.php" class="hover:text-cyan-600 transition flex items-center gap-2"><i class="fa-solid fa-shield-halved text-cyan-500 text-[10px]"></i> แผงควบคุมระบบ (Admin CMS)</a></li>
+                    <div class="font-bold text-white uppercase tracking-wider text-xs font-heading flex items-center gap-2">
+                        <span class="w-1.5 h-3.5 bg-emerald-500 rounded-sm"></span> ระบบและบริการ
+                    </div>
+                    <ul class="space-y-2.5 text-slate-300">
+                        <li>
+                            <a href="pages/register.php" class="hover:text-emerald-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-user-plus text-emerald-400 text-xs w-4"></i> ลงทะเบียนเข้าร่วมอบรม
+                            </a>
+                        </li>
+                        <li>
+                            <a href="pages/student_list.php" class="hover:text-purple-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-list-check text-purple-400 text-xs w-4"></i> ประกาศรายชื่อผู้สมัคร
+                            </a>
+                        </li>
+                        <li>
+                            <a href="dashboard/index.php" class="hover:text-cyan-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-chart-line text-cyan-400 text-xs w-4"></i> แดชบอร์ดมอนิเตอร์เซนเซอร์เรียลไทม์
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mobile/index.php" class="hover:text-teal-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-mobile-screen-button text-teal-400 text-xs w-4"></i> โมบายเว็บแอปพลิเคชัน
+                            </a>
+                        </li>
+                        <li>
+                            <a href="pages/assessment_pre.php" class="hover:text-orange-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-file-pen text-orange-400 text-xs w-4"></i> แบบทดสอบก่อนเรียน (Pre-test)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="pages/assessment_post.php" class="hover:text-pink-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-file-circle-check text-pink-400 text-xs w-4"></i> แบบทดสอบหลังเรียน &amp; วุฒิบัตร
+                            </a>
+                        </li>
+                        <li>
+                            <a href="admin/index.php" class="hover:text-cyan-400 hover:translate-x-1 transition duration-200 flex items-center gap-2.5">
+                                <i class="fa-solid fa-shield-halved text-cyan-400 text-xs w-4"></i> แผงควบคุมระบบ (Admin CMS)
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
                 <!-- Col 3: Coordinator & Contact -->
                 <div class="space-y-3">
-                    <div class="font-bold text-gray-800 uppercase tracking-wider text-xs font-heading">ผู้ประสานงานโครงการ</div>
-                    <div class="space-y-1.5 text-gray-600">
-                        <div class="font-bold text-gray-800">ผศ.ดร.ชีวะ ทัศนา</div>
-                        <div>อาจารย์ประจำสาขาวิชาฟิสิกส์</div>
-                        <div>คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี</div>
-                        <div><i class="fa-solid fa-envelope text-cyan-600 mr-1.5"></i> chewa.t@rbru.ac.th</div>
-                        <div><i class="fa-solid fa-phone text-emerald-600 mr-1.5"></i> 039-319-111 ต่อ 207</div>
+                    <div class="font-bold text-white uppercase tracking-wider text-xs font-heading flex items-center gap-2">
+                        <span class="w-1.5 h-3.5 bg-cyan-500 rounded-sm"></span> ผู้ประสานงานโครงการ
+                    </div>
+                    <div class="space-y-2.5 text-slate-300">
+                        <div>
+                            <div class="font-bold text-white text-sm">ผศ.ดร.ชีวะ ทัศนา</div>
+                            <div class="text-[11px] text-slate-400">ประธานโครงการและผู้รับผิดชอบหลักสูตร</div>
+                            <div class="text-[11px] text-slate-400">สาขาวิชาฟิสิกส์และวิทยาศาสตร์ทั่วไป</div>
+                            <div class="text-[11px] text-cyan-400">คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี</div>
+                        </div>
+
+                        <div class="pt-1 space-y-2">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-solid fa-envelope text-cyan-400 w-4"></i>
+                                <a href="mailto:chewa.t@rbru.ac.th" class="hover:text-cyan-300 transition text-slate-200 font-medium">chewa.t@rbru.ac.th</a>
+                            </div>
+                            <div>
+                                <a href="tel:0937422654" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 hover:text-white transition font-bold text-sm tracking-wide shadow-sm">
+                                    <i class="fa-solid fa-phone text-emerald-400"></i>
+                                    <span>093 7422654</span>
+                                </a>
+                            </div>
+                            <div class="text-[11px] text-slate-400 flex items-start gap-2 pt-0.5">
+                                <i class="fa-solid fa-clock text-amber-400 mt-0.5 w-4"></i>
+                                <span>เวลาทำการ: จันทร์ - ศุกร์ (08:30 - 16:30 น.)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Col 4: Location Map -->
                 <div class="space-y-3">
-                    <div class="font-bold text-gray-800 uppercase tracking-wider text-xs font-heading">พิกัดศูนย์การเรียนรู้</div>
-                    <p class="text-[11px] text-gray-500 leading-relaxed">
-                        โรงเรียนประณีตวิทยาคม ตำบลประณีต อำเภอเขาสมิง จังหวัดตราด 23150
-                    </p>
-                    <div class="rounded-2xl overflow-hidden border border-gray-200 bg-white h-28 relative shadow-sm">
-                        <iframe class="w-full h-full border-0 opacity-80 hover:opacity-100 transition" 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3896.793739775082!2d102.4069678!3d12.4013697!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3104683058a9da95%3A0xc48c0a87a71f021e!2z4LmC4Lij4LiH4LmA4Lij4Li14Lii4LiZ4Lib4Lij4Liw4LiT4Li14LiV4Lin4Li04Lii4Liy4LiE4Lih!5e0!3m2!1sth!2sth!4v1700000000000!5m2!1sth!2sth"
+                    <div class="font-bold text-white uppercase tracking-wider text-xs font-heading flex items-center gap-2">
+                        <span class="w-1.5 h-3.5 bg-rose-500 rounded-sm"></span> พิกัดสถานที่ดำเนินงาน
+                    </div>
+                    <div class="space-y-1 text-slate-300 text-[11px] leading-relaxed">
+                        <div class="font-semibold text-white">คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</div>
+                        <div class="text-slate-400">41 หมู่ 5 ถนนสุขุมวิท ตำบลท่าช้าง อำเภอเมืองจันทบุรี จังหวัดจันทบุรี 22000</div>
+                    </div>
+                    <div class="rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-900 h-32 relative shadow-lg group">
+                        <iframe class="w-full h-full border-0 filter contrast-105 opacity-90 group-hover:opacity-100 transition duration-300" 
+                                src="https://maps.google.com/maps?q=คณะวิทยาศาสตร์และเทคโนโลยี%20มหาวิทยาลัยราชภัฏรำไพพรรณี&t=&z=15&ie=UTF8&iwloc=&output=embed"
                                 allowfullscreen="" loading="lazy"></iframe>
                     </div>
+                    <a href="https://maps.google.com/?q=คณะวิทยาศาสตร์และเทคโนโลยี+มหาวิทยาลัยราชภัฏรำไพพรรณี" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-200 hover:text-white transition text-[11px] font-medium shadow-sm">
+                        <i class="fa-solid fa-map-location-dot text-emerald-400"></i> เปิดนำทางบน Google Maps <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400"></i>
+                    </a>
                 </div>
 
             </div>
 
             <!-- Bottom Sub-Footer -->
-            <div class="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-400">
-                <div>
-                    © 2026 LEQs-xAI Consortium. All rights reserved. มหาวิทยาลัยราชภัฏรำไพพรรณี ร่วมกับ โรงเรียนประณีตวิทยาคม
+            <div class="mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>© 2026 LEQs-AgriEnvi-xAI Consortium. คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี. All rights reserved.</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-gray-400">Powered by ESP32-S3 ATD3.5 &amp; HandySense</span>
-                    <a href="#overview" class="text-emerald-600 hover:text-emerald-700 font-bold"><i class="fa-solid fa-arrow-up mr-1"></i> กลับด้านบน</a>
+                    <span class="text-slate-400">Powered by <strong class="text-slate-200">ESP32-S3 ATD3.5</strong> &amp; <strong class="text-emerald-400">HandySense Open Innovation</strong></span>
+                    <a href="#overview" class="text-emerald-400 hover:text-emerald-300 font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-up text-xs"></i> กลับด้านบน
+                    </a>
                 </div>
             </div>
         </div>
@@ -2662,7 +2743,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         } else if (q.includes('สมัคร') || q.includes('ลงทะเบียน')) {
                             replyText = 'สามารถลงทะเบียนเข้าร่วมอบรมได้ทันทีที่ปุ่ม <strong><a href="pages/register.php" class="text-emerald-600 underline">ลงทะเบียนเข้าร่วมอบรม</a></strong> รับจำนวนจำกัด 30 ท่าน (นักเรียน ครู และเกษตรกร) ฟรีตลอดหลักสูตรครับ!';
                         } else {
-                            replyText = 'ยินดีต้อนรับสู่โครงการ LEQs-xAI ครับ! หากต้องการสอบถามข้อมูลเฉพาะด้าน สามารถติดต่อ ผศ.ดร.ชีวะ ทัศนา ทางอีเมล <a href="mailto:chewa.t@rbru.ac.th" class="text-emerald-600 underline">chewa.t@rbru.ac.th</a> หรือโทร 039-319-111 ต่อ 207 ได้ตลอดเวลาครับ 😊';
+                            replyText = 'ยินดีต้อนรับสู่โครงการ LEQs-AgriEnvi-xAI ครับ! หากต้องการสอบถามข้อมูลเฉพาะด้าน สามารถติดต่อ ผศ.ดร.ชีวะ ทัศนา ทางอีเมล <a href="mailto:chewa.t@rbru.ac.th" class="text-emerald-600 underline">chewa.t@rbru.ac.th</a> หรือโทร <a href="tel:0937422654" class="text-emerald-600 underline font-bold">093 7422654</a> ได้ตลอดเวลาครับ 😊';
                         }
 
                         this.messages.push({ id: Date.now() + 1, text: replyText, isUser: false });
