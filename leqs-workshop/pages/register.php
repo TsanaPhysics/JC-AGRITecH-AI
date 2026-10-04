@@ -195,6 +195,80 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
                     </div>
                 </div>
 
+                <!-- Participant Terms & Commitment Box (Outcome-Based Assessment Criteria) -->
+                <div id="terms_condition_card" class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900/95 via-cyan-950/20 to-slate-950 border-2 border-cyan-500/40 shadow-xl shadow-cyan-950/40 relative overflow-hidden transition-all duration-300">
+                    <div class="absolute -top-12 -left-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-cyan-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center font-bold text-lg shadow-lg shadow-cyan-500/20 shrink-0">
+                                <i class="fa-solid fa-file-contract"></i>
+                            </span>
+                            <div>
+                                <h3 class="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                                    เงื่อนไขและข้อตกลงการเข้าร่วมโครงการ (เพื่อการวัดผลสัมฤทธิ์จริง)
+                                </h3>
+                                <p class="text-[11px] sm:text-xs text-cyan-400">กรอบการประเมินผลลัพธ์เชิงประจักษ์ (Outcome-Based Assessment) เพื่อรับรองสมรรถนะ AIoT</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[11px] font-bold shrink-0">
+                            มาตรฐานวิชาการ RBRU
+                        </span>
+                    </div>
+
+                    <!-- 4 Core Criteria Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300 mb-4">
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                            <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center shrink-0 text-xs">1</div>
+                            <div>
+                                <strong class="text-white">เวลาเข้าร่วมกิจกรรมไม่น้อยกว่า 80%</strong>
+                                <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">ต้องเข้าร่วมการอบรมเชิงปฏิบัติการครบตามกำหนด สแกน QR Code เช็คชื่อเช้า-บ่าย เพื่อบันทึกเวลาเข้ารับการอบรมจริง</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 text-xs">2</div>
+                            <div>
+                                <strong class="text-white">การทดสอบวัดผลสัมฤทธิ์ (Pre/Post Test)</strong>
+                                <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">ต้องทำแบบทดสอบทั้งก่อนและหลังการอบรม โดยมีผลคะแนนผ่านเกณฑ์ $\ge 70\%$ หรือมีอัตราการพัฒนา $\langle g \rangle \ge 50\%$</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center shrink-0 text-xs">3</div>
+                            <div>
+                                <strong class="text-white">ปฏิบัติการและส่งโครงงาน (Capstone Project)</strong>
+                                <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">ฝึกประกอบวงจร เชื่อมต่อ Dashboard และส่งผลงานต้นแบบ AIoT ตามแทร็กที่เลือก ประเมินผ่านเกณฑ์ Rubric $\ge 75\%$</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+                            <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center shrink-0 text-xs">4</div>
+                            <div>
+                                <strong class="text-white">การนำไปใช้จริงในพื้นที่ (Field Deployment)</strong>
+                                <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">ยินยอมส่งภาพถ่ายหรือรายงานสั้นๆ 1 หน้า แสดงการนำความรู้/อุปกรณ์ไปทดลองติดตั้งใช้งานในแปลงเกษตรหรือโรงเรียนใน 30–60 วัน</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certification Note -->
+                    <div class="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 text-[11px] sm:text-xs text-slate-300 mb-4 flex items-start gap-2.5">
+                        <i class="fa-solid fa-award text-amber-400 text-sm mt-0.5 shrink-0"></i>
+                        <span><strong>สิทธิ์ในการรับวุฒิบัตร (Certification):</strong> ผู้ที่ผ่านเกณฑ์ครบถ้วนจะได้รับ <strong>วุฒิบัตรรับรองสมรรถนะ AIoT (Certificate of Competence)</strong> ออกโดยคณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</span>
+                    </div>
+
+                    <!-- Mandatory Agreement Checkbox -->
+                    <div class="p-3.5 rounded-xl bg-cyan-500/10 border-2 border-cyan-500/40 transition-colors hover:bg-cyan-500/15">
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" id="terms_agreed" name="terms_agreed" required
+                                   class="mt-0.5 w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400 accent-cyan-500 cursor-pointer shrink-0">
+                            <span class="text-xs sm:text-sm font-semibold text-cyan-200 leading-snug">
+                                ข้าพเจ้าได้อ่าน เข้าใจ และยอมรับเงื่อนไขการเข้าร่วมโครงการเพื่อการวัดผลสัมฤทธิ์ทุกประการ <span class="text-rose-400 font-bold">* (จำเป็นต้องยอมรับ)</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="pt-4">
                     <button type="submit" id="btnSubmit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-sky-500 text-slate-950 font-bold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
@@ -240,6 +314,30 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
             return false;
         }
 
+        // 2. Mandatory check: Must accept Terms & Conditions
+        const termsAgreed = document.getElementById('terms_agreed');
+        if (!termsAgreed || !termsAgreed.checked) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณายอมรับเงื่อนไขโครงการ',
+                html: '<div class="space-y-2 text-sm text-slate-300 text-left sm:text-center">' +
+                      '<p>ผู้สมัครต้องรับทราบและยอมรับ <b>เงื่อนไขและข้อตกลงการเข้าร่วมโครงการ</b></p>' +
+                      '<p class="text-cyan-400 text-xs font-semibold">(เวลาเรียน $\\ge 80\%$, Pre/Post Test, ส่งโครงงาน Capstone และรายงานการนำไปใช้จริง)</p>' +
+                      '</div>',
+                confirmButtonColor: '#06B6D4',
+                confirmButtonText: '<i class="fa-solid fa-check mr-1"></i> ไปที่กล่องเงื่อนไข'
+            }).then(() => {
+                const card = document.getElementById('terms_condition_card');
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('ring-4', 'ring-cyan-400', 'border-cyan-400');
+                    setTimeout(() => card.classList.remove('ring-4', 'ring-cyan-400'), 3000);
+                }
+                if (termsAgreed) termsAgreed.focus();
+            });
+            return false;
+        }
+
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังบันทึกข้อมูล...';
@@ -252,7 +350,8 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
             phone: document.getElementById('phone').value,
             email: document.getElementById('email').value,
             project_track: document.getElementById('project_track').value,
-            line_group_joined: true
+            line_group_joined: true,
+            terms_agreed: true
         };
 
         try {
