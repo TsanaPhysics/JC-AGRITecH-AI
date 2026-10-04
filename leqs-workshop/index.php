@@ -155,8 +155,8 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <a href="#learning-resources" class="px-3.5 py-2.5 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition flex items-center gap-3">
                                 <i class="fa-solid fa-graduation-cap text-indigo-600 w-5"></i>
                                 <div>
-                                    <span class="font-bold text-xs block text-gray-800">แหล่งเรียนรู้เพิ่มเติม 9 ระบบ</span>
-                                    <span class="text-[10px] text-gray-500">เชื่อมโยงระบบนิเวศ cmu_aiot ทั้งหมด</span>
+                                    <span class="font-bold text-xs block text-gray-800">แหล่งเรียนรู้เพิ่มเติม 10 ระบบ</span>
+                                    <span class="text-[10px] text-gray-500">เชื่อมโยงระบบนิเวศ cmu_aiot &amp; soil_nutrient2026</span>
                                 </div>
                             </a>
                             <a href="#screens" class="px-3.5 py-2.5 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition flex items-center gap-3">
@@ -216,7 +216,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
             <a href="#iot-platform" onclick="toggleMobileMenu()" class="block py-2 text-cyan-700 font-bold"><i class="fa-solid fa-mobile-screen-button w-6 text-cyan-600"></i> Smartphone App &amp; Web Dashboard</a>
             <a href="#modules" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-cyan-600"><i class="fa-solid fa-cubes w-6 text-cyan-500"></i> 3. หลักสูตร 7 โมดูล</a>
             <a href="#simulators" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-flask-vial w-6 text-amber-500"></i> 4. Virtual Lab เสมือนจริง</a>
-            <a href="#learning-resources" onclick="toggleMobileMenu()" class="block py-2 text-indigo-700 font-bold"><i class="fa-solid fa-graduation-cap w-6 text-indigo-600"></i> 5. แหล่งเรียนรู้เพิ่มเติม 9 ระบบ</a>
+            <a href="#learning-resources" onclick="toggleMobileMenu()" class="block py-2 text-indigo-700 font-bold"><i class="fa-solid fa-graduation-cap w-6 text-indigo-600"></i> 5. แหล่งเรียนรู้เพิ่มเติม 10 ระบบ</a>
             <a href="#screens" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-amber-600"><i class="fa-solid fa-display w-6 text-amber-500"></i> จอแสดงผล ATD3.5-S3 (11 จอ)</a>
             <a href="#documents" onclick="toggleMobileMenu()" class="block py-2 text-gray-700 hover:text-emerald-600"><i class="fa-solid fa-file-invoice-dollar w-6 text-emerald-600"></i> เอกสารงบประมาณ 76,000 บ.</a>
             <hr class="border-gray-100">
@@ -245,7 +245,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                                 <span id="heroCategoryDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
                                 <span id="heroCategoryName" class="font-bold text-gray-800 font-tech tracking-wider text-[11px]">LEQs xAI Master Showcase</span>
                                 <span id="heroSlideBadge" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[9px] border border-emerald-200 font-semibold">
-                                    Slide 01/10
+                                    Slide 01/16
                                 </span>
                             </div>
                             <div class="flex items-center gap-1.5">
@@ -358,7 +358,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                         </a>
                         <a href="#learning-resources" 
                            class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-5 py-3.5 rounded-full font-semibold shadow-sm transition flex items-center gap-2 text-sm">
-                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> แหล่งเรียนรู้ 9 ระบบ
+                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> แหล่งเรียนรู้ 10 ระบบ
                         </a>
                     </div>
 
@@ -1582,13 +1582,13 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     <div>
                         <div class="flex items-center gap-2 mb-2">
                             <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-indigo-100 text-indigo-700">Extended Learning Ecosystem</span>
-                            <span class="text-xs text-gray-400 font-mono">9 แหล่งเรียนรู้เพิ่มเติม</span>
+                            <span class="text-xs text-gray-400 font-mono">10 แหล่งเรียนรู้เพิ่มเติม</span>
                         </div>
                         <h2 class="text-3xl font-heading font-bold text-gray-900">
                             แหล่งเรียนรู้เพิ่มเติมและระบบนิเวศ AIoT ที่เกี่ยวข้อง
                         </h2>
                         <p class="text-gray-500 text-xs md:text-sm mt-1">
-                            เชื่อมต่อแพลตฟอร์ม โค้ดตัวอย่าง แดชบอร์ด และเอกสารคู่มือระดับมืออาชีพบนเซิร์ฟเวอร์ XAMPP
+                            เชื่อมต่อแพลตฟอร์ม โค้ดตัวอย่าง แดชบอร์ด และเอกสารคู่มือระดับมืออาชีพบนเซิร์ฟเวอร์ XAMPP &amp; RBRU Cloud
                         </p>
                     </div>
                     <span class="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
@@ -1596,7 +1596,7 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                     </span>
                 </div>
 
-                <!-- 9 Systems Grid -->
+                <!-- 10 Systems Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 relative z-10">
                     
                     <!-- 1. SCIRBRU AIoT 207 -->
@@ -1793,6 +1793,37 @@ $page_title = "LEQs-xAI: ปัญญาประดิษฐ์เพื่อ�
                             <span class="text-[11px] text-gray-400 font-mono">Textbook PDF 3.5 MB</span>
                             <a href="http://localhost/cmu_aiot/latex_textbook/main.pdf" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
                                 ดาวน์โหลด PDF <i class="fa-solid fa-download text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 10. Portable Soil Nutrient Analysis (chewa.rbru.ac.th) -->
+                    <div class="p-6 rounded-3xl bg-white/90 border-2 border-emerald-300/80 hover:border-emerald-500 shadow-md hover:shadow-xl transition hover:-translate-y-1 flex flex-col justify-between group relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-emerald-50 rounded-full pointer-events-none"></div>
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl group-hover:scale-110 transition duration-300 border border-emerald-200">
+                                    <i class="fa-solid fa-flask-vial"></i>
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono border border-emerald-300 font-bold">soil_nutrient2026</span>
+                            </div>
+                            <h3 class="text-base font-bold text-gray-900 group-hover:text-emerald-600 transition flex items-center gap-1.5">
+                                <span>Portable Soil Nutrient (AI &amp; Spec)</span>
+                            </h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed">
+                                แพลตฟอร์มวิเคราะห์ธาตุอาหารดินแบบพกพา NPK, Reflectance Spectroscopy, และ Computer Vision หน้าแปลงจริง (chewa.rbru.ac.th)
+                            </p>
+                            <!-- Mini Thumbnails of 6 images -->
+                            <div class="grid grid-cols-3 gap-1.5 mt-3 pt-3 border-t border-gray-100">
+                                <img src="assets/images/soil_nutrient2026/portable_iot_pixar.png" alt="IoT" class="h-10 w-full object-cover rounded-lg border border-gray-100" title="Portable IoT Device">
+                                <img src="assets/images/soil_nutrient2026/tech_spectroscopy_diagram_1766189587511.png" alt="Spectroscopy" class="h-10 w-full object-cover rounded-lg border border-gray-100" title="Spectroscopy">
+                                <img src="assets/images/soil_nutrient2026/simulated_cam_feed_1766190123.jpg" alt="Cam Vision" class="h-10 w-full object-cover rounded-lg border border-gray-100" title="Smart App Vision">
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <span class="text-[11px] text-emerald-700 font-mono font-bold">RBRU Cloud Portal</span>
+                            <a href="https://chewa.rbru.ac.th/soil_nutrient2026/index.php" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+                                เข้าสู่ระบบ <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                             </a>
                         </div>
                     </div>

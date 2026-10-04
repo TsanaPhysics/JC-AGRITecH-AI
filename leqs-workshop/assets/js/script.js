@@ -91,7 +91,7 @@ function initNavbarLogoCarousel() {
 }
 
 // ==========================================
-// 2. HERO SINGLE SCREEN CAROUSEL (สกรีนเดียว รวมภาพจาก cmu_aiot & บอร์ด)
+// 2. HERO SINGLE SCREEN CAROUSEL (สกรีนเดียว รวมภาพจาก soil_nutrient2026, cmu_aiot & บอร์ด)
 // ==========================================
 const heroSlides = [
     {
@@ -99,80 +99,112 @@ const heroSlides = [
         category: 'LEQs xAI Master Showcase',
         categoryDot: 'bg-emerald-400',
         title: 'LEQs xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม',
-        desc: 'Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย ทีม LEQs คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี',
-        badge: 'Slide 01/10'
+        desc: 'Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย LEQs-TEAMS คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/portable_iot_pixar.png',
+        category: 'Portable Soil IoT',
+        categoryDot: 'bg-emerald-400',
+        title: 'Portable IoT Device: เครื่องวัดวิเคราะห์ธาตุอาหารดินแบบพกพา',
+        desc: 'ย่อส่วนเทคโนโลยีห้องแล็บให้อยู่ในรูปแบบอุปกรณ์พกพา หรือใช้ร่วมกับ Smartphone ทราบค่า NPK ทันทีที่หน้าแปลงปลูก (chewa.rbru.ac.th/soil_nutrient2026)'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/tech_spectroscopy_diagram_1766189587511.png',
+        category: 'Reflectance Spectroscopy',
+        categoryDot: 'bg-cyan-400',
+        title: 'Reflectance Spectroscopy: ลายนิ้วมือสเปกตรัมแสงสะท้อน',
+        desc: 'วัดค่าแสงสะท้อนจากดินช่วง Visible & NIR ธาตุอาหารแต่ละชนิดดูดซับแสงต่างกัน เกิดเป็นลายนิ้วมือสเปกตรัมเฉพาะตัว'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/tech_ai_network_1766189604369.png',
+        category: 'AI & Deep Learning',
+        categoryDot: 'bg-indigo-400',
+        title: 'Artificial Intelligence (AI): โครงข่ายประสาทเทียมคำนวณปุ๋ย NPK',
+        desc: 'Machine Learning ประมวลผลข้อมูลแสงสเปกตรัม ตัดสัญญาณรบกวน และแปลงค่าแสงเป็นปริมาณธาตุอาหาร N, P, K แม่นยำ'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/simulated_cam_feed_1766190123.jpg',
+        category: 'Computer Vision App',
+        categoryDot: 'bg-amber-400',
+        title: 'Smart Soil App & Camera Vision สแกนวิเคราะห์หน้าดิน',
+        desc: 'ประมวลผลผ่านกล้องสมาร์ตโฟนและ Edge AI ตัดปัญหาแสงเพี้ยน ให้ผลแม่นยำกว่าตาเปล่าและใช้งานได้จริงในสนาม'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/sample_soil_quick.jpg',
+        category: 'Quick Scan Field Test',
+        categoryDot: 'bg-orange-400',
+        title: 'Quick Scan: โหมดสแกนด่วนวิเคราะห์เนื้อดินและธาตุอาหาร',
+        desc: 'ส่องกล้องสแกนไปที่ผิวดินโดยตรงเพื่อประเมินความอุดมสมบูรณ์และปริมาณธาตุอาหารหลักเบื้องต้นอย่างรวดเร็ว'
+    },
+    {
+        file: 'assets/images/soil_nutrient2026/sample_soil_lab.jpg',
+        category: 'Lab Standard Chemistry',
+        categoryDot: 'bg-purple-400',
+        title: 'Lab Test: เทียบเคียงมาตรฐานการทดสอบเคมีในห้องปฏิบัติการ',
+        desc: 'เปรียบเทียบผลการวิเคราะห์กับสารเคมีมาตรฐานและแล็บวิจัย เพื่อความแม่นยำสูงสุดตามหลักการเกษตรแม่นยำ'
     },
     {
         file: 'assets/images/cv_hardware_setup.jpg',
         category: 'Hardware & Sensors',
         categoryDot: 'bg-cyan-400',
         title: 'ชุดบอร์ดทดลอง ATD3.5-S3 & เซนเซอร์ Modbus',
-        desc: 'ESP32-S3 Xtensa LX7 พร้อมกล้อง AI และโพรบวัดดินสแตนเลส 7-in-1',
-        badge: 'Slide 02/10'
+        desc: 'ESP32-S3 Xtensa LX7 พร้อมกล้อง AI และโพรบวัดดินสแตนเลส 7-in-1'
     },
     {
         file: 'assets/images/cv_agri_vision.jpg',
         category: 'AgriTech AI Vision',
         categoryDot: 'bg-teal-400',
         title: 'ตรวจจับโรคใบทุเรียนและคัดเกรดผลผลิต',
-        desc: 'ประยุกต์ใช้โมเดลดีพเลิร์นนิง YOLOv8 ตรวจวินิจฉัยโรคพืชในสวนจริง',
-        badge: 'Slide 03/10'
+        desc: 'ประยุกต์ใช้โมเดลดีพเลิร์นนิง YOLOv8 ตรวจวินิจฉัยโรคพืชในสวนจริง'
     },
     {
         file: 'assets/images/soil_7in1_dashboard_ui.jpg',
         category: 'IoT Telemetry UI',
         categoryDot: 'bg-blue-400',
         title: 'แดชบอร์ดติดตามค่า NPK, EC, pH และความชื้นดิน',
-        desc: 'แสดงผลข้อมูลเขตราก 10-30 cm วิเคราะห์ความอุดมสมบูรณ์ของดินด้วย AI',
-        badge: 'Slide 04/10'
+        desc: 'แสดงผลข้อมูลเขตราก 10-30 cm วิเคราะห์ความอุดมสมบูรณ์ของดินด้วย AI'
     },
     {
         file: 'assets/images/pixar_smart_farm_hero.jpg',
         category: '3D Pixar & Ghibli AIoT',
         categoryDot: 'bg-emerald-400',
         title: '🌱 นวัตกรรมเกษตรดิจิทัล 3D Pixar Ghibli AIoT',
-        desc: 'การเรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรเชิงสร้างสรรค์ ผสานหุ่นยนต์และระบบอัจฉริยะ',
-        badge: 'Slide 05/10'
+        desc: 'การเรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรเชิงสร้างสรรค์ ผสานหุ่นยนต์และระบบอัจฉริยะ'
     },
     {
         file: 'assets/images/atd35/01_overview_dashboard.png',
         category: 'ATD3.5-S3 Touch Display',
         categoryDot: 'bg-purple-400',
         title: 'จอแสดงผลสัมผัส 3.5 นิ้ว: Overview 4D Dashboard',
-        desc: 'แสดงผล 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 60 FPS',
-        badge: 'Slide 06/10'
+        desc: 'แสดงผล 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 60 FPS'
+    },
+    {
+        file: 'assets/images/atd35/11_qr_portal_screen.png',
+        category: 'ESP32 Screen 11',
+        categoryDot: 'bg-cyan-400',
+        title: 'จอที่ 11: Official QR Portal & Identity Verification',
+        desc: '2026.10.04 วันอาทิตย์ • 09:03 ชีวะ ทัศนา • https://aidar.rbru.ac.th/leqsxai'
     },
     {
         file: 'assets/images/card_plant_ai.png',
         category: 'TinyML On-Device',
         categoryDot: 'bg-rose-400',
         title: 'โมเดล TinyML On-Device วิเคราะห์สุขภาพใบพืช',
-        desc: 'สถาปัตยกรรม CNN ขนาดกะทัดรัด ประมวลผลบนชิปไมโครคอนโทรลเลอร์โดยไม่ต้องต่อเน็ต',
-        badge: 'Slide 07/10'
+        desc: 'สถาปัตยกรรม CNN ขนาดกะทัดรัด ประมวลผลบนชิปไมโครคอนโทรลเลอร์โดยไม่ต้องต่อเน็ต'
     },
     {
         file: 'assets/images/card_soil_expert.png',
         category: 'Quantitative Science',
         categoryDot: 'bg-emerald-400',
         title: 'ระบบผู้เชี่ยวชาญวินิจฉัยธาตุอาหารในดิน (NPK)',
-        desc: 'ประเมินสมดุลธาตุอาหารพืชและคำนวณการใส่ปุ๋ยเคมี/อินทรีย์อย่างแม่นยำ',
-        badge: 'Slide 08/10'
-    },
-    {
-        file: 'assets/images/atd35/03_realtime_graphs.png',
-        category: 'Data Analytics',
-        categoryDot: 'bg-cyan-400',
-        title: 'กราฟแนวโน้มสภาพอากาศย้อนหลัง 24 ชั่วโมง',
-        desc: 'ติดตามเส้นกราฟอุณหภูมิและความชื้นสัมพัทธ์ เฝ้าระวังการระบาดของโรคราสนิม',
-        badge: 'Slide 09/10'
+        desc: 'ประเมินสมดุลธาตุอาหารพืชและคำนวณการใส่ปุ๋ยเคมี/อินทรีย์อย่างแม่นยำ'
     },
     {
         file: 'assets/images/soil_probe_atd_lcd_render.jpg',
         category: 'Industrial Probes',
         categoryDot: 'bg-indigo-400',
         title: 'โพรบวัดดินสแตนเลสแท้มาตรฐานอุตสาหกรรม',
-        desc: 'ทนทานต่อการกัดกร่อน เชื่อมต่อผ่านสายสัญญาณ RS485 มาตรฐานอุตสาหกรรม',
-        badge: 'Slide 10/10'
+        desc: 'ทนทานต่อการกัดกร่อน เชื่อมต่อผ่านสายสัญญาณ RS485 มาตรฐานอุตสาหกรรม'
     }
 ];
 
@@ -202,7 +234,11 @@ function renderHeroSlide(index) {
 
     if (title) title.innerText = slide.title;
     if (desc) desc.innerText = slide.desc;
-    if (badge) badge.innerText = slide.badge;
+    if (badge) {
+        const cur = String(currentSlideIdx + 1).padStart(2, '0');
+        const tot = String(heroSlides.length).padStart(2, '0');
+        badge.innerText = `Slide ${cur}/${tot}`;
+    }
     if (catName) catName.innerText = slide.category;
     if (catDot) catDot.className = `w-2 h-2 rounded-full ${slide.categoryDot} animate-ping`;
 

@@ -71,9 +71,10 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
                             <option value="นาย">นาย</option>
                             <option value="นางสาว">นางสาว</option>
                             <option value="นาง">นาง</option>
+                            <!--
                             <option value="อาจารย์">อาจารย์</option>
                             <option value="ผศ.">ผศ.</option>
-                            <option value="ดร.">ดร.</option>
+                            <option value="ดร.">ดร.</option -->
                         </select>
                     </div>
                     <div class="sm:col-span-3">
