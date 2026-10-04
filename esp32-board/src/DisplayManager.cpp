@@ -73,7 +73,7 @@ static void addHistoryPoint(float sSurface, float sDeep, float sRad, float aTemp
 }
 
 static void drawTopNavBar();
-static DisplayLanguage currentLanguage = LANG_TH;
+static DisplayLanguage currentLanguage = LANG_EN;
 
 void DisplayManager_setLanguage(DisplayLanguage lang) {
     if (currentLanguage != lang) {
@@ -862,6 +862,12 @@ static void updateTopHeaderClock() {
 // แถบปุ่มนำทาง 4 ปุ่มด้านล่างสำหรับหน้าภาพรวม (Bottom Navigation Bar)
 // ============================================================================
 static void drawOverviewBottomNav() {
+    if (currentLanguage == LANG_TH) {
+        lcd.loadFont(thai_font_vlw);
+    } else {
+        lcd.setFont(&fonts::Font2);
+    }
+
     const char *lbl_home  = L_STR("1. ภาพรวม", "1. HOME", "1.主页");
     const char *lbl_graph = L_STR("2. กราฟ", "2. GRAPH", "2.图表");
     const char *lbl_relay = L_STR("3. รีเลย์", "3. RELAYS", "3.继电器");

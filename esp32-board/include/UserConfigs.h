@@ -56,10 +56,12 @@
 #define WIFI_SSID                   "JC_Home"              // Wi-Fi SSID (2.4GHz)
 #define WIFI_PASSWORD               "JChome2023"           // รหัสผ่าน Wi-Fi (Capital H)
 
-// 5.1 ตัวเลือกส่งเข้า Custom Server ของตนเอง (Python FastAPI + SQLite/PostgreSQL)
+// 5.1 ตัวเลือกส่งเข้า Custom Server ของตนเอง (FastAPI Cloud Telemetry Hub + Local PHP REST API)
 #define ENABLE_CUSTOM_SERVER        true
-// กำหนดชี้ IP ปลายทางมายังเครื่อง Mac ในวง Wi-Fi เดียวกัน (192.168.0.120:8000)
-#define CUSTOM_SERVER_URL           "http://192.168.0.120:8000/api/telemetry"
+// Cloud Telemetry Hub (14.207.141.164:8000) ที่เว็บแดชบอร์ดดึงข้อมูลเรียลไทม์
+#define CUSTOM_SERVER_URL           "http://14.207.141.164:8000/api/telemetry"
+// Localhost Web Server บนเครื่อง Mac (พอร์ต 80 Apache XAMPP)
+#define LOCAL_SERVER_URL            "http://192.168.0.107/handysense/leqs-workshop/api/api.php?action=update_telemetry"
 
 // 5.2 ตัวเลือกส่งเข้า Google Firebase Realtime Database
 #define ENABLE_FIREBASE             false

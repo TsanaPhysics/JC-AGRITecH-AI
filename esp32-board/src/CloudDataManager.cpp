@@ -197,16 +197,15 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
         return;
     }
 
-    if (String(FIREBASE_HOST).indexOf("your-project") >= 0 || strlen(FIREBASE_HOST) == 0) {
-        // ยังไม่ได้ตั้งชื่อโฮสต์ Firebase จริง
-        return;
-    }
-
     // สร้างเอกสาร JSON ด้วย ArduinoJson
     StaticJsonDocument<1024> doc;
     unsigned long epoch = CloudDataManager_getEpochTime();
     doc["timestamp"] = epoch;
     doc["datetime"]  = CloudDataManager_getFormattedTime();
+    doc["ip"]        = WiFi.localIP().toString();
+    doc["rssi"]      = WiFi.RSSI();
+    doc["ssid"]      = WiFi.SSID();
+    doc["device_id"] = "ESP32-S3-ATD35";
 
     // ข้อมูลสภาพอากาศ SHT45
     JsonObject air = doc.createNestedObject("air");
@@ -259,7 +258,7 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     String jsonPayload;
     serializeJson(doc, jsonPayload);
 
-    // 1. ส่งข้อมูลเข้า Custom Python FastAPI Server ของตนเอง
+    // 1. ส่งข้อมูลเข้า Cloud Telemetry Hub (14.207.141.164:8000)
 #if defined(ENABLE_CUSTOM_SERVER) && ENABLE_CUSTOM_SERVER == true
     if (String(CUSTOM_SERVER_URL).startsWith("http")) {
         HTTPClient http;
@@ -268,16 +267,30 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
             http.setTimeout(3000); // Timeout สั้น 3 วินาที เพื่อไม่ให้ระบบหน่วง
             int httpCode = http.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
-                Serial.printf("[CloudData] >>> Sent Telemetry to Custom FastAPI Server [OK] (Code: %d)\n", httpCode);
+                Serial.printf("[CloudData] >>> Sent Telemetry to Cloud Telemetry Hub [OK] (Code: %d)\n", httpCode);
             } else {
-                Serial.printf("[CloudData] [!] Custom Server POST returned: %d\n", httpCode);
+                Serial.printf("[CloudData] [!] Cloud Hub POST returned: %d\n", httpCode);
             }
             http.end();
         }
     }
+#if defined(LOCAL_SERVER_URL)
+    if (String(LOCAL_SERVER_URL).startsWith("http")) {
+        HTTPClient httpLocal;
+        if (httpLocal.begin(LOCAL_SERVER_URL)) {
+            httpLocal.addHeader("Content-Type", "application/json");
+            httpLocal.setTimeout(2000);
+            int httpCode = httpLocal.POST(jsonPayload);
+            if (httpCode == HTTP_CODE_OK || httpCode == 200) {
+                Serial.printf("[CloudData] >>> Sent Telemetry to Local PHP API [OK] (Code: %d)\n", httpCode);
+            }
+            httpLocal.end();
+        }
+    }
+#endif
 #endif
 
-    // 2. ส่งข้อมูลเข้า Google Firebase Realtime Database
+    // 2. ส่งข้อมูลเข้า Google Firebase Realtime Database (เมื่อตั้งค่าเปิดใช้งาน)
 #if defined(ENABLE_FIREBASE) && ENABLE_FIREBASE == true
     if (String(FIREBASE_HOST).indexOf("your-project") < 0 && strlen(FIREBASE_HOST) > 0) {
         WiFiClientSecure client;
