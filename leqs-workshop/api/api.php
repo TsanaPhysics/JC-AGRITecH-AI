@@ -91,12 +91,12 @@ $default_state = [
         'updated_at' => date('Y-m-d H:i:s')
     ],
     'sd_card' => [
-        'mounted' => true,
-        'records' => 142,
-        'cs_pin' => 4,
-        'size_mb' => 15190,
+        'mounted' => false,
+        'records' => 0,
+        'cs_pin' => -1,
+        'size_mb' => 0,
         'file_path' => '/telemetry_data.csv',
-        'status_text' => 'ACTIVE LOGGING'
+        'status_text' => 'STANDBY (NO SD CARD)'
     ],
     'sensor_connection' => [
         'sht45' => true,
@@ -357,35 +357,43 @@ $input_json = json_decode(file_get_contents('php://input'), true) ?: [];
 if ($action === 'get_telemetry' || $action === 'status') {
     $state = get_current_state($telemetry_file, $default_state);
     
-    // Fast Polling Bridge to Real Cloud Telemetry Hub (http://14.207.141.164:8000)
-    // Rate limit cloud requests to at most once per 800ms
-    $now_micro = microtime(true);
-    $cloud_rate_file = $data_dir . '/last_cloud_sync.txt';
-    $last_sync_time = file_exists($cloud_rate_file) ? floatval(file_get_contents($cloud_rate_file)) : 0;
-    
-    if (($now_micro - $last_sync_time) >= 0.8) {
-        file_put_contents($cloud_rate_file, strval($now_micro));
+    // Check if we have received a direct POST from ESP32 recently (< 30 seconds)
+    $last_direct_time = isset($state['board']['last_direct_post_time']) ? intval($state['board']['last_direct_post_time']) : 0;
+    $is_direct_live = (time() - $last_direct_time) < 30;
+
+    if ($is_direct_live) {
+        $state['board']['cloud_status'] = 'ESP32 DIRECT (ONLINE)';
+        $state['board']['data_source'] = 'DIRECT_ESP32_PUSH (' . ($state['board']['ip_address'] ?? '192.168.0.111') . ')';
+        $state['board']['is_live'] = true;
+    } else {
+        // Fallback: Query Cloud Telemetry Hub (http://14.207.141.164:8000) only when direct push is not active
+        $now_micro = microtime(true);
+        $cloud_rate_file = $data_dir . '/last_cloud_sync.txt';
+        $last_sync_time = file_exists($cloud_rate_file) ? floatval(file_get_contents($cloud_rate_file)) : 0;
         
-        $cloud_url = 'http://14.207.141.164:8000/api/telemetry/latest';
-        $ctx = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'timeout' => 1.8,
-                'header' => "User-Agent: LEQs-xAI-Sync/1.0\r\nAccept: application/json\r\n"
-            ]
-        ]);
-        
-        $raw_cloud = @file_get_contents($cloud_url, false, $ctx);
-        if ($raw_cloud !== false) {
-            $cloud_data = json_decode($raw_cloud, true);
-            if (is_array($cloud_data) && isset($cloud_data['id'])) {
-                // Real Live Data confirmed from ESP32-S3 via Cloud Telemetry Hub
-                $state['board']['telemetry_id'] = $cloud_data['id'];
-                $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
-                $state['board']['cloud_status'] = 'CONNECTED (ONLINE)';
-                $state['board']['data_source'] = 'LIVE_CLOUD_HUB (14.207.141.164:8000)';
-                $state['board']['is_live'] = true;
-                $state['board']['last_seen'] = date('Y-m-d H:i:s');
+        if (($now_micro - $last_sync_time) >= 1.0) {
+            file_put_contents($cloud_rate_file, strval($now_micro));
+            
+            $cloud_url = 'http://14.207.141.164:8000/api/telemetry/latest';
+            $ctx = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'timeout' => 1.5,
+                    'header' => "User-Agent: LEQs-xAI-Sync/1.0\r\nAccept: application/json\r\n"
+                ]
+            ]);
+            
+            $raw_cloud = @file_get_contents($cloud_url, false, $ctx);
+            if ($raw_cloud !== false) {
+                $cloud_data = json_decode($raw_cloud, true);
+                if (is_array($cloud_data) && isset($cloud_data['id'])) {
+                    // Fallback Cloud Hub Data
+                    $state['board']['telemetry_id'] = $cloud_data['id'];
+                    $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
+                    $state['board']['cloud_status'] = 'CLOUD HUB (ONLINE)';
+                    $state['board']['data_source'] = 'FALLBACK_CLOUD_HUB (14.207.141.164:8000)';
+                    $state['board']['is_live'] = true;
+                    $state['board']['last_seen'] = date('Y-m-d H:i:s');
                 
                 // 1. Air Microclimate (SHT45)
                 $air = $cloud_data['air'] ?? [];
@@ -528,6 +536,7 @@ if ($action === 'get_telemetry' || $action === 'status') {
                 log_telemetry_to_db($db, $state);
             }
         }
+    }
     }
     
     // Query database record count for real-time stats
@@ -712,9 +721,10 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     // Micro-SD Card Subsystem from ESP32
     if (isset($input['sd_card'])) {
         $state['sd_card']['mounted'] = !empty($input['sd_card']['mounted']);
-        if (isset($input['sd_card']['records'])) $state['sd_card']['records'] = intval($input['sd_card']['records']);
-        if (isset($input['sd_card']['cs_pin'])) $state['sd_card']['cs_pin'] = intval($input['sd_card']['cs_pin']);
-        if (isset($input['sd_card']['size_mb'])) $state['sd_card']['size_mb'] = intval($input['sd_card']['size_mb']);
+        $state['sd_card']['records'] = intval($input['sd_card']['records'] ?? 0);
+        $state['sd_card']['cs_pin'] = intval($input['sd_card']['cs_pin'] ?? -1);
+        $state['sd_card']['size_mb'] = intval($input['sd_card']['size_mb'] ?? 0);
+        $state['sd_card']['status_text'] = $state['sd_card']['mounted'] ? 'ACTIVE LOGGING' : 'STANDBY (NO SD CARD)';
     }
 
     // Actuators
@@ -728,7 +738,11 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     if (!empty($input['cloud_url'])) $state['board']['cloud_url'] = trim($input['cloud_url']);
     if (!empty($input['web_port'])) $state['board']['web_port'] = intval($input['web_port']);
     if (!empty($input['direct_url'])) $state['board']['direct_url'] = trim($input['direct_url']);
-    $state['board']['data_source'] = 'DIRECT_ESP32_PUSH';
+    $state['board']['data_source'] = 'DIRECT_ESP32_PUSH (' . ($state['board']['ip_address'] ?? '192.168.0.111') . ')';
+    $state['board']['cloud_status'] = 'ESP32 DIRECT (ONLINE)';
+    $state['board']['last_direct_post_time'] = time();
+    $state['board']['telemetry_timestamp'] = $input['datetime'] ?? date('Y-m-d H:i:s');
+    $state['board']['is_live'] = true;
 
     $state['sensors']['updated_at'] = date('Y-m-d H:i:s');
     save_current_state($telemetry_file, $state);

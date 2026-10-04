@@ -219,7 +219,7 @@
                 <div class="flex items-center gap-1.5 text-amber-300">
                     <i class="fa-solid fa-sd-card text-xs"></i>
                     <span>SD Card:</span>
-                    <strong id="mobSdStatus" class="text-white">Mounted (142 rec)</strong>
+                    <strong id="mobSdStatus" class="text-slate-400 italic">ไม่ได้ใส่การ์ด (No Card)</strong>
                 </div>
                 <div class="flex items-center gap-1.5 text-emerald-300">
                     <i class="fa-solid fa-database text-xs"></i>
@@ -900,7 +900,13 @@
                         if (data.sd_card) {
                             const mobSd = document.getElementById('mobSdStatus');
                             if (mobSd) {
-                                mobSd.innerText = `${data.sd_card.mounted ? 'Mounted' : 'Unmounted'} (${Number(data.sd_card.records || 0).toLocaleString()} rec)`;
+                                if (data.sd_card.mounted) {
+                                    mobSd.innerText = `Mounted (${Number(data.sd_card.records || 0).toLocaleString()} rec)`;
+                                    mobSd.className = 'text-amber-300 font-bold';
+                                } else {
+                                    mobSd.innerText = 'ไม่ได้ใส่การ์ด (No Card)';
+                                    mobSd.className = 'text-slate-400 italic';
+                                }
                             }
                         }
                         if (data.database) {

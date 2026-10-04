@@ -68,7 +68,7 @@
 #define FIREBASE_HOST               "your-project-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define FIREBASE_AUTH               ""
 
-// ช่วงเวลาในการส่งข้อมูลขึ้น Server / Firebase (มิลลิวินาที) เช่น 15000 = ทุก 15 วินาที
-#define CLOUD_UPLOAD_INTERVAL_MS    15000
+// ช่วงเวลาในการส่งข้อมูลขึ้น Server / Firebase (มิลลิวินาที) เช่น 3000 = ทุก 3 วินาที (เรียลไทม์)
+#define CLOUD_UPLOAD_INTERVAL_MS    3000
 
 

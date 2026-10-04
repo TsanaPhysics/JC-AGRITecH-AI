@@ -78,7 +78,7 @@
                 <!-- Hardware Connection Chip (Matching ESP32-S3 ATD3.5 Screen Photo) -->
                 <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-emerald-500/40 text-xs font-mono shadow-md">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span id="cloudStatusText" class="text-emerald-400 font-bold">ONLINE</span>
+                    <span id="cloudStatusText" class="text-emerald-400 font-bold">ESP32 DIRECT</span>
                     <span class="text-slate-600">|</span>
                     <span class="text-gray-400">SSID:</span>
                     <span id="boardSsidDisplay" class="text-emerald-300 font-bold">JC_Home</span>
@@ -87,7 +87,7 @@
                     <span id="boardIpDisplay" class="text-cyan-300 font-bold">192.168.0.111:8500</span>
                     <span class="text-slate-600">|</span>
                     <span class="text-gray-400">SD Card:</span>
-                    <span id="sdCardStatusDisplay" class="text-amber-300 font-bold"><i class="fa-solid fa-sd-card mr-0.5"></i> 142 rec</span>
+                    <span id="sdCardStatusDisplay" class="text-slate-400 font-bold"><i class="fa-solid fa-sd-card mr-0.5 text-slate-500"></i> ไม่ได้ใส่การ์ด</span>
                     <span class="text-slate-600">|</span>
                     <span class="text-gray-400">DB:</span>
                     <span id="dbRecordsStatusDisplay" class="text-emerald-300 font-bold"><i class="fa-solid fa-database mr-0.5"></i> SQLite</span>
@@ -297,12 +297,12 @@
                         <i class="fa-solid fa-server text-cyan-400"></i>
                         <span>การจัดเก็บข้อมูล 2 ชั้น</span>
                     </div>
-                    <span id="dashSdBadge" class="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">DUAL STORAGE</span>
+                    <span id="dashSdBadge" class="text-[9px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">STANDBY (NO SD)</span>
                 </div>
                 <div class="space-y-1.5 text-[11px] font-mono">
                     <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-900/90 border border-slate-800">
                         <span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-sd-card"></i> SD Card:</span>
-                        <strong id="dashSdRecords" class="text-white">142 เรคอร์ด</strong>
+                        <strong id="dashSdRecords" class="text-slate-400 italic">ไม่ได้ใส่การ์ด (No Card)</strong>
                     </div>
                     <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-900/90 border border-slate-800">
                         <span class="text-emerald-300 flex items-center gap-1"><i class="fa-solid fa-database"></i> SQLite DB:</span>
@@ -780,7 +780,13 @@
                         }
                         const statEl = document.getElementById('cloudStatusText');
                         if (statEl) {
-                            statEl.innerText = data.board.is_live ? 'LIVE CLOUD' : 'ONLINE';
+                            if (data.board.cloud_status && data.board.cloud_status.includes('DIRECT')) {
+                                statEl.innerText = 'ESP32 DIRECT';
+                                statEl.className = 'text-cyan-300 font-bold';
+                            } else {
+                                statEl.innerText = data.board.is_live ? 'CLOUD HUB' : 'ONLINE';
+                                statEl.className = 'text-emerald-400 font-bold';
+                            }
                         }
                     }
 
@@ -848,10 +854,22 @@
                         // SD Card & SQLite Storage Indicators
                         if (data.sd_card) {
                             const sd = data.sd_card;
-                            const sdRecText = `${Number(sd.records || 0).toLocaleString()} เรคอร์ด`;
-                            if (document.getElementById('dashSdRecords')) document.getElementById('dashSdRecords').innerText = sdRecText;
+                            const isMounted = Boolean(sd.mounted);
+                            const sdRecText = isMounted ? `${Number(sd.records || 0).toLocaleString()} เรคอร์ด` : 'ไม่ได้ใส่การ์ด (No Card)';
+                            if (document.getElementById('dashSdRecords')) {
+                                document.getElementById('dashSdRecords').innerText = sdRecText;
+                                document.getElementById('dashSdRecords').className = isMounted ? 'text-white' : 'text-slate-400 italic';
+                            }
                             if (document.getElementById('sdCardStatusDisplay')) {
-                                document.getElementById('sdCardStatusDisplay').innerHTML = `<i class="fa-solid fa-sd-card mr-0.5"></i> ${sdRecText}`;
+                                document.getElementById('sdCardStatusDisplay').innerHTML = isMounted 
+                                    ? `<i class="fa-solid fa-sd-card mr-0.5 text-amber-400"></i> ${Number(sd.records || 0).toLocaleString()} rec`
+                                    : `<i class="fa-solid fa-sd-card mr-0.5 text-slate-500"></i> <span class="text-slate-400">ไม่ได้ใส่การ์ด</span>`;
+                            }
+                            if (document.getElementById('dashSdBadge')) {
+                                document.getElementById('dashSdBadge').innerText = isMounted ? 'SD LOGGING' : 'STANDBY (NO SD)';
+                                document.getElementById('dashSdBadge').className = isMounted 
+                                    ? 'text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800'
+                                    : 'text-[9px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700';
                             }
                         }
                         if (data.database) {
