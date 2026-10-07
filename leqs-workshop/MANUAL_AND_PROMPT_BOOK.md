@@ -26,6 +26,8 @@
 9. [การจัดทำหนังสือตำราวิชาการระดับ Masterclass (LaTeX / XeLaTeX)](#9-การจัดทำหนังสือตำราวิชาการระดับ-masterclass-latex--xelatex)
 10. [กรอบการวัดผลสัมฤทธิ์และเงื่อนไขการรับรองสมรรถนะผู้เข้าอบรม (Outcome-Based Assessment & Certification Standards)](#10-กรอบการวัดผลสัมฤทธิ์และเงื่อนไขการรับรองสมรรถนะผู้เข้าอบรม-outcome-based-assessment--certification-standards)
 11. [พิมพ์เขียวสถาปัตยกรรมโหมดสมองกลคิดเองและระบบพิกัดแปลงจริง (Autonomous Predictive AI Mode & Real-Field GPS Architecture)](#11-พิมพ์เขียวสถาปัตยกรรมโหมดสมองกลคิดเองและระบบพิกัดแปลงจริง-autonomous-predictive-ai-mode--real-field-gps-architecture)
+12. [สถาปัตยกรรมเครือข่าย Wi-Fi แบบไดนามิกและเครื่องมือจัดการหลายช่องทาง (Dynamic Wi-Fi Provisioning & Multi-Channel Ingestion Architecture)](#12-สถาปัตยกรรมเครือข่าย-wi-fi-แบบไดนามิกและเครื่องมือจัดการหลายช่องทาง-dynamic-wi-fi-provisioning--multi-channel-ingestion-architecture)
+13. [สถาปัตยกรรมเรนเดอร์ฟอนต์และการขจัดปัญหากล่องสี่เหลี่ยมสามภาษาบนจอ 3.5 นิ้ว IPS (Tri-Lingual Display Font Engine & Zero-Tofu Architecture)](#13-สถาปัตยกรรมเรนเดอร์ฟอนต์และการขจัดปัญหากล่องสี่เหลี่ยมสามภาษาบนจอ-35-นิ้ว-ips-tri-lingual-display-font-engine--zero-tofu-architecture)
 
 ---
 
@@ -1461,9 +1463,74 @@ cd /Users/chewathassana/Desktop/handysense/server
 
 ---
 
+### 🔹 พรอมพ์ที่ 43: สถาปัตยกรรมระบบสแกน Wi-Fi อัจฉริยะ, Captive Web Portal ไดนามิก และพอร์ต Serial CLI ครบวงจร (Universal Wi-Fi & Multi-Channel Provisioning)
+> **ผู้ใช้:** *"สอบถามเกี่ยวกับการเชื่อมบอร์ด ESP32 ผ่าน wifi เพื่อส่งข้อมูลไปยัง dashboard นั้น เราสามารถตั้งค่า wifi ต่างๆ ได้เองหรือไม่ ระบบสามารถสแกนหา wifi ได้หรือไม่"*, *"ต้องการให้ดำเนินการอัพเดทระบบให้รองรับทุกๆ ช่องทาง"*
+* **1. บริบทเชิงวิศวกรรมและข้อจำกัดเดิม:**
+  * เดิมทีค่า Wi-Fi SSID, รหัสผ่าน (Password), Dashboard Server URL, และ Device ID ถูกกำหนดแบบ Hardcoded ผ่านโค้ดหรือตารางค่าคงที่ ทำให้ผู้ใช้งานหรือเกษตรกรที่นำบอร์ดไปติดตั้งในแปลงจริงไม่สามารถเปลี่ยนเครือข่าย Wi-Fi เองได้หากไม่มีคอมพิวเตอร์และโปรแกรม PlatformIO/Arduino IDE
+  * บอร์ดจำเป็นต้องมีระบบบริหารจัดการการเชื่อมต่อที่ยืดหยุ่น รองรับการสแกนค้นหาสัญญาณ Wi-Fi รอบตัว (Wi-Fi Scanning) และปรับตั้งค่าเซิร์ฟเวอร์ปลายทางได้แบบเรียลไทม์ผ่านหลากหลายช่องทาง (Multi-Channel Provisioning)
+* **2. การออกแบบและพัฒนาระบบสแกน Wi-Fi ไดนามิก และ Web Portal ([WiFiConfigManager.h](file:///Users/chewathassana/Desktop/handysense/esp32-board/include/WiFiConfigManager.h) & [WiFiConfigManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/WiFiConfigManager.cpp)):**
+  * **ระบบ NVS Flash Storage (Non-Volatile Storage):** จัดเก็บค่าคอนฟิก 4 รายการหลัก (`ssid`, `password`, `custom_server`, `device_id`) ลงในพาร์ติชัน Flash NVS ผ่านคลาส `Preferences` (Namespace: `"farm_wifi"`) ทำให้ค่าการตั้งค่าคงอยู่ถาวรแม้ปิดสวิตช์เครื่อง
+  * **เอนด์พอยต์ REST API สแกนสด (`/scan`):** เมื่อเบราว์เซอร์ส่ง HTTP GET ไปยัง `http://192.168.4.1/scan` บอร์ด ESP32-S3 จะทำการ `WiFi.scanNetworks(false, true)` และส่งคืน JSON อาเรย์ของเครือข่ายทั้งหมดพร้อมระดับความแรงสัญญาณ (RSSI dBm) และสถานะการเข้ารหัส (Auth Mode / Padlock)
+  * **เอนด์พอยต์ตรวจสอบสถานะ (`/status`):** ส่งคืนสถานะการเชื่อมต่อ IP ปัจจุบัน, MAC Address, และการทำงานของเซิร์ฟเวอร์
+  * **หน้าเว็บ Captive Web Portal สไตล์ Cyberpunk Glassmorphism:**
+    * แสดงผลสวยงามบนสมาร์ทโฟนและคอมพิวเตอร์
+    * มีปุ่ม **"🔄 สแกนค้นหา Wi-Fi ใหม่ (Live Rescan)"** อัปเดตรายการเครือข่ายสดๆ ผ่าน AJAX โดยไม่ต้องรีเฟรชหน้าเว็บ
+    * ช่องเลือก SSID จากเมนูดรอปดาวน์ หรือเลือกป้อนชื่อเครือข่ายเอง (Manual Entry)
+    * ช่องป้อนรหัสผ่าน พร้อมปุ่มรูปดวงตาสำหรับเปิด/ปิดการมองเห็นรหัสผ่าน
+    * ช่องกำหนด **Dashboard Server URL** (เช่น `http://192.168.0.120/handysense/leqs-workshop/api/api.php`)
+    * ช่องกำหนด **Device ID** สำหรับระบุตัวตนประจำแปลงปลูก
+  * **ระบบ Auto-Fallback 45 วินาที:** หากบอร์ดเชื่อมต่อเครือข่ายเดิมไม่สำเร็จภายใน 45 วินาที ระบบจะสลับเข้าสู่โหมด SoftAP (`LEQs-AgriFarm-Setup`) โดยอัตโนมัติ พร้อมแสดงรหัส QR Code และข้อความแจ้งเตือนบนหน้าจอ LCD
+* **3. การพัฒนาระบบ USB Type-C Serial CLI Commands ([CloudDataManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/CloudDataManager.cpp)):**
+  * ฝังคอมมานด์อินเทอร์พรีเตอร์ (Command Interpreter) บนพอร์ต USB-C Serial (Baudrate 115200) เพื่อให้วิศวกรสามารถควบคุมและตั้งค่าผ่าน Terminal ได้โดยตรง:
+    * `SCAN` — สแกนและพิมพ์รายชื่อเครือข่าย Wi-Fi ทั้งหมดพร้อม RSSI และความปลอดภัย
+    * `SET_WIFI <ssid> <pass>` — บันทึกชื่อและรหัสผ่าน Wi-Fi ลง NVS
+    * `SET_SERVER <url>` — บันทึก URL ของแดชบอร์ดเซิร์ฟเวอร์
+    * `SET_DEVICE <id>` — กำหนดรหัสประจำบอร์ด (Device ID)
+    * `START_PORTAL` — สั่งเปิด SoftAP Web Portal ทันที
+    * `STATUS` — แสดงข้อมูลสรุป IP, Wi-Fi, NVS, และสภาวะเซิร์ฟเวอร์
+    * `RESET_CONFIG` — ล้างค่า NVS กลับสู่ค่ามาตรฐานโรงงาน
+    * `REBOOT` — สั่งรีสตาร์ตบอร์ด ESP32-S3
+* **4. การรองรับที่ฝั่ง Backend API ([leqs-workshop/api/api.php](file:///Applications/XAMPP/xamppfiles/htdocs/handysense/leqs-workshop/api/api.php)):**
+  * ปรับปรุงเอนด์พอยต์ `action=update_telemetry` และ `action=post_data` ให้รองรับข้อมูลทั้งแบบ JSON Payload (`php://input`), Form Data (`$_POST`), และ URL Query (`$_GET`)
+  * บันทึกค่า `device_id` แบบไดนามิกลงสู่ SQLite3 และไฟล์ `telemetry_state.json` ส่งผลให้แดชบอร์ดทราบทันทีว่าข้อมูลที่สตรีมเข้ามามาจากบอร์ดตัวใดในฟาร์ม
+
+---
+
+### 🔹 พรอมพ์ที่ 44: การวิเคราะห์สาเหตุเชิงลึกและแก้ไขการแสดงผลกล่องสี่เหลี่ยม (Tofu Character Fix & Tri-Lingual Font Architecture Engine)
+> **ผู้ใช้:** *"จากโค้ด การแสดงผลหน้าจอ พบว่าบางเมนู บางรายการ แสดงเป็นกล่องสี่เหลี่ยม น่าจะเกิดจาก...", "ต้องการให้ผมดำเนินการปรับปรุงโค้ด"*
+* **1. การวิเคราะห์สาเหตุที่แท้จริง (Root Cause Analysis: RCA):**
+  * **ปัญหา Font Pointer Reset:** หน้าจอ 3.5 นิ้ว IPS ควบคุมผ่านไลบรารี LovyanGFX ซึ่งมีตัวชี้ฟอนต์ทำงานอยู่ตัวเดียว (`_font`) 
+    * ในฟังก์ชัน `updateTopHeaderClock()` มีการอัปเดตเวลานาฬิกาหัวจอทุก 1 วินาที โดยคำสั่ง `lcd.drawString(clockBuf, 218, 12, &fonts::Font2)`
+    * การส่งพารามิเตอร์ `&fonts::Font2` ทำให้ LovyanGFX เปลี่ยนตัวชี้ Active Font ภายในกลายเป็น `Font2` ซึ่งเป็นฟอนต์ ASCII ล้วน (ไม่มีอักขระภาษาไทย Unicode ช่วง `0x0E01 - 0x0E5B`)
+    * ส่งผลให้หลังจากผ่านไป 1 วินาที เมื่อลูปหลักหรือฟังก์ชันอื่นสั่งพิมพ์ข้อความภาษาไทย (เช่น เมนู "ภาพรวม", "ข้อมูล", "กราฟ", "รีเลย์", "ตั้งค่า", "ปั๊มน้ำ", "พ่นหมอก") ตัวหนังสือภาษาไทยจึงกลายเป็นกล่องสี่เหลี่ยม (`[]` หรือ Tofu characters) ทั้งหมด
+  * **ปัญหา Missing Font Restore after Font4:** จุดที่มีการพล็อตตัวเลขขนาดใหญ่ด้วย `&fonts::Font4` ไม่มีการสลับฟอนต์กลับมาเป็นฟอนต์ภาษาไทย
+  * **ปัญหา Default Language:** ในโค้ดเริ่มต้น ตัวแปร `currentLang` ถูกกำหนดเป็น `LANG_EN` ทำให้ตอนบูตเครื่องระบบไม่ได้โหลดฟอนต์ภาษาไทยไว้แต่แรก
+* **2. การออกแบบและแก้ไขสถาปัตยกรรมฟอนต์ LovyanGFX ([DisplayManager.cpp](file:///Users/chewathassana/Desktop/handysense/esp32-board/src/DisplayManager.cpp)):**
+  * **สร้างฟังก์ชันพิทักษ์ฟอนต์ `ensureAppFont()`:**
+    ```cpp
+    static void ensureAppFont() {
+        if (currentLang == LANG_ZH) {
+            lcd.setFont(&fonts::efontCN_14);
+        } else {
+            // โหลด thai_font_vlw สำหรับทั้งภาษาไทย (LANG_TH) และภาษาอังกฤษ (LANG_EN)
+            // เนื่องจาก thai_font_vlw มีทั้ง 91 อักขระไทย และ 100% ASCII ตัวอักษรและตัวเลขอังกฤษ
+            lcd.loadFont(thai_font_vlw);
+        }
+    }
+    ```
+  * **กำหนดภาษาเริ่มต้นเป็นภาษาไทย:** เปลี่ยน `currentLang = LANG_TH` เพื่อให้เปิดเครื่องมาเป็นภาษาไทยทันที
+  * **ขจัดคำสั่ง `&fonts::Font2`:** ปรับปรุง `updateTopHeaderClock()` และจุดแสดงผลหน่วยวัดทั้งหมด ให้ตัดการเรียก `Font2` ออก และเรียก `ensureAppFont()` ล็อคฟอนต์ไว้เสมอ
+  * **ครอบคลุมทุกจุดวาดตัวเลขใหญ่:** แทรก `ensureAppFont()` ทันทีหลังคำสั่งที่ใช้ `&fonts::Font4`
+  * **เพิ่ม `ensureAppFont()` ในทุกหน้าจอสัมผัส:** ใส่ในส่วนหัวของ `drawTopNavBar()`, `drawDetailHeader()`, `drawOverviewBottomNav()`, `drawPageOverview()`, `drawPageGraphs()`, `drawPageRelays()`, `drawPageWiFiSetup()`, และ `DisplayManager_update()`
+  * **ปุ่มเลือกภาษา 3 ภาษาในหน้า Wi-Fi Setup:** ปรับแต่งให้ปุ่มภาษาไทยโหลด `thai_font_vlw` สำหรับคำว่า "ภาษาไทย" และปุ่มภาษาจีนโหลด `&fonts::efontCN_14` สำหรับคำว่า "中文" อย่างแม่นยำ ป้องกันการแสดงผลเพี้ยนข้ามภาษา
+* **3. ผลสัมฤทธิ์เชิงประจักษ์:**
+  * อักขระภาษาไทยทุกตัว ทั้งพยัญชนะ สระ และวรรณยุกต์ แสดงผลคมชัด 100% สวยงาม ไร้ปัญหากล่องสี่เหลี่ยมตลอดการทำงาน
+
+---
+
 ## 10. กรอบการวัดผลสัมฤทธิ์และเงื่อนไขการรับรองสมรรถนะผู้เข้าอบรม (Outcome-Based Assessment & Certification Standards)
 
-เพื่อให้การจัดอบรมเชิงปฏิบัติการโครงการ LEQs-xAI (ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม) สามารถวัดผลลัพธ์เชิงประจักษ์ได้อย่างเป็นรูปธรรม สอดคล้องกับระเบียบวิชาการของมหาวิทยาลัยราชภัฏรำไพพรรณี (RBRU Academic Formatter) มาตรฐานการจัดทำตำราวิชาการ (RBRU LaTeX Textbook Builder) และกรอบการจัดการเรียนรู้ออนไลน์ระดับสากล (RBRU MOOC Course Builder) คณะทำงานได้วางระเบียบข้อตกลงและเกณฑ์การวัดผลสัมฤทธิ์ทางการศึกษาและการรับวุฒิบัตรรับรองสมรรถนะ ดังรายละเอียดต่อไปนี้
+เพื่อให้การจัดอบรมเชิงปฏิบัติการโครงการ LEQs-xAI (ปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม) สามารถวัดผลลัพธ์เชิงประจักษ์ได้อย่างเป็นรูปธรรม สอดคล้องกับระเบียบวิชาการของมหาวิทยาลัยราชภัฏรำไพพรรณี (RBRU Academic Formatter) มาตรฐานการจัดทำตำราวิชาการ (RBRU LaTeX Textbook Builder) และกรอบการจัดการเรียนรู้ออนไลน์ระดับสากล (RBRU MOOC Course Builder) คณะทำงานได้วางระเบียบข้อตกลงและเกณฑ์การวัดผลสัมฤทธิ์ทางการศึกษาและการรับวุฒิบัตรรับรองสมรรถนะ ดังรายละเอียดต่อไปนี้
 
 ### 10.1 กรอบวงจรการเรียนรู้เชิงรุกและการวัดผลสัมฤทธิ์ (Active Learning Cycle)
 
@@ -1881,5 +1948,121 @@ navigator.geolocation.getCurrentPosition(
   * เหตุผลการตัดสินใจของระบบอัจฉริยะ (Explainable Reasoning เช่น *"พืชเริ่มเครียดน้ำสะสมร่วมกับแดดจัด อุณหภูมิดิน 31.5°C แนะนำให้น้ำ 85 วินาที"*)
 
 ---
+
+### ภาคผนวก ๑๕: สถาปัตยกรรมแถบเมนูบาร์สมาร์ทโฟน 3 มิติ (3D Curved Scoop Dock & Tactile 3D Icons Architecture)
+
+บันทึกมาตรฐานการออกแบบแถบเมนูบาร์ด้านล่าง (Mobile App Bottom Navigation Bar) สำหรับเว็บแอปพลิเคชันยุค 2026 เพื่อนำไปใช้ซ้ำในโครงการอื่นๆ:
+
+#### 1. กฎและข้อควรระวังสำคัญ (Architectural Rules):
+* **Zero Content Bleed-Through Rule:** ห้ามใช้ SVG เจาะรูโปร่งใสโดยไม่มีฐานรองรับ เพราะเนื้อหาหน้าเว็บเวลาเลื่อน (Scroll) จะทะลุขึ้นมาเห็นใต้ปุ่มและตัวหนังสือ ต้องวาง Solid Base Shield ขาวทึบ 100% พร้อม Molded Concave Dish ใต้รอยเว้าเสมอ
+* **Unclipped Floating Action Button (FAB):** ป้องกันปุ่มลอยถูกตัดเฉือนด้วย `overflow-visible` บนคอนเทนเนอร์หลัก `<nav>`
+* **3D Tactile Icons System:** แต่ละปุ่มต้องเป็น 3 มิติแบบ Claymorphic/Glassmorphic มีแถบแสงสะท้อน Specular Highlight ด้านบน และแสงเงา Colored Glow Shadow แยกสีตามลำดับความสำคัญ (เขียว = หน้าหลัก, ส้ม = โมดูล, อัญมณีตรงกลาง = ลงทะเบียน, ฟ้า = รายชื่อ, ม่วง = แดชบอร์ด)
+---
+
+## 12. สถาปัตยกรรมเครือข่าย Wi-Fi แบบไดนามิกและเครื่องมือจัดการหลายช่องทาง (Dynamic Wi-Fi Provisioning & Multi-Channel Ingestion Architecture)
+
+เพื่อปลดล็อกข้อจำกัดของระบบ IoT ภาคสนามแบบเดิมที่ต้องฝังค่า SSID, รหัสผ่าน, และ IP Address เซิร์ฟเวอร์ไว้ในโค้ด (Hardcoded Configurations) โครงการ **JC -AgriTech + AI** ได้พัฒนาระบบสถาปัตยกรรมการตั้งค่าเครือข่ายอเนกประสงค์ (Universal Provisioning Subsystem) ซึ่งสนับสนุนการบริหารจัดการ 3 ช่องทางหลักอย่างไร้รอยต่อ:
+
+```mermaid
+graph TD
+    subgraph ProvisioningChannels [3 ช่องทางการตั้งค่าเครือข่าย]
+        C1[1. SoftAP Captive Portal 192.168.4.1]
+        C2[2. USB Type-C Serial CLI Commands]
+        C3[3. LCD On-Screen QR Code + Auto-Fallback]
+    end
+
+    subgraph CoreEngine [ESP32-S3 Firmware Core]
+        WCM[WiFiConfigManager Engine]
+        NVS[(ESP32 NVS Flash Memory)]
+        SCAN[Live Asynchronous Wi-Fi Scanner]
+    end
+
+    subgraph TargetEndpoints [ปลายทางการส่งข้อมูลโทรมาตร]
+        EP1[PHP Backend /api/api.php]
+        EP2[Python FastAPI :8000]
+        EP3[Cloud Firebase Realtime DB]
+    end
+
+    C1 --> WCM
+    C2 --> WCM
+    C3 --> WCM
+    WCM <--> NVS
+    WCM <--> SCAN
+    WCM -->|STA Mode Connected| TargetEndpoints
+```
+
+### 12.1 สถาปัตยกรรมหน่วยความจำถาวร NVS (Non-Volatile Storage Flash Architecture)
+* ใช้พาร์ติชัน NVS ของ ESP32-S3 ผ่านคลาส `Preferences` ภายใต้เนมสเปซ `"farm_wifi"`
+* จัดเก็บ 4 พารามิเตอร์สำคัญ:
+  1. `ssid` (String): ชื่อเครือข่าย Wi-Fi ที่ต้องการเชื่อมต่อ
+  2. `password` (String): รหัสผ่านของเครือข่าย
+  3. `custom_server` (String): URL ปลายทางของแดชบอร์ดเซิร์ฟเวอร์ (เช่น `http://192.168.0.120/handysense/leqs-workshop/api/api.php`)
+  4. `device_id` (String): รหัสประจำอุปกรณ์สำหรับแยกแยะข้อมูลแปลง (เช่น `ATD35-EXP-01`)
+* หากยังไม่มีการตั้งค่า ระบบจะใช้ค่าดีฟอลต์จาก `UserConfigs.h` อัตโนมัติ
+
+### 12.2 เอนด์พอยต์ REST API สำหรับ Captive Web Portal
+เมื่อบอร์ดเข้าสู่โหมด SoftAP (`LEQs-AgriFarm-Setup`, IP `192.168.4.1`) บอร์ดจะเปิดเซิร์ฟเวอร์ HTTP พอร์ต 80 ซึ่งมีเอนด์พอยต์สำคัญ:
+1. `GET /` — แสดงหน้าเว็บฟอร์ม Cyberpunk Glassmorphism พร้อมฟังก์ชันตรวจจับ Captive Portal อัตโนมัติ (Android, iOS, Windows)
+2. `GET /scan` — รัน `WiFi.scanNetworks()` คืนผลลัพธ์เป็น JSON Array:
+   ```json
+   [
+     {"ssid": "JC_Home", "rssi": -55, "secure": true},
+     {"ssid": "RBRU-WiFi", "rssi": -72, "secure": true},
+     {"ssid": "SmartFarm-IoT", "rssi": -48, "secure": false}
+   ]
+   ```
+3. `POST /save` — รับข้อมูลแบบ `application/x-www-form-urlencoded` เพื่อบันทึกค่าลง NVS และสั่งรีบูตเครื่องหลังจาก 2 วินาที
+4. `GET /status` — ตรวจสอบสถานะการทำงานปัจจุบันของบอร์ดและเซิร์ฟเวอร์
+
+### 12.3 ชุดคำสั่งบรรทัดคำสั่งผ่านสาย USB Type-C (Serial CLI Commands Matrix)
+ผู้ดูแลระบบหรือวิศวกรสามารถเชื่อมต่อสาย USB-C ผ่านพอร์ต Upload ที่ Baudrate `115200` และพิมพ์คำสั่งโต้ตอบได้ทันที:
+
+| คำสั่ง (Command) | พารามิเตอร์ | ตัวอย่างการใช้งาน | ผลลัพธ์การทำงาน |
+| :--- | :--- | :--- | :--- |
+| `SCAN` | - | `SCAN` | สแกนหา Wi-Fi ทันที และพิมพ์ตาราง SSID, RSSI, Auth |
+| `SET_WIFI` | `<ssid> <password>` | `SET_WIFI FarmNet Pass1234` | บันทึกชื่อและรหัสผ่าน Wi-Fi ลง Flash NVS |
+| `SET_SERVER` | `<url>` | `SET_SERVER http://192.168.1.50/api/api.php` | บันทึก URL ปลายทางของเซิร์ฟเวอร์โทรมาตร |
+| `SET_DEVICE` | `<device_id>` | `SET_DEVICE GREENHOUSE-01` | กำหนดหมายเลขประจำเครื่อง |
+| `START_PORTAL` | - | `START_PORTAL` | สั่งเปิด SoftAP Web Portal ทันที |
+| `STATUS` | - | `STATUS` | แสดงสรุปสถานะ Wi-Fi, IP, MAC, URL, และ Device ID |
+| `RESET_CONFIG` | - | `RESET_CONFIG` | ล้างค่าคอนฟิกทั้งหมดใน NVS คืนสู่ค่าโรงงาน |
+| `REBOOT` | - | `REBOOT` | สั่งรีสตาร์ตระบบบอร์ด ESP32-S3 |
+
+---
+
+## 13. สถาปัตยกรรมเรนเดอร์ฟอนต์และการขจัดปัญหากล่องสี่เหลี่ยมสามภาษาบนจอ 3.5 นิ้ว IPS (Tri-Lingual Display Font Engine & Zero-Tofu Architecture)
+
+### 13.1 การวิเคราะห์ทางวิศวกรรมของข้อผิดพลาดกล่องสี่เหลี่ยม (Root Cause Analysis of Glyph Tofu)
+บนฮาร์ดแวร์บอร์ด ATD3.5-S3 จอแสดงผล IPS ขนาด 3.5 นิ้วความละเอียด $480 \times 320$ พิกเซล ควบคุมด้วยคอนโทรลเลอร์ ST7796 ผ่านไลบรารีกราฟิกประสิทธิภาพสูง **LovyanGFX**:
+1. **พฤติกรรมของ LovyanGFX Font Pointer:** ใน LovyanGFX เมื่อมีการเรียกใช้คำสั่งพิมพ์ข้อความโดยระบุฟอนต์ เช่น `lcd.drawString("...", x, y, &fonts::Font2)` ตัวไลบรารีจะทำการอัปเดตตัวแปรสถานะภายใน `_font` ให้ชี้ไปยังฟอนต์ดังกล่าวโดยตรง
+2. **กลไกการเกิดข้อผิดพลาด:**
+   * ฟังก์ชัน `updateTopHeaderClock()` ถูกกำหนดให้ทำงานทุกๆ 1 วินาทีเพื่อวาดเวลาในแคปซูลบนหัวจอ
+   * ในโค้ดเดิม มีการระบุ `&fonts::Font2` ซึ่งเป็นฟอนต์ 16px แบบ ASCII 7-bit ล้วน ไม่มีตาราง Unicode สำหรับภาษาไทย (รหัส $0x0E01 - 0x0E5B$)
+   * เมื่อนาฬิกาเดินครบ 1 วินาที ตัวชี้ฟอนต์ของระบบถูกรีเซ็ตกลายเป็น `Font2` ทันที
+   * ส่งผลให้ฟังก์ชันการวาดหน้าจออื่นๆ (เช่น เมนูนำทางล่าง, ป้ายการ์ดเซนเซอร์, สถานะรีเลย์) ที่ใช้คำสั่ง `drawString()` โดยไม่ระบุฟอนต์ซ้ำ ถูกบังคับให้เรนเดอร์ด้วย `Font2` ทำให้อักขระภาษาไทยทั้งหมดกลายเป็นกล่องสี่เหลี่ยมว่างเปล่า (`[]` หรือ Tofu characters)
+
+```
+[ลูปการเกิดบั๊กเดิม]
+Boot (thai_font_vlw) ──> วาดจอไทยสมบูรณ์ ──> ครบ 1 วินาที (updateTopHeaderClock &fonts::Font2)
+                                                                 │
+                                                                 ▼
+กล่องสี่เหลี่ยม [] <── วาดเมนูภาษาไทยล้มเหลว <── Active Font กลายเป็น Font2 (ASCII)
+```
+
+### 13.2 สถาปัตยกรรมพิทักษ์ฟอนต์ `ensureAppFont()` (Zero-Tofu Font Engine)
+เพื่อแก้ปัญหานี้อย่างถาวรและรองรับการแสดงผล 3 ภาษา (ไทย, อังกฤษ, จีน) สถาปัตยกรรมกราฟิกได้รับการปรับปรุงดังนี้:
+
+1. **การรวมฟอนต์สากล (Universal Font Payload):**
+   * ฟอนต์ `thai_font_vlw` (VLW Format 16px) บรรจุอักขระจำนวน 192 ตัวอักษร ครอบคลุมพยัญชนะ สระ วรรณยุกต์ไทยครบ 91 ตัวอักษร และตัวอักษรภาษาอังกฤษ ASCII 100% (A-Z, a-z, 0-9, สัญลักษณ์)
+   * ดังนั้นสำหรับทั้ง **ภาษาไทย (`LANG_TH`)** และ **ภาษาอังกฤษ (`LANG_EN`)** จึงสามารถใช้ `thai_font_vlw` ร่วมกันได้โดยไม่มีปัญหาอักขระหาย
+2. **การป้องกันและคืนค่า (Font Guard Mechanism):**
+   * สร้างฟังก์ชัน `ensureAppFont()` ซึ่งตรวจสอบภาษาปัจจุบัน หากเป็น `LANG_ZH` จะสลับเป็น `&fonts::efontCN_14` และหากเป็น `LANG_TH` หรือ `LANG_EN` จะโหลด `thai_font_vlw`
+   * บังคับเรียก `ensureAppFont()` ทุกครั้งก่อนการวาดหน้าจอใดๆ และเรียกซ้ำทันทีหลังจากการวาดตัวเลขใหญ่ด้วย `&fonts::Font4` หรือป้ายขนาดเล็กด้วย `&fonts::Font0`
+   * ตัดพารามิเตอร์ `&fonts::Font2` ออกจาก `updateTopHeaderClock()` ทั้งหมด
+3. **การสลับภาษาแบบ Tri-Lingual Touch Control:**
+   * ออกแบบปุ่มกด 3 ภาษาในหน้า Wi-Fi Setup (ภาษาไทย, English, 中文) โดยเรนเดอร์ชื่อภาษาด้วยฟอนต์เฉพาะทางอย่างถูกต้อง คมชัดสูง 100%
+
+---
 *บันทึกวิศวกรรมฉบับปรับปรุงสมบูรณ์ © 2026 โครงการ JC -AgriTech + AI | LEQs-xAI Workshop*
+
 

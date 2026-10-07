@@ -22,36 +22,36 @@ $page_title = "แบบทดสอบหลังเรียน & วุฒ�
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between hero-pattern">
 
     <!-- Top Navbar -->
-    <nav class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 py-4 px-6 fixed w-full top-0 z-50">
+    <nav class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 py-3.5 px-4 sm:px-6 fixed w-full top-0 z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <a href="../index.php" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-tech font-bold text-xl">
+            <a href="../index.php" class="flex items-center gap-2.5 sm:gap-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-tech font-bold text-lg sm:text-xl shrink-0">
                     L
                 </div>
                 <div>
-                    <div class="font-tech text-base font-black text-white">LEQs-xAI</div>
-                    <div class="text-[10px] text-slate-400">แบบทดสอบหลังเรียน & วุฒิบัตร E-Cert</div>
+                    <div class="font-tech text-sm sm:text-base font-black text-white">LEQs-xAI</div>
+                    <div class="text-[9px] sm:text-[10px] text-slate-400">แบบทดสอบหลังเรียน & วุฒิบัตร E-Cert</div>
                 </div>
             </a>
-            <a href="../index.php" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-left"></i> หน้าหลัก
+            <a href="../index.php" class="px-3 sm:px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition flex items-center gap-1.5" title="กลับหน้าหลัก">
+                <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">หน้าหลัก</span>
             </a>
         </div>
     </nav>
 
     <!-- Post-test / Cert Content -->
-    <main class="pt-32 pb-20 px-4 max-w-3xl mx-auto w-full">
-        <div class="p-8 sm:p-10 rounded-3xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
+    <main class="pt-24 sm:pt-32 pb-20 px-3 sm:px-4 max-w-3xl mx-auto w-full">
+        <div class="p-5 sm:p-10 rounded-2xl sm:rounded-3xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
             
-            <div class="text-center mb-8">
-                <span class="px-3.5 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold uppercase tracking-wider">
+            <div class="text-center mb-6 sm:mb-8">
+                <span class="px-3.5 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     Post-training & Certification
                 </span>
-                <h1 class="text-2xl sm:text-3xl font-black text-white font-heading mt-2">
+                <h1 class="text-xl sm:text-3xl font-black text-white font-heading mt-2">
                     ประเมินผลหลังเรียน & รับเกียรติบัตร
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-400 mt-2">
-                    กรอกชื่อ-นามสกุล และทำแบบทดสอบเพื่อออกวุฒิบัตรรับรองทักษะ AIoT เกษตรดิจิทัล
+                    กรอกชื่อ-นามสกุล และทำแบบทดสอบเพื่อออกวุฒิบัตรรับรองทักษะปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม
                 </p>
             </div>
 
@@ -66,7 +66,7 @@ $page_title = "แบบทดสอบหลังเรียน & วุฒ�
                     <i class="fa-solid fa-award text-5xl text-purple-400 animate-bounce"></i>
                     <h3 class="font-bold text-white text-base">เกียรติบัตรรับรองสมรรถนะ: LEQs-xAI Young Innovator</h3>
                     <p class="text-xs text-slate-400 max-w-md mx-auto">
-                        ออกโดย คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ร่วมกับ ศูนย์พัฒนานวัตกรรมเกษตรดิจิทัลรำไพพรรณี-ประณีตวิทยาคม
+                        ออกโดย โครงการปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม (LEQs-xAI) คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
                     </p>
                     <button onclick="generateCertificate()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition flex items-center justify-center gap-2 mx-auto">
                         <i class="fa-solid fa-file-pdf"></i> ออกเกียรติบัตรอิเล็กทรอนิกส์ (E-Certificate)
@@ -131,7 +131,7 @@ $page_title = "แบบทดสอบหลังเรียน & วุฒ�
 
         ctx.fillStyle = '#94A3B8';
         ctx.font = '16px Sarabun, sans-serif';
-        ctx.fillText('คณะวิทยาศาสตร์และเทคโนโลยี ร่วมกับ โรงเรียนประณีตวิทยาคม', 500, 130);
+        ctx.fillText('คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี', 500, 130);
 
         // Title
         ctx.fillStyle = '#38BDF8';
@@ -150,9 +150,11 @@ $page_title = "แบบทดสอบหลังเรียน & วุฒ�
         // Achievement Text
         ctx.fillStyle = '#CBD5E1';
         ctx.font = '18px Sarabun, sans-serif';
-        ctx.fillText('ได้ผ่านการฝึกอบรมเชิงปฏิบัติการโครงการ LEQs-xAI', 500, 390);
-        ctx.fillText('“ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัล วิทยาศาสตร์ และสิ่งแวดล้อม”', 500, 425);
-        ctx.fillText('ครอบคลุมทักษะ: Edge AI • Deep Learning • IoT • Computer Vision', 500, 460);
+        ctx.fillText('ได้ผ่านการฝึกอบรมเชิงปฏิบัติการโครงการ LEQs-xAI', 500, 385);
+        ctx.fillText('“ปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม”', 500, 418);
+        ctx.font = '15px Sarabun, sans-serif';
+        ctx.fillText('ระหว่างวันที่ 28 - 30 พฤศจิกายน พ.ศ. 2569 ณ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี', 500, 450);
+        ctx.fillText('ครอบคลุมทักษะ: Embedded AI • Edge TinyML • Digital Electronics • IIoT • Computer Vision', 500, 480);
 
         // Signatures
         ctx.fillStyle = '#E2E8F0';
@@ -160,11 +162,11 @@ $page_title = "แบบทดสอบหลังเรียน & วุฒ�
         ctx.fillText('(ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา)', 300, 580);
         ctx.fillStyle = '#94A3B8';
         ctx.font = '13px Sarabun, sans-serif';
-        ctx.fillText('อาจารย์ประจำสาขาวิชาฟิสิกส์ / ผู้รับผิดชอบโครงการ', 300, 605);
+        ctx.fillText('หัวหน้าโครงการและผู้รับผิดชอบหลักสูตร', 300, 605);
 
         ctx.fillStyle = '#E2E8F0';
         ctx.font = '15px Sarabun, sans-serif';
-        ctx.fillText('(ผู้ช่วยศาสตราจารย์ ดร.อาภาพร บุญมี)', 700, 580);
+        ctx.fillText('(รองศาสตราจารย์ ดร.อาภาพร บุญมี)', 700, 580);
         ctx.fillStyle = '#94A3B8';
         ctx.font = '13px Sarabun, sans-serif';
         ctx.fillText('คณบดีคณะวิทยาศาสตร์และเทคโนโลยี', 700, 605);

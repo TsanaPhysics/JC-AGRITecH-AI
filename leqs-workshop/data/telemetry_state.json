@@ -4,12 +4,12 @@
         "status": "CONNECTED (ONLINE)",
         "ssid": "JC_Home",
         "ip_address": "192.168.0.111",
-        "rssi": -91,
+        "rssi": -99,
         "rssi_desc": "ปกติ",
         "cloud_url": "http:\/\/14.207.141.164:8000",
-        "cloud_status": "ESP32 DIRECT (ONLINE)",
-        "data_source": "DIRECT_ESP32_PUSH (192.168.0.111)",
-        "telemetry_id": 7205,
+        "cloud_status": "CONNECTED (ONLINE)",
+        "data_source": "LIVE_CLOUD_HUB (14.207.141.164:8000)",
+        "telemetry_id": 6608,
         "is_live": true,
         "web_port": 8500,
         "direct_url": "http:\/\/192.168.0.111:8500",
@@ -22,104 +22,95 @@
             "5. SETUP",
             "ENG"
         ],
-        "last_seen": "2026-10-04 10:51:34",
+        "last_seen": "2026-10-04 07:22:52",
         "mac_address": "48:27:E2:B4:8A:1C",
-        "telemetry_timestamp": "2026-10-04 15:51:34",
-        "last_direct_post_time": 1791103894
+        "telemetry_timestamp": "2026-09-12 13:03:33"
     },
     "sensors": {
-        "temperature": 32.56000000000000227373675443232059478759765625,
-        "temperature_f": 90.6099999999999994315658113919198513031005859375,
-        "humidity": 79.1200000000000045474735088646411895751953125,
-        "dew_point": 28.46000000000000085265128291212022304534912109375,
-        "dew_margin": 4.0999999999999996447286321199499070644378662109375,
-        "vpd": 1.020000000000000017763568394002504646778106689453125,
-        "vpsat": 4.910000000000000142108547152020037174224853515625,
-        "vpact": 3.87999999999999989341858963598497211933135986328125,
-        "par_lux": 130,
-        "klux": 0.13000000000000000444089209850062616169452667236328125,
-        "solar_radiation": 1.0300000000000000266453525910037569701671600341796875,
-        "soil_stick_adc": 2038,
-        "soil_stick_moisture": 60.7999999999999971578290569595992565155029296875,
-        "soil_stick_ph_volt": 1.7600000000000000088817841970012523233890533447265625,
-        "soil_stick_ph": 5.79999999999999982236431605997495353221893310546875,
-        "soil_moisture": 4.70000000000000017763568394002504646778106689453125,
-        "soil_temperature": 32.5,
-        "soil_ec": 0,
-        "soil_ph": 8.5999999999999996447286321199499070644378662109375,
-        "nitrogen": 0,
-        "phosphorus": 0,
-        "potassium": 0,
+        "temperature": 31.39999999999999857891452847979962825775146484375,
+        "temperature_f": 88.5,
+        "humidity": 85,
+        "dew_point": 28.39999999999999857891452847979962825775146484375,
+        "dew_margin": 3,
+        "vpd": 0.689999999999999946709294817992486059665679931640625,
+        "vpsat": 4.5999999999999996447286321199499070644378662109375,
+        "vpact": 3.910000000000000142108547152020037174224853515625,
+        "par_lux": 897.5,
+        "klux": 0.90000000000000002220446049250313080847263336181640625,
+        "solar_radiation": 7.089999999999999857891452847979962825775146484375,
+        "soil_stick_adc": 1850,
+        "soil_stick_moisture": 65,
+        "soil_stick_ph_volt": 1.850000000000000088817841970012523233890533447265625,
+        "soil_stick_ph": 6.20000000000000017763568394002504646778106689453125,
+        "soil_moisture": 65,
+        "soil_temperature": 27.5,
+        "soil_ec": 120,
+        "soil_ph": 6.20000000000000017763568394002504646778106689453125,
+        "nitrogen": 45,
+        "phosphorus": 32,
+        "potassium": 180,
         "battery_pct": 98.5,
-        "updated_at": "2026-10-04 10:51:34"
-    },
-    "sd_card": {
-        "mounted": false,
-        "records": 0,
-        "cs_pin": -1,
-        "size_mb": 0,
-        "file_path": "\/telemetry_data.csv",
-        "status_text": "STANDBY (NO SD CARD)"
+        "updated_at": "2026-10-04 07:22:52"
     },
     "sensor_connection": {
         "sht45": true,
         "bh1750": true,
-        "soil_stick": true,
+        "soil_stick": false,
         "soil_7in1": true
     },
     "ai_calibrated": {
-        "nitrogen": 23.800000000000000710542735760100185871124267578125,
-        "phosphorus": 13.9000000000000003552713678800500929355621337890625,
-        "potassium": 0,
-        "ph": 9.5,
-        "moisture": 24.199999999999999289457264239899814128875732421875,
-        "confidence": 0.80100000000000004529709940470638684928417205810546875,
-        "npk_ratio": "0.0:1:0.0",
-        "npk_total": 0
+        "nitrogen": 47.2999999999999971578290569595992565155029296875,
+        "phosphorus": 32.60000000000000142108547152020037174224853515625,
+        "potassium": 178.19999999999998863131622783839702606201171875,
+        "ph": 6.20000000000000017763568394002504646778106689453125,
+        "moisture": 65,
+        "confidence": 0.9839999999999999857891452847979962825775146484375,
+        "npk_ratio": "1.4:1:5.6",
+        "npk_total": 257
     },
     "relays": {
         "1": {
             "id": 1,
-            "name": "ปั๊มน้ำหลักโซน A (Main Pump)",
-            "state": 1,
-            "gpio": 18
+            "name": "ปั๊มน้ำหลัก (Main Pump 1)",
+            "state": 0,
+            "gpio": 39
         },
         "2": {
             "id": 2,
-            "name": "วาล์วพ่นหมอก (Fogger Valve)",
+            "name": "วาล์วน้ำโซลินอยด์/ปั๊ม 2 (Solenoid/Pump 2)",
             "state": 0,
-            "gpio": 19
+            "gpio": 38
         },
         "3": {
             "id": 3,
-            "name": "ระบบให้ปุ๋ย NPK (Dosing Pump)",
-            "state": 1,
-            "gpio": 21
+            "name": "วาล์วน้ำผิวดิน (Surface Valve)",
+            "state": 0,
+            "gpio": 7
         },
         "4": {
             "id": 4,
-            "name": "พัดลมระบายอากาศ (Exhaust Fan)",
+            "name": "ระบบพ่นหมอกลดอุณหภูมิ (Misting System)",
             "state": 0,
-            "gpio": 22
+            "gpio": 6
         }
     },
-    "auto_mode": true,
+    "auto_mode": false,
+    "control_mode": "manual",
     "camera_status": {
         "model": "OV2640 2MP Edge AI YOLOv8",
         "last_detection": "Healthy Plant Leaf (สมบูรณ์ 98.4%)",
-        "detection_time": "2026-10-04 06:57:22"
+        "detection_time": "2026-10-04 07:12:47"
     },
     "gps": {
-        "latitude": 12.6644000000000005456968210637569427490234375,
-        "longitude": 102.1038999999999958845364744774997234344482421875,
-        "latitude_deg": "12.6644° N",
-        "longitude_deg": "102.1039° E",
+        "latitude": 12.6644,
+        "longitude": 102.1039,
+        "latitude_deg": "12°39'51.8\"N",
+        "longitude_deg": "102°06'14.0\"E",
         "formatted": "12.6644° N, 102.1039° E",
-        "location_name": "แปลงทดสอบเกษตรดิจิทัล มรภ.รำไพพรรณี",
+        "location_name": "คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี (RBRU)",
         "province": "จันทบุรี (Chanthaburi)",
         "elevation_m": 24.5,
-        "maps_url": "https:\/\/maps.google.com\/?q=12.6644,102.1039",
-        "status": "ACTIVE (REAL-FIELD GPS)",
-        "updated_at": "2026-10-04 10:49:31"
+        "maps_url": "https://maps.google.com/?q=12.6644,102.1039",
+        "status": "ACTIVE (FIXED GNSS)"
     }
 }

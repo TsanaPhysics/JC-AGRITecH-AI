@@ -73,20 +73,22 @@ static void addHistoryPoint(float sSurface, float sDeep, float sRad, float aTemp
 }
 
 static void drawTopNavBar();
-static DisplayLanguage currentLanguage = LANG_EN;
+static DisplayLanguage currentLanguage = LANG_TH;
+
+static inline void ensureAppFont() {
+    if (currentLanguage == LANG_ZH) {
+        lcd.unloadFont();
+        lcd.setFont(&fonts::efontCN_14);
+    } else {
+        // ใช้ thai_font_vlw (Ayuthaya 16px) ซึ่งรองรับทั้งภาษาไทยครบ 91 ตัว และภาษาอังกฤษ/ตัวเลขครบ 100%
+        lcd.loadFont(thai_font_vlw);
+    }
+}
 
 void DisplayManager_setLanguage(DisplayLanguage lang) {
     if (currentLanguage != lang) {
         currentLanguage = lang;
-        if (currentLanguage == LANG_TH) {
-            lcd.loadFont(thai_font_vlw);
-        } else if (currentLanguage == LANG_ZH) {
-            lcd.unloadFont();
-            lcd.setFont(&fonts::efontCN_14);
-        } else {
-            lcd.unloadFont();
-            lcd.setFont(&fonts::Font2);
-        }
+        ensureAppFont();
         pageChanged = true;
         if (currentPage <= PAGE_WIFI_SETUP) {
             drawTopNavBar();
@@ -332,13 +334,16 @@ static void drawBigIconFlask(int x, int y, uint16_t col) {
 // ฟังก์ชันวาดหน่วย W/m² โดยให้เลข 2 เป็นตัวยก (Superscript)
 static void drawUnitW_m2(int x, int y, uint16_t col, uint16_t bg) {
     lcd.setTextColor(col, bg);
-    lcd.drawString("W/m", x, y, &fonts::Font2);
-    int wmWidth = lcd.textWidth("W/m", &fonts::Font2);
+    ensureAppFont();
+    lcd.drawString("W/m", x, y);
+    int wmWidth = lcd.textWidth("W/m");
     lcd.drawString("2", x + wmWidth + 1, y - 4, &fonts::Font0);
+    ensureAppFont();
 }
 
 // วาดแท็บด้านบนขนาดใหญ่ 5 แท็บ + ปุ่มสลับภาษา (TH / EN / 中文)
 static void drawTopNavBar() {
+    ensureAppFont();
     struct TabInfo {
         int x;
         int w;
@@ -395,6 +400,7 @@ static void drawTopNavBar() {
 
 // แถบหัวด้านบนสำหรับหน้าจอแสดงรายละเอียดเซนเซอร์เดี่ยว (Multi-Language)
 static void drawDetailHeader(const char *th_title, const char *en_title, const char *zh_title, uint16_t accentCol) {
+    ensureAppFont();
     const char *title = L_STR(th_title, en_title, zh_title);
     const char *back_lbl = L_STR("<ย้อน", "<BACK", "<返回");
     const char *next_lbl = L_STR("ถัดไป>", "NEXT>", "下一>");
@@ -644,7 +650,7 @@ static void drawSplashScreen() {
 
     // Tech Pillars: "Digital | IoT | Smart Farm | Edge AI"
     lcd.setTextColor(0x3DFF, SBGC);
-    lcd.drawString("Digital  |  IoT  |  Smart Farm  |  Edge AI", cx, 204, &fonts::Font2);
+    lcd.drawString("Digital  |  IoT  |  Smart Farm  |  Edge AI", cx, 204);
     delay(80);
 
     // ─────────────────────────────────────────────────────────────
@@ -706,15 +712,7 @@ void DisplayManager_init() {
     lcd.fillScreen(COLOR_BG);
 
     // โหลดฟอนต์ตามภาษาที่ตั้งค่าไว้
-    if (currentLanguage == LANG_TH) {
-        // Thai font already loaded
-    } else if (currentLanguage == LANG_ZH) {
-        lcd.unloadFont();
-        lcd.setFont(&fonts::efontCN_14);
-    } else {
-        lcd.unloadFont();
-        lcd.setFont(&fonts::Font2);
-    }
+    ensureAppFont();
 
     if (currentPage != PAGE_OVERVIEW && currentPage != PAGE_BIG_NUMBERS) {
         drawTopNavBar();
@@ -805,7 +803,8 @@ static void drawOverviewTopHeader() {
 
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.setTextColor(0x07FF, 0x0185); // ฟ้าไซแอนสไตล์ดิจิทัล
-    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13, &fonts::Font2);
+    ensureAppFont();
+    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13);
 
     // ไอคอน Wi-Fi: คลื่น 3 ระดับสีเขียวนีออน + จุดศูนย์กลาง
     bool wifiOk = (WiFi.status() == WL_CONNECTED);
@@ -828,10 +827,11 @@ static void drawOverviewTopHeader() {
     lcd.fillRect(fx - fr + 1, fy - 2, (fr * 2) - 2, 4, 0x0017); // แถบน้ำเงิน
     lcd.drawCircle(fx, fy, fr, 0x39E7);
 
-    // ตัวอักษร "TH" สีขาว
+    // ตัวอักษร "TH" / "EN" / "ZH" สีขาว
     lcd.setTextColor(0xFFFF, 0x18E3);
     lcd.setTextDatum(textdatum_t::middle_left);
-    lcd.drawString("TH", px + 25, py + 13, &fonts::Font2);
+    const char *langShort = (currentLanguage == LANG_TH) ? "TH" : ((currentLanguage == LANG_ZH) ? "ZH" : "EN");
+    lcd.drawString(langShort, px + 25, py + 13);
     lcd.setTextDatum(textdatum_t::top_left);
 }
 
@@ -852,7 +852,8 @@ static void updateTopHeaderClock() {
     lcd.fillRoundRect(timeCapsuleX + 2, timeCapsuleY + 2, timeCapsuleW - 4, timeCapsuleH - 4, 11, 0x0185);
     lcd.setTextDatum(textdatum_t::middle_center);
     lcd.setTextColor(0x07FF, 0x0185);
-    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13, &fonts::Font2);
+    ensureAppFont();
+    lcd.drawString(dtBuf, timeCapsuleX + (timeCapsuleW / 2), timeCapsuleY + 13);
     lcd.setTextDatum(textdatum_t::top_left);
 
     // อัปเดตไอคอน Wi-Fi ทุกวินาที
@@ -869,11 +870,7 @@ static void updateTopHeaderClock() {
 // แถบปุ่มนำทาง 4 ปุ่มด้านล่างสำหรับหน้าภาพรวม (Bottom Navigation Bar)
 // ============================================================================
 static void drawOverviewBottomNav() {
-    if (currentLanguage == LANG_TH) {
-        lcd.loadFont(thai_font_vlw);
-    } else {
-        lcd.setFont(&fonts::Font2);
-    }
+    ensureAppFont();
 
     const char *lbl_home  = L_STR("1. ภาพรวม", "1. HOME", "1.主页");
     const char *lbl_graph = L_STR("2. กราฟ", "2. GRAPH", "2.图表");
@@ -1047,13 +1044,15 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 20, 74, &fonts::Font4);
         int tW = lcd.textWidth(buf, &fonts::Font4);
+        ensureAppFont();
         // สัญลักษณ์องศาเซลเซียส °C (สีฟ้าสว่างสดใส)
         lcd.drawCircle(20 + tW + 4, 78, 3, 0x07FF);
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("C", 20 + tW + 9, 74, &fonts::Font2);
+        lcd.drawString("C", 20 + tW + 9, 74);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
         lcd.drawString("--.--", 20, 74, &fonts::Font4);
+        ensureAppFont();
     }
 
     // --- แถวที่ 1 ด้านบน: ตัวเลขความชื้นสัมพัทธ์ (ขวา) e.g. 78.10 %RH ---
@@ -1062,12 +1061,14 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 126, 74, &fonts::Font4);
         int hW = lcd.textWidth(buf, &fonts::Font4);
+        ensureAppFont();
         // หน่วย %RH (สีฟ้าสว่างสดใส)
         lcd.setTextColor(0x07FF, 0x10E4);
-        lcd.drawString("%RH", 126 + hW + 3, 81, &fonts::Font2);
+        lcd.drawString("%RH", 126 + hW + 3, 81);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
         lcd.drawString("--.--", 126, 74, &fonts::Font4);
+        ensureAppFont();
     }
 
     // --- แถวที่ 2 ด้านล่าง: ค่า VPD ให้อยู่กึ่งกลาง และฟอนต์ขนาดเท่ากับอุณหภูมิ (Font4) ---
@@ -1078,22 +1079,24 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     }
 
     int vpdNumW = lcd.textWidth(buf, &fonts::Font4);
-    int vpdPrefixW = lcd.textWidth("VPD ", &fonts::Font2);
-    int vpdUnitW = lcd.textWidth(" kPa", &fonts::Font2);
+    ensureAppFont();
+    int vpdPrefixW = lcd.textWidth("VPD ");
+    int vpdUnitW = lcd.textWidth(" kPa");
     int totalVpdW = vpdPrefixW + vpdNumW + vpdUnitW;
     int vpdStartX = 122 - (totalVpdW / 2); // จัดกึ่งกลางการ์ด 1 (x: 10 ถึง 234)
 
     // ป้ายกำกับ "VPD " สีเขียวนีออนสว่างสดใส
     lcd.setTextColor(0x07E0, 0x10E4);
-    lcd.drawString("VPD ", vpdStartX, 122, &fonts::Font2);
+    lcd.drawString("VPD ", vpdStartX, 122);
 
     // ตัวเลขค่า VPD สีขาวสว่างคมชัด ขนาดเท่ากับอุณหภูมิเป๊ะๆ (&fonts::Font4)
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, vpdStartX + vpdPrefixW, 116, &fonts::Font4);
+    ensureAppFont();
 
     // หน่วย " kPa" สีฟ้าไซแอนสว่างสดใส
     lcd.setTextColor(0x07FF, 0x10E4);
-    lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 122, &fonts::Font2);
+    lcd.drawString(" kPa", vpdStartX + vpdPrefixW + vpdNumW, 122);
 
     // ========================================================================
     // อัปเดตข้อมูลการ์ด 2: Solar Dome
@@ -1105,12 +1108,14 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 342, 74, &fonts::Font4);
         int lW = lcd.textWidth(buf, &fonts::Font4);
+        ensureAppFont();
         // หน่วย kLux สีเหลืองทองสว่างสดใส
         lcd.setTextColor(0xFFE0, 0x10E4);
-        lcd.drawString("kLux", 342 + lW + 4, 78, &fonts::Font2);
+        lcd.drawString("kLux", 342 + lW + 4, 78);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
         lcd.drawString("--.--", 342, 74, &fonts::Font4);
+        ensureAppFont();
     }
 
     // แถวที่ 2: W/m² e.g. 414.00 W/m²
@@ -1120,11 +1125,13 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
         lcd.setTextColor(0xFFFF, 0x10E4);
         lcd.drawString(buf, 342, 110, &fonts::Font4);
         int sW = lcd.textWidth(buf, &fonts::Font4);
+        ensureAppFont();
         // หน่วย W/m² สีเหลืองทองสว่างสดใส
         drawUnitW_m2(342 + sW + 4, 112, 0xFFE0, 0x10E4);
     } else {
         lcd.setTextColor(0xFA08, 0x10E4);
         lcd.drawString("--.--", 342, 110, &fonts::Font4);
+        ensureAppFont();
     }
 
     // ========================================================================
@@ -1156,10 +1163,11 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_right);
     lcd.drawString(buf, gcx + 18, gcy - 8, &fonts::Font4);
+    ensureAppFont();
     // หน่วย % สีเขียวมรกตนีออนสว่างสดใส
     lcd.setTextColor(0x07E0, 0x10E4);
     lcd.setTextDatum(textdatum_t::middle_left);
-    lcd.drawString("%", gcx + 22, gcy - 4, &fonts::Font2);
+    lcd.drawString("%", gcx + 22, gcy - 4);
     lcd.setTextDatum(textdatum_t::top_left);
 
     // ========================================================================
@@ -1169,21 +1177,23 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
     lcd.fillRect(256, 192, 210, 30, 0x10E4);
     // ป้าย pH สีเขียวนีออนสว่าง
     lcd.setTextColor(0x07E0, 0x10E4);
-    lcd.drawString("pH", 256, 197, &fonts::Font2);
+    lcd.drawString("pH", 256, 197);
     snprintf(buf, sizeof(buf), "%.1f", data.soil7in1.ph);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, 282, 194, &fonts::Font4);
+    ensureAppFont();
 
     // ป้าย EC สีฟ้าไซแอนนีออนสว่าง
     lcd.setTextColor(0x07FF, 0x10E4);
-    lcd.drawString("EC", 336, 197, &fonts::Font2);
+    lcd.drawString("EC", 336, 197);
     snprintf(buf, sizeof(buf), "%.1f", data.soil7in1.ec);
     lcd.setTextColor(0xFFFF, 0x10E4);
     lcd.drawString(buf, 358, 194, &fonts::Font4);
     int ecW = lcd.textWidth(buf, &fonts::Font4);
+    ensureAppFont();
     // หน่วย uS/cm สีฟ้าสว่างสดใส
     lcd.setTextColor(0x3DFF, 0x10E4);
-    lcd.drawString("uS/cm", 358 + ecW + 2, 200, &fonts::Font2);
+    lcd.drawString("uS/cm", 358 + ecW + 2, 200);
 
     // แถวที่ 2: แคปซูลเม็ดยาสามสี N, P, K (ทศนิยม 1 ตำแหน่ง) + mg/kg
     lcd.fillRect(252, 224, 214, 28, 0x10E4);
@@ -1217,6 +1227,7 @@ static void drawPageOverview(const FarmSensorTelemetry &data, bool pumpState, bo
 
     // อัปเดตแคปซูลเวลาและไอคอน Wi-Fi ด้านบนสดๆ ทุกวินาที
     updateTopHeaderClock();
+    ensureAppFont();
 }
 
 static void drawPageBigNumbers(const FarmSensorTelemetry &data) {
@@ -2283,6 +2294,7 @@ static void drawPageDetailSoil7(const FarmSensorTelemetry &data) {
 // หน้าที่ 2: กราฟแนวโน้มอนุกรมเวลาสด (Live Trend & Sparkline Graphs)
 // ============================================================================
 static void drawPageGraphs(const FarmSensorTelemetry &data) {
+    ensureAppFont();
     char buf[64];
 
     if (pageChanged) {
@@ -2396,6 +2408,7 @@ static void drawPageGraphs(const FarmSensorTelemetry &data) {
 // หน้าที่ 3: แผงควบคุมรีเลย์ & ระบบอัตโนมัติ (Relay Control & Smart Automation)
 // ============================================================================
 static void drawPageRelays(bool pumpState, bool mistingState) {
+    ensureAppFont();
     if (pageChanged) {
         lcd.fillRect(0, 36, 480, 284, COLOR_BG);
         pageChanged = false;
@@ -2471,6 +2484,7 @@ static void drawPageRelays(bool pumpState, bool mistingState) {
 // หน้าที่ 4: ข้อมูลระบบ & จัดการ Wi-Fi อัจฉริยะ (Smart Wi-Fi Setup)
 // ============================================================================
 static void drawPageWiFiSetup() {
+    ensureAppFont();
     char buf[64];
 
     if (pageChanged) {
@@ -2534,6 +2548,7 @@ static void drawPageWiFiSetup() {
         lcd.setTextSize(1);
         lcd.setTextColor(isTh ? 0xFFFF : COLOR_TEXT_VAL, isTh ? 0x05E0 : COLOR_CARD_BG);
         lcd.setTextDatum(textdatum_t::middle_center);
+        lcd.loadFont(thai_font_vlw);
         lcd.drawString(isTh ? "[*] ภาษาไทย" : "ภาษาไทย", 20 + 68, 202 + 17);
 
         // 2. ปุ่ม English (x: 172, y: 202, w: 136, h: 34)
@@ -2548,7 +2563,9 @@ static void drawPageWiFiSetup() {
         lcd.fillRoundRect(324, 202, 136, 34, 6, isZh ? COLOR_YELLOW : COLOR_CARD_BG);
         lcd.drawRoundRect(324, 202, 136, 34, 6, isZh ? 0xFFFF : 0x4A69);
         lcd.setTextColor(isZh ? 0x0000 : COLOR_TEXT_VAL, isZh ? COLOR_YELLOW : COLOR_CARD_BG);
+        lcd.setFont(&fonts::efontCN_14);
         lcd.drawString(isZh ? "[*] 中文" : "中文", 324 + 68, 202 + 17);
+        ensureAppFont();
 
         lcd.setTextDatum(textdatum_t::top_left);
 
@@ -2597,6 +2614,7 @@ static void drawPageWiFiSetup() {
 }
 
 void DisplayManager_update(const FarmSensorTelemetry &data, bool pumpState, bool mistingState) {
+    ensureAppFont();
     // บันทึกข้อมูลลง Ring Buffer เสมอเพื่อพล็อตกราฟ
     addHistoryPoint(data.soilStick.moisture,
                     data.soil7in1.isConnected ? data.soil7in1.moisture : data.soilStick.moisture,

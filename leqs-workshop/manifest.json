@@ -1,0 +1,24 @@
+{
+  "name": "LEQs-xAI: ปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม",
+  "short_name": "LEQs-xAI",
+  "description": "Embedded AI for Digital Agriculture & Environmental Intelligence - RBRU 2026",
+  "start_url": "index.php",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/images/nong_smartscience.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/nong_smartscience.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

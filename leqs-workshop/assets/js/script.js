@@ -84,29 +84,23 @@ function initNavbarLogoCarousel() {
         setTimeout(() => {
             logoIndex = (logoIndex + 1) % logoImages.length;
             logoElement.src = logoImages[logoIndex];
-            logoElement.style.opacity = '1';
             logoElement.style.transform = 'scale(1) rotate(0deg)';
         }, 400);
     }, 4000);
 }
 
 // ==========================================
-// 2. HERO SINGLE SCREEN CAROUSEL (สกรีนเดียว รวมภาพจาก soil_nutrient2026, cmu_aiot & บอร์ด)
+// 2. HERO SINGLE SCREEN CAROUSEL (UNIFORM 1:1 HD SLIDES)
+// All oversized/widescreen images removed to eliminate distortion, squashing, and black screens.
+// Exclusively curated 1024x1024 square slides with identical dimensions on all devices.
 // ==========================================
 const heroSlides = [
-    {
-        file: 'assets/images/leqs_xai_hero_cover.jpg',
-        category: 'LEQs xAI Master Showcase',
-        categoryDot: 'bg-emerald-400',
-        title: 'LEQs xAI: ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัลและสิ่งแวดล้อม',
-        desc: 'Digital Agriculture - Environment • Edge AI • Deep Learning • Computer Vision • Environmental IoT | พัฒนาโดย LEQs-TEAMS คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี'
-    },
     {
         file: 'assets/images/soil_nutrient2026/portable_iot_pixar.png',
         category: 'Portable Soil IoT',
         categoryDot: 'bg-emerald-400',
         title: 'Portable IoT Device: เครื่องวัดวิเคราะห์ธาตุอาหารดินแบบพกพา',
-        desc: 'ย่อส่วนเทคโนโลยีห้องแล็บให้อยู่ในรูปแบบอุปกรณ์พกพา หรือใช้ร่วมกับ Smartphone ทราบค่า NPK ทันทีที่หน้าแปลงปลูก (chewa.rbru.ac.th/soil_nutrient2026)'
+        desc: 'ย่อส่วนเทคโนโลยีห้องแล็บให้อยู่ในรูปแบบอุปกรณ์พกพา หรือใช้ร่วมกับ Smartphone ทราบค่า NPK ทันทีที่หน้าแปลงปลูก'
     },
     {
         file: 'assets/images/soil_nutrient2026/tech_spectroscopy_diagram_1766189587511.png',
@@ -144,48 +138,6 @@ const heroSlides = [
         desc: 'เปรียบเทียบผลการวิเคราะห์กับสารเคมีมาตรฐานและแล็บวิจัย เพื่อความแม่นยำสูงสุดตามหลักการเกษตรแม่นยำ'
     },
     {
-        file: 'assets/images/cv_hardware_setup.jpg',
-        category: 'Hardware & Sensors',
-        categoryDot: 'bg-cyan-400',
-        title: 'ชุดบอร์ดทดลอง ATD3.5-S3 & เซนเซอร์ Modbus',
-        desc: 'ESP32-S3 Xtensa LX7 พร้อมกล้อง AI และโพรบวัดดินสแตนเลส 7-in-1'
-    },
-    {
-        file: 'assets/images/cv_agri_vision.jpg',
-        category: 'AgriTech AI Vision',
-        categoryDot: 'bg-teal-400',
-        title: 'ตรวจจับโรคใบทุเรียนและคัดเกรดผลผลิต',
-        desc: 'ประยุกต์ใช้โมเดลดีพเลิร์นนิง YOLOv8 ตรวจวินิจฉัยโรคพืชในสวนจริง'
-    },
-    {
-        file: 'assets/images/soil_7in1_dashboard_ui.jpg',
-        category: 'IoT Telemetry UI',
-        categoryDot: 'bg-blue-400',
-        title: 'แดชบอร์ดติดตามค่า NPK, EC, pH และความชื้นดิน',
-        desc: 'แสดงผลข้อมูลเขตราก 10-30 cm วิเคราะห์ความอุดมสมบูรณ์ของดินด้วย AI'
-    },
-    {
-        file: 'assets/images/pixar_smart_farm_hero.jpg',
-        category: '3D Pixar & Ghibli AIoT',
-        categoryDot: 'bg-emerald-400',
-        title: '🌱 นวัตกรรมเกษตรดิจิทัล 3D Pixar Ghibli AIoT',
-        desc: 'การเรียนรู้ปัญญาประดิษฐ์และเซนเซอร์การเกษตรเชิงสร้างสรรค์ ผสานหุ่นยนต์และระบบอัจฉริยะ'
-    },
-    {
-        file: 'assets/images/atd35/01_overview_dashboard.png',
-        category: 'ATD3.5-S3 Touch Display',
-        categoryDot: 'bg-purple-400',
-        title: 'จอแสดงผลสัมผัส 3.5 นิ้ว: Overview 4D Dashboard',
-        desc: 'แสดงผล 4 มิติ สภาพอากาศ VPD, แสงอาทิตย์ PAR, ผิวดิน และเขตราก 60 FPS'
-    },
-    {
-        file: 'assets/images/atd35/11_qr_portal_screen.png',
-        category: 'ESP32 Screen 11',
-        categoryDot: 'bg-cyan-400',
-        title: 'จอที่ 11: Official QR Portal & Identity Verification',
-        desc: '2026.10.04 วันอาทิตย์ • 09:03 ชีวะ ทัศนา • https://aidar.rbru.ac.th/leqsxai'
-    },
-    {
         file: 'assets/images/card_plant_ai.png',
         category: 'TinyML On-Device',
         categoryDot: 'bg-rose-400',
@@ -200,11 +152,32 @@ const heroSlides = [
         desc: 'ประเมินสมดุลธาตุอาหารพืชและคำนวณการใส่ปุ๋ยเคมี/อินทรีย์อย่างแม่นยำ'
     },
     {
-        file: 'assets/images/soil_probe_atd_lcd_render.jpg',
-        category: 'Industrial Probes',
-        categoryDot: 'bg-indigo-400',
-        title: 'โพรบวัดดินสแตนเลสแท้มาตรฐานอุตสาหกรรม',
-        desc: 'ทนทานต่อการกัดกร่อน เชื่อมต่อผ่านสายสัญญาณ RS485 มาตรฐานอุตสาหกรรม'
+        file: 'assets/images/card_bio_colony.png',
+        category: 'Microbiology AI',
+        categoryDot: 'bg-teal-400',
+        title: 'Microbial Colony Counter: การนับโคโลนีจุลินทรีย์ดินอัตโนมัติ',
+        desc: 'ประมวลผลด้วย Edge AI Computer Vision นับจำนวนจุลินทรีย์สังเคราะห์แสงและเชื้อราไตรโคเดอร์มา'
+    },
+    {
+        file: 'assets/images/card_do_meter.png',
+        category: 'Water Quality Telemetry',
+        categoryDot: 'bg-blue-400',
+        title: 'Dissolved Oxygen (DO) & Water Quality Monitoring',
+        desc: 'ระบบตรวจวัดคุณภาพน้ำและออกซิเจนละลายเพื่อการเกษตรและสิ่งแวดล้อมแม่นยำ'
+    },
+    {
+        file: 'assets/images/pixar_mode_ai.jpg',
+        category: 'Autonomous Edge AI',
+        categoryDot: 'bg-violet-400',
+        title: 'Autonomous Edge AI: ระบบควบคุมฟาร์มอัจฉริยะอัตโนมัติ',
+        desc: 'สั่งการระบบพ่นหมอก รดน้ำ และเติมอากาศตามการพยากรณ์ความต้องการของพืชแบบเรียลไทม์'
+    },
+    {
+        file: 'assets/images/pixar_mode_auto.jpg',
+        category: 'Smart Agriculture Automation',
+        categoryDot: 'bg-amber-400',
+        title: 'Precision Agriculture Automation: การเกษตรแม่นยำอัตโนมัติ',
+        desc: 'ผสานการทำงานระหว่างเซนเซอร์ 4 มิติ และระบบสมองกลฝังตัวเพื่อเพิ่มผลผลิตสูงสุด'
     }
 ];
 
@@ -216,6 +189,7 @@ function renderHeroSlide(index) {
     const slide = heroSlides[currentSlideIdx];
 
     const img = document.getElementById('heroSingleScreenImg');
+    const bg = document.getElementById('heroSingleScreenBg');
     const title = document.getElementById('heroSingleScreenTitle');
     const desc = document.getElementById('heroSingleScreenDesc');
     const badge = document.getElementById('heroSlideBadge');
@@ -223,12 +197,21 @@ function renderHeroSlide(index) {
     const catDot = document.getElementById('heroCategoryDot');
 
     if (img) {
-        img.style.opacity = '0.3';
+        img.style.opacity = '0.2';
         img.style.transform = 'scale(0.97)';
+        if (bg) {
+            bg.style.opacity = '0.15';
+            bg.style.transform = 'scale(1.05)';
+        }
         setTimeout(() => {
             img.src = slide.file;
             img.style.opacity = '1';
             img.style.transform = 'scale(1)';
+            if (bg) {
+                bg.src = slide.file;
+                bg.style.opacity = '0.45';
+                bg.style.transform = 'scale(1.1)';
+            }
         }, 200);
     }
 
@@ -305,6 +288,37 @@ function initHeroSingleScreenCarousel() {
     container.addEventListener('mouseleave', () => {
         resetHeroSlideTimer();
     });
+
+    // Mobile Touch Swipe Handling (Swipe Left = Next, Swipe Right = Prev)
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            if (heroSlideTimer) clearInterval(heroSlideTimer);
+        }
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+        if (e.changedTouches && e.changedTouches[0]) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            // Only trigger if horizontal swipe is dominant and over 35px threshold
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 35) {
+                if (deltaX < 0) {
+                    nextHeroSlide(); // Swiped Left
+                } else {
+                    prevHeroSlide(); // Swiped Right
+                }
+            }
+            resetHeroSlideTimer();
+        }
+    }, { passive: true });
 }
 
 // ==========================================
@@ -365,7 +379,7 @@ function initHeroTicker() {
     const ticker = document.getElementById('hero-ticker');
     if (!ticker) return;
 
-    const baseClass = "inline-block py-2 px-6 rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-sm md:text-base font-bold tracking-wide whitespace-nowrap border-l-4 border-emerald-500 transition-all duration-300";
+    const baseClass = "inline-block py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl sm:rounded-2xl bg-emerald-100/90 backdrop-blur-sm shadow-md text-xs sm:text-base md:text-lg font-bold tracking-wide border-l-4 border-emerald-500 transition-all duration-300 max-w-full truncate";
     const colors = ['#059669', '#0284c7', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
     const animations = ['anim-zoom', 'anim-slide-up', 'anim-slide-down', 'anim-wobble'];
     const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -382,11 +396,11 @@ function initHeroTicker() {
             let anim = getRandom(animations);
             ticker.className = `${baseClass} ${anim}`;
             ticker.style.color = getRandom(colors);
-            ticker.innerHTML = "🌱 LEQs xAI: Digital Agriculture - Environment (Edge AI • Deep Learning • Computer Vision • Environmental IoT)";
+            ticker.innerHTML = "🌱 LEQs xAI: ปัญญาประดิษฐ์ฝังตัวเพื่อเกษตรดิจิทัลและสิ่งแวดล้อม (Embedded AI • Edge TinyML • Digital Electronics • IIoT • Computer Vision)";
             await wait(4500);
 
             // Stage 3: Modules Marquee
-            ticker.className = `${baseClass} anim-marquee`;
+            ticker.className = `${baseClass} anim-marquee whitespace-nowrap`;
             ticker.style.color = getRandom(colors);
             ticker.innerHTML = "🚀 7 โมดูลปฏิบัติการ: M1 AIoT Sensor Hub | M2 TinyML Edge AI | M3 Computer Vision | M4 LoRaWAN & Zigbee Mesh | M5 Smartphone App & Web Dashboard | M6 Environmental AI | M7 Capstone Showcase";
             await wait(24000);
@@ -397,6 +411,13 @@ function initHeroTicker() {
             ticker.style.color = getRandom(colors);
             ticker.innerHTML = "💡 “จากข้อมูลสู่ปัญญา จาก AI สู่เกษตรอัจฉริยะ และจากห้องเรียนสู่ภาคสนาม”";
             await wait(3800);
+
+            // Stage 5: Date & Venue
+            anim = getRandom(animations);
+            ticker.className = `${baseClass} ${anim}`;
+            ticker.style.color = '#047857';
+            ticker.innerHTML = "📅 กำหนดการจัดอบรม: 28 - 30 พฤศจิกายน 2569 ณ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี จันทบุรี";
+            await wait(4800);
         }
     };
 
@@ -617,11 +638,13 @@ function selectPlantSample(key) {
 function openScreenModal(src, title, desc) {
     const modal = document.getElementById('screen-modal');
     const modalImg = document.getElementById('modal-screen-img');
+    const modalBg = document.getElementById('modal-screen-bg');
     const modalTitle = document.getElementById('modal-screen-title');
     const modalDesc = document.getElementById('modal-screen-desc');
     if (!modal || !modalImg) return;
 
     modalImg.src = src;
+    if (modalBg) modalBg.src = src;
     if (modalTitle) modalTitle.innerText = title;
     if (modalDesc) modalDesc.innerText = desc;
     modal.classList.remove('hidden');

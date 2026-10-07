@@ -115,12 +115,13 @@ $default_state = [
         'npk_total' => 259.8
     ],
     'relays' => [
-        '1' => ['id' => 1, 'name' => 'ปั๊มน้ำหลักโซน A (Main Pump)', 'state' => 0, 'gpio' => 18],
-        '2' => ['id' => 2, 'name' => 'วาล์วพ่นหมอก (Fogger Valve)', 'state' => 0, 'gpio' => 19],
-        '3' => ['id' => 3, 'name' => 'ระบบให้ปุ๋ย NPK (Dosing Pump)', 'state' => 0, 'gpio' => 21],
-        '4' => ['id' => 4, 'name' => 'พัดลมระบายอากาศ (Exhaust Fan)', 'state' => 0, 'gpio' => 22]
+        '1' => ['id' => 1, 'name' => 'ปั๊มน้ำหลัก (Main Pump 1)', 'state' => 0, 'gpio' => 39],
+        '2' => ['id' => 2, 'name' => 'วาล์วน้ำโซลินอยด์/ปั๊ม 2 (Solenoid/Pump 2)', 'state' => 0, 'gpio' => 38],
+        '3' => ['id' => 3, 'name' => 'วาล์วน้ำผิวดิน (Surface Valve)', 'state' => 0, 'gpio' => 7],
+        '4' => ['id' => 4, 'name' => 'ระบบพ่นหมอกลดอุณหภูมิ (Misting System)', 'state' => 0, 'gpio' => 6]
     ],
-    'auto_mode' => true,
+    'auto_mode' => false,
+    'control_mode' => 'manual',
     'camera_status' => [
         'model' => 'OV2640 2MP Edge AI YOLOv8',
         'last_detection' => 'Healthy Plant Leaf (สมบูรณ์ 98.4%)',
@@ -145,7 +146,17 @@ function get_current_state($telemetry_file, $default_state) {
     if (file_exists($telemetry_file)) {
         $loaded = json_decode(file_get_contents($telemetry_file), true);
         if (is_array($loaded)) {
-            return array_replace_recursive($default_state, $loaded);
+            $merged = array_replace_recursive($default_state, $loaded);
+            // Ensure relay definitions reflect hardware pins (39, 38, 7, 6)
+            if (isset($default_state['relays'])) {
+                foreach ($default_state['relays'] as $k => $defR) {
+                    if (isset($merged['relays'][$k])) {
+                        $merged['relays'][$k]['name'] = $defR['name'];
+                        $merged['relays'][$k]['gpio'] = $defR['gpio'];
+                    }
+                }
+            }
+            return $merged;
         }
     }
     file_put_contents($telemetry_file, json_encode($default_state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -235,6 +246,27 @@ function log_telemetry_to_db($db, $state) {
     }
 }
 
+// Helper functions to keep flat-file JSON synced with SQLite3
+function sync_participants_json($db_conn, $file_path) {
+    if (!$db_conn) return;
+    $res = $db_conn->query("SELECT * FROM participants ORDER BY id DESC");
+    $list = [];
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+        $list[] = $row;
+    }
+    @file_put_contents($file_path, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+function sync_announcements_json($db_conn, $file_path) {
+    if (!$db_conn) return;
+    $res = $db_conn->query("SELECT * FROM announcements ORDER BY id DESC");
+    $list = [];
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+        $list[] = $row;
+    }
+    @file_put_contents($file_path, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
 // Initialize SQLite3 with error tolerance
 $db = null;
 if (class_exists('SQLite3')) {
@@ -257,6 +289,70 @@ if (class_exists('SQLite3')) {
             status TEXT DEFAULT 'registered',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
+
+        // System Announcements Table
+        $db->exec("CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            badge TEXT DEFAULT 'ประชาสัมพันธ์',
+            badge_color TEXT DEFAULT 'cyan',
+            is_active INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        // Seed participants if empty
+        $p_count = $db->querySingle("SELECT COUNT(*) FROM participants");
+        if ($p_count == 0) {
+            $seed_p = [
+                ['นาย', 'ธนภัทร สุขสมบูรณ์', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '081-234-5678', 'tanapat@praneet.ac.th', 'Track B — Plant Vision & Leaf AI', 16, 19, 'checked-in'],
+                ['นางสาว', 'กานต์ธิดา แก้วมณี', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '082-345-6789', 'kantida@praneet.ac.th', 'Track A — Smart Agriculture & Sensor Hub', 15, 20, 'checked-in'],
+                ['นาย', 'ชนาธิป รัตนวงศ์', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '089-112-3344', 'chanatip@praneet.ac.th', 'Track C — Smart Soil & NPK Analyzer', 14, 18, 'registered'],
+                ['นางสาว', 'วรัญญา บุญยเกียรติ', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนเบญจมราชูทิศ จันทบุรี', '086-455-6677', 'waranya@benchama.ac.th', 'Track B — Plant Vision & Leaf AI', 17, 20, 'checked-in'],
+                ['นาย', 'ภูมินทร์ วงศ์สุวรรณ', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนศรียานุสรณ์ จันทบุรี', '088-998-7766', 'phumin@sriyanusorn.ac.th', 'Track D — Dissolved Oxygen AI Controller', 13, 19, 'registered'],
+                ['อาจารย์', 'ณรงค์ฤทธิ์ ชัยชาญ', 'ครูและบุคลากรทางการศึกษา', 'โรงเรียนประณีตวิทยาคม', '083-456-7890', 'narongrit@praneet.ac.th', 'Track F — School AIoT & Micro-Climate', 17, 20, 'checked-in'],
+                ['นาง', 'พรรณนิภา จันทร์ทิพย์', 'ครูและบุคลากรทางการศึกษา', 'โรงเรียนแหลมสิงห์วิทยาคม', '085-667-8899', 'phannipa@laemsing.ac.th', 'Track A — Smart Agriculture & Sensor Hub', 16, 19, 'registered'],
+                ['นาย', 'วิชัย รุ่งอรุณเกษตร', 'เกษตรกรผู้เพาะปลูก', 'วิสาหกิจชุมชนทุเรียนแปลงใหญ่เขาสมิง', '084-567-8901', 'wichai.durian@gmail.com', 'Track C — Smart Soil & NPK Analyzer', 12, 18, 'checked-in'],
+                ['นาย', 'สมศักดิ์ มั่งคั่ง', 'เกษตรกรผู้เพาะปลูก', 'ชมรมชาวสวนทุเรียนนายายอาม', '087-778-9900', 'somsak.farm@gmail.com', 'Track E — Automated Bio-Colony Counter', 11, 17, 'registered'],
+                ['นางสาว', 'พิมลวรรณ สุขวิชัย', 'นักวิจัย/บุคคลทั่วไป', 'ศูนย์วิจัยและพัฒนาการเกษตรจันทบุรี', '089-334-5566', 'pimonwan@agri.go.th', 'Track D — Dissolved Oxygen AI Controller', 18, 20, 'checked-in']
+            ];
+            $ins_p = $db->prepare("INSERT INTO participants (prefix, fullname, target_group, organization, phone, email, project_track, pre_score, post_score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            foreach ($seed_p as $sp) {
+                $ins_p->bindValue(1, $sp[0], SQLITE3_TEXT);
+                $ins_p->bindValue(2, $sp[1], SQLITE3_TEXT);
+                $ins_p->bindValue(3, $sp[2], SQLITE3_TEXT);
+                $ins_p->bindValue(4, $sp[3], SQLITE3_TEXT);
+                $ins_p->bindValue(5, $sp[4], SQLITE3_TEXT);
+                $ins_p->bindValue(6, $sp[5], SQLITE3_TEXT);
+                $ins_p->bindValue(7, $sp[6], SQLITE3_TEXT);
+                $ins_p->bindValue(8, $sp[7], SQLITE3_INTEGER);
+                $ins_p->bindValue(9, $sp[8], SQLITE3_INTEGER);
+                $ins_p->bindValue(10, $sp[9], SQLITE3_TEXT);
+                $ins_p->execute();
+            }
+            sync_participants_json($db, $json_backup);
+        }
+
+        // Seed announcements if empty
+        $a_count = $db->querySingle("SELECT COUNT(*) FROM announcements");
+        if ($a_count == 0) {
+            $seed_a = [
+                ['เปิดรับสมัครเข้าร่วมโครงการอบรมเชิงปฏิบัติการ LEQs-xAI Young Digital Agri-Innovator 2026', 'ขอเชิญนักเรียน ครู และเกษตรกรเข้าร่วมโครงการอบรมเชิงปฏิบัติการ วันที่ 28 - 30 พฤศจิกายน 2569 ณ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี จันทบุรี รับจำนวนจำกัด 30 ท่าน ฟรีตลอดหลักสูตร', 'รับสมัคร', 'emerald', 1],
+                ['กำหนดการรายงานตัวและรับชุดอุปกรณ์บอร์ดทดลอง ESP32-S3 ATD3.5', 'ผู้ผ่านการคัดเลือกสามารถนำบัตรประชาชนหรือบัตรนักเรียนมารายงานตัว ณ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี ในวันที่ 28 พฤศจิกายน 2569 ตั้งแต่เวลา 08.00 - 09.00 น.', 'กำหนดการ', 'cyan', 1],
+                ['การจัดแสดงและนำเสนอผลงาน Capstone Mini-Projects 6 แทร็ก', 'ร่วมรับฟังการ Pitching โครงงานนวัตกรรมสิ่งแวดล้อมและเกษตรดิจิทัล วันที่ 30 พฤศจิกายน 2569 ชิงทุนการศึกษาและโล่รางวัลจากคณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี', 'รางวัล', 'amber', 1]
+            ];
+            $ins_a = $db->prepare("INSERT INTO announcements (title, content, badge, badge_color, is_active) VALUES (?, ?, ?, ?, ?)");
+            foreach ($seed_a as $sa) {
+                $ins_a->bindValue(1, $sa[0], SQLITE3_TEXT);
+                $ins_a->bindValue(2, $sa[1], SQLITE3_TEXT);
+                $ins_a->bindValue(3, $sa[2], SQLITE3_TEXT);
+                $ins_a->bindValue(4, $sa[3], SQLITE3_TEXT);
+                $ins_a->bindValue(5, $sa[4], SQLITE3_INTEGER);
+                $ins_a->execute();
+            }
+            sync_announcements_json($db, $data_dir . '/announcements.json');
+        }
 
         // Complete Telemetry Logs Table (30+ Parameters)
         $db->exec("CREATE TABLE IF NOT EXISTS telemetry_logs (
@@ -358,10 +454,9 @@ if (class_exists('SQLite3')) {
     }
 }
 
-$action = $_GET['action'] ?? ($_POST['action'] ?? 'get_telemetry');
-
 // Parse JSON body if present
 $input_json = json_decode(file_get_contents('php://input'), true) ?: [];
+$action = $_GET['action'] ?? ($_POST['action'] ?? ($input_json['action'] ?? 'get_telemetry'));
 
 // =========================================================================
 // 1. IOT TELEMETRY & BOARD STATUS (Real Sync with ESP32-S3 via Cloud Hub)
@@ -575,6 +670,7 @@ if ($action === 'get_telemetry' || $action === 'status') {
         'ai_calibrated' => $state['ai_calibrated'],
         'relays' => $state['relays'],
         'auto_mode' => $state['auto_mode'],
+        'control_mode' => $state['control_mode'] ?? ($state['auto_mode'] ? 'auto' : 'manual'),
         'camera_status' => $state['camera_status'],
         'gps' => $state['gps'] ?? $default_state['gps'],
         'server_time' => date('Y-m-d H:i:s')
@@ -582,8 +678,24 @@ if ($action === 'get_telemetry' || $action === 'status') {
     exit();
 }
 
+// Helper: Dispatch direct HTTP command to ESP32 board on LAN port 8500
+function send_board_command($ip, $port, $path) {
+    if (empty($ip)) return false;
+    $url = "http://{$ip}:{$port}{$path}";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+    curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ($httpCode === 200) ? json_decode($response, true) : false;
+}
+
 // =========================================================================
-// 2. RELAY CONTROL (Bidirectional Web/Mobile <-> ESP32-S3)
+// 2. RELAY CONTROL (Bidirectional Web/Mobile <-> ESP32-S3 Physical Hardware)
 // =========================================================================
 if ($action === 'control_relay') {
     $relay_id = strval($input_json['id'] ?? ($input_json['relay_id'] ?? ($_GET['id'] ?? ($_POST['id'] ?? '1'))));
@@ -599,7 +711,15 @@ if ($action === 'control_relay') {
             $new_val = ($state['relays'][$relay_id]['state'] == 1) ? 0 : 1;
         }
         $state['relays'][$relay_id]['state'] = $new_val;
+        // User manual actuation switches mode to MANUAL to prevent auto override
+        $state['control_mode'] = 'manual';
+        $state['auto_mode'] = false;
         save_current_state($telemetry_file, $state);
+
+        // Immediate direct hardware dispatch to ESP32 board
+        $board_ip = $state['board']['ip_address'] ?? '192.168.0.111';
+        $board_port = $state['board']['web_port'] ?? 8500;
+        $direct_result = send_board_command($board_ip, $board_port, "/relay?id={$relay_id}&state={$new_val}");
 
         // Record in SQLite3 if available
         if ($db) {
@@ -608,7 +728,7 @@ if ($action === 'control_relay') {
                 $stmt->bindValue(':id', intval($relay_id), SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $state['relays'][$relay_id]['name'], SQLITE3_TEXT);
                 $stmt->bindValue(':state', $new_val, SQLITE3_INTEGER);
-                $stmt->bindValue(':gpio', $state['relays'][$relay_id]['gpio'] ?? 18, SQLITE3_INTEGER);
+                $stmt->bindValue(':gpio', $state['relays'][$relay_id]['gpio'] ?? 39, SQLITE3_INTEGER);
                 $stmt->execute();
             } catch (Exception $e) {}
         }
@@ -618,8 +738,12 @@ if ($action === 'control_relay') {
             'message' => "Relay {$relay_id} switched to " . ($new_val ? 'ON' : 'OFF'),
             'relay_id' => intval($relay_id),
             'state' => $new_val,
+            'control_mode' => $state['control_mode'],
+            'auto_mode' => $state['auto_mode'],
             'relays' => $state['relays'],
-            'target_board' => $state['board']['ip_address'] . ':' . $state['board']['web_port']
+            'target_board' => "{$board_ip}:{$board_port}",
+            'direct_dispatched' => ($direct_result !== false),
+            'board_response' => $direct_result
         ], JSON_UNESCAPED_UNICODE);
         exit();
     } else {
@@ -629,17 +753,56 @@ if ($action === 'control_relay') {
 }
 
 // =========================================================================
-// 3. TOGGLE AUTO MODE
+// 2.1 SET CONTROL MODE (MANUAL / AUTO / AI)
+// =========================================================================
+if ($action === 'set_control_mode' || $action === 'set_mode') {
+    $mode = strtolower(trim(strval($input_json['mode'] ?? ($_GET['mode'] ?? ($_POST['mode'] ?? 'manual')))));
+    if (!in_array($mode, ['manual', 'auto', 'ai'])) {
+        $mode = 'manual';
+    }
+
+    $state = get_current_state($telemetry_file, $default_state);
+    $state['control_mode'] = $mode;
+    $state['auto_mode'] = ($mode === 'auto');
+    save_current_state($telemetry_file, $state);
+
+    $board_ip = $state['board']['ip_address'] ?? '192.168.0.111';
+    $board_port = $state['board']['web_port'] ?? 8500;
+    $direct_result = send_board_command($board_ip, $board_port, "/mode?mode={$mode}");
+
+    echo json_encode([
+        'status' => 'success',
+        'control_mode' => $state['control_mode'],
+        'auto_mode' => $state['auto_mode'],
+        'message' => "Control Mode switched to " . strtoupper($mode),
+        'target_board' => "{$board_ip}:{$board_port}",
+        'direct_dispatched' => ($direct_result !== false),
+        'board_response' => $direct_result
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
+// 3. TOGGLE AUTO MODE (Backward Compatible)
 // =========================================================================
 if ($action === 'toggle_auto') {
     $state = get_current_state($telemetry_file, $default_state);
-    $state['auto_mode'] = !$state['auto_mode'];
+    $new_auto = !$state['auto_mode'];
+    $state['auto_mode'] = $new_auto;
+    $state['control_mode'] = $new_auto ? 'auto' : 'manual';
     save_current_state($telemetry_file, $state);
+
+    $board_ip = $state['board']['ip_address'] ?? '192.168.0.111';
+    $board_port = $state['board']['web_port'] ?? 8500;
+    $mode_str = $new_auto ? 'auto' : 'manual';
+    $direct_result = send_board_command($board_ip, $board_port, "/mode?mode={$mode_str}");
 
     echo json_encode([
         'status' => 'success',
         'auto_mode' => $state['auto_mode'],
-        'message' => 'Smart Auto Mode ' . ($state['auto_mode'] ? 'Enabled' : 'Disabled')
+        'control_mode' => $state['control_mode'],
+        'message' => 'Smart Auto Mode ' . ($state['auto_mode'] ? 'Enabled' : 'Disabled'),
+        'direct_dispatched' => ($direct_result !== false)
     ]);
     exit();
 }
@@ -692,7 +855,7 @@ if ($action === 'update_gps') {
 // 4. UPDATE TELEMETRY (POSTED DIRECTLY FROM ESP32 / CLOUD BRIDGE)
 // =========================================================================
 if ($action === 'update_telemetry' || $action === 'post_data') {
-    $input = !empty($input_json) ? $input_json : $_POST;
+    $input = !empty($input_json) ? $input_json : (!empty($_POST) ? $_POST : $_GET);
     $state = get_current_state($telemetry_file, $default_state);
 
     if (isset($input['temperature']) || isset($input['temp'])) {
@@ -785,8 +948,24 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     }
 
     // Actuators
-    if (isset($input['actuators']['pump'])) $state['relays']['1']['state'] = $input['actuators']['pump'] ? 1 : 0;
-    if (isset($input['actuators']['misting'])) $state['relays']['2']['state'] = $input['actuators']['misting'] ? 1 : 0;
+    if (isset($input['actuators'])) {
+        $act = $input['actuators'];
+        if (!empty($act['mode'])) {
+            $reported_mode = strtolower(trim($act['mode']));
+            if (in_array($reported_mode, ['manual', 'auto', 'ai'])) {
+                // If board changed mode via local touch LCD, sync mode
+                $state['control_mode'] = $reported_mode;
+                $state['auto_mode'] = ($reported_mode === 'auto');
+            }
+        }
+        // In AUTO or AI mode, update server relays to reflect board's real-time decisions
+        if (($state['control_mode'] ?? 'manual') !== 'manual') {
+            if (isset($act['r1'])) $state['relays']['1']['state'] = ($act['r1'] == 1 || $act['r1'] === true) ? 1 : 0;
+            if (isset($act['r2'])) $state['relays']['2']['state'] = ($act['r2'] == 1 || $act['r2'] === true) ? 1 : 0;
+            if (isset($act['r3'])) $state['relays']['3']['state'] = ($act['r3'] == 1 || $act['r3'] === true) ? 1 : 0;
+            if (isset($act['r4'])) $state['relays']['4']['state'] = ($act['r4'] == 1 || $act['r4'] === true) ? 1 : 0;
+        }
+    }
 
     // Board Network Updates from payload
     if (!empty($input['ip'])) $state['board']['ip_address'] = trim($input['ip']);
@@ -795,6 +974,8 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     if (!empty($input['cloud_url'])) $state['board']['cloud_url'] = trim($input['cloud_url']);
     if (!empty($input['web_port'])) $state['board']['web_port'] = intval($input['web_port']);
     if (!empty($input['direct_url'])) $state['board']['direct_url'] = trim($input['direct_url']);
+    if (!empty($input['device_id'])) $state['board']['device_id'] = trim($input['device_id']);
+    if (!empty($input['device_name'])) $state['board']['device_name'] = trim($input['device_name']);
     $state['board']['data_source'] = 'DIRECT_ESP32_PUSH (' . ($state['board']['ip_address'] ?? '192.168.0.111') . ')';
     $state['board']['cloud_status'] = 'ESP32 DIRECT (ONLINE)';
     $state['board']['last_direct_post_time'] = time();
@@ -812,12 +993,13 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
         'message' => 'Telemetry data stored in SQLite3 & SD Card acknowledged',
         'sd_card' => $state['sd_card'],
         'relays_command' => [
-            'r1' => $state['relays']['1']['state'],
-            'r2' => $state['relays']['2']['state'],
-            'r3' => $state['relays']['3']['state'],
-            'r4' => $state['relays']['4']['state']
+            'r1' => intval($state['relays']['1']['state']),
+            'r2' => intval($state['relays']['2']['state']),
+            'r3' => intval($state['relays']['3']['state']),
+            'r4' => intval($state['relays']['4']['state'])
         ],
-        'auto_mode' => $state['auto_mode']
+        'auto_mode' => $state['auto_mode'] ? 1 : 0,
+        'control_mode' => $state['control_mode'] ?? 'manual'
     ]);
     exit();
 }
@@ -1073,8 +1255,10 @@ if ($action === 'get_history') {
 }
 
 // =========================================================================
-// 8. PARTICIPANTS LIST (GET /api/api.php?action=list)
+// 8. PARTICIPANTS CRUD APIS
 // =========================================================================
+
+// 8.1 LIST ALL PARTICIPANTS (GET / POST ?action=list)
 if ($action === 'list') {
     if ($db) {
         $results = $db->query("SELECT * FROM participants ORDER BY id DESC");
@@ -1091,19 +1275,52 @@ if ($action === 'list') {
     }
 }
 
-// =========================================================================
-// 9. REGISTER PARTICIPANT (POST /api/api.php?action=register)
-// =========================================================================
-if ($action === 'register') {
+// 8.2 GET SINGLE PARTICIPANT (GET / POST ?action=get_participant&id=X)
+if ($action === 'get_participant') {
+    $input = !empty($input_json) ? $input_json : $_REQUEST;
+    $id = intval($input['id'] ?? 0);
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสผู้เข้าร่วมไม่ถูกต้อง']);
+        exit();
+    }
+    if ($db) {
+        $stmt = $db->prepare("SELECT * FROM participants WHERE id = :id");
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $res = $stmt->execute();
+        $row = $res->fetchArray(SQLITE3_ASSOC);
+        if ($row) {
+            echo json_encode(['status' => 'success', 'data' => $row]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบข้อมูลผู้เข้าร่วม']);
+        }
+        exit();
+    } else {
+        $data = file_exists($json_backup) ? json_decode(file_get_contents($json_backup), true) : [];
+        foreach ($data as $item) {
+            if (($item['id'] ?? 0) == $id) {
+                echo json_encode(['status' => 'success', 'data' => $item]);
+                exit();
+            }
+        }
+        echo json_encode(['status' => 'error', 'message' => 'ไม่พบข้อมูลผู้เข้าร่วม']);
+        exit();
+    }
+}
+
+// 8.3 REGISTER / ADD PARTICIPANT (POST ?action=register หรือ ?action=add_participant)
+if ($action === 'register' || $action === 'add_participant') {
     $input = !empty($input_json) ? $input_json : $_POST;
 
-    $fullname = trim($input['fullname'] ?? '');
     $prefix = trim($input['prefix'] ?? 'นาย');
+    $fullname = trim($input['fullname'] ?? '');
     $target_group = trim($input['target_group'] ?? 'นักเรียนมัธยมศึกษาตอนปลาย');
     $organization = trim($input['organization'] ?? '');
     $phone = trim($input['phone'] ?? '');
     $email = trim($input['email'] ?? '');
-    $project_track = trim($input['project_track'] ?? 'Track A — Smart Agriculture');
+    $project_track = trim($input['project_track'] ?? 'Track A — Smart Agriculture & Sensor Hub');
+    $pre_score = isset($input['pre_score']) ? intval($input['pre_score']) : 0;
+    $post_score = isset($input['post_score']) ? intval($input['post_score']) : 0;
+    $status = trim($input['status'] ?? 'registered');
 
     if (empty($fullname)) {
         echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกชื่อ-นามสกุล']);
@@ -1111,7 +1328,7 @@ if ($action === 'register') {
     }
 
     if ($db) {
-        $stmt = $db->prepare("INSERT INTO participants (prefix, fullname, target_group, organization, phone, email, project_track) VALUES (:prefix, :fullname, :target_group, :organization, :phone, :email, :project_track)");
+        $stmt = $db->prepare("INSERT INTO participants (prefix, fullname, target_group, organization, phone, email, project_track, pre_score, post_score, status) VALUES (:prefix, :fullname, :target_group, :organization, :phone, :email, :project_track, :pre_score, :post_score, :status)");
         $stmt->bindValue(':prefix', $prefix, SQLITE3_TEXT);
         $stmt->bindValue(':fullname', $fullname, SQLITE3_TEXT);
         $stmt->bindValue(':target_group', $target_group, SQLITE3_TEXT);
@@ -1119,9 +1336,15 @@ if ($action === 'register') {
         $stmt->bindValue(':phone', $phone, SQLITE3_TEXT);
         $stmt->bindValue(':email', $email, SQLITE3_TEXT);
         $stmt->bindValue(':project_track', $project_track, SQLITE3_TEXT);
+        $stmt->bindValue(':pre_score', $pre_score, SQLITE3_INTEGER);
+        $stmt->bindValue(':post_score', $post_score, SQLITE3_INTEGER);
+        $stmt->bindValue(':status', $status, SQLITE3_TEXT);
         $stmt->execute();
         $new_id = $db->lastInsertRowID();
-        echo json_encode(['status' => 'success', 'message' => 'ลงทะเบียนสำเร็จ!', 'id' => $new_id]);
+        
+        sync_participants_json($db, $json_backup);
+        
+        echo json_encode(['status' => 'success', 'message' => 'บันทึกข้อมูลผู้ลงทะเบียนสำเร็จ!', 'id' => $new_id]);
         exit();
     } else {
         $current = file_exists($json_backup) ? json_decode(file_get_contents($json_backup), true) : [];
@@ -1134,14 +1357,325 @@ if ($action === 'register') {
             'phone' => $phone,
             'email' => $email,
             'project_track' => $project_track,
-            'pre_score' => 0,
-            'post_score' => 0,
-            'status' => 'registered',
+            'pre_score' => $pre_score,
+            'post_score' => $post_score,
+            'status' => $status,
             'created_at' => date('Y-m-d H:i:s')
         ];
         $current[] = $new_record;
         file_put_contents($json_backup, json_encode($current, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        echo json_encode(['status' => 'success', 'message' => 'ลงทะเบียนสำเร็จ!', 'id' => $new_record['id']]);
+        echo json_encode(['status' => 'success', 'message' => 'บันทึกข้อมูลผู้ลงทะเบียนสำเร็จ!', 'id' => $new_record['id']]);
+        exit();
+    }
+}
+
+// 8.4 UPDATE PARTICIPANT (POST ?action=update_participant)
+if ($action === 'update_participant') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสผู้เข้าร่วมไม่ถูกต้อง']);
+        exit();
+    }
+
+    $prefix = trim($input['prefix'] ?? 'นาย');
+    $fullname = trim($input['fullname'] ?? '');
+    $target_group = trim($input['target_group'] ?? '');
+    $organization = trim($input['organization'] ?? '');
+    $phone = trim($input['phone'] ?? '');
+    $email = trim($input['email'] ?? '');
+    $project_track = trim($input['project_track'] ?? '');
+    $pre_score = isset($input['pre_score']) ? intval($input['pre_score']) : null;
+    $post_score = isset($input['post_score']) ? intval($input['post_score']) : null;
+    $status = trim($input['status'] ?? '');
+
+    if (empty($fullname)) {
+        echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกชื่อ-นามสกุล']);
+        exit();
+    }
+
+    if ($db) {
+        $stmt = $db->prepare("UPDATE participants SET 
+            prefix = :prefix, 
+            fullname = :fullname, 
+            target_group = :target_group, 
+            organization = :organization, 
+            phone = :phone, 
+            email = :email, 
+            project_track = :project_track, 
+            pre_score = :pre_score, 
+            post_score = :post_score, 
+            status = :status 
+            WHERE id = :id");
+        $stmt->bindValue(':prefix', $prefix, SQLITE3_TEXT);
+        $stmt->bindValue(':fullname', $fullname, SQLITE3_TEXT);
+        $stmt->bindValue(':target_group', $target_group, SQLITE3_TEXT);
+        $stmt->bindValue(':organization', $organization, SQLITE3_TEXT);
+        $stmt->bindValue(':phone', $phone, SQLITE3_TEXT);
+        $stmt->bindValue(':email', $email, SQLITE3_TEXT);
+        $stmt->bindValue(':project_track', $project_track, SQLITE3_TEXT);
+        $stmt->bindValue(':pre_score', $pre_score !== null ? $pre_score : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':post_score', $post_score !== null ? $post_score : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':status', !empty($status) ? $status : 'registered', SQLITE3_TEXT);
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_participants_json($db, $json_backup);
+
+        echo json_encode(['status' => 'success', 'message' => 'แก้ไขข้อมูลผู้ลงทะเบียนสำเร็จ']);
+        exit();
+    } else {
+        $current = file_exists($json_backup) ? json_decode(file_get_contents($json_backup), true) : [];
+        $found = false;
+        foreach ($current as &$item) {
+            if (($item['id'] ?? 0) == $id) {
+                $item['prefix'] = $prefix;
+                $item['fullname'] = $fullname;
+                $item['target_group'] = $target_group;
+                $item['organization'] = $organization;
+                $item['phone'] = $phone;
+                $item['email'] = $email;
+                $item['project_track'] = $project_track;
+                if ($pre_score !== null) $item['pre_score'] = $pre_score;
+                if ($post_score !== null) $item['post_score'] = $post_score;
+                if (!empty($status)) $item['status'] = $status;
+                $found = true;
+                break;
+            }
+        }
+        if ($found) {
+            file_put_contents($json_backup, json_encode($current, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            echo json_encode(['status' => 'success', 'message' => 'แก้ไขข้อมูลผู้ลงทะเบียนสำเร็จ']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบข้อมูลที่ต้องการแก้ไข']);
+        }
+        exit();
+    }
+}
+
+// 8.5 DELETE PARTICIPANT (POST / GET ?action=delete_participant&id=X)
+if ($action === 'delete_participant') {
+    $input = !empty($input_json) ? $input_json : $_REQUEST;
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสผู้เข้าร่วมไม่ถูกต้อง']);
+        exit();
+    }
+
+    if ($db) {
+        $stmt = $db->prepare("DELETE FROM participants WHERE id = :id");
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_participants_json($db, $json_backup);
+
+        echo json_encode(['status' => 'success', 'message' => "ลบรายชื่อผู้เข้าร่วม #{$id} เรียบร้อยแล้ว"]);
+        exit();
+    } else {
+        $current = file_exists($json_backup) ? json_decode(file_get_contents($json_backup), true) : [];
+        $filtered = array_filter($current, fn($item) => ($item['id'] ?? 0) != $id);
+        file_put_contents($json_backup, json_encode(array_values($filtered), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        echo json_encode(['status' => 'success', 'message' => "ลบรายชื่อผู้เข้าร่วม #{$id} เรียบร้อยแล้ว"]);
+        exit();
+    }
+}
+
+// 8.6 TOGGLE CHECK-IN STATUS (POST / GET ?action=toggle_checkin&id=X)
+if ($action === 'toggle_checkin') {
+    $input = !empty($input_json) ? $input_json : $_REQUEST;
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสผู้เข้าร่วมไม่ถูกต้อง']);
+        exit();
+    }
+
+    if ($db) {
+        $curr = $db->querySingle("SELECT status FROM participants WHERE id = " . $id);
+        $new_status = ($curr === 'checked-in') ? 'registered' : 'checked-in';
+        $stmt = $db->prepare("UPDATE participants SET status = :status WHERE id = :id");
+        $stmt->bindValue(':status', $new_status, SQLITE3_TEXT);
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_participants_json($db, $json_backup);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'เปลี่ยนสถานะเป็น: ' . ($new_status === 'checked-in' ? 'เช็คอินแล้ว' : 'ลงทะเบียน'),
+            'new_status' => $new_status,
+            'id' => $id
+        ]);
+        exit();
+    }
+}
+
+// 8.7 RESET TO DEFAULT PARTICIPANTS (POST ?action=reset_participants)
+if ($action === 'reset_participants') {
+    if ($db) {
+        $db->exec("DELETE FROM participants");
+        $seed_p = [
+            ['นาย', 'ธนภัทร สุขสมบูรณ์', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '081-234-5678', 'tanapat@praneet.ac.th', 'Track B — Plant Vision & Leaf AI', 16, 19, 'checked-in'],
+            ['นางสาว', 'กานต์ธิดา แก้วมณี', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '082-345-6789', 'kantida@praneet.ac.th', 'Track A — Smart Agriculture & Sensor Hub', 15, 20, 'checked-in'],
+            ['นาย', 'ชนาธิป รัตนวงศ์', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '089-112-3344', 'chanatip@praneet.ac.th', 'Track C — Smart Soil & NPK Analyzer', 14, 18, 'registered'],
+            ['นางสาว', 'วรัญญา บุญยเกียรติ', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนเบญจมราชูทิศ จันทบุรี', '086-455-6677', 'waranya@benchama.ac.th', 'Track B — Plant Vision & Leaf AI', 17, 20, 'checked-in'],
+            ['นาย', 'ภูมินทร์ วงศ์สุวรรณ', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนศรียานุสรณ์ จันทบุรี', '088-998-7766', 'phumin@sriyanusorn.ac.th', 'Track D — Dissolved Oxygen AI Controller', 13, 19, 'registered'],
+            ['อาจารย์', 'ณรงค์ฤทธิ์ ชัยชาญ', 'ครูและบุคลากรทางการศึกษา', 'โรงเรียนประณีตวิทยาคม', '083-456-7890', 'narongrit@praneet.ac.th', 'Track F — School AIoT & Micro-Climate', 17, 20, 'checked-in'],
+            ['นาง', 'พรรณนิภา จันทร์ทิพย์', 'ครูและบุคลากรทางการศึกษา', 'โรงเรียนแหลมสิงห์วิทยาคม', '085-667-8899', 'phannipa@laemsing.ac.th', 'Track A — Smart Agriculture & Sensor Hub', 16, 19, 'registered'],
+            ['นาย', 'วิชัย รุ่งอรุณเกษตร', 'เกษตรกรผู้เพาะปลูก', 'วิสาหกิจชุมชนทุเรียนแปลงใหญ่เขาสมิง', '084-567-8901', 'wichai.durian@gmail.com', 'Track C — Smart Soil & NPK Analyzer', 12, 18, 'checked-in'],
+            ['นาย', 'สมศักดิ์ มั่งคั่ง', 'เกษตรกรผู้เพาะปลูก', 'ชมรมชาวสวนทุเรียนนายายอาม', '087-778-9900', 'somsak.farm@gmail.com', 'Track E — Automated Bio-Colony Counter', 11, 17, 'registered'],
+            ['นางสาว', 'พิมลวรรณ สุขวิชัย', 'นักวิจัย/บุคคลทั่วไป', 'ศูนย์วิจัยและพัฒนาการเกษตรจันทบุรี', '089-334-5566', 'pimonwan@agri.go.th', 'Track D — Dissolved Oxygen AI Controller', 18, 20, 'checked-in']
+        ];
+        $ins_p = $db->prepare("INSERT INTO participants (prefix, fullname, target_group, organization, phone, email, project_track, pre_score, post_score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($seed_p as $sp) {
+            $ins_p->bindValue(1, $sp[0], SQLITE3_TEXT);
+            $ins_p->bindValue(2, $sp[1], SQLITE3_TEXT);
+            $ins_p->bindValue(3, $sp[2], SQLITE3_TEXT);
+            $ins_p->bindValue(4, $sp[3], SQLITE3_TEXT);
+            $ins_p->bindValue(5, $sp[4], SQLITE3_TEXT);
+            $ins_p->bindValue(6, $sp[5], SQLITE3_TEXT);
+            $ins_p->bindValue(7, $sp[6], SQLITE3_TEXT);
+            $ins_p->bindValue(8, $sp[7], SQLITE3_INTEGER);
+            $ins_p->bindValue(9, $sp[8], SQLITE3_INTEGER);
+            $ins_p->bindValue(10, $sp[9], SQLITE3_TEXT);
+            $ins_p->execute();
+        }
+        sync_participants_json($db, $json_backup);
+        echo json_encode(['status' => 'success', 'message' => 'รีเซ็ตข้อมูลผู้เข้าร่วมกลับสู่ชุดเริ่มต้นสำเร็จ']);
+        exit();
+    }
+}
+
+// =========================================================================
+// 9. SYSTEM ANNOUNCEMENTS & MESSAGES CRUD APIS
+// =========================================================================
+
+// 9.1 LIST ANNOUNCEMENTS (GET / POST ?action=list_announcements)
+if ($action === 'list_announcements') {
+    if ($db) {
+        $results = $db->query("SELECT * FROM announcements ORDER BY id DESC");
+        $data = [];
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        echo json_encode(['status' => 'success', 'data' => $data]);
+        exit();
+    } else {
+        $ann_file = $data_dir . '/announcements.json';
+        $data = file_exists($ann_file) ? json_decode(file_get_contents($ann_file), true) : [];
+        echo json_encode(['status' => 'success', 'data' => $data ?: []]);
+        exit();
+    }
+}
+
+// 9.2 ADD ANNOUNCEMENT (POST ?action=add_announcement)
+if ($action === 'add_announcement') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $title = trim($input['title'] ?? '');
+    $content = trim($input['content'] ?? '');
+    $badge = trim($input['badge'] ?? 'ประชาสัมพันธ์');
+    $badge_color = trim($input['badge_color'] ?? 'cyan');
+    $is_active = isset($input['is_active']) ? intval($input['is_active']) : 1;
+
+    if (empty($title)) {
+        echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกหัวข้อประกาศ']);
+        exit();
+    }
+
+    if ($db) {
+        $stmt = $db->prepare("INSERT INTO announcements (title, content, badge, badge_color, is_active) VALUES (:title, :content, :badge, :badge_color, :is_active)");
+        $stmt->bindValue(':title', $title, SQLITE3_TEXT);
+        $stmt->bindValue(':content', $content, SQLITE3_TEXT);
+        $stmt->bindValue(':badge', $badge, SQLITE3_TEXT);
+        $stmt->bindValue(':badge_color', $badge_color, SQLITE3_TEXT);
+        $stmt->bindValue(':is_active', $is_active, SQLITE3_INTEGER);
+        $stmt->execute();
+        $new_id = $db->lastInsertRowID();
+
+        sync_announcements_json($db, $data_dir . '/announcements.json');
+
+        echo json_encode(['status' => 'success', 'message' => 'เพิ่มประกาศใหม่สำเร็จ', 'id' => $new_id]);
+        exit();
+    }
+}
+
+// 9.3 UPDATE ANNOUNCEMENT (POST ?action=update_announcement)
+if ($action === 'update_announcement') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $id = intval($input['id'] ?? 0);
+    $title = trim($input['title'] ?? '');
+    $content = trim($input['content'] ?? '');
+    $badge = trim($input['badge'] ?? 'ประชาสัมพันธ์');
+    $badge_color = trim($input['badge_color'] ?? 'cyan');
+    $is_active = isset($input['is_active']) ? intval($input['is_active']) : 1;
+
+    if ($id <= 0 || empty($title)) {
+        echo json_encode(['status' => 'error', 'message' => 'ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง']);
+        exit();
+    }
+
+    if ($db) {
+        $stmt = $db->prepare("UPDATE announcements SET title = :title, content = :content, badge = :badge, badge_color = :badge_color, is_active = :is_active, updated_at = CURRENT_TIMESTAMP WHERE id = :id");
+        $stmt->bindValue(':title', $title, SQLITE3_TEXT);
+        $stmt->bindValue(':content', $content, SQLITE3_TEXT);
+        $stmt->bindValue(':badge', $badge, SQLITE3_TEXT);
+        $stmt->bindValue(':badge_color', $badge_color, SQLITE3_TEXT);
+        $stmt->bindValue(':is_active', $is_active, SQLITE3_INTEGER);
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_announcements_json($db, $data_dir . '/announcements.json');
+
+        echo json_encode(['status' => 'success', 'message' => 'แก้ไขประกาศเรียบร้อยแล้ว']);
+        exit();
+    }
+}
+
+// 9.4 DELETE ANNOUNCEMENT (POST / GET ?action=delete_announcement&id=X)
+if ($action === 'delete_announcement') {
+    $input = !empty($input_json) ? $input_json : $_REQUEST;
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสประกาศไม่ถูกต้อง']);
+        exit();
+    }
+
+    if ($db) {
+        $stmt = $db->prepare("DELETE FROM announcements WHERE id = :id");
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_announcements_json($db, $data_dir . '/announcements.json');
+
+        echo json_encode(['status' => 'success', 'message' => "ลบประกาศ #{$id} สำเร็จ"]);
+        exit();
+    }
+}
+
+// 9.5 TOGGLE ANNOUNCEMENT ACTIVE STATUS (POST / GET ?action=toggle_announcement&id=X)
+if ($action === 'toggle_announcement') {
+    $input = !empty($input_json) ? $input_json : $_REQUEST;
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'รหัสประกาศไม่ถูกต้อง']);
+        exit();
+    }
+
+    if ($db) {
+        $curr = $db->querySingle("SELECT is_active FROM announcements WHERE id = " . $id);
+        $new_val = ($curr == 1) ? 0 : 1;
+        $stmt = $db->prepare("UPDATE announcements SET is_active = :val WHERE id = :id");
+        $stmt->bindValue(':val', $new_val, SQLITE3_INTEGER);
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->execute();
+
+        sync_announcements_json($db, $data_dir . '/announcements.json');
+
+        echo json_encode(['status' => 'success', 'message' => 'เปลี่ยนสถานะประกาศสำเร็จ', 'is_active' => $new_val]);
         exit();
     }
 }
@@ -1166,6 +1700,9 @@ if ($action === 'save_test') {
         $stmt->bindValue(':score', $score, SQLITE3_INTEGER);
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
         $stmt->execute();
+        
+        sync_participants_json($db, $json_backup);
+
         echo json_encode(['status' => 'success', 'message' => 'บันทึกคะแนนเรียบร้อย']);
         exit();
     } else {
@@ -1174,5 +1711,31 @@ if ($action === 'save_test') {
     }
 }
 
+// =========================================================================
+// 11. SAVE CERTIFICATE CONFIG
+// =========================================================================
+if ($action === 'save_certificate_config') {
+    $input = !empty($input_json) ? $input_json : $_POST;
+    $cfg_data = [
+        'course_name' => trim($input['course_name'] ?? ''),
+        'project_name' => trim($input['project_name'] ?? ''),
+        'cert_ref_prefix' => trim($input['cert_ref_prefix'] ?? 'LEQs-xAI'),
+        'signatory1_name' => trim($input['signatory1_name'] ?? ''),
+        'signatory1_title' => trim($input['signatory1_title'] ?? ''),
+        'signatory1_sub' => trim($input['signatory1_sub'] ?? ''),
+        'signatory1_image' => trim($input['signatory1_image'] ?? 'chewa_sign.png'),
+        'signatory2_name' => trim($input['signatory2_name'] ?? ''),
+        'signatory2_title' => trim($input['signatory2_title'] ?? ''),
+        'signatory2_sub' => trim($input['signatory2_sub'] ?? ''),
+        'signatory2_image' => trim($input['signatory2_image'] ?? 'vichaladda_sign.png')
+    ];
+    $cert_config_file = $data_dir . '/certificate_config.json';
+    @file_put_contents($cert_config_file, json_encode($cfg_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    echo json_encode(['status' => 'success', 'message' => 'บันทึกการตั้งค่าเกียรติบัตรเรียบร้อยแล้ว', 'config' => $cfg_data]);
+    exit();
+}
+
 // Fallback
 echo json_encode(['status' => 'error', 'message' => 'Invalid action specified']);
+
+

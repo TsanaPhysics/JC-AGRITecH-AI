@@ -65,3 +65,4 @@ server/smartfarm.db
 **/.pub/
 
 *.db
+*.bak

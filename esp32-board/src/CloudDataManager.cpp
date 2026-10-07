@@ -75,11 +75,18 @@ bool CloudDataManager_isConnected() {
     return (WiFi.status() == WL_CONNECTED);
 }
 
-// ตรวจสอบและประมวลผลคำสั่งตั้งเวลาผ่าน Serial (USB Time Sync จากเครื่องคอมพิวเตอร์)
+// ตรวจสอบและประมวลผลคำสั่งตั้งเวลาและคำสั่ง CLI ผ่าน Serial (USB Type-C)
 void CloudDataManager_checkSerialTimeSync() {
     while (Serial.available() > 0) {
         String line = Serial.readStringUntil('\n');
         line.trim();
+        if (line.length() == 0) continue;
+
+        // ประมวลผลคำสั่ง CLI สำหรับ Wi-Fi, สแกนเครือข่าย, แดชบอร์ด, และรีบูต
+        if (WiFiConfigManager_processSerialCommand(line)) {
+            continue;
+        }
+
         if (line.startsWith("TIME:") || line.startsWith("SET_TIME:")) {
             int idx = line.indexOf(':');
             if (idx >= 0) {
@@ -206,7 +213,8 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     doc["ip"]        = WiFi.localIP().toString();
     doc["rssi"]      = WiFi.RSSI();
     doc["ssid"]      = WiFi.SSID();
-    doc["device_id"] = "ESP32-S3-ATD35";
+    String devId = WiFiConfigManager_getDeviceID();
+    doc["device_id"] = (devId.length() > 0) ? devId : "ESP32-S3-ATD35";
 
     // ข้อมูลสถานะการบันทึกลง Micro-SD Card บนตัวบอร์ด
     JsonObject sd = doc.createNestedObject("sd_card");
@@ -298,6 +306,32 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
 #endif
 #endif
 
+    // 1.1 ส่งข้อมูลเข้า Dynamic Configured Dashboard (ที่ผู้ใช้ตั้งค่าผ่าน Web Portal หรือ Serial)
+    String dynServerUrl = WiFiConfigManager_getServerURL();
+    if (dynServerUrl.startsWith("http")) {
+        bool isDuplicate = false;
+#if defined(ENABLE_CUSTOM_SERVER) && ENABLE_CUSTOM_SERVER == true
+        if (dynServerUrl == String(CUSTOM_SERVER_URL)) isDuplicate = true;
+#if defined(LOCAL_SERVER_URL)
+        if (dynServerUrl == String(LOCAL_SERVER_URL)) isDuplicate = true;
+#endif
+#endif
+        if (!isDuplicate) {
+            HTTPClient httpDyn;
+            if (httpDyn.begin(dynServerUrl)) {
+                httpDyn.addHeader("Content-Type", "application/json");
+                httpDyn.setTimeout(2500);
+                int httpCode = httpDyn.POST(jsonPayload);
+                if (httpCode == HTTP_CODE_OK || httpCode == 200) {
+                    Serial.printf("[CloudData] >>> Sent Telemetry to Configured Dashboard [OK] (Code: %d)\n", httpCode);
+                } else {
+                    Serial.printf("[CloudData] [!] Configured Dashboard POST returned: %d\n", httpCode);
+                }
+                httpDyn.end();
+            }
+        }
+    }
+
     // 2. ส่งข้อมูลเข้า Google Firebase Realtime Database (เมื่อตั้งค่าเปิดใช้งาน)
 #if defined(ENABLE_FIREBASE) && ENABLE_FIREBASE == true
     if (String(FIREBASE_HOST).indexOf("your-project") < 0 && strlen(FIREBASE_HOST) > 0) {
@@ -341,9 +375,11 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
 
 void CloudDataManager_update(const FarmSensorTelemetry &telemetry, bool pumpState, bool mistingState) {
     unsigned long currentMillis = millis();
+    static unsigned long disconnectedStartTime = 0;
 
     // หากเชื่อมต่อ Wi-Fi อยู่แล้ว
     if (WiFi.status() == WL_CONNECTED) {
+        disconnectedStartTime = 0;
         if (!wasConnected) {
             wasConnected = true;
             Serial.printf("\n=======================================================\n");
@@ -368,6 +404,18 @@ void CloudDataManager_update(const FarmSensorTelemetry &telemetry, bool pumpStat
             sendTelemetryToFirebase(telemetry, pumpState, mistingState);
         }
     } else {
+        if (disconnectedStartTime == 0) {
+            disconnectedStartTime = currentMillis;
+        }
+
+        // หากเชื่อมต่อ Wi-Fi ไม่สำเร็จเกิน 45 วินาที -> เปิด SoftAP Captive Portal อัตโนมัติ (Auto-Fallback)
+        if (currentMillis - disconnectedStartTime >= 45000) {
+            if (!WiFiConfigManager_isPortalActive()) {
+                Serial.println("\n[CloudData] >>> Wi-Fi could not connect! Auto-activating SoftAP Provisioning Portal ('LEQs-AgriEnvi-Setup')...");
+                WiFiConfigManager_startPortal();
+            }
+        }
+
         // สถานะยังไม่เชื่อมต่อ -> ให้เวลา 14 วินาทีต่อ candidate ในการทำ 4-way handshake
         if (wasConnected) {
             wasConnected = false;

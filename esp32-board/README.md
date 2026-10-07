@@ -92,3 +92,32 @@ esp32-board/
 หากต้องการนำโค้ดไปรวมเข้ากับระบบ HandySense เดิม:
 - ซอร์สโค้ดในโมดูล `AgriSensors.cpp` และ `AgriSensors.h` สามารถนำไปเรียกใช้ในฟังก์ชัน `Sensor_getSoilEC()`, `Sensor_getSoilPH()`, `Sensor_getSoilN()`, `Sensor_getSoilP()`, `Sensor_getSoilK()` ของเฟิร์มแวร์ HandySense ได้ทันที
 - ข้อมูลพารามิเตอร์ทั้งหมดจะถูกรวมเข้ากับ NETPIE MQTT Shadow Topic เพื่อแสดงผลบนแดชบอร์ดและแอปพลิเคชันมือถือ
+
+---
+
+## 6. การจัดการ Wi-Fi แบบไดนามิก & พอร์ตคำสั่ง USB Serial CLI
+
+บอร์ดรองรับการตั้งค่าเครือข่าย Wi-Fi, URL แดชบอร์ดเซิร์ฟเวอร์, และ Device ID โดยไม่ต้องแก้ไขโค้ด:
+
+1. **สแกนและตั้งค่าผ่านมือถือ (Captive Web Portal):**
+   - เมื่อบอร์ดต่อ Wi-Fi ไม่ได้ภายใน 45 วินาที จะเปิด SoftAP ชื่อ `LEQs-AgriFarm-Setup` (IP `192.168.4.1`)
+   - นำสมาร์ทโฟนเชื่อมต่อ จะเด้งหน้าเว็บพอร์ทัลขึ้นมาอัตโนมัติ
+   - กดปุ่ม **"🔄 สแกนค้นหา Wi-Fi ใหม่"** เพื่อดึงรายชื่อ Wi-Fi สดๆ แล้วเลือกเชื่อมต่อและระบุ URL ปลายทางได้ทันที
+2. **สั่งการผ่านพอร์ต USB Type-C Serial CLI (Baudrate 115200):**
+   - `SCAN` — สแกนหา Wi-Fi ทันที
+   - `SET_WIFI <ssid> <password>` — บันทึก Wi-Fi ลง Flash NVS
+   - `SET_SERVER <url>` — บันทึก URL เซิร์ฟเวอร์ปลายทาง
+   - `SET_DEVICE <id>` — กำหนดรหัสประจำเครื่อง
+   - `START_PORTAL` — บังคับเปิด SoftAP Web Portal
+   - `STATUS` — ดูสถานะการทำงานปัจจุบัน
+   - `RESET_CONFIG` — คืนค่ามาตรฐานโรงงาน
+   - `REBOOT` — รีบูตบอร์ด
+
+---
+
+## 7. สถาปัตยกรรมฟอนต์ LovyanGFX Zero-Tofu (3 ภาษา)
+
+- **Universal Thai/English Font:** บรรจุ `thai_font_vlw` ครอบคลุม 91 อักขระภาษาไทย และรหัส ASCII ภาษาอังกฤษ 100%
+- **Font Guard Engine (`ensureAppFont()`):** คอยล็อคและกู้คืนตัวชี้ฟอนต์ภาษาไทย ป้องกันฟอนต์ ASCII ล้วน (`Font2`/`Font4`) เขียนทับ ป้องกันการเกิดตัวอักษรกล่องสี่เหลี่ยม (`[]`) ตลอด 24 ชม.
+- **Tri-Lingual Display:** รองรับการสลับภาษา ไทย (`LANG_TH`), อังกฤษ (`LANG_EN`), และจีน (`LANG_ZH` ผ่าน `efontCN_14`) ทันทีผ่านหน้าจอสัมผัส
+

@@ -22,36 +22,36 @@ $page_title = "แบบทดสอบก่อนเรียน (Pre-test) | 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between hero-pattern">
 
     <!-- Top Navbar -->
-    <nav class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 py-4 px-6 fixed w-full top-0 z-50">
+    <nav class="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 py-3.5 px-4 sm:px-6 fixed w-full top-0 z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <a href="../index.php" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-tech font-bold text-xl">
+            <a href="../index.php" class="flex items-center gap-2.5 sm:gap-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-tech font-bold text-lg sm:text-xl shrink-0">
                     L
                 </div>
                 <div>
-                    <div class="font-tech text-base font-black text-white">LEQs-xAI</div>
-                    <div class="text-[10px] text-slate-400">แบบทดสอบวัดความรู้ก่อนเรียน</div>
+                    <div class="font-tech text-sm sm:text-base font-black text-white">LEQs-xAI</div>
+                    <div class="text-[9px] sm:text-[10px] text-slate-400">แบบทดสอบวัดความรู้ก่อนเรียน</div>
                 </div>
             </a>
-            <a href="../index.php" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-left"></i> หน้าหลัก
+            <a href="../index.php" class="px-3 sm:px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition flex items-center gap-1.5" title="กลับหน้าหลัก">
+                <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">หน้าหลัก</span>
             </a>
         </div>
     </nav>
 
     <!-- Quiz Content -->
-    <main class="pt-32 pb-20 px-4 max-w-3xl mx-auto w-full">
-        <div class="p-8 sm:p-10 rounded-3xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
+    <main class="pt-24 sm:pt-32 pb-20 px-3 sm:px-4 max-w-3xl mx-auto w-full">
+        <div class="p-5 sm:p-10 rounded-2xl sm:rounded-3xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-xl">
             
-            <div class="text-center mb-8">
-                <span class="px-3.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider">
+            <div class="text-center mb-6 sm:mb-8">
+                <span class="px-3.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     Pre-training Assessment
                 </span>
-                <h1 class="text-2xl sm:text-3xl font-black text-white font-heading mt-2">
+                <h1 class="text-xl sm:text-3xl font-black text-white font-heading mt-2">
                     แบบทดสอบก่อนเรียน: LEQs-xAI
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-400 mt-2">
-                    วัดความรู้พื้นฐานด้าน Edge AI, Deep Learning, IoT เกษตรดิจิทัล และเซนเซอร์สิ่งแวดล้อม
+                    วัดความรู้พื้นฐานด้าน Embedded AI, TinyML, Digital Electronics, IIoT และเซนเซอร์สิ่งแวดล้อม
                 </p>
             </div>
 
