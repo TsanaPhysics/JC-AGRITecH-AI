@@ -158,7 +158,7 @@
                     <span>© 2026 LEQs-AgriEnvi-xAI Consortium. คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี. All rights reserved.</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-slate-400">Powered by <strong class="text-slate-200">ESP32-S3 ATD3.5</strong> &amp; <strong class="text-emerald-400">HandySense Open Innovation</strong></span>
+                    <span class="text-slate-400">Powered by <strong class="text-slate-200">ESP32-S3 ATD3.5</strong> &amp; <strong class="text-emerald-400">LEQsxAI Open Innovation</strong></span>
                     <a href="#overview" class="text-emerald-400 hover:text-emerald-300 font-bold transition flex items-center gap-1">
                         <i class="fa-solid fa-arrow-up text-xs"></i> กลับด้านบน
                     </a>

@@ -1,4 +1,7 @@
 #include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 #include "PinConfigs.h"
 #include "UserConfigs.h"
 #include "AgriSensors.h"
@@ -7,17 +10,47 @@
 #include "SDCardManager.h"
 #include "WiFiConfigManager.h"
 
-// ตัวแปรจับเวลาการอ่านเซนเซอร์และประมวลผล
+/**
+ * ============================================================================
+ * สถาปัตยกรรม Multi-Task (ปรับปรุงเพื่อให้ทัชสกรีนตอบสนองแบบเรียลไทม์)
+ * ----------------------------------------------------------------------------
+ *  Core 1 | loop()      : UI Task  - ประมวลผลคิวทัช + วาดหน้าจอ + บันทึก SD (ไม่มีงานบล็อกเครือข่าย)
+ *  Core 1 | touchPoll   : อ่านทัช FT6336U ทุก 8 ms (ใน DisplayManager) -> ไม่พลาดการแตะแม้กำลังวาดจอ
+ *  Core 0 | netTask     : WebServer (/relay /mode), Captive Portal, Serial CLI - ตอบสนองคำสั่งรีเลย์ทันที
+ *  Core 0 | sensorTask  : อ่านเซนเซอร์ + ควบคุมอัตโนมัติ + ส่ง HTTP Telemetry (บล็อกได้โดยไม่กระทบ UI)
+ * ============================================================================
+ */
+
+// ตัวแปรจับเวลาในแต่ละ Task
 static unsigned long lastSensorReadTime = 0;
 static unsigned long lastDashboardPrintTime = 0;
-static unsigned long lastDisplayUpdateTime = 0;
 
-// สถานะการทำงานของอุปกรณ์ควบคุมในแปลง
+// สถานะการทำงานของอุปกรณ์ควบคุมในแปลง (อ่าน/เขียนข้าม Task ได้ เพราะเป็น bool 1 ไบต์)
 bool isPumpActive = false;
 bool isMistingActive = false;
 
+// คำขอเปิด/ปิด Captive Portal จากหน้าจอสัมผัส (UI -> netTask) 0=ไม่มี 1=เปิด 2=ปิด
+volatile int g_portalRequest = 0;
+
+// Telemetry ที่แชร์ระหว่าง sensorTask (ผู้เขียน) และ UI Task (ผู้อ่าน)
+static SemaphoreHandle_t telemetryMutex = nullptr;
+static FarmSensorTelemetry sharedTelemetry;
+static volatile uint32_t sharedTelemetrySeq = 0;
+static FarmSensorTelemetry uiTelemetry;
+static uint32_t uiTelemetrySeq = 0;
+
 // ประกาศฟังก์ชันล่วงหน้า (Forward Declaration)
 void executeAgronomyControl(const FarmSensorTelemetry &data);
+static void netTask(void *arg);
+static void sensorTask(void *arg);
+
+static void publishTelemetry(const FarmSensorTelemetry &t) {
+    if (telemetryMutex && xSemaphoreTake(telemetryMutex, pdMS_TO_TICKS(20)) == pdTRUE) {
+        sharedTelemetry = t;
+        sharedTelemetrySeq = sharedTelemetrySeq + 1;
+        xSemaphoreGive(telemetryMutex);
+    }
+}
 
 void setup() {
     // 1. เริ่มต้น Serial Console เพื่อดูข้อมูลทดสอบ
@@ -64,7 +97,17 @@ void setup() {
     executeAgronomyControl(initTelemetry);
     DisplayManager_finishBoot(initTelemetry, isPumpActive, isMistingActive);
 
-    Serial.println("[System] System setup completed successfully. Starting telemetry loop...\n");
+    // 9. เตรียมข้อมูลตั้งต้นให้ UI แล้วแยกงานหนักไปทำงานบน Core 0
+    telemetryMutex = xSemaphoreCreateMutex();
+    uiTelemetry = initTelemetry;
+    publishTelemetry(initTelemetry);
+    uiTelemetrySeq = sharedTelemetrySeq;
+    lastSensorReadTime = millis();
+
+    xTaskCreatePinnedToCore(netTask,    "netTask",    8192,  nullptr, 2, nullptr, 0);
+    xTaskCreatePinnedToCore(sensorTask, "sensorTask", 16384, nullptr, 1, nullptr, 0);
+
+    Serial.println("[System] System setup completed successfully. Starting multi-task telemetry loop...\n");
 }
 
 
@@ -135,48 +178,109 @@ void executeAgronomyControl(const FarmSensorTelemetry &data) {
     }
 }
 
-void loop() {
-    // 0. ตรวจจับและตอบสนองการกดสัมผัสหน้าจอทัชสกรีน (Capacitive Touch FT6336U) ทันที
-    DisplayManager_handleTouch(isPumpActive, isMistingActive);
+// ============================================================================
+// netTask (Core 0): บริการเครือข่ายภายในบอร์ด ตอบสนองเร็วโดยไม่รอการอ่านเซนเซอร์
+// ============================================================================
+static void netTask(void *arg) {
+    for (;;) {
+        // คำขอจากหน้าจอสัมผัส: เปิด/ปิด SoftAP Captive Portal (ทำใน Task นี้เพื่อความปลอดภัยของ WebServer)
+        int req = g_portalRequest;
+        if (req != 0) {
+            g_portalRequest = 0;
+            if (req == 1) WiFiConfigManager_startPortal();
+            else if (req == 2) WiFiConfigManager_stopPortal();
+        }
 
-    // หากมีการเปลี่ยนหน้าจอ หรือเลื่อนสไลด์หน้าจอ ให้รีเฟรชหน้าจอทันที ไม่ต้องรอรอบ 2 วินาที
-    if (DisplayManager_hasPageChanged()) {
-        DisplayManager_update(AgriSensors_getTelemetry(), isPumpActive, isMistingActive);
-    }
+        // ประมวลผล SoftAP Captive Portal DNS & WebServer (พอร์ต 80 / 8500: /relay /mode)
+        WiFiConfigManager_loop();
 
-    // ประมวลผล SoftAP Captive Portal DNS & WebServer หากกำลังเปิดโหมดตั้งค่า
-    WiFiConfigManager_loop();
+        // ซิงค์เวลา/คำสั่ง CLI ผ่าน USB Serial
+        CloudDataManager_checkSerialTimeSync();
 
-    // ซิงค์เวลาผ่าน USB Serial จากเครื่องคอมพิวเตอร์แบบ Real-time (แม้ไม่มี Wi-Fi)
-    CloudDataManager_checkSerialTimeSync();
-
-    unsigned long currentMillis = millis();
-
-    // 1. อ่านค่าจากเซนเซอร์ทุกตัวตามรอบเวลา (ทุกๆ 2 วินาที)
-    if (currentMillis - lastSensorReadTime >= SENSOR_READ_INTERVAL_MS) {
-        lastSensorReadTime = currentMillis;
-
-        // อัปเดตข้อมูลเซนเซอร์ทั้งหมด
-        AgriSensors_update();
-
-        // นำข้อมูลไปประมวลผลระบบควบคุมอัตโนมัติ
-        const FarmSensorTelemetry &telemetry = AgriSensors_getTelemetry();
-        executeAgronomyControl(telemetry);
-
-        // อัปเดตหน้าจอ LCD 3.5 นิ้วทันทีที่มีข้อมูลใหม่
-        DisplayManager_update(telemetry, isPumpActive, isMistingActive);
-
-        // ส่งข้อมูลขึ้น Cloud Telemetry Hub และ Local Web Server
-        CloudDataManager_update(telemetry, isPumpActive, isMistingActive);
-
-        // บันทึกข้อมูลโทรมาตรลง Micro-SD Card บนบอร์ด (ไฟล์ CSV)
-        SDCardManager_log(telemetry, isPumpActive, isMistingActive);
-    }
-
-    // 2. แสดงผล Dashboard และสถานะออกทาง Serial ทุกๆ 3 วินาที
-    if (currentMillis - lastDashboardPrintTime >= 3000) {
-        lastDashboardPrintTime = currentMillis;
-        AgriSensors_printDashboard();
+        vTaskDelay(pdMS_TO_TICKS(2));
     }
 }
 
+// ============================================================================
+// sensorTask (Core 0): อ่านเซนเซอร์ -> ส่งต่อให้ UI ทันที -> ควบคุมอัตโนมัติ -> อัปโหลด Cloud
+// ============================================================================
+static void sensorTask(void *arg) {
+    for (;;) {
+        unsigned long currentMillis = millis();
+
+        // 1. อ่านค่าจากเซนเซอร์ทุกตัวตามรอบเวลา (ทุกๆ 2 วินาที)
+        if (currentMillis - lastSensorReadTime >= SENSOR_READ_INTERVAL_MS) {
+            lastSensorReadTime = currentMillis;
+
+            AgriSensors_update();
+
+            // สำเนาข้อมูลเพื่อความปลอดภัยข้าม Task แล้วแจ้ง UI ให้วาดทันที (ไม่รอการอัปโหลด Cloud)
+            FarmSensorTelemetry snapshot = AgriSensors_getTelemetry();
+            publishTelemetry(snapshot);
+
+            executeAgronomyControl(snapshot);
+
+            // ส่งข้อมูลขึ้น Cloud Telemetry Hub และ Local Web Server (อาจบล็อกได้หลายร้อย ms)
+            CloudDataManager_update(snapshot, isPumpActive, isMistingActive);
+        }
+
+        // 2. แสดงผล Dashboard และสถานะออกทาง Serial ทุกๆ 3 วินาที
+        if (currentMillis - lastDashboardPrintTime >= 3000) {
+            lastDashboardPrintTime = currentMillis;
+            AgriSensors_printDashboard();
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+}
+
+// ============================================================================
+// loop() = UI Task (Core 1): ทัช + วาดจอ เท่านั้น
+// ============================================================================
+void loop() {
+    // 0. ประมวลผลเหตุการณ์ทัชที่ touchPoll เก็บไว้ในคิว (สลับหน้า/สลับรีเลย์ทันที)
+    DisplayManager_handleTouch(isPumpActive, isMistingActive);
+
+    // 1. ตรวจสถานะภายนอกที่กระทบหน้าจอ (รีเลย์ที่ถูกสั่งจากเว็บ, Wi-Fi/Portal เปลี่ยนสถานะ)
+    bool externalChanged = DisplayManager_syncExternalState();
+
+    // 2. รับ Telemetry ล่าสุดจาก sensorTask (ถ้ามี)
+    bool fresh = false;
+    if (sharedTelemetrySeq != uiTelemetrySeq && telemetryMutex &&
+        xSemaphoreTake(telemetryMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+        uiTelemetry = sharedTelemetry;
+        uiTelemetrySeq = sharedTelemetrySeq;
+        xSemaphoreGive(telemetryMutex);
+        fresh = true;
+    }
+
+    unsigned long nowMs = millis();
+
+    // บันทึกจุดกราฟทุก 2 วินาที (คงสเกลเวลาของกราฟ 60 จุดเดิม แม้อ่านเซนเซอร์ทุก 1 วินาที)
+    static unsigned long lastRecordMs = 0;
+    if (fresh && (nowMs - lastRecordMs >= 2000)) {
+        lastRecordMs = nowMs;
+        DisplayManager_recordSample(uiTelemetry);
+    }
+
+    // 3. วาดหน้าจอเฉพาะเมื่อมีเหตุให้เปลี่ยน (ข้อมูลใหม่ / เปลี่ยนหน้า / เลื่อนสกรอลล์ / สถานะรีเลย์เปลี่ยน)
+    //    หน้ากราฟและหน้ารายละเอียดวาดทับทั้งพื้นที่ จึงจำกัดรอบรีเฟรชข้อมูลที่ ~2 วินาที เพื่อไม่ให้จอกะพริบ
+    DisplayPage curPage = DisplayManager_getPage();
+    bool heavyPage = (curPage == PAGE_GRAPHS) || (curPage >= PAGE_DETAIL_AIR);
+    static unsigned long lastHeavyDrawMs = 0;
+    bool dataRedraw = fresh && (!heavyPage || (nowMs - lastHeavyDrawMs >= 1900));
+
+    if (dataRedraw || externalChanged || DisplayManager_hasPageChanged()) {
+        lastHeavyDrawMs = nowMs;
+        DisplayManager_update(uiTelemetry, isPumpActive, isMistingActive);
+    }
+
+    // 4. บันทึกลง Micro-SD ทุก 2 วินาทีหลังวาดจอเสร็จ (SD ใช้บัส SPI เดียวกับจอ จึงต้องทำใน UI Task เท่านั้น)
+    static unsigned long lastSdLogMs = 0;
+    if (fresh && (millis() - lastSdLogMs >= 2000)) {
+        lastSdLogMs = millis();
+        SDCardManager_log(uiTelemetry, isPumpActive, isMistingActive);
+    }
+
+    delay(1);
+}

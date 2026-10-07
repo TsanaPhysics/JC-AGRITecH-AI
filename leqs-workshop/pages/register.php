@@ -1,7 +1,7 @@
 <?php
 /**
  * LEQs-xAI Registration Page — Cyber Dark Sci-Fi IoT HUD Theme
- * Aligned with HandySense LEQs-xAI Flutter App Design System
+ * Aligned with LEQsxAI Flutter App Design System
  * Faculty of Science & Technology, Rambhai Barni Rajabhat University
  */
 $page_title = "ลงทะเบียนเข้าร่วมอบรม | LEQs-xAI Cyber Portal";

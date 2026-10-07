@@ -105,3 +105,5 @@ void DisplayManager_toggleLanguage();
 void DisplayManager_scroll(int deltaY);
 int DisplayManager_getScrollY();
 bool DisplayManager_hasPageChanged();
+void DisplayManager_recordSample(const FarmSensorTelemetry &data);  // บันทึกจุดข้อมูลลงกราฟ (เรียกเมื่อมีข้อมูลใหม่เท่านั้น)
+bool DisplayManager_syncExternalState();                            // true เมื่อรีเลย์/Wi-Fi/Portal เปลี่ยนสถานะ ต้องวาดจอใหม่

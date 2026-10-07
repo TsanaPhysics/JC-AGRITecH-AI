@@ -3,6 +3,9 @@
 #include "WiFiConfigManager.h"
 #include "SDCardManager.h"
 #include <WiFi.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
@@ -30,13 +33,27 @@ extern bool isMistingActive;
 
 static String currentControlMode = "manual";
 
+// Mutex ป้องกัน String โหมดควบคุมถูกแก้ไขพร้อมกันจากหลาย Task (UI ทัช / netTask / sensorTask)
+static SemaphoreHandle_t modeMutex = nullptr;
+
+static inline void modeLock()   { if (modeMutex) xSemaphoreTake(modeMutex, portMAX_DELAY); }
+static inline void modeUnlock() { if (modeMutex) xSemaphoreGive(modeMutex); }
+
 String CloudDataManager_getControlMode() {
-    return currentControlMode;
+    modeLock();
+    String m = currentControlMode;
+    modeUnlock();
+    return m;
 }
 
 void CloudDataManager_setControlMode(const String &mode) {
+    modeLock();
+    bool changed = (currentControlMode != mode);
     currentControlMode = mode;
-    Serial.printf("[ControlMode] System mode changed to: %s\n", mode.c_str());
+    modeUnlock();
+    if (changed) {
+        Serial.printf("[ControlMode] System mode changed to: %s\n", mode.c_str());
+    }
 }
 
 bool CloudDataManager_getRelayState(int relayId) {
@@ -82,7 +99,7 @@ static void parseRelayResponse(const String &responseBody) {
 
     if (respDoc.containsKey("control_mode")) {
         String m = respDoc["control_mode"].as<String>();
-        if (m.length() > 0) currentControlMode = m;
+        if (m.length() > 0) CloudDataManager_setControlMode(m);
     }
 
     if (respDoc.containsKey("relays_command")) {
@@ -199,6 +216,7 @@ static void addCandidate(const String &ssid, const String &pass) {
 
 void CloudDataManager_init() {
     Serial.println("\n[CloudData] Initializing Deterministic Multi-Candidate Wi-Fi Engine...");
+    if (!modeMutex) modeMutex = xSemaphoreCreateMutex();
 
     WiFi.mode(WIFI_STA);
     delay(100);
@@ -357,7 +375,8 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     actuators["r2"]      = CloudDataManager_getRelayState(2) ? 1 : 0;
     actuators["r3"]      = CloudDataManager_getRelayState(3) ? 1 : 0;
     actuators["r4"]      = CloudDataManager_getRelayState(4) ? 1 : 0;
-    actuators["mode"]    = currentControlMode;
+    String modeNow = CloudDataManager_getControlMode();
+    actuators["mode"]    = modeNow;
 
     String jsonPayload;
     serializeJson(doc, jsonPayload);

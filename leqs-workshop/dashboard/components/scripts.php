@@ -5,101 +5,178 @@
         let currentSsid = 'JC_Home';
         let currentRssi = -99;
         let currentCloudUrl = 'http://14.207.141.164:8000';
-        // Soil Telemetry States (Decoupled: Card 3 = Soil Moisture, Card 4 = Soil pH & Chemistry)
-        let latestSoilPh = 7.3;
-        let latestSoilMoist = 0.0;
+        // Soil Telemetry States
+        let latestSoilPh = NaN;
+        let latestSoilMoist = NaN;
+        let currentControlMode = 'manual';
+        let isAutoMode = false;
 
-        function renderSoil7in1Hero() {
-            const heroVal = document.getElementById('dash7in1HeroVal');
-            const heroUnit = document.getElementById('dash7in1HeroUnit');
-            const heroSub = document.getElementById('dash7in1HeroSub');
-            if (!heroVal) return;
+        // Relay state (optimistic UI + pending lock so polling never overwrites a fresh click)
+        const dashRelayStates = {};
+        const relayPending = {};          // id -> timestamp (ms) until which polling must not overwrite
+        const RELAY_LOCK_MS = 5000;
+        let modePendingUntil = 0;
 
-            heroVal.innerText = Number(latestSoilPh).toFixed(1);
-            if (heroUnit) heroUnit.innerText = 'pH';
-            if (heroSub) {
-                const ph = Number(latestSoilPh);
-                if (ph < 5.5) {
-                    heroSub.innerText = 'ดินเป็นกรด (Acidic)';
-                } else if (ph > 7.5) {
-                    heroSub.innerText = 'ดินเป็นด่าง (Alkaline)';
-                } else {
-                    heroSub.innerText = 'เป็นกลาง สมบูรณ์ (Optimal)';
-                }
+        // Freshness thresholds (seconds)
+        const STALE_DELAYED_S = 6;
+        const STALE_OFFLINE_S = 20;
+
+        // ---------- Helpers ----------
+        const $ = (id) => document.getElementById(id);
+        const isNum = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+        const fmt = (v, d = 1) => isNum(v) ? Number(v).toFixed(d) : '--';
+
+        function setText(id, text) {
+            const el = $(id);
+            if (!el) return;
+            const t = String(text);
+            if (el.textContent === t) return;
+            el.textContent = t;
+            el.classList.remove('val-flash');
+            void el.offsetWidth;
+            el.classList.add('val-flash');
+        }
+        function setHtml(id, html) { const el = $(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
+        function setPill(id, kind, text) {
+            const el = $(id);
+            if (!el) return;
+            const cls = `pill pill-${kind}`;
+            if (el.dataset.pk !== kind) {
+                // preserve extra utility classes (those not starting with pill)
+                const extras = [...el.classList].filter(c => !c.startsWith('pill'));
+                el.className = [cls, ...extras].join(' ');
+                el.dataset.pk = kind;
             }
+            if (text !== undefined && el.textContent !== text) el.textContent = text;
+        }
+        function setBar(id, pct, color) {
+            const el = $(id);
+            if (!el) return;
+            const p = Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0));
+            el.style.width = p + '%';
+            if (color) el.style.backgroundColor = color;
         }
 
-        // 1. Initialize Chart.js Trend Line Chart
-        const ctxTrend = document.getElementById('envTrendChart').getContext('2d');
-        const timeLabels = ['11:40', '11:42', '11:44', '11:46', '11:48', '11:50', '11:52'];
-        const tempData = [28.2, 28.3, 28.5, 28.6, 28.4, 28.5, 28.5];
-        const humData = [66.0, 65.5, 65.2, 65.0, 65.3, 65.1, 65.2];
-        const soilData = [62.0, 61.8, 61.5, 61.4, 61.3, 61.3, 61.3];
+        // Sparkline buffers (client-side rolling window)
+        const SPARK_MAX = 40;
+        const sparkBuf = { sparkTemp: [], sparkVpd: [], sparkSoil: [], sparkLux: [] };
+        function pushSpark(id, v) {
+            if (!isNum(v)) return;
+            const b = sparkBuf[id];
+            b.push(Number(v));
+            if (b.length > SPARK_MAX) b.shift();
+            const svg = $(id);
+            if (!svg || b.length < 2) return;
+            const min = Math.min(...b), max = Math.max(...b);
+            const span = (max - min) || 1;
+            const step = 100 / (SPARK_MAX - 1);
+            const x0 = 100 - (b.length - 1) * step;
+            const d = b.map((val, i) => `${i ? 'L' : 'M'}${(x0 + i * step).toFixed(2)},${(25 - ((val - min) / span) * 22).toFixed(2)}`).join(' ');
+            svg.firstElementChild.setAttribute('d', d);
+        }
 
+        // Toast (single shared mixin)
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 1800, timerProgressBar: true,
+            background: '#0f172a', color: '#e2e8f0'
+        });
+
+        function renderSoil7in1Hero() {
+            const heroVal = $('dash7in1HeroVal');
+            if (!heroVal) return;
+            setText('dash7in1HeroVal', fmt(latestSoilPh, 1));
+            setText('dash7in1HeroUnit', 'pH');
+            const ph = Number(latestSoilPh);
+            if (!Number.isFinite(ph)) { setText('dash7in1HeroSub', 'รอข้อมูล'); return; }
+            if (ph < 5.5) setText('dash7in1HeroSub', 'ดินเป็นกรด (Acidic)');
+            else if (ph > 7.5) setText('dash7in1HeroSub', 'ดินเป็นด่าง (Alkaline)');
+            else setText('dash7in1HeroSub', 'เป็นกลาง สมบูรณ์ (Optimal)');
+        }
+
+        // ---------- 1. Trend chart (dual axis, rolling window, real history) ----------
+        const CHART_MAX_POINTS = 90;
+        const ctxTrend = $('envTrendChart').getContext('2d');
         const envTrendChart = new Chart(ctxTrend, {
             type: 'line',
             data: {
-                labels: timeLabels,
+                labels: [],
                 datasets: [
-                    {
-                        label: 'อุณหภูมิ (°C)',
-                        data: tempData,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 3
-                    },
-                    {
-                        label: 'ความชื้น RH (%)',
-                        data: humData,
-                        borderColor: '#06b6d4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.05)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 3
-                    },
-                    {
-                        label: 'ความชื้นดิน Stick (%)',
-                        data: soilData,
-                        borderColor: '#10b981',
-                        backgroundColor: 'transparent',
-                        tension: 0.4,
-                        borderDash: [5, 5],
-                        pointRadius: 2
-                    }
+                    { key: 'temp', label: 'อุณหภูมิ (°C)', data: [], yAxisID: 'y', borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.10)', tension: 0.35, fill: true, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+                    { key: 'hum', label: 'ความชื้น RH (%)', data: [], yAxisID: 'y1', borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.05)', tension: 0.35, fill: false, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+                    { key: 'soil', label: 'ความชื้นดิน (%)', data: [], yAxisID: 'y1', borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.35, borderDash: [5, 5], pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: {
-                        labels: { color: '#94a3b8', font: { family: 'Prompt', size: 11 } }
-                    }
+                    legend: { labels: { color: '#94a3b8', font: { family: 'Prompt', size: 11 }, usePointStyle: true, boxWidth: 8 } },
+                    tooltip: { backgroundColor: 'rgba(15,23,42,.95)', borderColor: 'rgba(148,163,184,.3)', borderWidth: 1 }
                 },
                 scales: {
-                    x: {
-                        ticks: { color: '#64748b', font: { family: 'Orbitron', size: 10 } },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    },
-                    y: {
-                        ticks: { color: '#64748b', font: { family: 'Orbitron', size: 10 } },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
-                    }
+                    x: { ticks: { color: '#64748b', maxTicksLimit: 8, maxRotation: 0, font: { family: 'Chakra Petch', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { position: 'left', title: { display: true, text: '°C', color: '#f59e0b' }, ticks: { color: '#fbbf24', font: { family: 'Chakra Petch', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, grace: '10%' },
+                    y1: { position: 'right', min: 0, max: 100, title: { display: true, text: '%', color: '#22d3ee' }, ticks: { color: '#67e8f9', font: { family: 'Chakra Petch', size: 10 } }, grid: { drawOnChartArea: false } }
                 }
             }
         });
 
-        // 2. Initialize NPK Radar Chart
-        const ctxRadar = document.getElementById('npkRadarChart').getContext('2d');
+        const chartSeriesIdx = { temp: 0, hum: 1, soil: 2 };
+        function toggleChartSeries(key) {
+            const idx = chartSeriesIdx[key];
+            if (idx === undefined) return;
+            const visible = envTrendChart.isDatasetVisible(idx);
+            envTrendChart.setDatasetVisibility(idx, !visible);
+            envTrendChart.update('none');
+            const btn = $('chartBtn' + key.charAt(0).toUpperCase() + key.slice(1));
+            if (btn) { btn.setAttribute('aria-pressed', String(!visible)); btn.style.opacity = visible ? '.4' : '1'; }
+        }
+
+        let lastChartStamp = null;
+        function pushChartPoint(label, t, h, s) {
+            const d = envTrendChart.data;
+            d.labels.push(label);
+            d.datasets[0].data.push(isNum(t) ? Number(t) : null);
+            d.datasets[1].data.push(isNum(h) ? Number(h) : null);
+            d.datasets[2].data.push(isNum(s) ? Number(s) : null);
+            while (d.labels.length > CHART_MAX_POINTS) {
+                d.labels.shift();
+                d.datasets.forEach(ds => ds.data.shift());
+            }
+        }
+        async function loadChartHistory() {
+            try {
+                const res = await fetch('../api/api.php?action=get_history&limit=' + CHART_MAX_POINTS + '&_t=' + Date.now());
+                const j = await res.json();
+                if (j.status === 'success' && Array.isArray(j.data)) {
+                    // rows from DB have an id; the API's synthetic fallback does not -> ignore synthetic data
+                    const rows = j.data.filter(r => r && r.id !== undefined);
+                    rows.forEach(r => {
+                        const ts = String(r.created_at || '');
+                        const lbl = ts.length >= 19 ? ts.slice(11, 19) : ts.slice(-8);
+                        const soil = isNum(r.soil_stick_moisture) ? r.soil_stick_moisture : r.soil_moisture;
+                        pushChartPoint(lbl, r.temperature, r.humidity, soil);
+                    });
+                    envTrendChart.update('none');
+                    const sub = $('chartSubtitle');
+                    if (sub) sub.textContent = rows.length
+                        ? `อุณหภูมิ (°C), ความชื้นสัมพัทธ์ (%) และความชื้นดิน (%) — ย้อนหลัง ${rows.length} จุดจากฐานข้อมูล + อัปเดตสดทุกครั้งที่บอร์ดส่งข้อมูล`
+                        : 'อุณหภูมิ (°C), ความชื้นสัมพัทธ์ (%) และความชื้นดิน (%) — ยังไม่มีข้อมูลย้อนหลัง กำลังรวบรวมแบบสด';
+                }
+            } catch (e) { console.warn('History load error:', e); }
+        }
+
+        // ---------- 2. NPK Radar Chart ----------
+        const ctxRadar = $('npkRadarChart').getContext('2d');
         const npkRadarChart = new Chart(ctxRadar, {
             type: 'radar',
             data: {
                 labels: ['ไนโตรเจน (N)', 'ฟอสฟอรัส (P)', 'โพแทสเซียม (K)', 'ความชื้นดิน', 'pH ดิน', 'EC สภาพนำ'],
                 datasets: [{
                     label: 'ค่าปัจจุบัน',
-                    data: [45, 32, 65, 72.4, 64, 55],
+                    data: [0, 0, 0, 0, 0, 0],
                     backgroundColor: 'rgba(16, 185, 129, 0.25)',
                     borderColor: '#10b981',
                     pointBackgroundColor: '#06b6d4',
@@ -118,9 +195,8 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                animation: false,
+                plugins: { legend: { display: false } },
                 scales: {
                     r: {
                         angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
@@ -132,418 +208,439 @@
             }
         });
 
-        // 3. UI Helpers
+        // ---------- 3. UI Helpers: relays & mode ----------
         function updateRelayDom(id, isOn) {
             dashRelayStates[id] = isOn;
-            const led = document.getElementById(`dash-led-${id}`);
-            const btn = document.getElementById(`dash-btn-${id}`);
-            const status = document.getElementById(`dash-status-${id}`);
-
-            if (led) {
-                led.className = isOn ? 'w-3 h-3 rounded-full bg-emerald-400 animate-ping inline-block' : 'w-3 h-3 rounded-full bg-slate-700 inline-block';
-            }
+            const led = $(`dash-led-${id}`);
+            const btn = $(`dash-btn-${id}`);
+            const status = $(`dash-status-${id}`);
+            const row = $(`dash-row-${id}`);
+            if (led) led.className = isOn ? 'w-3 h-3 rounded-full bg-emerald-400 inline-block flex-shrink-0 shadow-[0_0_10px_rgba(52,211,153,.9)]' : 'w-3 h-3 rounded-full bg-slate-700 inline-block flex-shrink-0';
             if (btn) {
-                btn.className = isOn 
-                    ? 'px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1 shadow-md'
-                    : 'px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-600 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1';
-                btn.innerHTML = isOn ? '<i class="fa-solid fa-power-off text-[10px]"></i> ปิด' : '<i class="fa-solid fa-power-off text-[10px]"></i> เปิด';
+                btn.setAttribute('aria-checked', String(isOn));
+                btn.classList.toggle('is-pending', (relayPending[id] || 0) > Date.now());
             }
             if (status) {
-                status.innerText = isOn ? 'ACTIVE (ON)' : 'STANDBY (OFF)';
+                status.textContent = isOn ? 'ACTIVE (ON)' : 'STANDBY (OFF)';
                 status.className = isOn ? 'text-[10px] font-bold text-emerald-400' : 'text-[10px] text-slate-400';
             }
+            if (row) row.style.borderColor = isOn ? 'rgba(16,185,129,.45)' : '';
         }
-
-        let currentControlMode = 'manual';
 
         function updateControlModeDom(mode) {
             currentControlMode = (mode || 'manual').toLowerCase();
-            const label = document.getElementById('currentModeLabel');
-            const btnManual = document.getElementById('btnModeManual');
-            const btnAuto = document.getElementById('btnModeAuto');
-            const btnAI = document.getElementById('btnModeAI');
+            const map = { manual: ['btnModeManual', 'warn', 'MANUAL'], auto: ['btnModeAuto', 'ok', 'SMART AUTO'], ai: ['btnModeAI', 'info', 'EDGE AI'] };
+            Object.keys(map).forEach(k => {
+                const b = $(map[k][0]);
+                if (b) b.setAttribute('aria-pressed', String(k === currentControlMode));
+            });
+            const m = map[currentControlMode];
+            if (m) { setPill('currentModeLabel', m[1], m[2]); }
+            isAutoMode = currentControlMode === 'auto';
+        }
+        function updateAutoModeDom(isAuto) { updateControlModeDom(isAuto ? 'auto' : 'manual'); }
 
-            // Reset base styles
-            const inactiveClass = 'py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 text-slate-400 hover:text-white';
-            if (btnManual) btnManual.className = inactiveClass;
-            if (btnAuto) btnAuto.className = inactiveClass;
-            if (btnAI) btnAI.className = inactiveClass;
+        // ---------- 4. Freshness / connection state ----------
+        let lastFetchOkAt = 0;          // performance clock (ms) of last successful API response
+        let ageAtFetchS = null;         // sensor data age (s) when last fetched
+        let consecutiveFailures = 0;
+        let lastLatencyMs = null;
 
-            if (currentControlMode === 'manual') {
-                if (label) {
-                    label.innerText = 'MANUAL';
-                    label.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        function parseSqlTime(s) {
+            if (!s || typeof s !== 'string') return NaN;
+            const t = Date.parse(s.replace(' ', 'T'));
+            return Number.isFinite(t) ? t : NaN;
+        }
+        function renderLiveChip() {
+            let state = 'connecting', ageS = null;
+            if (consecutiveFailures >= 3) {
+                state = 'offline';
+            } else if (ageAtFetchS !== null) {
+                ageS = ageAtFetchS + (performance.now() - lastFetchOkAt) / 1000;
+                state = ageS > STALE_OFFLINE_S ? 'offline' : (ageS > STALE_DELAYED_S ? 'delayed' : 'live');
+            }
+            const cfg = {
+                connecting: ['mute', 'bg-slate-500', 'CONNECTING'],
+                live: ['ok', 'bg-emerald-400 animate-pulse', 'LIVE'],
+                delayed: ['warn', 'bg-amber-400', 'DELAYED'],
+                offline: ['bad', 'bg-rose-500', 'OFFLINE']
+            }[state];
+            const chip = $('liveChip');
+            if (chip) {
+                setPill('liveChip', cfg[0]);
+                chip.classList.add('!text-[11px]', '!py-1.5', '!px-3');
+            }
+            const dot = $('liveDot'); if (dot) dot.className = 'w-2 h-2 rounded-full ' + cfg[1];
+            const lt = $('liveText'); if (lt && lt.textContent !== cfg[2]) lt.textContent = cfg[2];
+            const la = $('liveAge');
+            if (la) la.textContent = (consecutiveFailures >= 3) ? 'ไม่ตอบสนอง' : (ageS === null ? '--' : (ageS < 1 ? '<1 วิ' : Math.round(ageS) + ' วิ ที่แล้ว'));
+            const lat = $('latencyDisplay');
+            if (lat) lat.textContent = lastLatencyMs === null ? '-- ms' : Math.round(lastLatencyMs) + ' ms';
+
+            const banner = $('staleBanner');
+            if (banner) {
+                const show = state === 'offline' || state === 'delayed';
+                banner.classList.toggle('hidden', !show);
+                const bt = $('staleBannerText');
+                if (bt && show) {
+                    bt.textContent = consecutiveFailures >= 3
+                        ? 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ — กำลังลองใหม่อัตโนมัติ'
+                        : (state === 'offline'
+                            ? `บอร์ดไม่ส่งข้อมูลมา ${Math.round(ageS)} วินาที — ค่าที่แสดงอาจไม่ใช่ค่าปัจจุบัน`
+                            : `ข้อมูลล่าช้า ${Math.round(ageS)} วินาที`);
                 }
-                if (btnManual) btnManual.className = 'py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm';
-            } else if (currentControlMode === 'auto') {
-                if (label) {
-                    label.innerText = 'SMART AUTO';
-                    label.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+            }
+            document.body.classList.toggle('is-stale', state === 'offline');
+        }
+        setInterval(renderLiveChip, 1000);
+
+        // ---------- 5. Telemetry apply ----------
+        let lastSensorStamp = null;
+        function applyTelemetry(data) {
+            // Board
+            if (data.board) {
+                const b = data.board;
+                currentBoardIp = b.ip_address || currentBoardIp;
+                currentBoardPort = b.web_port || currentBoardPort;
+                currentSsid = b.ssid || currentSsid;
+                if (isNum(b.rssi)) currentRssi = Number(b.rssi);
+                currentCloudUrl = b.cloud_url || currentCloudUrl;
+
+                setText('boardIpDisplay', `${currentBoardIp}:${currentBoardPort}`);
+                setText('boardSsidDisplay', currentSsid);
+                if ($('boardRssiDisplay') && isNum(b.rssi) && Number(b.rssi) < 0) setText('boardRssiDisplay', `${Math.round(b.rssi)} dBm`);
+                if ($('cloudSyncDisplay') && b.cloud_url) setText('cloudSyncDisplay', b.cloud_url.replace('http://', ''));
+                if ($('cloudTelemetryId') && b.telemetry_id) setText('cloudTelemetryId', `#${b.telemetry_id}`);
+                const statEl = $('cloudStatusText');
+                if (statEl) {
+                    const direct = b.cloud_status && String(b.cloud_status).includes('DIRECT');
+                    setText('cloudStatusText', direct ? 'ESP32 DIRECT' : (b.is_live ? 'CLOUD HUB' : 'ONLINE'));
                 }
-                if (btnAuto) btnAuto.className = 'py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm';
-            } else if (currentControlMode === 'ai') {
-                if (label) {
-                    label.innerText = 'EDGE AI';
-                    label.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+            }
+
+            // Freshness from server clock vs. sensor timestamp
+            const sensorTs = data.sensors ? parseSqlTime(data.sensors.updated_at) : NaN;
+            const serverTs = parseSqlTime(data.server_time);
+            if (Number.isFinite(sensorTs) && Number.isFinite(serverTs)) {
+                ageAtFetchS = Math.max(0, (serverTs - sensorTs) / 1000);
+            } else if (ageAtFetchS === null) {
+                ageAtFetchS = 0;
+            }
+
+            // Sensors
+            if (data.sensors) {
+                const s = data.sensors;
+                const ai = data.ai_calibrated || {};
+                const tempF = isNum(s.temperature_f) ? s.temperature_f : (isNum(s.temperature) ? s.temperature * 1.8 + 32 : NaN);
+
+                setText('dashTemp', fmt(s.temperature, 2));
+                setText('dashTempF', isNum(tempF) ? `(${fmt(tempF, 2)}°F)` : '--');
+                setText('dashHum', fmt(s.humidity, 2));
+                setText('dashDewPoint', isNum(s.dew_point) ? `${fmt(s.dew_point, 2)}°C` : '--');
+                const dewMargin = isNum(s.dew_margin) ? s.dew_margin : (isNum(s.temperature) && isNum(s.dew_point) ? s.temperature - s.dew_point : NaN);
+                setText('dashDewMargin', isNum(dewMargin) ? `${fmt(dewMargin, 2)}°C` : '--');
+                setBar('barTemp', ((Number(s.temperature) - 10) / 30) * 100);
+                pushSpark('sparkTemp', s.temperature);
+
+                // VPD
+                setText('dashVpd', fmt(s.vpd, 2));
+                setText('dashVpSat', fmt(s.vpsat, 2));
+                setText('dashVpAct', fmt(s.vpact, 2));
+                if (isNum(s.vpd)) {
+                    const v = Number(s.vpd);
+                    if (v < 0.8) setPill('dashVpdStatus', 'warn', 'ความชื้นสูง (Low Transp)');
+                    else if (v > 1.4) setPill('dashVpdStatus', 'bad', 'อากาศแห้ง (High Transp)');
+                    else setPill('dashVpdStatus', 'ok', 'สมบูรณ์ (Optimal Transp)');
+                    setBar('barVpd', (v / 3) * 100, v < 0.8 ? '#fbbf24' : (v > 1.4 ? '#fb7185' : '#34d399'));
+                    pushSpark('sparkVpd', v);
                 }
-                if (btnAI) btnAI.className = 'py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm animate-pulse';
+
+                // Soil (7-in-1 root zone + surface stick)
+                latestSoilMoist = isNum(s.soil_moisture) ? Number(s.soil_moisture) : NaN;
+                latestSoilPh = isNum(s.soil_ph) ? Number(s.soil_ph) : NaN;
+                renderSoil7in1Hero();
+                const stickM = isNum(s.soil_stick_moisture) ? Number(s.soil_stick_moisture) : latestSoilMoist;
+
+                setText('dashSoilMoist', fmt(latestSoilMoist, 1));
+                setText('dashStickMoist', fmt(stickM, 1));
+                setText('dashSoilEc', fmt(s.soil_ec, 1));
+                setText('dashSoilPh', fmt(latestSoilPh, 1));
+                setText('dashSoilMoistFoot', isNum(latestSoilMoist) ? `${fmt(latestSoilMoist, 1)}%` : '--');
+                setText('dashSoilPhFoot', fmt(latestSoilPh, 1));
+                setText('dashSoilTemp', isNum(s.soil_temperature) ? `${fmt(s.soil_temperature, 2)}°C` : '--');
+                setText('dashStickPh', fmt(isNum(s.soil_stick_ph) ? s.soil_stick_ph : s.soil_ph, 1));
+                setText('dashStickAdc', isNum(s.soil_stick_adc) ? s.soil_stick_adc : '--');
+                setText('dashStickVolt', isNum(s.soil_stick_ph_volt) ? `${fmt(s.soil_stick_ph_volt, 2)}V` : '--');
+                setBar('barStick', stickM, '#22d3ee');
+                setBar('barRoot', latestSoilMoist, '#38bdf8');
+                pushSpark('sparkSoil', stickM);
+                if (isNum(latestSoilMoist)) {
+                    const m = latestSoilMoist;
+                    if (m < 40) setPill('soilMoistStatus', 'warn', 'ดินแห้ง');
+                    else if (m > 65) setPill('soilMoistStatus', 'info', 'ดินชื้นมาก');
+                    else setPill('soilMoistStatus', 'ok', 'เหมาะสม');
+                }
+                if (isNum(latestSoilPh)) {
+                    const ph = latestSoilPh;
+                    setBar('barPh', ((ph - 4) / 5) * 100, (ph < 5.5 || ph > 7.5) ? '#fbbf24' : '#a3e635');
+                    setPill('soilPhStatus', (ph < 5.5 || ph > 7.5) ? 'warn' : 'ok', ph < 5.5 ? 'เป็นกรด' : (ph > 7.5 ? 'เป็นด่าง' : 'สมบูรณ์'));
+                }
+
+                // Light
+                setText('dashPar', fmt(s.par_lux, 2));
+                setText('dashKlux', isNum(s.klux) ? fmt(s.klux, 2) : (isNum(s.par_lux) ? fmt(s.par_lux / 1000, 2) : '--'));
+                setText('dashSolarRad', isNum(s.solar_radiation) ? `${fmt(s.solar_radiation, 2)} W/m²` : '--');
+                if (isNum(s.par_lux)) {
+                    setBar('barLux', (Math.log10(Number(s.par_lux) + 1) / 5) * 100);
+                    pushSpark('sparkLux', Number(s.par_lux));
+                }
+
+                // NPK
+                const valN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
+                const valP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
+                const valK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
+                setText('dashRawNVal', fmt(s.nitrogen, 1));
+                setText('dashRawPVal', fmt(s.phosphorus, 1));
+                setText('dashRawKVal', fmt(s.potassium, 1));
+                setText('dashValN', `${valN.toFixed(1)} mg/kg`);
+                setText('dashValP', `${valP.toFixed(1)} mg/kg`);
+                setText('dashValK', `${valK.toFixed(1)} mg/kg`);
+                setText('dashCard4N', `N ${valN.toFixed(1)}`);
+                setText('dashCard4P', `P ${valP.toFixed(1)}`);
+                setText('dashCard4K', `K ${valK.toFixed(1)}`);
+                setText('dashAiN', fmt(ai.nitrogen || 0, 1));
+                setText('dashAiP', fmt(ai.phosphorus || 0, 1));
+                setText('dashAiK', fmt(ai.potassium || 0, 1));
+                setText('dashNpkRatio', ai.npk_ratio || `${(valN / (valP || 1)).toFixed(1)}:1:${(valK / (valP || 1)).toFixed(1)}`);
+                setText('dashNpkTotal', `Total: ${(valN + valP + valK).toFixed(1)} mg/kg`);
+                if (ai.confidence) setText('dashAiConfidence', `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`);
+
+                // Comparison panel (Raw sensors vs Edge AI)
+                setText('compareRawPh', fmt(s.soil_ph, 2));
+                const calcAiPh = isNum(ai.ph) ? Number(ai.ph) : (isNum(s.soil_ph) ? Number(s.soil_ph) + 0.94 : NaN);
+                setText('compareAiPh', fmt(calcAiPh, 2));
+                if (isNum(calcAiPh) && isNum(s.soil_ph)) {
+                    const diffPh = calcAiPh - Number(s.soil_ph);
+                    setText('compareDiffPh', `${diffPh >= 0 ? '+' : ''}${diffPh.toFixed(2)}`);
+                }
+                const deepVal = latestSoilMoist;
+                setText('compareStickMoist', isNum(stickM) ? `${fmt(stickM, 1)}%` : '--');
+                setText('compareRawMoist', isNum(deepVal) ? `${fmt(deepVal, 1)}%` : '--');
+                setText('compareStickMoistSub', isNum(stickM) ? `ผิว ${fmt(stickM, 1)}%` : '--');
+                if (isNum(ai.moisture) || (isNum(deepVal) && isNum(stickM))) {
+                    const calcAiM = isNum(ai.moisture) ? Number(ai.moisture) : (deepVal + stickM) / 2;
+                    setText('compareAiMoist', `${calcAiM.toFixed(1)}%`);
+                }
+                setText('compareRawN', fmt(s.nitrogen, 1));
+                setText('compareAiN', fmt(ai.nitrogen || 0, 1));
+                setText('compareRawP', fmt(s.phosphorus, 1));
+                setText('compareAiP', fmt(ai.phosphorus || 0, 1));
+                setText('compareRawK', fmt(s.potassium, 1));
+                setText('compareAiK', fmt(ai.potassium || 0, 1));
+                setText('compareRawVpd', fmt(s.vpd, 2));
+                if (isNum(s.vpd)) {
+                    const vv = Number(s.vpd);
+                    setText('compareAiVpdStatus', vv < 0.8 ? 'ชื้นสูง' : (vv > 1.4 ? 'อากาศแห้ง' : 'สมบูรณ์'));
+                    setText('compareTranspText', vv < 0.8 ? 'Low Transp' : (vv > 1.4 ? 'High Transp' : 'Optimal Transp'));
+                }
+                if (ai.confidence) setText('compareAiConfBadge', `${(ai.confidence * 100).toFixed(1)}%`);
+                if ($('compareAiAgronomyText') && isNum(s.soil_ph) && isNum(deepVal)) {
+                    const stickPh = isNum(s.soil_stick_ph) ? Number(s.soil_stick_ph) : Number(s.soil_ph);
+                    const deepPh = Number(s.soil_ph);
+                    if (Math.abs(deepPh - stickPh) > 2.0) {
+                        setHtml('compareAiAgronomyText', `<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> <strong class="text-amber-300">พบความชัน pH ข้ามชั้นดิน:</strong> ผิวดิน Stick ${stickPh.toFixed(2)} vs เขตรากลึก 7-in-1 ${deepPh.toFixed(2)} • ความชื้นเขตราก ${deepVal.toFixed(1)}%${deepVal < 40 ? ' แนะนำเปิดวาล์วรดน้ำ' : ''}`);
+                    } else {
+                        setHtml('compareAiAgronomyText', `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> <strong class="text-emerald-300">สถานะปกติ:</strong> โครงสร้างดินสมดุลดี (pH: ${deepPh.toFixed(2)}, ความชื้น: ${deepVal.toFixed(1)}%) • โมเดล TinyML ทำงานเต็มประสิทธิภาพ`);
+                    }
+                }
+
+                // GPS
+                if (data.gps && data.gps.formatted) setText('boardGpsDisplay', data.gps.formatted);
+
+                // Storage
+                if (data.sd_card) {
+                    const sd = data.sd_card;
+                    const mounted = Boolean(sd.mounted);
+                    setText('dashSdRecords', mounted ? `${Number(sd.records || 0).toLocaleString()} เรคอร์ด` : 'ไม่ได้ใส่การ์ด (No Card)');
+                    const rec = $('dashSdRecords'); if (rec) rec.className = mounted ? 'text-white text-[10px] whitespace-nowrap num' : 'text-slate-400 italic text-[10px] whitespace-nowrap';
+                    setHtml('sdCardStatusDisplay', mounted
+                        ? `<i class="fa-solid fa-sd-card mr-0.5 text-amber-400"></i> ${Number(sd.records || 0).toLocaleString()} rec`
+                        : `<i class="fa-solid fa-sd-card mr-0.5 text-slate-500"></i> <span class="text-slate-400">ไม่ได้ใส่การ์ด</span>`);
+                    setPill('dashSdBadge', mounted ? 'ok' : 'mute', mounted ? 'SD LOGGING' : 'STANDBY (NO SD)');
+                }
+                if (data.database) {
+                    const dbTotal = `${Number(data.database.total_records || 0).toLocaleString()} เรคอร์ด`;
+                    setText('dashDbRecords', dbTotal);
+                    setHtml('dbRecordsStatusDisplay', `<i class="fa-solid fa-database mr-0.5"></i> ${dbTotal}`);
+                    setText('tableDbTotalRecords', dbTotal);
+                }
+
+                // Radar
+                if (npkRadarChart.data.datasets[0]) {
+                    npkRadarChart.data.datasets[0].data = [
+                        valN, valP, valK,
+                        Number(s.soil_moisture) || 0,
+                        (Number(s.soil_ph) || 0) * 10,
+                        Math.min(100, (Number(s.soil_ec) || 0) / 5)
+                    ];
+                    npkRadarChart.update('none');
+                }
+
+                // Sensor connection badges
+                if (data.sensor_connection) {
+                    const c = data.sensor_connection;
+                    setPill('badgeSht45', c.sht45 ? 'ok' : 'bad', c.sht45 ? 'I2C ONLINE' : 'DISCONNECTED');
+                    setPill('badgeSoil7in1', c.soil_7in1 ? 'info' : 'bad', c.soil_7in1 ? 'RS485 ONLINE' : 'DISCONNECTED');
+                    setPill('badgeBh1750', c.bh1750 ? 'warn' : 'bad', c.bh1750 ? 'I2C ONLINE' : 'DISCONNECTED');
+                }
+
+                // Chart: one point per new board reading (no duplicates from re-polling)
+                const stamp = s.updated_at || null;
+                if (stamp === null || stamp !== lastChartStamp) {
+                    lastChartStamp = stamp;
+                    const lbl = stamp && String(stamp).length >= 19 ? String(stamp).slice(11, 19)
+                        : new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    if (isNum(s.temperature) || isNum(s.humidity)) {
+                        pushChartPoint(lbl, s.temperature, s.humidity, stickM);
+                        envTrendChart.update('none');
+                    }
+                }
+            }
+
+            // Relays (never overwrite a pending optimistic toggle)
+            if (data.relays) {
+                const now = Date.now();
+                for (let id = 1; id <= 4; id++) {
+                    const r = data.relays[id];
+                    if (r && !((relayPending[id] || 0) > now)) updateRelayDom(id, r.state == 1);
+                }
+            }
+
+            // Control mode
+            if (!(modePendingUntil > Date.now())) {
+                if (data.control_mode) updateControlModeDom(data.control_mode);
+                else if (typeof data.auto_mode !== 'undefined') updateControlModeDom(data.auto_mode ? 'auto' : 'manual');
             }
         }
 
-        // Backward compatibility
-        function updateAutoModeDom(isAuto) {
-            updateControlModeDom(isAuto ? 'auto' : 'manual');
-        }
+        // ---------- 6. Polling engine (chained timeout, abort, backoff, pause when hidden) ----------
+        const POLL_MS = 1000;
+        let pollTimer = null;
+        let pollBusy = false;
 
-        // 4. Real Bidirectional API Synchronization
-        async function syncTelemetryFromApi() {
+        async function pollOnce() {
+            if (pollBusy) return;
+            pollBusy = true;
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), 4000);
+            const t0 = performance.now();
             try {
-                const res = await fetch('../api/api.php?action=get_telemetry&_t=' + Date.now());
-                if (!res.ok) return;
+                const res = await fetch('../api/api.php?action=get_telemetry&_t=' + Date.now(), { signal: ctrl.signal, cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
-                if (data.status === 'success') {
-                    // Update Board parameters
-                    if (data.board) {
-                        currentBoardIp = data.board.ip_address || currentBoardIp;
-                        currentBoardPort = data.board.web_port || currentBoardPort;
-                        currentSsid = data.board.ssid || currentSsid;
-                        currentRssi = data.board.rssi || currentRssi;
-                        currentCloudUrl = data.board.cloud_url || currentCloudUrl;
-
-                        const ipEl = document.getElementById('boardIpDisplay');
-                        if (ipEl) ipEl.innerText = `${currentBoardIp}:${currentBoardPort}`;
-                        const ssidEl = document.getElementById('boardSsidDisplay');
-                        if (ssidEl) ssidEl.innerText = currentSsid;
-                        const cloudEl = document.getElementById('cloudSyncDisplay');
-                        if (cloudEl && data.board.cloud_url) {
-                            cloudEl.innerText = data.board.cloud_url.replace('http://', '');
-                        }
-                        const idEl = document.getElementById('cloudTelemetryId');
-                        if (idEl && data.board.telemetry_id) {
-                            idEl.innerText = `#${data.board.telemetry_id}`;
-                        }
-                        const statEl = document.getElementById('cloudStatusText');
-                        if (statEl) {
-                            if (data.board.cloud_status && data.board.cloud_status.includes('DIRECT')) {
-                                statEl.innerText = 'ESP32 DIRECT';
-                                statEl.className = 'text-cyan-300 font-bold';
-                            } else {
-                                statEl.innerText = data.board.is_live ? 'CLOUD HUB' : 'ONLINE';
-                                statEl.className = 'text-emerald-400 font-bold';
-                            }
-                        }
-                    }
-
-                    // Update Real Sensors
-                    if (data.sensors) {
-                        const s = data.sensors;
-                        const ai = data.ai_calibrated || {};
-
-                        // อัปเดตค่าพารามิเตอร์ทุกตัวเป็นทศนิยม 2 ตำแหน่งตามข้อกำหนด
-                        if (document.getElementById('dashTemp')) document.getElementById('dashTemp').innerText = Number(s.temperature).toFixed(2);
-                        if (document.getElementById('dashTempF')) document.getElementById('dashTempF').innerText = `(${Number(s.temperature_f || ((s.temperature * 1.8) + 32)).toFixed(2)}°F)`;
-                        if (document.getElementById('dashHum')) document.getElementById('dashHum').innerText = Number(s.humidity).toFixed(2);
-                        if (document.getElementById('dashDewPoint')) document.getElementById('dashDewPoint').innerText = `${Number(s.dew_point).toFixed(2)}°C`;
-                        if (document.getElementById('dashDewMargin')) document.getElementById('dashDewMargin').innerText = `${Number(s.dew_margin || (s.temperature - s.dew_point)).toFixed(2)}°C`;
-                        
-                        if (document.getElementById('dashVpd')) document.getElementById('dashVpd').innerText = Number(s.vpd).toFixed(2);
-                        if (document.getElementById('dashVpSat')) document.getElementById('dashVpSat').innerText = Number(s.vpsat || 4.60).toFixed(2);
-                        if (document.getElementById('dashVpAct')) document.getElementById('dashVpAct').innerText = Number(s.vpact || 3.91).toFixed(2);
-                        if (document.getElementById('dashVpdStatus')) {
-                            const v = Number(s.vpd);
-                            if (v < 0.8) {
-                                document.getElementById('dashVpdStatus').innerText = 'ความชื้นสูง (Low Transp)';
-                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-amber-300 bg-amber-950 px-2 py-1 rounded';
-                            } else if (v > 1.4) {
-                                document.getElementById('dashVpdStatus').innerText = 'อากาศแห้ง (High Transp)';
-                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-rose-300 bg-rose-950 px-2 py-1 rounded';
-                            } else {
-                                document.getElementById('dashVpdStatus').innerText = 'สมบูรณ์ (Optimal Transp)';
-                                document.getElementById('dashVpdStatus').className = 'text-xs font-bold text-emerald-300 bg-emerald-950 px-2 py-1 rounded';
-                            }
-                        }
-
-                        // Root 7-in-1 Soil Sensor (สลับค่า pH จาก 7-in-1 ให้เด่นชัด สลับกับ ความชื้น %)
-                        latestSoilMoist = Number(s.soil_moisture || 0);
-                        latestSoilPh = Number(s.soil_ph || 6.2);
-                        renderSoil7in1Hero();
-
-                        if (document.getElementById('dashSoilMoist')) document.getElementById('dashSoilMoist').innerText = latestSoilMoist.toFixed(1);
-                        if (document.getElementById('dashSoilEc')) document.getElementById('dashSoilEc').innerText = Number(s.soil_ec || 0).toFixed(1);
-                        if (document.getElementById('dashSoilPh')) document.getElementById('dashSoilPh').innerText = latestSoilPh.toFixed(1);
-                        if (document.getElementById('dashSoilMoistFoot')) document.getElementById('dashSoilMoistFoot').innerText = `${latestSoilMoist.toFixed(1)}%`;
-                        if (document.getElementById('dashSoilPhFoot')) document.getElementById('dashSoilPhFoot').innerText = latestSoilPh.toFixed(1);
-                        if (document.getElementById('dashSoilTemp')) document.getElementById('dashSoilTemp').innerText = `${Number(s.soil_temperature || 27.5).toFixed(2)}°C`;
-                        
-                        // Surface Soil Stick (Moisture, pH ทศนิยม 1 ตำแหน่ง)
-                        const stickMVal = (s.soil_stick_moisture !== undefined && s.soil_stick_moisture !== null) ? Number(s.soil_stick_moisture) : Number(s.soil_moisture || 0);
-                        if (document.getElementById('dashStickMoist')) document.getElementById('dashStickMoist').innerText = stickMVal.toFixed(1);
-                        if (document.getElementById('dashStickPh')) document.getElementById('dashStickPh').innerText = Number(s.soil_stick_ph || s.soil_ph).toFixed(1);
-                        if (document.getElementById('dashStickAdc')) document.getElementById('dashStickAdc').innerText = s.soil_stick_adc || 1850;
-                        if (document.getElementById('dashStickVolt')) document.getElementById('dashStickVolt').innerText = `${Number(s.soil_stick_ph_volt || 1.85).toFixed(2)}V`;
-
-                        if (document.getElementById('dashPar')) document.getElementById('dashPar').innerText = Number(s.par_lux).toFixed(2);
-                        if (document.getElementById('dashKlux')) document.getElementById('dashKlux').innerText = Number(s.klux || (s.par_lux / 1000.0)).toFixed(2);
-                        if (document.getElementById('dashSolarRad')) {
-                            document.getElementById('dashSolarRad').innerText = `${Number(s.solar_radiation || 7.09).toFixed(2)} W/m²`;
-                        }
-
-                        // NPK Elements: ทศนิยม 1 ตำแหน่งตามข้อกำหนด (N, P, K)
-                        const valN = (Number(s.nitrogen) > 0.05) ? Number(s.nitrogen) : (Number(ai.nitrogen) || 0);
-                        const valP = (Number(s.phosphorus) > 0.05) ? Number(s.phosphorus) : (Number(ai.phosphorus) || 0);
-                        const valK = (Number(s.potassium) > 0.05) ? Number(s.potassium) : (Number(ai.potassium) || 0);
-
-                        // Raw physical sensor values
-                        if (document.getElementById('dashRawNVal')) document.getElementById('dashRawNVal').innerText = `${Number(s.nitrogen).toFixed(1)}`;
-                        if (document.getElementById('dashRawPVal')) document.getElementById('dashRawPVal').innerText = `${Number(s.phosphorus).toFixed(1)}`;
-                        if (document.getElementById('dashRawKVal')) document.getElementById('dashRawKVal').innerText = `${Number(s.potassium).toFixed(1)}`;
-
-                        if (document.getElementById('dashValN')) document.getElementById('dashValN').innerText = `${valN.toFixed(1)} mg/kg`;
-                        if (document.getElementById('dashValP')) document.getElementById('dashValP').innerText = `${valP.toFixed(1)} mg/kg`;
-                        if (document.getElementById('dashValK')) document.getElementById('dashValK').innerText = `${valK.toFixed(1)} mg/kg`;
-
-                        // Card 4 Capsules (ตรงกับหน้าจอ ESP32 - ทศนิยม 1 ตำแหน่ง)
-                        if (document.getElementById('dashCard4N')) document.getElementById('dashCard4N').innerText = `N ${valN.toFixed(1)}`;
-                        if (document.getElementById('dashCard4P')) document.getElementById('dashCard4P').innerText = `P ${valP.toFixed(1)}`;
-                        if (document.getElementById('dashCard4K')) document.getElementById('dashCard4K').innerText = `K ${valK.toFixed(1)}`;
-
-                        // AI Calibrated Elements (ทศนิยม 1 ตำแหน่ง)
-                        if (document.getElementById('dashAiN')) document.getElementById('dashAiN').innerText = `${Number(ai.nitrogen || 0).toFixed(1)}`;
-                        if (document.getElementById('dashAiP')) document.getElementById('dashAiP').innerText = `${Number(ai.phosphorus || 0).toFixed(1)}`;
-                        if (document.getElementById('dashAiK')) document.getElementById('dashAiK').innerText = `${Number(ai.potassium || 0).toFixed(1)}`;
-                        if (document.getElementById('dashNpkRatio')) document.getElementById('dashNpkRatio').innerText = ai.npk_ratio || `${(valN/(valP||1)).toFixed(1)}:1:${(valK/(valP||1)).toFixed(1)}`;
-                        if (document.getElementById('dashNpkTotal')) document.getElementById('dashNpkTotal').innerText = `Total: ${(valN + valP + valK).toFixed(1)} mg/kg`;
-                        if (document.getElementById('dashAiConfidence') && ai.confidence) {
-                            document.getElementById('dashAiConfidence').innerText = `TinyML AI: ${(ai.confidence * 100).toFixed(1)}%`;
-                        }
-
-                        // Dual-Engine Comparison Panel: Raw Sensors Ground Truth vs Edge AI Model
-                        if (document.getElementById('compareRawPh')) document.getElementById('compareRawPh').innerText = Number(s.soil_ph).toFixed(2);
-                        const calcAiPh = Number(ai.ph || (Number(s.soil_ph) + 0.94));
-                        if (document.getElementById('compareAiPh')) document.getElementById('compareAiPh').innerText = calcAiPh.toFixed(2);
-                        if (document.getElementById('compareDiffPh')) {
-                            const diffPh = calcAiPh - Number(s.soil_ph);
-                            document.getElementById('compareDiffPh').innerText = `${diffPh >= 0 ? '+' : ''}${diffPh.toFixed(2)}`;
-                        }
-                        const stickVal = (s.soil_stick_moisture !== undefined && s.soil_stick_moisture !== null) ? Number(s.soil_stick_moisture) : 61.3;
-                        const deepVal = Number(s.soil_moisture || 2.6);
-                        if (document.getElementById('compareStickMoist')) document.getElementById('compareStickMoist').innerText = `${stickVal.toFixed(1)}%`;
-                        if (document.getElementById('compareRawMoist')) document.getElementById('compareRawMoist').innerText = `${deepVal.toFixed(1)}%`;
-                        if (document.getElementById('compareStickMoistSub')) document.getElementById('compareStickMoistSub').innerText = `ผิว ${stickVal.toFixed(1)}%`;
-                        if (document.getElementById('compareAiMoist')) {
-                            const calcAiM = Number(ai.moisture || ((deepVal + stickVal) / 2));
-                            document.getElementById('compareAiMoist').innerText = `${calcAiM.toFixed(1)}%`;
-                        }
-                        if (document.getElementById('compareRawN')) document.getElementById('compareRawN').innerText = Number(s.nitrogen).toFixed(1);
-                        if (document.getElementById('compareAiN')) document.getElementById('compareAiN').innerText = Number(ai.nitrogen || 0).toFixed(1);
-                        if (document.getElementById('compareRawP')) document.getElementById('compareRawP').innerText = Number(s.phosphorus).toFixed(1);
-                        if (document.getElementById('compareAiP')) document.getElementById('compareAiP').innerText = Number(ai.phosphorus || 0).toFixed(1);
-                        if (document.getElementById('compareRawK')) document.getElementById('compareRawK').innerText = Number(s.potassium).toFixed(1);
-                        if (document.getElementById('compareAiK')) document.getElementById('compareAiK').innerText = Number(ai.potassium || 0).toFixed(1);
-                        if (document.getElementById('compareRawVpd')) document.getElementById('compareRawVpd').innerText = Number(s.vpd).toFixed(2);
-                        if (document.getElementById('compareAiVpdStatus')) {
-                            const vpdVal = Number(s.vpd);
-                            const vpdText = (vpdVal < 0.8) ? 'ชื้นสูง' : ((vpdVal > 1.4) ? 'อากาศแห้ง' : 'สมบูรณ์');
-                            document.getElementById('compareAiVpdStatus').innerText = vpdText;
-                        }
-                        if (document.getElementById('compareTranspText')) {
-                            const vpdVal = Number(s.vpd);
-                            document.getElementById('compareTranspText').innerText = (vpdVal < 0.8) ? 'Low Transp' : ((vpdVal > 1.4) ? 'High Transp' : 'Optimal Transp');
-                        }
-                        if (document.getElementById('compareAiConfBadge')) {
-                            document.getElementById('compareAiConfBadge').innerText = `${Number(ai.confidence ? ai.confidence * 100 : 77.6).toFixed(1)}%`;
-                        }
-                        if (document.getElementById('compareAiAgronomyText')) {
-                            const stickPh = Number(s.soil_stick_ph || 3.03);
-                            const deepPh = Number(s.soil_ph || 8.20);
-                            const deepMoist = Number(s.soil_moisture || 2.6);
-                            if (Math.abs(deepPh - stickPh) > 2.0) {
-                                document.getElementById('compareAiAgronomyText').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> <strong class="text-amber-300">พบความชัน pH ข้ามชั้นดิน:</strong> ผิวดิน Stick ${stickPh.toFixed(2)} (กรด) vs เขตรากลึก 7-in-1 ${deepPh.toFixed(2)} (ด่าง) • ดินเขตรากลึกแห้ง ${deepMoist.toFixed(1)}% แนะนำเปิดวาล์วรดน้ำ`;
-                            } else {
-                                document.getElementById('compareAiAgronomyText').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> <strong class="text-emerald-300">สถานะปกติ:</strong> โครงสร้างดินสมดุลดี (pH: ${deepPh.toFixed(2)}, ความชื้น: ${deepMoist.toFixed(1)}%) • โมเดล TinyML ทำงานเต็มประสิทธิภาพ`;
-                            }
-                        }
-
-                        // GPS Coordinate update
-                        if (data.gps && document.getElementById('boardGpsDisplay')) {
-                            document.getElementById('boardGpsDisplay').innerText = data.gps.formatted || '12.6644° N, 102.1039° E';
-                        }
-
-                        // SD Card & SQLite Storage Indicators
-                        if (data.sd_card) {
-                            const sd = data.sd_card;
-                            const isMounted = Boolean(sd.mounted);
-                            const sdRecText = isMounted ? `${Number(sd.records || 0).toLocaleString()} เรคอร์ด` : 'ไม่ได้ใส่การ์ด (No Card)';
-                            if (document.getElementById('dashSdRecords')) {
-                                document.getElementById('dashSdRecords').innerText = sdRecText;
-                                document.getElementById('dashSdRecords').className = isMounted ? 'text-white' : 'text-slate-400 italic';
-                            }
-                            if (document.getElementById('sdCardStatusDisplay')) {
-                                document.getElementById('sdCardStatusDisplay').innerHTML = isMounted 
-                                    ? `<i class="fa-solid fa-sd-card mr-0.5 text-amber-400"></i> ${Number(sd.records || 0).toLocaleString()} rec`
-                                    : `<i class="fa-solid fa-sd-card mr-0.5 text-slate-500"></i> <span class="text-slate-400">ไม่ได้ใส่การ์ด</span>`;
-                            }
-                            if (document.getElementById('dashSdBadge')) {
-                                document.getElementById('dashSdBadge').innerText = isMounted ? 'SD LOGGING' : 'STANDBY (NO SD)';
-                                document.getElementById('dashSdBadge').className = isMounted 
-                                    ? 'text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800'
-                                    : 'text-[9px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700';
-                            }
-                        }
-                        if (data.database) {
-                            const dbTotal = `${Number(data.database.total_records || 0).toLocaleString()} เรคอร์ด`;
-                            if (document.getElementById('dashDbRecords')) document.getElementById('dashDbRecords').innerText = dbTotal;
-                            if (document.getElementById('dbRecordsStatusDisplay')) {
-                                document.getElementById('dbRecordsStatusDisplay').innerHTML = `<i class="fa-solid fa-database mr-0.5"></i> ${dbTotal}`;
-                            }
-                            if (document.getElementById('tableDbTotalRecords')) {
-                                document.getElementById('tableDbTotalRecords').innerText = dbTotal;
-                            }
-                        }
-
-                        // Update Radar Chart
-                        if (npkRadarChart && npkRadarChart.data && npkRadarChart.data.datasets[0]) {
-                            npkRadarChart.data.datasets[0].data = [
-                                valN,
-                                valP,
-                                valK,
-                                Number(s.soil_moisture),
-                                Number(s.soil_ph) * 10,
-                                Math.min(100, Number(s.soil_ec) / 5)
-                            ];
-                            npkRadarChart.update('none');
-                        }
-
-                        // Update Connection Badges
-                        if (data.sensor_connection) {
-                            const c = data.sensor_connection;
-                            const bSht = document.getElementById('badgeSht45');
-                            if (bSht) {
-                                bSht.innerText = c.sht45 ? 'I2C ONLINE' : 'DISCONNECTED';
-                                bSht.className = c.sht45 ? 'text-[9px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
-                            }
-                            const b7in1 = document.getElementById('badgeSoil7in1');
-                            if (b7in1) {
-                                b7in1.innerText = c.soil_7in1 ? 'RS485 ONLINE' : 'DISCONNECTED';
-                                b7in1.className = c.soil_7in1 ? 'text-[9px] font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
-                            }
-                            const bLite = document.getElementById('badgeBh1750');
-                            if (bLite) {
-                                bLite.innerText = c.bh1750 ? 'I2C ONLINE' : 'DISCONNECTED';
-                                bLite.className = c.bh1750 ? 'text-[9px] font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800' : 'text-[9px] font-mono text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800';
-                            }
-                        }
-
-                        // Update chart
-                        if (envTrendChart && envTrendChart.data && envTrendChart.data.datasets[0]) {
-                            const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            if (envTrendChart.data.labels.length > 12) {
-                                envTrendChart.data.labels.shift();
-                                envTrendChart.data.datasets[0].data.shift();
-                                envTrendChart.data.datasets[1].data.shift();
-                                envTrendChart.data.datasets[2].data.shift();
-                            }
-                            envTrendChart.data.labels.push(nowStr);
-                            envTrendChart.data.datasets[0].data.push(s.temperature);
-                            envTrendChart.data.datasets[1].data.push(s.humidity);
-                            const chartMoist = (s.soil_stick_moisture !== undefined && s.soil_stick_moisture !== null) ? Number(s.soil_stick_moisture) : Number(s.soil_moisture || 61.3);
-                            envTrendChart.data.datasets[2].data.push(chartMoist);
-                            envTrendChart.update('none');
-                        }
-                    }
-
-                    // Update Real Relay states
-                    if (data.relays) {
-                        for (let id = 1; id <= 4; id++) {
-                            const r = data.relays[id];
-                            if (r) {
-                                updateRelayDom(id, r.state == 1);
-                            }
-                        }
-                    }
-
-                    // Control Mode (Manual, Auto, AI)
-                    if (data.control_mode) {
-                        currentControlMode = data.control_mode;
-                        updateControlModeDom(currentControlMode);
-                    } else if (typeof data.auto_mode !== 'undefined') {
-                        isAutoMode = data.auto_mode;
-                        updateControlModeDom(isAutoMode ? 'auto' : 'manual');
-                    }
-
-                    // Simulated live ping response latency
-                    const latEl = document.getElementById('latencyDisplay');
-                    if (latEl) latEl.innerText = `${Math.floor(Math.random() * 6 + 16)}ms`;
-                }
+                if (data.status !== 'success') throw new Error('API status ' + data.status);
+                lastLatencyMs = performance.now() - t0;
+                lastFetchOkAt = performance.now();
+                consecutiveFailures = 0;
+                applyTelemetry(data);
             } catch (err) {
-                console.warn('Telemetry sync error:', err);
+                consecutiveFailures++;
+                console.warn('Telemetry sync error:', err && err.message ? err.message : err);
+            } finally {
+                clearTimeout(to);
+                pollBusy = false;
+                renderLiveChip();
             }
         }
+        function syncTelemetryFromApi() { return pollOnce(); }
 
-        // 5. Relay Toggle with Dual Action (Parallel Direct ESP32 Hardware Call + Backend State Sync)
-        async function toggleDashboardRelay(id, name) {
-            const nextState = !dashRelayStates[id];
+        function schedulePoll() {
+            clearTimeout(pollTimer);
+            if (document.hidden) return;
+            const delay = consecutiveFailures ? Math.min(POLL_MS * Math.pow(2, consecutiveFailures), 8000) : POLL_MS;
+            pollTimer = setTimeout(async () => { await pollOnce(); schedulePoll(); }, delay);
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) { clearTimeout(pollTimer); }
+            else { pollOnce().then(schedulePoll); }
+        });
+
+        // ---------- 7. Relay control ----------
+        function fireDirect(url) {
+            // Fire-and-forget straight to the ESP32 (no-cors avoids CORS errors; response not needed)
+            try { fetch(url, { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); } catch (e) {}
+        }
+
+        async function setRelay(id, nextState, name, silent) {
+            relayPending[id] = Date.now() + RELAY_LOCK_MS;
+            const prev = !!dashRelayStates[id];
             updateRelayDom(id, nextState);
+            modePendingUntil = Date.now() + RELAY_LOCK_MS;
             updateControlModeDom('manual');
 
-            // 1. ส่งคำสั่งตรงเข้าฮาร์ดแวร์ ESP32 ทันที ณ เสี้ยววินาทีที่คลิก (Ultra-Low Latency < 20ms)
-            const directUrl = `http://${currentBoardIp}:${currentBoardPort}/relay?id=${id}&state=${nextState ? 1 : 0}`;
-            fetch(directUrl).catch(() => {
-                fetch(directUrl, { mode: 'no-cors' }).catch(() => {});
-            });
+            fireDirect(`http://${currentBoardIp}:${currentBoardPort}/relay?id=${id}&state=${nextState ? 1 : 0}`);
 
-            // 2. อัปเดตฐานข้อมูล SQLite3 และซิงก์สถานะแดชบอร์ดในเบื้องหลัง (Background Non-blocking)
-            fetch(`../api/api.php?action=control_relay&id=${id}&state=${nextState ? 1 : 0}`)
-                .then(r => r.json())
-                .catch(e => console.warn('Backend sync:', e));
-
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: nextState ? 'success' : 'info',
-                title: `${name}: ${nextState ? 'เปิดทำงานจริง (ACTIVE ON)' : 'ปิดการทำงาน (STANDBY OFF)'}`,
-                text: `สั่งการรีเลย์ช่อง ${id} บนบอร์ด ${currentBoardIp}:${currentBoardPort} ทันที (<20ms)`,
-                showConfirmButton: false,
-                timer: 1500
-            });
+            try {
+                const res = await fetch(`../api/api.php?action=control_relay&id=${id}&state=${nextState ? 1 : 0}`, { cache: 'no-store' });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok || j.status === 'error') throw new Error(j.message || ('HTTP ' + res.status));
+                if (!silent) Toast.fire({ icon: nextState ? 'success' : 'info', title: `${name}: ${nextState ? 'เปิด (ON)' : 'ปิด (OFF)'}`, text: 'ส่งคำสั่งแล้ว — รอบอร์ดยืนยันสถานะ' });
+                // let the next poll confirm the real state shortly
+                setTimeout(() => { relayPending[id] = 0; modePendingUntil = 0; pollOnce(); }, 1200);
+            } catch (e) {
+                relayPending[id] = 0;
+                modePendingUntil = 0;
+                updateRelayDom(id, prev);
+                Toast.fire({ icon: 'error', title: `สั่ง ${name} ไม่สำเร็จ`, text: String(e.message || e) });
+            }
         }
 
-        // 5.1 Set Control Mode: MANUAL / AUTO / AI (Parallel Direct Call)
+        function toggleDashboardRelay(id, name) {
+            return setRelay(id, !dashRelayStates[id], name);
+        }
+        async function allRelaysOff() {
+            const ons = [1, 2, 3, 4].filter(i => dashRelayStates[i]);
+            if (!ons.length) { Toast.fire({ icon: 'info', title: 'รีเลย์ทุกช่องปิดอยู่แล้ว' }); return; }
+            await Promise.all(ons.map(i => setRelay(i, false, `รีเลย์ ${i}`, true)));
+            Toast.fire({ icon: 'success', title: `ปิดรีเลย์ ${ons.length} ช่องแล้ว` });
+        }
+
+        // 7.1 Control Mode
         async function setControlMode(mode) {
+            modePendingUntil = Date.now() + RELAY_LOCK_MS;
             updateControlModeDom(mode);
-
-            // 1. ส่งตรงเข้าบอร์ด ESP32 ทันที
-            const directModeUrl = `http://${currentBoardIp}:${currentBoardPort}/mode?mode=${mode}`;
-            fetch(directModeUrl).catch(() => {
-                fetch(directModeUrl, { mode: 'no-cors' }).catch(() => {});
-            });
-
-            // 2. ซิงก์เข้า Backend API ในเบื้องหลัง
-            fetch(`../api/api.php?action=set_control_mode&mode=${mode}`)
-                .catch(e => console.warn('Backend mode sync:', e));
-
-            const modeLabels = {
-                'manual': 'MANUAL (ควบคุมสั่งการเอง)',
-                'auto': 'SMART AUTO (กฎเงื่อนไขอัตโนมัติ)',
-                'ai': 'EDGE AI (สมองกลอัจฉริยะวิเคราะห์ผล)'
-            };
-
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: `เปลี่ยนโหมด: ${modeLabels[mode] || mode}`,
-                text: `ซิงก์สถานะกับบอร์ดฮาร์ดแวร์ ${currentBoardIp}:${currentBoardPort} เรียบร้อย`,
-                showConfirmButton: false,
-                timer: 1600
-            });
+            fireDirect(`http://${currentBoardIp}:${currentBoardPort}/mode?mode=${mode}`);
+            const modeLabels = { manual: 'MANUAL (ควบคุมเอง)', auto: 'SMART AUTO (กฎอัตโนมัติ)', ai: 'EDGE AI (สมองกลอัจฉริยะ)' };
+            try {
+                const res = await fetch(`../api/api.php?action=set_control_mode&mode=${mode}`, { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                Toast.fire({ icon: 'success', title: `เปลี่ยนโหมด: ${modeLabels[mode] || mode}` });
+                setTimeout(() => { modePendingUntil = 0; pollOnce(); }, 1200);
+            } catch (e) {
+                modePendingUntil = 0;
+                Toast.fire({ icon: 'error', title: 'เปลี่ยนโหมดไม่สำเร็จ', text: String(e.message || e) });
+            }
         }
-
-        // Backward compatibility
         async function toggleAutoMode() {
-            const nextMode = (currentControlMode === 'auto') ? 'manual' : 'auto';
-            await setControlMode(nextMode);
+            await setControlMode(currentControlMode === 'auto' ? 'manual' : 'auto');
         }
+
+        // ---------- 8. Misc UI ----------
+        function toggleToolsMenu(ev) {
+            if (ev) ev.stopPropagation();
+            const m = $('toolsMenu'), b = $('toolsBtn');
+            if (!m) return;
+            const open = m.classList.toggle('hidden') === false;
+            if (b) b.setAttribute('aria-expanded', String(open));
+        }
+        document.addEventListener('click', (e) => {
+            const w = $('toolsWrap'), m = $('toolsMenu');
+            if (m && w && !w.contains(e.target) && !m.classList.contains('hidden')) toggleToolsMenu();
+        });
+        document.addEventListener('keydown', (e) => {
+            const m = $('toolsMenu');
+            if (e.key === 'Escape' && m && !m.classList.contains('hidden')) toggleToolsMenu();
+        });
 
         // 6. Interactive Modal reproducing the physical ESP32 Screen from the user's photo
         function openBoardScreenModal() {
@@ -1009,11 +1106,10 @@
             }
         }
 
-        // Start live telemetry polling loop (Every 2 seconds) and DB table (Every 5 seconds)
-        syncTelemetryFromApi();
+        // Start live telemetry: initial chart history + chained 1 s polling; DB table every 5 s (paused when tab hidden)
+        loadChartHistory().finally(() => { pollOnce().then(schedulePoll); });
         fetchDbHistoryTable();
-        setInterval(syncTelemetryFromApi, 2000);
-        setInterval(fetchDbHistoryTable, 5000);
+        setInterval(() => { if (!document.hidden) fetchDbHistoryTable(); }, 5000);
     </script>
 </body>
 </html>

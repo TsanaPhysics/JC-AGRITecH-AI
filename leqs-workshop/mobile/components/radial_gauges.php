@@ -1,5 +1,5 @@
-            <!-- 2. THE 4 CIRCULAR RADIAL GAUGES (EXACT VISUAL REPLICA) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 py-2">
+            <!-- 2. THE 6 CIRCULAR RADIAL GAUGES (EXACT VISUAL REPLICA) -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 py-2">
                 
                 <!-- GAUGES 1: AIR TEMPERATURE (ORANGE / AMBER GLOW) -->
                 <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-amber-500/30 transition group">
@@ -158,6 +158,68 @@
                     </div>
                     <span class="text-xs font-bold text-gray-200 mt-2 font-tech">VPD</span>
                     <span class="text-[11px] font-mono text-blue-400 font-medium">Ideal</span>
+                </div>
+
+                <!-- GAUGES 5: SOIL pH (LIME / YELLOW GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-lime-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(132, 204, 22, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle id="arcPh" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradPhGauge)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="150" 
+                                    stroke-linecap="round" 
+                                    class="glow-lime transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradPhGauge" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#eab308" />
+                                    <stop offset="100%" stop-color="#84cc16" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValPh" class="text-2xl font-bold font-mono text-white leading-none">6.5</span>
+                                <span class="text-xs font-mono text-lime-400 font-bold ml-0.5">pH</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-lime-400/90 font-bold mt-0.5">6.5</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Soil pH</span>
+                    <span id="gaugeLabPh" class="text-[11px] font-mono text-lime-400 font-medium">Optimal</span>
+                </div>
+
+                <!-- GAUGES 6: LIGHT INTENSITY (AMBER / SUN GLOW) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-amber-500/30 transition group">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(251, 191, 36, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle id="arcLight" cx="60" cy="60" r="48" 
+                                    stroke="url(#gradLightGauge)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="120" 
+                                    stroke-linecap="round" 
+                                    class="glow-orange transition-all duration-700" />
+                            <defs>
+                                <linearGradient id="gradLightGauge" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f59e0b" />
+                                    <stop offset="100%" stop-color="#fbbf24" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div class="flex items-start">
+                                <span id="gaugeValLight" class="text-2xl font-bold font-mono text-white leading-none">25.0</span>
+                                <span class="text-[10px] font-mono text-amber-400 font-bold ml-0.5">kLx</span>
+                            </div>
+                            <span id="gaugeLabLight2" class="text-[11px] font-mono text-amber-400/90 font-bold mt-0.5">7.1 W/m²</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Light Intensity</span>
+                    <span id="gaugeLabLight" class="text-[11px] font-mono text-amber-400 font-medium">Moderate</span>
                 </div>
 
             </div>

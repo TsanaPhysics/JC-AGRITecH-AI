@@ -68,3 +68,7 @@ server/smartfarm.db
 *.bak
 *.apk
 app-portal/files/*.apk
+
+# Backups
+*สำรอง*
+
