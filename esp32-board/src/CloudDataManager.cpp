@@ -126,7 +126,7 @@ void CloudDataManager_init() {
     // กำหนดรหัสประเทศเป็นประเทศไทย (TH: Channels 1 - 13) และเปิดกำลังส่งสูงสุด
     wifi_country_t country = { .cc = "TH", .schan = 1, .nchan = 13, .max_tx_power = 20, .policy = WIFI_COUNTRY_POLICY_AUTO };
     esp_wifi_set_country(&country);
-    WiFi.setTxPower(WIFI_POWER_19_5dBm);
+    WiFi.setTxPower(WIFI_POWER_17dBm); // กำลังส่งเสถียร ป้องกันไฟตก (Brownout) ตอนเชื่อมต่อ AP
 
     // ลงทะเบียน Event Callback เพื่อดูเหตุการณ์เชื่อมต่อสด
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
@@ -139,7 +139,18 @@ void CloudDataManager_init() {
         }
     });
 
-    // 1. นำเข้าค่าหลักจาก UserConfigs.h เป็นอันดับ 1 เสมอ
+    // 1. โหลดค่า Wi-Fi ที่ผู้ใช้ตั้งค่าและบันทึกไว้ใน NVS Flash มาเป็นอันดับ 1 สูงสุดเสมอ (Top Priority)
+    WiFiConfigManager_init();
+    if (WiFiConfigManager_hasStoredCredentials()) {
+        String nvsSsid = WiFiConfigManager_getSSID(); nvsSsid.trim();
+        String nvsPass = WiFiConfigManager_getPassword(); nvsPass.trim();
+        if (nvsSsid.length() > 0) {
+            addCandidate(nvsSsid, nvsPass);
+            Serial.printf("  [★] Registered User NVS Wi-Fi as PRIORITY #1: '%s'\n", nvsSsid.c_str());
+        }
+    }
+
+    // 2. นำเข้าค่าสำรองจาก UserConfigs.h
     String cleanSsid = String(WIFI_SSID); cleanSsid.trim();
     String cleanPass = String(WIFI_PASSWORD); cleanPass.trim();
     addCandidate(cleanSsid, cleanPass);
@@ -152,15 +163,6 @@ void CloudDataManager_init() {
     addCandidate("JC iPhone", cleanPass);
     addCandidate("TsanaC", cleanPass);
     addCandidate("TsanaPhysiK", cleanPass);
-
-    // 2. โหลดค่า Wi-Fi จาก NVS Flash
-    WiFiConfigManager_init();
-    if (WiFiConfigManager_hasStoredCredentials()) {
-        String nvsSsid = WiFiConfigManager_getSSID(); nvsSsid.trim();
-        String nvsPass = WiFiConfigManager_getPassword(); nvsPass.trim();
-        addCandidate(nvsSsid, nvsPass);
-        Serial.printf("  [+] Registered Stored NVS Wi-Fi (trimmed): '%s'\n", nvsSsid.c_str());
-    }
 
     // 3. สแกนเครือข่าย Wi-Fi 2.4GHz รอบตัวแบบเต็มรูปแบบ
     Serial.println("\n[CloudData] Scanning 2.4GHz Wi-Fi networks (channels 1-13)...");
