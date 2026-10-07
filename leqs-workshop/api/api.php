@@ -468,9 +468,9 @@ $action = $_GET['action'] ?? ($_POST['action'] ?? ($input_json['action'] ?? 'get
 if ($action === 'get_telemetry' || $action === 'status') {
     $state = get_current_state($telemetry_file, $default_state);
     
-    // Check if we have received a direct POST from ESP32 recently (< 30 seconds)
+    // Check if we have received a direct POST from ESP32 recently (< 300 seconds / 5 mins)
     $last_direct_time = isset($state['board']['last_direct_post_time']) ? intval($state['board']['last_direct_post_time']) : 0;
-    $is_direct_live = (time() - $last_direct_time) < 30;
+    $is_direct_live = (time() - $last_direct_time) < 300;
 
     if ($is_direct_live) {
         $state['board']['cloud_status'] = 'ESP32 DIRECT (ONLINE)';
@@ -482,7 +482,7 @@ if ($action === 'get_telemetry' || $action === 'status') {
         $cloud_rate_file = $data_dir . '/last_cloud_sync.txt';
         $last_sync_time = file_exists($cloud_rate_file) ? floatval(file_get_contents($cloud_rate_file)) : 0;
         
-        if (($now_micro - $last_sync_time) >= 1.0) {
+        if (($now_micro - $last_sync_time) >= 2.0) {
             file_put_contents($cloud_rate_file, strval($now_micro));
             
             $cloud_url = 'http://14.207.141.164:8000/api/telemetry/latest';
@@ -497,7 +497,11 @@ if ($action === 'get_telemetry' || $action === 'status') {
             $raw_cloud = @file_get_contents($cloud_url, false, $ctx);
             if ($raw_cloud !== false) {
                 $cloud_data = json_decode($raw_cloud, true);
-                if (is_array($cloud_data) && isset($cloud_data['id'])) {
+                $cloud_ts = strtotime($cloud_data['timestamp'] ?? '');
+                $local_ts = strtotime($state['sensors']['updated_at'] ?? '2020-01-01');
+                
+                // Only overwrite if cloud data has an ID and is not older than local data
+                if (is_array($cloud_data) && isset($cloud_data['id']) && (!$cloud_ts || $cloud_ts >= $local_ts)) {
                     // Fallback Cloud Hub Data
                     $state['board']['telemetry_id'] = $cloud_data['id'];
                     $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
