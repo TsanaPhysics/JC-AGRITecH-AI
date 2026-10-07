@@ -301,7 +301,7 @@ $page_title = "ลงทะเบียนเข้าร่วมอบรม |
 
                     <div>
                         <select id="project_track" name="project_track" class="cyber-input w-full px-3.5 py-3 rounded-xl font-medium cursor-pointer">
-                            <option value="Track A — Smart Agriculture">🌾 Track A — Smart Agriculture (ระบบฟาร์มอัจฉริยะครบวงจร HandySense)</option>
+                            <option value="Track A — Smart Agriculture">🌾 Track A — Smart Agriculture (ระบบฟาร์มอัจฉริยะครบวงจร LEQs xAI)</option>
                             <option value="Track B — Plant Vision">👁️ Track B — Plant Vision (ตรวจจับโรคและแมลงศัตรูพืชด้วย Computer Vision)</option>
                             <option value="Track C — Smart Soil">🧪 Track C — Smart Soil (วิเคราะห์ธาตุอาหารดิน NPK & pH ด้วย TinyML)</option>
                             <option value="Track D — Environmental AI">🌤️ Track D — Environmental AI (สถานีตรวจวัดสภาพอากาศจุลภาค & VPD Alert)</option>

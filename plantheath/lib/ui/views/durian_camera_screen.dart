@@ -999,7 +999,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> with WidgetsBin
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'HandySense | ${_latestTelemetry.temperatureC.toStringAsFixed(1)}°C ${_latestTelemetry.relativeHumidity.toStringAsFixed(0)}%RH VPD ${_latestTelemetry.vpdKpa.toStringAsFixed(2)}kPa ดิน ${_latestTelemetry.soilMoisturePct.toStringAsFixed(0)}%',
+                                  'LEQs xAI | ${_latestTelemetry.temperatureC.toStringAsFixed(1)}°C ${_latestTelemetry.relativeHumidity.toStringAsFixed(0)}%RH VPD ${_latestTelemetry.vpdKpa.toStringAsFixed(2)}kPa ดิน ${_latestTelemetry.soilMoisturePct.toStringAsFixed(0)}%',
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     color: _latestTelemetry.isStressCondition ? Colors.white : Colors.cyanAccent.shade100,
@@ -1831,6 +1831,99 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> with WidgetsBin
                   Expanded(
                     child: ListView(
                       children: [
+                        // Dual-Engine Comparison: Raw Sensor Ground Truth vs Edge AI Model
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E1B4B).withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFA855F7).withOpacity(0.4), width: 1),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Icon(Icons.compare_arrows_rounded, color: Color(0xFF00E5FF), size: 16),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'เซนเซอร์ตรง VS โมเดล Edge AI',
+                                        style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.purple.shade900.withOpacity(0.8),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.purpleAccent.shade100, width: 0.6),
+                                    ),
+                                    child: Text(
+                                      'TinyML ${t.aiConfidencePct}%',
+                                      style: const TextStyle(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black38,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.cyan.withOpacity(0.2)),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('ค่าเซนเซอร์ตรง (Raw)', style: TextStyle(color: Color(0xFF00E5FF), fontSize: 9, fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 3),
+                                          Text('pH ดิน: ${t.rawSoilPh.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                                          Text('ความชื้น: ${t.rawSoilMoisture.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                                          Text('NPK ดิบ: ${t.rawNpk} mg/kg', style: const TextStyle(color: Colors.white70, fontSize: 9)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.purple.shade900.withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('โมเดล Edge AI (TinyML)', style: TextStyle(color: Color(0xFFD8B4FE), fontSize: 9, fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 3),
+                                          Text('AI pH: ${t.aiSoilPh.toStringAsFixed(1)}', style: const TextStyle(color: Color(0xFFA3E635), fontSize: 10, fontWeight: FontWeight.bold)),
+                                          Text('AI ชื้น: ${t.aiSoilMoisture.toStringAsFixed(1)}%', style: const TextStyle(color: Color(0xFF67E8F9), fontSize: 10, fontWeight: FontWeight.bold)),
+                                          Text('Available NPK: ${t.aiNpk}', style: const TextStyle(color: Color(0xFF6EE7B7), fontSize: 9, fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                t.agronomyWarning,
+                                style: const TextStyle(color: Colors.amberAccent, fontSize: 9),
+                              ),
+                            ],
+                          ),
+                        ),
                         Row(
                           children: [
                             Expanded(
@@ -1893,11 +1986,11 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> with WidgetsBin
                             const SizedBox(width: 8),
                             Expanded(
                               child: _buildSensorMetricCard(
-                                title: 'ความเป็นกรดด่างดิน (pH)',
+                                title: 'pH ดิน 7-in-1 (สลับ %)',
                                 value: '${t.soilPh.toStringAsFixed(1)} pH',
                                 subtitle: (t.soilPh >= 5.5 && t.soilPh <= 6.5) ? 'กรดอ่อนเหมาะสม' : 'นอกเกณฑ์',
-                                icon: Icons.science,
-                                iconColor: Colors.purpleAccent,
+                                icon: Icons.science_rounded,
+                                iconColor: Colors.limeAccent,
                               ),
                             ),
                           ],
@@ -1947,7 +2040,7 @@ class _DurianCameraScreenState extends State<DurianCameraScreen> with WidgetsBin
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.sync),
-                      label: const Text('จำลองดึงข้อมูลสด HandySense IoT Node', style: TextStyle(fontWeight: FontWeight.bold)),
+                      label: const Text('จำลองดึงข้อมูลสด LEQs xAI IoT Node', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

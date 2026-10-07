@@ -66,3 +66,5 @@ server/smartfarm.db
 
 *.db
 *.bak
+*.apk
+app-portal/files/*.apk

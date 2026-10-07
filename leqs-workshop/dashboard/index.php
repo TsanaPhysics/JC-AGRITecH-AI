@@ -19,7 +19,7 @@ require_once __DIR__ . '/components/navbar.php';
 <!-- ========================================================================= -->
 <!-- MAIN DASHBOARD CONTAINER                                                  -->
 <!-- ========================================================================= -->
-<main class="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full space-y-6">
+<main class="flex-1 p-3.5 sm:p-5 md:p-6 max-w-[1720px] mx-auto w-full space-y-5 sm:space-y-6">
 
     <?php
     // 3. Official QR Portal & Identity Verification (ESP32-S3 ATD3.5 Screen 11)
@@ -27,6 +27,9 @@ require_once __DIR__ . '/components/navbar.php';
 
     // 4. Row 1: 6 Real-time Telemetry Metrics Cards
     require_once __DIR__ . '/components/metrics_cards.php';
+
+    // 4.1 Dual-Engine Comparison: Raw Physical Sensors vs Edge AI Model
+    require_once __DIR__ . '/components/ai_sensor_comparison.php';
 
     // 5. Row 2: 24h Environmental Trend Line Chart & 4-Channel Relays
     require_once __DIR__ . '/components/control_panel.php';

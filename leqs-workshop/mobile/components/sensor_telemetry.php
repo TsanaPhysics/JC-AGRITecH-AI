@@ -17,6 +17,93 @@
                         </div>
                     </div>
 
+                    <!-- Dedicated Dual-Insight: Raw Sensor vs TinyML Edge AI Matrix -->
+                    <div class="rounded-2xl p-3.5 border border-purple-500/30 bg-gradient-to-br from-slate-950/90 to-purple-950/30 space-y-3">
+                        <div class="flex items-center justify-between text-xs font-tech">
+                            <span class="text-white font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-code-compare text-cyan-400"></i> เซนเซอร์ตรง VS โมเดล Edge AI
+                            </span>
+                            <span class="text-[9px] font-mono text-purple-300 bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-500/40">
+                                TinyML: <strong id="mobAiConfBadge">77.6%</strong>
+                            </span>
+                        </div>
+
+                        <!-- 4 Dual-Column Mini Cards -->
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <!-- pH Card -->
+                            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-1">
+                                <span class="text-[10px] text-gray-400 font-sans block">กรด-ด่าง (Soil pH)</span>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[9px] text-cyan-400 block">โพรบดิบ</span>
+                                        <span id="mobRawPh" class="text-base font-bold text-cyan-300">8.20</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-purple-400 block">โมเดล AI</span>
+                                        <span id="mobAiPh" class="text-base font-bold text-lime-400">9.14</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Moisture Card -->
+                            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-1">
+                                <span class="text-[10px] text-gray-400 font-sans block">ความชื้นดิน (%)</span>
+                                <div class="grid grid-cols-3 gap-1 items-center">
+                                    <div>
+                                        <span class="text-[9px] text-emerald-400 block truncate" title="Soil Stick ผิวดิน 0-10cm ตรงกับจอ ESP32">จอ ESP32</span>
+                                        <span id="mobStickMoist" class="text-sm font-bold text-emerald-300">61.3%</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] text-cyan-400 block truncate" title="โพรบ 7-in-1 ดินลึก 10-30cm">รากลึก 7-in-1</span>
+                                        <span id="mobRawMoist" class="text-sm font-bold text-cyan-300">2.6%</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-purple-400 block">AI ชดเชย</span>
+                                        <span id="mobAiMoist" class="text-sm font-bold text-purple-300">20.5%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- NPK Card -->
+                            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-1">
+                                <span class="text-[10px] text-gray-400 font-sans block">ธาตุอาหาร N-P-K (mg/kg)</span>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[9px] text-cyan-400 block">โพรบดิบ</span>
+                                        <span id="mobRawNpk" class="text-xs font-bold text-slate-400 block">0-0-0</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-purple-400 block">โมเดล AI</span>
+                                        <span id="mobAiNpk" class="text-xs font-bold text-emerald-400 block">15-13-4</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Microclimate VPD Card -->
+                            <div class="p-2.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-1">
+                                <span class="text-[10px] text-gray-400 font-sans block">แรงดึงระเหยน้ำ (VPD)</span>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[9px] text-cyan-400 block">SHT45</span>
+                                        <span id="mobRawVpd" class="text-base font-bold text-cyan-300">1.35</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-purple-400 block">โมเดล AI</span>
+                                        <span id="mobAiVpdStatus" class="text-xs font-bold text-emerald-400 block mt-0.5">สมบูรณ์</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agronomy Warning Alert -->
+                        <div class="p-2.5 rounded-xl bg-black/40 border border-purple-500/20 text-[10px] font-mono text-gray-300 flex items-start gap-2">
+                            <i class="fa-solid fa-stethoscope text-purple-400 mt-0.5 text-xs"></i>
+                            <div id="mobAiAlertText" class="leading-tight">
+                                พบความชัน pH ข้ามชั้นดิน (ผิวดิน Stick 3.03 vs เขตรากลึก 8.20) • ดินเขตราก 10-30cm มีความชื้นต่ำ 2.6% แนะนำสั่งเปิดวาล์วน้ำโซลินอยด์
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- SVG Gauge Row 2: pH / EC / Soil Temp / Light -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 py-2">
 

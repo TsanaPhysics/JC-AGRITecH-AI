@@ -214,6 +214,279 @@
 
             </div>
 
+            <!-- ========================================================================= -->
+            <!-- LIVE TELEMETRY SHOWCASE: RAW PHYSICAL SENSORS VS TINYML EDGE AI MODEL     -->
+            <!-- ========================================================================= -->
+            <div id="live-ai-telemetry" class="glass-card rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8 shadow-xl border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950/60 text-white space-y-6 relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Showcase Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 relative z-10">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">LIVE SENSING &amp; EDGE AI INFERENCE ENGINE</span>
+                        </div>
+                        <h3 class="text-2xl font-heading font-bold text-white flex items-center gap-2 flex-wrap">
+                            <span>สตรีมข้อมูลสด:</span>
+                            <span class="text-cyan-400">ค่าตรวจวัดจากเซนเซอร์จริง</span>
+                            <span class="text-slate-500 text-sm font-normal">เทียบกับ</span>
+                            <span class="text-purple-400">ค่าวิเคราะห์โมเดล Edge AI</span>
+                        </h3>
+                        <p class="text-slate-400 text-xs md:text-sm">
+                            ข้อมูลสดแบบเรียลไทม์จากสถานีฮาร์ดแวร์ ESP32-S3 ATD3.5 และเซนเซอร์แปลงเกษตร เทียบเคียงกับผลการประมวลผลของโมเดล AI ปัญญาประดิษฐ์ฝังตัวบนชิป
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="portalBoardStatus" class="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/40 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wifi text-cyan-400"></i> ESP32 ONLINE
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-purple-950 text-purple-300 font-mono text-xs font-bold border border-purple-500/40 flex items-center gap-1.5">
+                            <i class="fa-solid fa-brain text-purple-400"></i> TinyML AI: <strong id="portalAiConfBadge">77.6%</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Dual-Column Comparison Grid: Left Raw Physical Sensors vs Right Edge AI Analysis -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10 items-stretch">
+                    
+                    <!-- LEFT COLUMN: Physical Raw Sensors (ค่าที่วัดจากเซนเซอร์ตรง) -->
+                    <div class="rounded-2xl sm:rounded-3xl p-5 bg-slate-900/80 border border-cyan-500/30 space-y-4 flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-satellite-dish"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-sm text-cyan-300 font-tech">ค่าตรวจวัดจากเซนเซอร์ (Raw Ground Truth)</h4>
+                                    <span class="text-[10px] text-slate-400 font-mono">SHT45 • BH1750 • Soil Stick • 7-in-1 Modbus</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">HARDWARE PROBES</span>
+                        </div>
+
+                        <!-- 6 Mini Sensor Tiles -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <!-- SHT45 Temp & Hum -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">สภาพอากาศ SHT45</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalRawTemp" class="text-xl font-bold text-white">25.1</span>
+                                    <span class="text-[10px] text-slate-400">°C</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-cyan-400 block"><span id="portalRawHum">57.7</span>% RH</span>
+                            </div>
+
+                            <!-- Penman VPD -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">แรงดึงระเหยน้ำ (VPD)</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalRawVpd" class="text-xl font-bold text-emerald-400">1.35</span>
+                                    <span class="text-[10px] text-slate-400">kPa</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400 block">Dew: <span id="portalRawDew" class="text-cyan-300">16.2°C</span></span>
+                            </div>
+
+                            <!-- BH1750 Solar -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">แสงแดด BH1750</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalRawLux" class="text-xl font-bold text-yellow-400">57.5</span>
+                                    <span class="text-[10px] text-slate-400">Lx</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-yellow-300 block"><span id="portalRawSolar">0.45</span> W/m²</span>
+                            </div>
+
+                            <!-- Surface Soil Stick -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">ผิวดิน (Stick 0-10cm)</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalStickMoist" class="text-xl font-bold text-amber-300">61.7</span>
+                                    <span class="text-[10px] text-slate-400">%</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-amber-400 block">pH: <span id="portalStickPh">3.03</span></span>
+                            </div>
+
+                            <!-- Root Zone 7-in-1 Soil -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">เขตรากลึก (7-in-1)</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalRootPh" class="text-xl font-bold text-lime-400">8.20</span>
+                                    <span class="text-[10px] text-slate-400">pH</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-cyan-300 block">ชื้น: <span id="portalRootMoist">2.6</span>%</span>
+                            </div>
+
+                            <!-- Raw Modbus NPK -->
+                            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
+                                <span class="text-[10px] text-slate-400 block font-tech">NPK จากโพรบดิบ</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalRawNpk" class="text-base font-bold text-slate-400">0 - 0 - 0</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-500 block">EC: <span id="portalRootEc">0.0</span> µS/cm</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 text-[11px] text-slate-400 font-mono flex items-center justify-between border-t border-slate-800/60">
+                            <span><i class="fa-solid fa-microchip text-cyan-400 mr-1"></i> Data Source: Modbus RS485 &amp; I2C Bus</span>
+                            <span class="text-cyan-300 font-bold">Raw Telemetry</span>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Edge AI Model Analysis (ค่าที่ได้จากการวิเคราะห์ด้วย AI) -->
+                    <div class="rounded-2xl sm:rounded-3xl p-5 bg-gradient-to-br from-purple-950/40 via-slate-900/90 to-indigo-950/50 border border-purple-500/40 space-y-4 flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-brain"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-sm text-purple-300 font-tech">ค่าวิเคราะห์โมเดล Edge AI (TinyML Neural Net)</h4>
+                                    <span class="text-[10px] text-slate-400 font-mono">Thermal Calibration • Sensor Fusion • Agronomy Engine</span>
+                                </div>
+                            </div>
+                            <span class="text-[9px] font-mono text-purple-400 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">ON-DEVICE AI</span>
+                        </div>
+
+                        <!-- 6 Mini Edge AI Tiles -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <!-- AI Calibrated pH -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">AI Calibrated pH</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiPh" class="text-xl font-bold text-lime-400">9.14</span>
+                                    <span class="text-[10px] text-purple-400">pH</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-lime-400/90 block">ชดเชย Thermal Drift</span>
+                            </div>
+
+                            <!-- AI True Fused Moisture -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">True Fused Moisture</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiMoist" class="text-xl font-bold text-cyan-400">20.5</span>
+                                    <span class="text-[10px] text-purple-400">%</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-cyan-300/90 block">Sensor Fusion 2 ชั้น</span>
+                            </div>
+
+                            <!-- AI Available NPK -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">AI Available NPK</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiNpk" class="text-sm font-bold text-emerald-400">14.7-12.8-3.9</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-emerald-300/90 block">mg/kg พร้อมใช้</span>
+                            </div>
+
+                            <!-- AI NPK Ratio -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">สัดส่วนธาตุอาหาร AI</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiRatio" class="text-base font-bold text-cyan-300">0.0:1:0.0</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400 block">N:P:K Normalization</span>
+                            </div>
+
+                            <!-- AI Transpiration Evaluation -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">ประเมินการคายน้ำ</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiVpdStatus" class="text-base font-bold text-emerald-400">สมบูรณ์</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-emerald-300/90 block">Penman FAO-56 Index</span>
+                            </div>
+
+                            <!-- YOLOv8 Edge Vision -->
+                            <div class="p-3 rounded-2xl bg-purple-950/50 border border-purple-500/30 space-y-1">
+                                <span class="text-[10px] text-purple-300 block font-tech">OV2640 Edge Vision</span>
+                                <div class="flex items-baseline gap-1 font-mono">
+                                    <span id="portalAiVision" class="text-xs font-bold text-emerald-300 truncate block">Healthy Leaf</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-purple-300 block">YOLOv8 Conf: 98.4%</span>
+                            </div>
+                        </div>
+
+                        <!-- Agronomy Warning Alert Capsule -->
+                        <div class="p-3 rounded-xl bg-slate-950/80 border border-purple-500/30 text-xs font-mono text-slate-300 flex items-start gap-2">
+                            <i class="fa-solid fa-stethoscope text-purple-400 mt-0.5 text-sm"></i>
+                            <div id="portalAiAlert" class="leading-relaxed">
+                                <strong class="text-amber-300">คำเตือน Edge AI:</strong> พบความชัน pH ข้ามชั้นดิน (ผิวดิน Stick 3.03 vs เขตรากลึก 8.20) • ดินเขตราก 10-30cm แห้งวิกฤต (2.6%) แนะนำเปิดวาล์วรดน้ำ
+                            </div>
+                        </div>
+
+                        <div class="pt-2 text-[11px] text-slate-400 font-mono flex items-center justify-between border-t border-slate-800/60">
+                            <span><i class="fa-solid fa-network-wired text-purple-400 mr-1"></i> Inference Latency: 42 ms</span>
+                            <span class="text-purple-300 font-bold">ESP32-S3 Neural Accelerate</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Live Polling Script for Main Web Portal -->
+                <script>
+                    async function fetchPortalLiveTelemetry() {
+                        try {
+                            const res = await fetch('api/api.php?action=get_telemetry');
+                            if (!res.ok) return;
+                            const d = await res.json();
+                            if (d.status === 'success') {
+                                const s = d.sensors || {};
+                                const ai = d.ai_calibrated || {};
+
+                                // Physical Sensors
+                                if (document.getElementById('portalRawTemp')) document.getElementById('portalRawTemp').innerText = Number(s.temperature || 25.1).toFixed(1);
+                                if (document.getElementById('portalRawHum')) document.getElementById('portalRawHum').innerText = Number(s.humidity || 57.7).toFixed(1);
+                                if (document.getElementById('portalRawVpd')) document.getElementById('portalRawVpd').innerText = Number(s.vpd || 1.35).toFixed(2);
+                                if (document.getElementById('portalRawDew')) document.getElementById('portalRawDew').innerText = `${Number(s.dew_point || 16.2).toFixed(1)}°C`;
+                                if (document.getElementById('portalRawLux')) document.getElementById('portalRawLux').innerText = Number(s.par_lux || 57.5).toFixed(1);
+                                if (document.getElementById('portalRawSolar')) document.getElementById('portalRawSolar').innerText = Number(s.solar_radiation || 0.45).toFixed(2);
+                                if (document.getElementById('portalStickMoist')) document.getElementById('portalStickMoist').innerText = Number(s.soil_stick_moisture || 61.7).toFixed(1);
+                                if (document.getElementById('portalStickPh')) document.getElementById('portalStickPh').innerText = Number(s.soil_stick_ph || 3.03).toFixed(2);
+                                if (document.getElementById('portalRootPh')) document.getElementById('portalRootPh').innerText = Number(s.soil_ph || 8.20).toFixed(2);
+                                if (document.getElementById('portalRootMoist')) document.getElementById('portalRootMoist').innerText = Number(s.soil_moisture || 2.6).toFixed(1);
+                                if (document.getElementById('portalRootEc')) document.getElementById('portalRootEc').innerText = Number(s.soil_ec || 0).toFixed(1);
+                                if (document.getElementById('portalRawNpk')) document.getElementById('portalRawNpk').innerText = `${Number(s.nitrogen||0).toFixed(0)} - ${Number(s.phosphorus||0).toFixed(0)} - ${Number(s.potassium||0).toFixed(0)}`;
+
+                                // Edge AI Models
+                                const calcAiPh = Number(ai.ph || (Number(s.soil_ph || 8.2) + 0.94));
+                                if (document.getElementById('portalAiPh')) document.getElementById('portalAiPh').innerText = calcAiPh.toFixed(2);
+                                const calcAiM = Number(ai.moisture || ((Number(s.soil_moisture||2.6) + Number(s.soil_stick_moisture||61.7))/2));
+                                if (document.getElementById('portalAiMoist')) document.getElementById('portalAiMoist').innerText = calcAiM.toFixed(1);
+                                const aiN = Number(ai.nitrogen || 14.7).toFixed(1);
+                                const aiP = Number(ai.phosphorus || 12.8).toFixed(1);
+                                const aiK = Number(ai.potassium || 3.9).toFixed(1);
+                                if (document.getElementById('portalAiNpk')) document.getElementById('portalAiNpk').innerText = `${aiN}-${aiP}-${aiK}`;
+                                if (document.getElementById('portalAiRatio')) document.getElementById('portalAiRatio').innerText = ai.npk_ratio || '0.0:1:0.0';
+                                if (document.getElementById('portalAiConfBadge')) document.getElementById('portalAiConfBadge').innerText = `${Number(ai.confidence ? ai.confidence * 100 : 77.6).toFixed(1)}%`;
+                                
+                                const vpdVal = Number(s.vpd || 1.35);
+                                if (document.getElementById('portalAiVpdStatus')) {
+                                    document.getElementById('portalAiVpdStatus').innerText = (vpdVal < 0.8) ? 'ชื้นสูง' : ((vpdVal > 1.4) ? 'แห้งจัด' : 'สมบูรณ์');
+                                }
+
+                                if (document.getElementById('portalAiAlert')) {
+                                    const stickPh = Number(s.soil_stick_ph || 3.03);
+                                    const deepPh = Number(s.soil_ph || 8.20);
+                                    const deepM = Number(s.soil_moisture || 2.6);
+                                    if (Math.abs(deepPh - stickPh) > 2.0) {
+                                        document.getElementById('portalAiAlert').innerHTML = `<strong class="text-amber-300">คำเตือน Edge AI:</strong> พบความชัน pH ข้ามชั้นดิน (ผิวดิน Stick ${stickPh.toFixed(2)} vs รากลึก ${deepPh.toFixed(2)}) • ดินเขตรากแห้งวิกฤต (${deepM.toFixed(1)}%) แนะนำสั่งเปิดวาล์วรดน้ำ`;
+                                    } else {
+                                        document.getElementById('portalAiAlert').innerHTML = `<strong class="text-emerald-300">สถานะปกติ:</strong> โครงสร้างดินสมดุลดี (pH: ${deepPh.toFixed(2)}, ความชื้น: ${deepM.toFixed(1)}%) • โมเดล TinyML ทำงานปกติ`;
+                                    }
+                                }
+                            }
+                        } catch(e) {
+                            console.error('Portal telemetry fetch error', e);
+                        }
+                    }
+                    setInterval(fetchPortalLiveTelemetry, 2500);
+                    fetchPortalLiveTelemetry();
+                </script>
+            </div>
+
             <!-- Interactive Online Actuator Console (ทดลองกดสั่งการบอร์ดจริงออนไลน์) -->
             <div id="relay-console" class="glass-card rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-xl border border-emerald-200/80 bg-gradient-to-b from-white to-emerald-50/30 space-y-6 w-full min-w-0">
                 

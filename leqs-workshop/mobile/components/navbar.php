@@ -23,6 +23,10 @@
                     <i class="fa-solid fa-wifi text-[10px]"></i>
                     <span id="navBoardIp">192.168.0.111:8500</span>
                 </button>
+                <a href="../../app-portal/index.php" target="_blank" class="px-2.5 py-1 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 border border-emerald-500/40 text-emerald-300 text-xs font-tech font-bold flex items-center gap-1 transition" title="ดาวน์โหลดไฟล์ APK ติดตั้งลงเครื่อง">
+                    <i class="fa-solid fa-cloud-arrow-down text-[11px] text-emerald-400"></i>
+                    <span>APK</span>
+                </a>
                 <a href="../dashboard/index.php" target="_blank" class="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1">
                     <i class="fa-solid fa-desktop text-[10px]"></i>
                     <span class="hidden sm:inline">Web Dashboard</span>

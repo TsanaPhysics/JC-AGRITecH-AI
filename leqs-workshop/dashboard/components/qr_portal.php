@@ -1,7 +1,5 @@
-    <main class="container mx-auto px-4 md:px-6 py-6 space-y-6 flex-1">
-        
-        <!-- HIGHLIGHT: Official QR Portal & Identity Verification (ESP32-S3 ATD3.5 Screen 11) -->
-        <div class="glass-box rounded-3xl p-5 border border-cyan-500/40 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-indigo-950/70 flex flex-col lg:flex-row items-center justify-between gap-5 shadow-2xl relative overflow-hidden">
+<!-- HIGHLIGHT: Official QR Portal & Identity Verification (ESP32-S3 ATD3.5 Screen 11) -->
+<div class="glass-box rounded-3xl p-4 sm:p-5 border border-cyan-500/40 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-indigo-950/70 flex flex-col lg:flex-row items-center justify-between gap-5 shadow-2xl relative overflow-hidden">
             <div class="absolute -right-8 -top-8 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
             
             <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left relative z-10">

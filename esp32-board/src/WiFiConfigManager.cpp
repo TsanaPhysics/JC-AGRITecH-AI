@@ -1,5 +1,6 @@
 #include "WiFiConfigManager.h"
 #include "UserConfigs.h"
+#include "CloudDataManager.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
@@ -8,8 +9,10 @@
 
 static Preferences prefs;
 static WebServer server(80);
+static WebServer server8500(8500);
 static DNSServer dnsServer;
 static bool portalActive = false;
+static bool serversStarted = false;
 
 static String storedSSID = "";
 static String storedPass = "";
@@ -42,6 +45,9 @@ void WiFiConfigManager_init() {
     } else {
         Serial.println("[WiFiConfig] No stored Wi-Fi credentials found in NVS Flash. Ready for provisioning.");
     }
+
+    void ensureServersStarted();
+    ensureServersStarted();
 }
 
 String WiFiConfigManager_getSSID() {
@@ -391,6 +397,74 @@ static void handleSave() {
     }
 }
 
+static void registerServerRoutes(WebServer &srv) {
+    srv.on("/", HTTP_GET, handleRoot);
+    srv.on("/scan", HTTP_GET, handleScanJson);
+    srv.on("/status", HTTP_GET, handleStatusJson);
+    srv.on("/save", HTTP_POST, handleSave);
+
+    // Direct Low-Latency Relay API for Web/Mobile Dashboards
+    srv.on("/relay", HTTP_GET, [&srv]() {
+        srv.sendHeader("Access-Control-Allow-Origin", "*");
+        srv.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        srv.sendHeader("Access-Control-Allow-Headers", "*");
+
+        int relayId = 1;
+        int state = 0;
+        for (int i = 0; i < srv.args(); i++) {
+            if (srv.argName(i).equalsIgnoreCase("id") || srv.argName(i).equalsIgnoreCase("relay_id")) {
+                relayId = srv.arg(i).toInt();
+            } else if (srv.argName(i).equalsIgnoreCase("state")) {
+                state = srv.arg(i).toInt();
+            }
+        }
+        CloudDataManager_setControlMode("manual");
+        CloudDataManager_applyRelayCommand(relayId, state == 1);
+
+        String json = "{\"status\":\"success\",\"message\":\"Relay " + String(relayId) +
+                      " switched to " + (state ? "ON" : "OFF") + 
+                      "\",\"relay_id\":" + String(relayId) + 
+                      ",\"state\":" + String(state) + 
+                      ",\"mode\":\"manual\"}";
+        srv.send(200, "application/json", json);
+    });
+
+    srv.on("/mode", HTTP_GET, [&srv]() {
+        srv.sendHeader("Access-Control-Allow-Origin", "*");
+        srv.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        srv.sendHeader("Access-Control-Allow-Headers", "*");
+        String m = "manual";
+        for (int i = 0; i < srv.args(); i++) {
+            if (srv.argName(i).equalsIgnoreCase("mode")) {
+                m = srv.arg(i);
+            }
+        }
+        CloudDataManager_setControlMode(m);
+        String json = "{\"status\":\"success\",\"mode\":\"" + m + "\"}";
+        srv.send(200, "application/json", json);
+    });
+
+    srv.onNotFound([&srv]() {
+        if (portalActive) {
+            handleRoot();
+        } else {
+            srv.sendHeader("Access-Control-Allow-Origin", "*");
+            srv.send(404, "text/plain", "Not Found");
+        }
+    });
+}
+
+void ensureServersStarted() {
+    if (!serversStarted) {
+        registerServerRoutes(server);
+        registerServerRoutes(server8500);
+        server.begin();
+        server8500.begin();
+        serversStarted = true;
+        Serial.println("[WebServer] Hardware API WebServers running on Port 80 & Port 8500");
+    }
+}
+
 bool WiFiConfigManager_isPortalActive() {
     return portalActive;
 }
@@ -407,12 +481,7 @@ void WiFiConfigManager_startPortal() {
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
     dnsServer.start(DNS_PORT, "*", apIP);
 
-    server.on("/", handleRoot);
-    server.on("/scan", HTTP_GET, handleScanJson);
-    server.on("/status", HTTP_GET, handleStatusJson);
-    server.on("/save", HTTP_POST, handleSave);
-    server.onNotFound(handleRoot); // Redirect all requests to setup page (Captive Portal)
-    server.begin();
+    ensureServersStarted();
 
     portalActive = true;
     Serial.printf("[WiFiConfig] >>> SoftAP is READY! Connect to 'LEQs-AgriEnvi-Setup' -> http://192.168.4.1\n");
@@ -420,19 +489,19 @@ void WiFiConfigManager_startPortal() {
 
 void WiFiConfigManager_stopPortal() {
     if (!portalActive) return;
-    server.stop();
     dnsServer.stop();
     WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_STA);
     portalActive = false;
-    Serial.println("[WiFiConfig] SoftAP Captive Portal stopped.");
+    Serial.println("[WiFiConfig] SoftAP Captive Portal stopped. (WebServers remain ACTIVE on STA LAN)");
 }
 
 void WiFiConfigManager_loop() {
     if (portalActive) {
         dnsServer.processNextRequest();
-        server.handleClient();
     }
+    server.handleClient();
+    server8500.handleClient();
 }
 
 bool WiFiConfigManager_processSerialCommand(const String &cmd) {
@@ -543,6 +612,31 @@ bool WiFiConfigManager_processSerialCommand(const String &cmd) {
         Serial.println("[CLI] Rebooting ESP32 controller...");
         delay(500);
         ESP.restart();
+        return true;
+    }
+
+    if (c.startsWith("RELAY ") || c.startsWith("RELAY:")) {
+        int spaceIdx = c.indexOf(' ');
+        if (spaceIdx < 0) spaceIdx = c.indexOf(':');
+        String rest = c.substring(spaceIdx + 1);
+        rest.trim();
+        int sepIdx = rest.indexOf(' ');
+        if (sepIdx < 0) sepIdx = rest.indexOf(':');
+        int id = (sepIdx >= 0) ? rest.substring(0, sepIdx).toInt() : rest.toInt();
+        int st = (sepIdx >= 0) ? rest.substring(sepIdx + 1).toInt() : 0;
+        CloudDataManager_setControlMode("manual");
+        CloudDataManager_applyRelayCommand(id, st == 1);
+        Serial.printf("[CLI] Relay %d commanded to %s (Manual Mode)\n", id, st ? "ON" : "OFF");
+        return true;
+    }
+
+    if (c.startsWith("MODE ") || c.startsWith("MODE:")) {
+        int idx = (c.indexOf(' ') >= 0) ? c.indexOf(' ') : c.indexOf(':');
+        String m = c.substring(idx + 1);
+        m.trim();
+        m.toLowerCase();
+        CloudDataManager_setControlMode(m);
+        Serial.printf("[CLI] Mode set to: %s\n", m.c_str());
         return true;
     }
 

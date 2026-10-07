@@ -2709,6 +2709,7 @@ bool DisplayManager_getTouch(int32_t *x, int32_t *y) {
 
 void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
     static bool isTouching = false;
+    static bool hasActed = false;
     static int32_t touchStartX = 0, touchStartY = 0;
     static int32_t lastTouchY = 0;
     static int32_t totalDragY = 0;
@@ -2718,18 +2719,209 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
     int32_t tx, ty;
     if (lcd.getTouch(&tx, &ty)) {
         if (!isTouching) {
-            // จุดเริ่มต้นของการสัมผัส (Touch Down)
+            // จุดเริ่มต้นของการสัมผัส (Touch Down) - ตอบสนองทันทีที่ปลายนิ้วแตะโดนผิวจอ!
             isTouching = true;
+            hasActed = false;
             touchStartX = tx;
             touchStartY = ty;
             lastTouchY = ty;
             totalDragY = 0;
             isDragging = false;
+
+            unsigned long now = millis();
+            if (now - lastTouchTime < 180) {
+                return; // Debounce 180ms
+            }
+
+            int tapX = tx;
+            int tapY = ty;
+
+            Serial.printf(">>> [Touch-Down] Detected at X: %d, Y: %d (Current Page: %d)\n", tapX, tapY, currentPage);
+
+            // =========================================================
+            // 1. หน้าหลักภาพรวม (OVERVIEW & BIG NUMBERS) - สลับหน้าทันทีที่แตะ!
+            // =========================================================
+            if (currentPage == PAGE_OVERVIEW || currentPage == PAGE_BIG_NUMBERS) {
+                lastTouchTime = now;
+                hasActed = true;
+
+                // A. แถบ Header ด้านบน (y <= 38)
+                if (tapY <= 38) {
+                    if (tapX >= 390) {
+                        Serial.println(">>> [Overview] Clicked Language Switcher!");
+                        DisplayManager_toggleLanguage();
+                    }
+                    return;
+                }
+
+                // B. แถบนำทางด้านล่าง 4 ปุ่ม (Bottom Nav Bar y >= 268)
+                if (tapY >= 268) {
+                    if (tapX <= 120) {
+                        Serial.println(">>> [BottomNav] Already on HOME/OVERVIEW");
+                        DisplayManager_setPage(PAGE_OVERVIEW);
+                    } else if (tapX > 120 && tapX <= 238) {
+                        Serial.println(">>> [BottomNav] Switching to GRAPHS");
+                        DisplayManager_setPage(PAGE_GRAPHS);
+                    } else if (tapX > 238 && tapX <= 356) {
+                        Serial.println(">>> [BottomNav] Switching to RELAYS");
+                        DisplayManager_setPage(PAGE_RELAYS);
+                    } else {
+                        Serial.println(">>> [BottomNav] Switching to SETTINGS");
+                        DisplayManager_setPage(PAGE_WIFI_SETUP);
+                    }
+                    return;
+                }
+
+                // C. แตะการ์ดเซนเซอร์ 4 ใบ (y: 38 ถึง 267) - เปิด Drill-Down หน้าเซนเซอร์ทันที
+                if (tapY < 160) {
+                    if (tapX <= 240) {
+                        Serial.println(">>> [DrillDown] Opening SHT45 Detailed Air & VPD Screen!");
+                        DisplayManager_setPage(PAGE_DETAIL_AIR);
+                    } else {
+                        Serial.println(">>> [DrillDown] Opening BH1750 Detailed Solar Radiation Screen!");
+                        DisplayManager_setPage(PAGE_DETAIL_LIGHT);
+                    }
+                } else {
+                    if (tapX <= 240) {
+                        Serial.println(">>> [DrillDown] Opening Soil Stick Detailed Moisture Screen!");
+                        DisplayManager_setPage(PAGE_DETAIL_SOIL1);
+                    } else {
+                        Serial.println(">>> [DrillDown] Opening 7-in-1 Detailed Soil & NPK Screen!");
+                        DisplayManager_setPage(PAGE_DETAIL_SOIL7);
+                    }
+                }
+                return;
+            }
+
+            // =========================================================
+            // 2. หน้าแผงควบคุมสวิตช์รีเลย์ (PAGE_RELAYS)
+            // =========================================================
+            else if (currentPage == PAGE_RELAYS) {
+                lastTouchTime = now;
+                hasActed = true;
+
+                // แถบแท็บ 5 แท็บด้านบน (y <= 46)
+                if (tapY <= 46) {
+                    if (tapX < 82) DisplayManager_setPage(PAGE_OVERVIEW);
+                    else if (tapX < 162) DisplayManager_setPage(PAGE_BIG_NUMBERS);
+                    else if (tapX < 242) DisplayManager_setPage(PAGE_GRAPHS);
+                    else if (tapX < 322) DisplayManager_setPage(PAGE_RELAYS);
+                    else if (tapX < 404) DisplayManager_setPage(PAGE_WIFI_SETUP);
+                    else DisplayManager_toggleLanguage();
+                    return;
+                }
+
+                CloudDataManager_setControlMode("manual");
+                // กล่องที่ 1: PUMP 1 (ซ้ายบน)
+                if (tapX <= 240 && tapY >= 50 && tapY <= 135) {
+                    pumpState = !pumpState;
+                    digitalWrite(RELAY_1_PIN, pumpState ? HIGH : LOW);
+                    Serial.printf(">>> [Relay-Page] PUMP 1 -> %s\n", pumpState ? "ON" : "OFF");
+                    pageChanged = true;
+                }
+                // กล่องที่ 2: PUMP 2 (ขวาบน)
+                else if (tapX > 240 && tapY >= 50 && tapY <= 135) {
+                    bool s = (digitalRead(RELAY_2_PIN) == HIGH);
+                    digitalWrite(RELAY_2_PIN, s ? LOW : HIGH);
+                    Serial.printf(">>> [Relay-Page] PUMP 2 -> %s\n", !s ? "ON" : "OFF");
+                    pageChanged = true;
+                }
+                // กล่องที่ 3: VALVE (ซ้ายล่าง)
+                else if (tapX <= 240 && tapY > 135 && tapY <= 220) {
+                    bool s = (digitalRead(RELAY_3_PIN) == HIGH);
+                    digitalWrite(RELAY_3_PIN, s ? LOW : HIGH);
+                    Serial.printf(">>> [Relay-Page] VALVE -> %s\n", !s ? "ON" : "OFF");
+                    pageChanged = true;
+                }
+                // กล่องที่ 4: MISTING (ขวาล่าง)
+                else if (tapX > 240 && tapY > 135 && tapY <= 220) {
+                    mistingState = !mistingState;
+                    digitalWrite(RELAY_4_PIN, mistingState ? HIGH : LOW);
+                    Serial.printf(">>> [Relay-Page] MISTING -> %s\n", mistingState ? "ON" : "OFF");
+                    pageChanged = true;
+                }
+                return;
+            }
+
+            // =========================================================
+            // 3. หน้ากราฟประวัติ (PAGE_GRAPHS)
+            // =========================================================
+            else if (currentPage == PAGE_GRAPHS) {
+                lastTouchTime = now;
+                hasActed = true;
+                if (tapY <= 46) {
+                    if (tapX < 82) DisplayManager_setPage(PAGE_OVERVIEW);
+                    else if (tapX < 162) DisplayManager_setPage(PAGE_BIG_NUMBERS);
+                    else if (tapX < 242) DisplayManager_setPage(PAGE_GRAPHS);
+                    else if (tapX < 322) DisplayManager_setPage(PAGE_RELAYS);
+                    else if (tapX < 404) DisplayManager_setPage(PAGE_WIFI_SETUP);
+                    else DisplayManager_toggleLanguage();
+                }
+                return;
+            }
+
+            // =========================================================
+            // 4. หน้าตั้งค่าและจัดการ Wi-Fi (PAGE_WIFI_SETUP)
+            // =========================================================
+            else if (currentPage == PAGE_WIFI_SETUP) {
+                lastTouchTime = now;
+                hasActed = true;
+                if (tapY <= 46) {
+                    if (tapX < 82) DisplayManager_setPage(PAGE_OVERVIEW);
+                    else if (tapX < 162) DisplayManager_setPage(PAGE_BIG_NUMBERS);
+                    else if (tapX < 242) DisplayManager_setPage(PAGE_GRAPHS);
+                    else if (tapX < 322) DisplayManager_setPage(PAGE_RELAYS);
+                    else if (tapX < 404) DisplayManager_setPage(PAGE_WIFI_SETUP);
+                    else DisplayManager_toggleLanguage();
+                    return;
+                }
+                bool isPortal = WiFiConfigManager_isPortalActive();
+                if (!isPortal) {
+                    if (tapY >= 195 && tapY <= 240) {
+                        if (tapX <= 160) DisplayManager_setLanguage(LANG_TH);
+                        else if (tapX <= 315) DisplayManager_setLanguage(LANG_EN);
+                        else DisplayManager_setLanguage(LANG_ZH);
+                        pageChanged = true;
+                    } else if (tapY >= 242 && tapY <= 290 && tapX >= 20 && tapX <= 460) {
+                        Serial.println(">>> [WiFi-Page] Starting SoftAP Captive Portal by touch!");
+                        WiFiConfigManager_startPortal();
+                        pageChanged = true;
+                    }
+                } else {
+                    if (tapY >= 225 && tapY <= 285 && tapX >= 180 && tapX <= 470) {
+                        Serial.println(">>> [WiFi-Page] Stopping SoftAP Captive Portal by touch!");
+                        WiFiConfigManager_stopPortal();
+                        pageChanged = true;
+                    }
+                }
+                return;
+            }
+
+            // =========================================================
+            // 5. ปุ่มนำทางบน Header ในหน้ารายละเอียดเซนเซอร์เดี่ยว (Pages 5..8)
+            // =========================================================
+            else if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
+                if (tapY <= 48) {
+                    lastTouchTime = now;
+                    hasActed = true;
+                    if (tapX <= 90) {
+                        Serial.println(">>> [Nav-Detail] Back to Overview Home");
+                        DisplayManager_setPage(PAGE_OVERVIEW);
+                    } else if (tapX >= 310 && tapX <= 405) {
+                        DisplayPage nextPage = (currentPage == PAGE_DETAIL_SOIL7) ? PAGE_DETAIL_AIR : (DisplayPage)(currentPage + 1);
+                        Serial.printf(">>> [Nav-Detail] Cycling to next sensor page: %d\n", nextPage);
+                        DisplayManager_setPage(nextPage);
+                    } else if (tapX > 405) {
+                        Serial.println(">>> [Nav-Detail] Toggle Language in Detail View!");
+                        DisplayManager_toggleLanguage();
+                    }
+                    return;
+                }
+            }
         } else {
-            // กำลังลากนิ้ว (Touch Move / Dragging or Slider Tracking)
-            if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
-                // A. หากแตะ/ลากบริเวณแถบสไลด์บาร์ (tx >= 450) -> เลื่อนตามตำแหน่งนิ้วทันที (Direct Slider Tracking)
-                if (tx >= 450) {
+            // กำลังลากนิ้วในหน้าย่อย (Touch Move / Dragging or Slider Tracking)
+            if (!hasActed && currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
+                if (tx >= 445) {
                     if (ty >= 52 && ty <= 295 && maxScrollY > 0) {
                         int targetY = (ty - 52) * maxScrollY / (295 - 52);
                         targetY = constrain(targetY, 0, maxScrollY);
@@ -2739,12 +2931,10 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
                         }
                         isDragging = true;
                     }
-                }
-                // B. ลากปัดหน้าจอแนวตั้ง (Vertical Swipe / Drag) ในพื้นที่เนื้อหา
-                else if (ty > 36) {
+                } else if (ty > 40) {
                     int diffY = ty - lastTouchY;
                     totalDragY += abs(diffY);
-                    if (totalDragY > 4) {
+                    if (totalDragY > 15) {
                         isDragging = true;
                         if (diffY != 0) {
                             DisplayManager_scroll(-diffY);
@@ -2761,256 +2951,34 @@ void DisplayManager_handleTouch(bool &pumpState, bool &mistingState) {
     if (isTouching) {
         isTouching = false;
 
-        // หากเป็นการลากเลื่อนหน้าจอ (Drag) ไม่ต้องนับว่าเป็นการแตะปุ่ม (Tap)
-        if (isDragging || totalDragY >= 12) {
+        if (hasActed) {
+            hasActed = false;
             return;
         }
 
-        // เป็นการแตะกดเลือก (Clean Tap)
-        unsigned long now = millis();
-        if (now - lastTouchTime < 220) {
-            return; // Debounce 220ms
-        }
-        lastTouchTime = now;
-
-        int tapX = touchStartX;
-        int tapY = touchStartY;
-
-        Serial.printf(">>> [Touch-Tap] Screen Tapped at X: %d, Y: %d (Current Page: %d)\n", tapX, tapY, currentPage);
-
-        // =========================================================
-        // A. หากอยู่ในหน้าย่อยแสดงรายละเอียดเซนเซอร์ (Pages 4..7)
-        // =========================================================
+        // สำหรับหน้ารายละเอียด: ตรวจจับการแตะปุ่มด้านล่างหรือ Scroll Bar ตอนปล่อยนิ้ว
         if (currentPage >= PAGE_DETAIL_AIR && currentPage <= PAGE_DETAIL_SOIL7) {
-            if (currentPage == PAGE_DETAIL_SOIL7) {
-                // หน้า Soil 7-in-1 ซ่อนเมนูด้านบน: แตะปุ่ม [Dashboard] (x: 6..90, y: 0..30 เมื่ออยู่หัวหน้าจอ) -> กลับหน้าแรก
-                if (tapX >= 6 && tapX <= 90 && tapY <= 30 && scrollOffsetY < 20) {
-                    Serial.println(">>> [Soil7-Dashboard] Back to Overview Home");
-                    DisplayManager_setPage(PAGE_OVERVIEW);
-                    drawTopNavBar();
-                    return;
-                }
-            } else {
-                // 1. ปุ่ม [< BACK] บน Header (x: 2..76, y: 2..46) -> กลับสู่หน้าภาพรวม Home
-                if (tapX >= 2 && tapX <= 76 && tapY <= 46) {
-                    Serial.println(">>> [Nav-Detail] Back to Overview Home");
-                    DisplayManager_setPage(PAGE_OVERVIEW);
-                    drawTopNavBar();
-                    return;
-                }
-                // 2. ปุ่ม [NEXT >] บน Header (x: 325..405, y: 2..46) -> วนดูเซนเซอร์ถัดไป
-                else if (tapX >= 325 && tapX <= 405 && tapY <= 46) {
-                    DisplayPage nextPage = (DisplayPage)(currentPage + 1);
-                    Serial.printf(">>> [Nav-Detail] Cycling to next sensor page: %d\n", nextPage);
-                    DisplayManager_setPage(nextPage);
-                    return;
-                }
-                // 3. ปุ่มภาษา [ไทย/ENG/中文] บน Header (x: 406..478, y: 2..46) -> สลับภาษาทันที
-                else if (tapX >= 406 && tapX <= 478 && tapY <= 46) {
-                    Serial.println(">>> [Nav-Detail] Toggle Language in Detail View!");
-                    DisplayManager_toggleLanguage();
-                    return;
-                }
-            }
-            // 4. แตะที่แถบสไลด์บาร์ฝั่งขวา (tapX >= 450)
-            if (tapX >= 450) {
-                if (tapY <= 54) {
-                    // ปุ่มลูกศรเลื่อนขึ้น ▲
-                    Serial.println(">>> [ScrollBar] Clicked UP Arrow ▲");
-                    DisplayManager_scroll(-80);
-                } else if (tapY >= 290) {
-                    // ปุ่มลูกศรเลื่อนลง ▼
-                    Serial.println(">>> [ScrollBar] Clicked DOWN Arrow ▼");
-                    DisplayManager_scroll(80);
-                } else if (maxScrollY > 0) {
-                    // แตะบนรางเลื่อนเพื่อกระโดดไปยังตำแหน่งนั้น
-                    int targetY = (tapY - 54) * maxScrollY / (290 - 54);
-                    targetY = constrain(targetY, 0, maxScrollY);
-                    scrollOffsetY = targetY;
-                    pageChanged = true;
-                    Serial.printf(">>> [ScrollBar] Jump to ScrollY: %d\n", scrollOffsetY);
-                }
-                return;
-            }
-            // 5. แตะปุ่มนำทางด้านล่างของเนื้อหา (Bottom Nav Bar)
-            int contentY = tapY + scrollOffsetY;
-            int navBaseY = (currentPage == PAGE_DETAIL_SOIL7) ? 892 : 662;
-            if (contentY >= navBaseY - 10 && contentY <= navBaseY + 50) {
-                // ปุ่ม [< ย้อนกลับหน้าแรก] (x: 8..228)
-                if (tapX >= 8 && tapX <= 228) {
-                    Serial.println(">>> [Detail-BottomNav] Back to Home");
-                    DisplayManager_setPage(PAGE_OVERVIEW);
-                    drawTopNavBar();
-                    return;
-                }
-                // ปุ่ม [เซนเซอร์ถัดไป >] (x: 230..456)
-                else if (tapX >= 230 && tapX <= 456) {
-                    DisplayPage nextPage = (currentPage == PAGE_DETAIL_SOIL7) ? PAGE_DETAIL_AIR : (DisplayPage)(currentPage + 1);
-                    Serial.printf(">>> [Detail-BottomNav] Next sensor: %d\n", nextPage);
-                    DisplayManager_setPage(nextPage);
-                    return;
-                }
-            }
-            return;
-        }
-
-        // =========================================================
-        // B. ตรวจจับการแตะแท็บ Navigation ด้านบนในหน้าย่อย (เมื่อไม่ใช่หน้า Overview)
-        // =========================================================
-        if (currentPage != PAGE_OVERVIEW && currentPage != PAGE_BIG_NUMBERS) {
-            if (tapY <= 46) {
-                if (tapX < 80) {
-                    DisplayManager_setPage(PAGE_OVERVIEW);
-                    Serial.println(">>> [Nav] Switched to Tab 1: HOME/OVERVIEW");
-                } else if (tapX >= 80 && tapX < 160) {
-                    DisplayManager_setPage(PAGE_BIG_NUMBERS);
-                    Serial.println(">>> [Nav] Switched to Tab 2: BIG NUMBERS");
-                } else if (tapX >= 160 && tapX < 240) {
-                    DisplayManager_setPage(PAGE_GRAPHS);
-                    Serial.println(">>> [Nav] Switched to Tab 3: GRAPH");
-                } else if (tapX >= 240 && tapX < 320) {
-                    DisplayManager_setPage(PAGE_RELAYS);
-                    Serial.println(">>> [Nav] Switched to Tab 4: RELAY");
-                } else if (tapX >= 320 && tapX < 402) {
-                    DisplayManager_setPage(PAGE_WIFI_SETUP);
-                    Serial.println(">>> [Nav] Switched to Tab 5: SETTINGS/WIFI");
-                } else if (tapX >= 402) {
-                    Serial.println(">>> [Nav] Clicked Language Menu Button -> Toggling Language!");
-                    DisplayManager_toggleLanguage();
-                    drawTopNavBar();
-                    return;
-                }
-                drawTopNavBar();
-                return;
-            }
-        }
-
-        // =========================================================
-        // C. ตรวจจับการสัมผัสตามหน้าจอที่เปิดอยู่
-        // =========================================================
-        if (currentPage == PAGE_OVERVIEW || currentPage == PAGE_BIG_NUMBERS) {
-            // 1. ปุ่มเปลี่ยนภาษาบน Header (x: 380..478, y <= 34)
-            if (tapX >= 380 && tapX <= 478 && tapY <= 34) {
-                Serial.println(">>> [Overview] Clicked Language Switcher!");
-                DisplayManager_toggleLanguage();
-                return;
-            }
-
-            // 2. แตะการ์ด 1: สภาพอากาศ SHT45 (x: 8..236, y: 36..150)
-            if (tapX >= 8 && tapX <= 236 && tapY >= 36 && tapY <= 150) {
-                Serial.println(">>> [DrillDown] Opening SHT45 Detailed Air & VPD Screen!");
-                DisplayManager_setPage(PAGE_DETAIL_AIR);
-                return;
-            }
-            // 3. แตะการ์ด 2: แสงแดด & รังสี BH1750 (x: 244..472, y: 36..150)
-            else if (tapX >= 244 && tapX <= 472 && tapY >= 36 && tapY <= 150) {
-                Serial.println(">>> [DrillDown] Opening BH1750 Detailed Solar Radiation Screen!");
-                DisplayManager_setPage(PAGE_DETAIL_LIGHT);
-                return;
-            }
-            // 4. แตะการ์ด 3: ดินตื้น Soil Stick (x: 8..236, y: 154..268)
-            else if (tapX >= 8 && tapX <= 236 && tapY >= 154 && tapY <= 268) {
-                Serial.println(">>> [DrillDown] Opening Soil Stick Detailed Moisture Screen!");
-                DisplayManager_setPage(PAGE_DETAIL_SOIL1);
-                return;
-            }
-            // 5. แตะการ์ด 4: ดินลึก 7-in-1 NPK & pH (x: 244..472, y: 154..268)
-            else if (tapX >= 244 && tapX <= 472 && tapY >= 154 && tapY <= 268) {
-                Serial.println(">>> [DrillDown] Opening 7-in-1 Detailed Soil & NPK Screen!");
-                DisplayManager_setPage(PAGE_DETAIL_SOIL7);
-                return;
-            }
-
-            // 6. แตะ 4 ปุ่มนำทางหลักที่ Bottom Nav Bar (y >= 270)
-            else if (tapY >= 270) {
-                // ปุ่ม 1: ภาพรวม (x: 6..120)
-                if (tapX >= 6 && tapX <= 120) {
-                    Serial.println(">>> [BottomNav] Already on HOME/OVERVIEW");
-                    pageChanged = true;
-                    return;
-                }
-                // ปุ่ม 2: กราฟ (x: 122..238)
-                else if (tapX >= 122 && tapX <= 238) {
-                    Serial.println(">>> [BottomNav] Switching to GRAPHS");
-                    DisplayManager_setPage(PAGE_GRAPHS);
-                    return;
-                }
-                // ปุ่ม 3: รีเลย์ (x: 240..354)
-                else if (tapX >= 240 && tapX <= 354) {
-                    Serial.println(">>> [BottomNav] Switching to RELAYS");
-                    DisplayManager_setPage(PAGE_RELAYS);
-                    return;
-                }
-                // ปุ่ม 4: ตั้งค่า (x: 356..474)
-                else if (tapX >= 356 && tapX <= 474) {
-                    Serial.println(">>> [BottomNav] Switching to SETTINGS");
-                    DisplayManager_setPage(PAGE_WIFI_SETUP);
-                    return;
-                }
-            }
-        }
-        else if (currentPage == PAGE_RELAYS) {
-            // กล่องที่ 1: PUMP 1 (x: 14..232, y: 60..130)
-            if (tapX >= 14 && tapX <= 232 && tapY >= 60 && tapY <= 130) {
-                pumpState = !pumpState;
-                digitalWrite(RELAY_1_PIN, pumpState ? HIGH : LOW);
-                Serial.printf(">>> [Relay-Page] PUMP 1 -> %s\n", pumpState ? "ON" : "OFF");
-                pageChanged = true;
-            }
-            // กล่องที่ 2: PUMP 2 (x: 248..466, y: 60..130)
-            else if (tapX >= 248 && tapX <= 466 && tapY >= 60 && tapY <= 130) {
-                bool s = (digitalRead(RELAY_2_PIN) == HIGH);
-                digitalWrite(RELAY_2_PIN, s ? LOW : HIGH);
-                Serial.printf(">>> [Relay-Page] PUMP 2 -> %s\n", !s ? "ON" : "OFF");
-                pageChanged = true;
-            }
-            // กล่องที่ 3: VALVE (x: 14..232, y: 140..210)
-            else if (tapX >= 14 && tapX <= 232 && tapY >= 140 && tapY <= 210) {
-                bool s = (digitalRead(RELAY_3_PIN) == HIGH);
-                digitalWrite(RELAY_3_PIN, s ? LOW : HIGH);
-                Serial.printf(">>> [Relay-Page] VALVE -> %s\n", !s ? "ON" : "OFF");
-                pageChanged = true;
-            }
-            // กล่องที่ 4: MISTING (x: 248..466, y: 140..210)
-            else if (tapX >= 248 && tapX <= 466 && tapY >= 140 && tapY <= 210) {
-                mistingState = !mistingState;
-                digitalWrite(RELAY_4_PIN, mistingState ? HIGH : LOW);
-                Serial.printf(">>> [Relay-Page] MISTING -> %s\n", mistingState ? "ON" : "OFF");
-                pageChanged = true;
-            }
-        }
-        else if (currentPage == PAGE_WIFI_SETUP) {
-            bool isPortal = WiFiConfigManager_isPortalActive();
-            if (!isPortal) {
-                // เมนูเลือกภาษา 3 ภาษา (y: 198..240)
-                if (tapY >= 198 && tapY <= 240) {
-                    if (tapX >= 20 && tapX <= 156) {
-                        Serial.println(">>> [Lang-Select] User selected: THAI");
-                        DisplayManager_setLanguage(LANG_TH);
-                        pageChanged = true;
-                    } else if (tapX >= 172 && tapX <= 308) {
-                        Serial.println(">>> [Lang-Select] User selected: ENGLISH");
-                        DisplayManager_setLanguage(LANG_EN);
-                        pageChanged = true;
-                    } else if (tapX >= 324 && tapX <= 460) {
-                        Serial.println(">>> [Lang-Select] User selected: CHINESE");
-                        DisplayManager_setLanguage(LANG_ZH);
-                        pageChanged = true;
+            if (!isDragging && totalDragY < 30) {
+                int tapX = touchStartX;
+                int tapY = touchStartY;
+                if (tapX >= 445) {
+                    if (tapY <= 54) DisplayManager_scroll(-80);
+                    else if (tapY >= 285) DisplayManager_scroll(80);
+                } else {
+                    int contentY = tapY + scrollOffsetY;
+                    int navBaseY = (currentPage == PAGE_DETAIL_SOIL7) ? 892 : 662;
+                    if (contentY >= navBaseY - 20 && contentY <= navBaseY + 60) {
+                        if (tapX <= 235) {
+                            DisplayManager_setPage(PAGE_OVERVIEW);
+                        } else {
+                            DisplayPage nextPage = (currentPage == PAGE_DETAIL_SOIL7) ? PAGE_DETAIL_AIR : (DisplayPage)(currentPage + 1);
+                            DisplayManager_setPage(nextPage);
+                        }
                     }
                 }
-                // ปุ่มเปิด SoftAP Mobile WiFi Setup (y: 242..286, x: 20..460)
-                else if (tapY >= 242 && tapY <= 286 && tapX >= 20 && tapX <= 460) {
-                    Serial.println(">>> [WiFi-Page] Starting SoftAP Captive Portal by touch!");
-                    WiFiConfigManager_startPortal();
-                    pageChanged = true;
-                }
-            } else {
-                if (tapY >= 225 && tapY <= 275 && tapX >= 190 && tapX <= 470) {
-                    Serial.println(">>> [WiFi-Page] Stopping SoftAP Captive Portal by touch!");
-                    WiFiConfigManager_stopPortal();
-                    pageChanged = true;
-                }
             }
         }
+        isDragging = false;
+        hasActed = false;
     }
 }

@@ -63,39 +63,70 @@
                             <span class="text-[11px] font-mono text-cyan-400/90 font-bold mt-0.5">65</span>
                         </div>
                     </div>
-                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Humidity</span>
+                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Air Humidity</span>
                     <span class="text-[11px] font-mono text-cyan-400 font-medium">Ideal</span>
                 </div>
 
-                <!-- GAUGES 3: SOIL MOISTURE (LIME / EMERALD GLOW) -->
-                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-emerald-500/30 transition group">
+                <!-- GAUGES 3: DUAL-DEPTH SOIL MONITOR (1. ผิวดิน 2. เขตราก 3. กรด-ด่าง pH) -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/40 active:scale-95 transition-all duration-300 group select-none cursor-pointer relative" 
+                     id="cardMobileSoilTriple"
+                     onclick="cycleMobileSoilMode(true)" 
+                     title="แตะเพื่อสลับดู: 1. ความชื้นผิวดิน 2. ความชื้นเขตราก 3. กรด-ด่างดิน (pH)">
+                    <!-- Mode Indicator Pill with 3-Dot Carousel Indicator -->
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span id="mobileSoilModeBadge" class="text-[9px] font-mono font-bold text-cyan-300 bg-cyan-950/90 px-2 py-0.5 rounded-full border border-cyan-500/50 flex items-center gap-1 transition-colors duration-300">
+                            <i id="mobileSoilModeIcon" class="fa-solid fa-droplet text-[8px] text-cyan-400"></i>
+                            <span id="mobileSoilModeText">ผิวดิน (Surface)</span>
+                        </span>
+                        <!-- 3 Mini Dot Indicators -->
+                        <div class="flex items-center gap-1 bg-slate-950/80 px-1.5 py-1 rounded-full border border-white/10" id="soilCarouselDots">
+                            <span id="soilDot0" class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4] transition-all duration-300"></span>
+                            <span id="soilDot1" class="w-1.5 h-1.5 rounded-full bg-slate-600 transition-all duration-300"></span>
+                            <span id="soilDot2" class="w-1.5 h-1.5 rounded-full bg-slate-600 transition-all duration-300"></span>
+                        </div>
+                    </div>
+
                     <div class="relative w-36 h-36 flex items-center justify-center">
                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="48" stroke="rgba(255, 255, 255, 0.06)" stroke-width="7" fill="none" />
-                            <circle cx="60" cy="60" r="38" stroke="rgba(16, 185, 129, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" />
+                            <circle cx="60" cy="60" r="38" stroke="rgba(6, 182, 212, 0.15)" stroke-width="2" fill="none" stroke-dasharray="4, 4" id="circleSoilInner" />
                             <circle id="arcSoil" cx="60" cy="60" r="48" 
-                                    stroke="url(#gradSoil)" stroke-width="7" fill="none" 
-                                    stroke-dasharray="301.59" stroke-dashoffset="84" 
+                                    stroke="url(#gradSoilMoist)" stroke-width="7" fill="none" 
+                                    stroke-dasharray="301.59" stroke-dashoffset="116" 
                                     stroke-linecap="round" 
-                                    class="glow-green transition-all duration-700" />
+                                    class="transition-all duration-700 ease-out" />
                             <defs>
-                                <linearGradient id="gradSoil" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <!-- Mode 0: Surface Moisture Gradient (Cyan to Emerald) -->
+                                <linearGradient id="gradSoilMoist" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#22c55e" />
-                                    <stop offset="100%" stop-color="#10b981" />
+                                    <stop offset="100%" stop-color="#06b6d4" />
+                                </linearGradient>
+                                <!-- Mode 1: Root Zone Moisture Gradient (Teal to Sky) -->
+                                <linearGradient id="gradSoil7in1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0ea5e9" />
+                                    <stop offset="100%" stop-color="#14b8a6" />
+                                </linearGradient>
+                                <!-- Mode 2: Soil pH Gradient (Lime to Green) -->
+                                <linearGradient id="gradSoilPh" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#84cc16" />
+                                    <stop offset="100%" stop-color="#22c55e" />
                                 </linearGradient>
                             </defs>
                         </svg>
 
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center transition-all duration-300" id="boxMobileSoilVal">
                             <div class="flex items-start">
-                                <span id="gaugeValSoil" class="text-2xl font-bold font-mono text-white leading-none">72.0</span>
-                                <span class="text-xs font-mono text-emerald-400 font-bold ml-0.5">%</span>
+                                <span id="gaugeValSoil" class="text-2xl font-bold font-mono text-cyan-300 leading-none tracking-tight">61.8</span>
+                                <span id="gaugeUnitSoil" class="text-xs font-mono text-cyan-300 font-bold ml-0.5">%</span>
                             </div>
-                            <span class="text-[11px] font-mono text-emerald-400/90 font-bold mt-0.5">72.0</span>
+                            <span id="gaugeSubSoil" class="text-[10px] font-mono text-cyan-300/90 font-bold mt-0.5">ผิวดิน (0-10 cm)</span>
                         </div>
                     </div>
-                    <span class="text-xs font-bold text-gray-200 mt-2 font-tech">Soil Moisture</span>
-                    <span class="text-[11px] font-mono text-emerald-400 font-medium">Ideal</span>
+                    <span id="gaugeTitleSoil" class="text-xs font-bold text-gray-200 mt-2 font-tech flex items-center gap-1">
+                        <span id="gaugeTitleSoilText">ความชื้นดิน</span>
+                        <i class="fa-solid fa-arrows-rotate text-[10px] text-slate-500 animate-spin-slow"></i>
+                    </span>
+                    <span id="gaugeStatusSoil" class="text-[11px] font-mono text-cyan-400 font-medium">Ideal Moisture (พอดี)</span>
                 </div>
 
                 <!-- GAUGES 4: VPD (SAPPHIRE BLUE GLOW) -->

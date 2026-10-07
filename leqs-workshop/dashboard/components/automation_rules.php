@@ -15,20 +15,41 @@
                     <canvas id="npkRadarChart"></canvas>
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800/60 font-mono">
-                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                        <span class="text-[10px] text-slate-400 block">N (ไนโตรเจน)</span>
-                        <strong id="dashValN" class="text-emerald-400">45 mg/kg</strong>
-                        <span id="dashAiN" class="text-[9px] text-cyan-300 block">AI: 47.3</span>
+                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 block font-sans font-bold">N (ไนโตรเจน)</span>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-slate-400">เซนเซอร์:</span>
+                            <strong id="dashRawNVal" class="text-slate-300">0.0</strong>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-purple-400 font-bold">โมเดล AI:</span>
+                            <strong id="dashAiN" class="text-emerald-400">47.3</strong>
+                        </div>
+                        <span id="dashValN" class="hidden">47.3</span>
                     </div>
-                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                        <span class="text-[10px] text-slate-400 block">P (ฟอสฟอรัส)</span>
-                        <strong id="dashValP" class="text-cyan-400">32 mg/kg</strong>
-                        <span id="dashAiP" class="text-[9px] text-cyan-300 block">AI: 32.6</span>
+                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 block font-sans font-bold">P (ฟอสฟอรัส)</span>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-slate-400">เซนเซอร์:</span>
+                            <strong id="dashRawPVal" class="text-slate-300">0.0</strong>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-purple-400 font-bold">โมเดล AI:</span>
+                            <strong id="dashAiP" class="text-cyan-400">32.6</strong>
+                        </div>
+                        <span id="dashValP" class="hidden">32.6</span>
                     </div>
-                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                        <span class="text-[10px] text-slate-400 block">K (โพแทสเซียม)</span>
-                        <strong id="dashValK" class="text-amber-400">180 mg/kg</strong>
-                        <span id="dashAiK" class="text-[9px] text-cyan-300 block">AI: 178.2</span>
+                    <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                        <span class="text-[10px] text-slate-400 block font-sans font-bold">K (โพแทสเซียม)</span>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-slate-400">เซนเซอร์:</span>
+                            <strong id="dashRawKVal" class="text-slate-300">0.0</strong>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] px-1">
+                            <span class="text-purple-400 font-bold">โมเดล AI:</span>
+                            <strong id="dashAiK" class="text-amber-400">178.2</strong>
+                        </div>
+                        <span id="dashValK" class="hidden">178.2</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-400 border-t border-slate-800/40">

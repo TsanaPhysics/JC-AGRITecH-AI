@@ -74,6 +74,12 @@ void setup() {
  * ============================================================================
  */
 void executeAgronomyControl(const FarmSensorTelemetry &data) {
+    // หากระบบไม่ได้อยู่ในโหมด AUTO (เช่น อยู่ในโหมด MANUAL ที่สั่งจาก Dashboard หรือหน้าจอ)
+    // ให้ระงับการทำงานอัตโนมัติ เพื่อไม่ให้ไปเขียนทับคำสั่งของผู้ใช้
+    if (CloudDataManager_getControlMode() != "auto") {
+        return;
+    }
+
     // กฎที่ 1: ระบบรดน้ำอัจฉริยะตามความชื้นในดิน (Soil Moisture Hysteresis Control)
     // ใช้ค่าเฉลี่ยความชื้นระหว่าง Soil Stick และ Soil 7-in-1 หรือเลือกตัวใดตัวหนึ่ง
     float currentSoilMoisture = data.soilStick.moisture;
@@ -86,25 +92,25 @@ void executeAgronomyControl(const FarmSensorTelemetry &data) {
         // ดินแห้งเกินไป (ต่ำกว่า 40%) -> สั่งเปิดปั๊มน้ำรดน้ำ
         digitalWrite(RELAY_1_PIN, HIGH);
         isPumpActive = true;
-        Serial.println("\n>>> [ACTION] ดินแห้ง (Moisture < 40%) -> สั่งเปิดปั๊มน้ำ (Relay 1 ON)");
+        Serial.println("\n>>> [AUTO-ACTION] ดินแห้ง (Moisture < 40%) -> สั่งเปิดปั๊มน้ำ (Relay 1 ON)");
     } else if (currentSoilMoisture >= 65.0f && isPumpActive) {
         // ดินชุ่มชื้นเพียงพอแล้ว (แตะ 65%) -> สั่งปิดปั๊มน้ำ
         digitalWrite(RELAY_1_PIN, LOW);
         isPumpActive = false;
-        Serial.println("\n>>> [ACTION] ดินชุ่มชื้นพอเหมาะ (Moisture >= 65%) -> สั่งปิดปั๊มน้ำ (Relay 1 OFF)");
+        Serial.println("\n>>> [AUTO-ACTION] ดินชุ่มชื้นพอเหมาะ (Moisture >= 65%) -> สั่งปิดปั๊มน้ำ (Relay 1 OFF)");
     }
 
     // กฎที่ 2: ระบบลดความร้อนโรงเรือนด้วยการพ่นหมอก (Evaporative Cooling)
     // สั่งเปิดพ่นหมอกเมื่ออุณหภูมิอากาศ > 35.0 °C และความชื้นสัมพัทธ์ < 70%
     if (data.air.isConnected) {
         if (data.air.temperature > 35.0f && data.air.humidity < 70.0f && !isMistingActive) {
-            digitalWrite(RELAY_3_PIN, HIGH);
+            digitalWrite(RELAY_4_PIN, HIGH);
             isMistingActive = true;
-            Serial.println(">>> [ACTION] อากาศร้อนจัด (Temp > 35°C) -> สั่งเปิดระบบพ่นหมอก (Relay 3 ON)");
+            Serial.println(">>> [AUTO-ACTION] อากาศร้อนจัด (Temp > 35°C) -> สั่งเปิดระบบพ่นหมอก (Relay 4 ON)");
         } else if ((data.air.temperature <= 32.0f || data.air.humidity >= 85.0f) && isMistingActive) {
-            digitalWrite(RELAY_3_PIN, LOW);
+            digitalWrite(RELAY_4_PIN, LOW);
             isMistingActive = false;
-            Serial.println(">>> [ACTION] อุณหภูมิลดลงปกติ -> สั่งปิดระบบพ่นหมอก (Relay 3 OFF)");
+            Serial.println(">>> [AUTO-ACTION] อุณหภูมิลดลงปกติ -> สั่งปิดระบบพ่นหมอก (Relay 4 OFF)");
         }
     }
 

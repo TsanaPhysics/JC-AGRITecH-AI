@@ -7,6 +7,8 @@
  */
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
@@ -461,6 +463,9 @@ if (class_exists('SQLite3')) {
 // Parse JSON body if present
 $input_json = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = $_GET['action'] ?? ($_POST['action'] ?? ($input_json['action'] ?? 'get_telemetry'));
+if ($action === 'update_telemetry' && !empty($input_json)) {
+    @file_put_contents($data_dir . '/last_raw_post.json', json_encode($input_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
 
 // =========================================================================
 // 1. IOT TELEMETRY & BOARD STATUS (Real Sync with ESP32-S3 via Cloud Hub)
@@ -686,20 +691,26 @@ if ($action === 'get_telemetry' || $action === 'status') {
     exit();
 }
 
-// Helper: Dispatch direct HTTP command to ESP32 board on LAN port 8500
+// Helper: Dispatch direct HTTP command to ESP32 board on LAN (tries 8500, then 80 fallback)
 function send_board_command($ip, $port, $path) {
     if (empty($ip)) return false;
-    $url = "http://{$ip}:{$port}{$path}";
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-    curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    return ($httpCode === 200) ? json_decode($response, true) : false;
+    $ports = array_unique([intval($port ?: 8500), 8500, 80]);
+    foreach ($ports as $p) {
+        $url = "http://{$ip}:{$p}{$path}";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 300);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 200);
+        curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($httpCode === 200) {
+            return json_decode($response, true) ?: ['status' => 'success', 'port' => $p];
+        }
+    }
+    return false;
 }
 
 // =========================================================================
@@ -860,42 +871,51 @@ if ($action === 'update_gps') {
 }
 
 // =========================================================================
+// 3.6 SET / TOGGLE SD CARD STATUS
+// =========================================================================
+if ($action === 'set_sd_card' || $action === 'toggle_sd_card') {
+    $mounted = isset($_REQUEST['mounted']) ? (bool)$_REQUEST['mounted'] : !$state['sd_card']['mounted'];
+    $records = isset($_REQUEST['records']) ? intval($_REQUEST['records']) : ($state['sd_card']['records'] > 0 ? $state['sd_card']['records'] : 17051);
+    $size_mb = isset($_REQUEST['size_mb']) ? intval($_REQUEST['size_mb']) : 30436; // 32GB Micro-SD
+    $cs_pin = isset($_REQUEST['cs_pin']) ? intval($_REQUEST['cs_pin']) : 4;
+    
+    $state['sd_card'] = [
+        'mounted' => $mounted,
+        'records' => $mounted ? $records : 0,
+        'cs_pin' => $mounted ? $cs_pin : -1,
+        'size_mb' => $mounted ? $size_mb : 0,
+        'file_path' => '/telemetry_data.csv',
+        'status_text' => $mounted ? 'ACTIVE LOGGING' : 'STANDBY (NO SD CARD)'
+    ];
+    save_current_state($telemetry_file, $state);
+
+    echo json_encode([
+        'status' => 'success',
+        'message' => $mounted ? 'Micro-SD Card ตรวจพบสำเร็จ (Mounted)' : 'Micro-SD Card ไม่ได้ใส่ (No Card)',
+        'sd_card' => $state['sd_card']
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+// =========================================================================
 // 4. UPDATE TELEMETRY (POSTED DIRECTLY FROM ESP32 / CLOUD BRIDGE)
 // =========================================================================
 if ($action === 'update_telemetry' || $action === 'post_data') {
     $input = !empty($input_json) ? $input_json : (!empty($_POST) ? $_POST : $_GET);
     $state = get_current_state($telemetry_file, $default_state);
 
-    if (isset($input['temperature']) || isset($input['temp'])) {
-        $state['sensors']['temperature'] = floatval($input['temperature'] ?? $input['temp']);
-    }
-    if (isset($input['humidity']) || isset($input['hum'])) {
-        $state['sensors']['humidity'] = floatval($input['humidity'] ?? $input['hum']);
-    }
-    if (isset($input['soil_moisture']) || isset($input['soil'])) {
-        $state['sensors']['soil_moisture'] = floatval($input['soil_moisture'] ?? $input['soil']);
-    }
-    if (isset($input['soil_ec']) || isset($input['ec'])) {
-        $state['sensors']['soil_ec'] = floatval($input['soil_ec'] ?? $input['ec']);
-    }
-    if (isset($input['soil_ph']) || isset($input['ph'])) {
-        $state['sensors']['soil_ph'] = floatval($input['soil_ph'] ?? $input['ph']);
-    }
-    if (isset($input['vpd'])) {
-        $state['sensors']['vpd'] = floatval($input['vpd']);
-    }
-    if (isset($input['par_lux']) || isset($input['lux'])) {
-        $state['sensors']['par_lux'] = floatval($input['par_lux'] ?? $input['lux']);
-    }
-    if (isset($input['nitrogen'])) $state['sensors']['nitrogen'] = floatval($input['nitrogen']);
-    if (isset($input['phosphorus'])) $state['sensors']['phosphorus'] = floatval($input['phosphorus']);
-    if (isset($input['potassium'])) $state['sensors']['potassium'] = floatval($input['potassium']);
+    // Air Temperature & Humidity (รองรับทั้ง Flat Keys และ Nested Keys)
+    $in_temp = $input['temperature'] ?? ($input['temp'] ?? ($input['air']['temperature'] ?? ($input['air']['temp'] ?? null)));
+    if ($in_temp !== null) $state['sensors']['temperature'] = round(floatval($in_temp), 2);
 
-    // Support nested structure (from ESP32 HTTP POST /api/telemetry) - บันทึกทศนิยม 2 ตำแหน่ง
-    if (isset($input['air']['humidity'])) $state['sensors']['humidity'] = round(floatval($input['air']['humidity']), 2);
-    if (isset($input['air']['temperature']) && $input['air']['temperature'] !== null) $state['sensors']['temperature'] = round(floatval($input['air']['temperature']), 2);
-    if (isset($input['air']['vpd'])) $state['sensors']['vpd'] = round(floatval($input['air']['vpd']), 2);
-    if (isset($input['air']['dew_point'])) $state['sensors']['dew_point'] = round(floatval($input['air']['dew_point']), 2);
+    $in_hum = $input['humidity'] ?? ($input['hum'] ?? ($input['air']['humidity'] ?? ($input['air']['hum'] ?? null)));
+    if ($in_hum !== null) $state['sensors']['humidity'] = round(floatval($in_hum), 2);
+
+    $in_vpd = $input['vpd'] ?? ($input['air']['vpd'] ?? null);
+    if ($in_vpd !== null) $state['sensors']['vpd'] = round(floatval($in_vpd), 2);
+
+    $in_dp = $input['dew_point'] ?? ($input['air']['dew_point'] ?? null);
+    if ($in_dp !== null) $state['sensors']['dew_point'] = round(floatval($in_dp), 2);
     
     // Derive temperature metrics
     $state['sensors']['temperature_f'] = round(($state['sensors']['temperature'] * 1.8) + 32.0, 2);
@@ -906,45 +926,88 @@ if ($action === 'update_telemetry' || $action === 'post_data') {
     $state['sensors']['vpact'] = round($svp_val * ($state['sensors']['humidity'] / 100.0), 2);
 
     // Light
-    if (isset($input['light']['lux'])) {
-        $state['sensors']['par_lux'] = round(floatval($input['light']['lux']), 2);
-        $state['sensors']['klux'] = round(floatval($input['light']['lux']) / 1000.0, 2);
+    $in_lux = $input['par_lux'] ?? ($input['lux'] ?? ($input['light']['lux'] ?? null));
+    if ($in_lux !== null) {
+        $state['sensors']['par_lux'] = round(floatval($in_lux), 2);
+        $state['sensors']['klux'] = round(floatval($in_lux) / 1000.0, 2);
     }
-    if (isset($input['light']['solar_radiation'])) {
-        $state['sensors']['solar_radiation'] = round(floatval($input['light']['solar_radiation']), 2);
+    $in_sol = $input['solar_radiation'] ?? ($input['light']['solar_radiation'] ?? null);
+    if ($in_sol !== null) {
+        $state['sensors']['solar_radiation'] = round(floatval($in_sol), 2);
     } elseif (isset($state['sensors']['par_lux'])) {
         $state['sensors']['solar_radiation'] = round($state['sensors']['par_lux'] * 0.0079, 2);
     }
 
     // Surface Soil Stick
-    if (isset($input['soil_stick']['adc_raw'])) $state['sensors']['soil_stick_adc'] = intval($input['soil_stick']['adc_raw']);
-    if (isset($input['soil_stick']['moisture_percent'])) $state['sensors']['soil_stick_moisture'] = round(floatval($input['soil_stick']['moisture_percent']), 1);
-    if (isset($input['soil_stick']['ph'])) $state['sensors']['soil_stick_ph'] = round(floatval($input['soil_stick']['ph']), 1);
-    if (isset($input['soil_stick']['ph_raw_voltage'])) $state['sensors']['soil_stick_ph_volt'] = round(floatval($input['soil_stick']['ph_raw_voltage']), 2);
+    $in_stick_moist = $input['soil_stick_moisture'] ?? ($input['soil_stick']['moisture_percent'] ?? ($input['soil_stick']['moisture'] ?? null));
+    $in_stick_adc = $input['soil_stick_adc'] ?? ($input['soil_stick']['adc_raw'] ?? ($input['soil_stick']['adc'] ?? null));
 
-    // Soil 7-in-1 Modbus (pH, EC, Moisture, N, P, K ทศนิยม 1 ตำแหน่งตามข้อกำหนด)
-    if (isset($input['soil_7in1']['ph'])) $state['sensors']['soil_ph'] = round(floatval($input['soil_7in1']['ph']), 1);
-    if (isset($input['soil_7in1']['ec'])) $state['sensors']['soil_ec'] = round(floatval($input['soil_7in1']['ec']), 1);
-    if (isset($input['soil_7in1']['temperature'])) $state['sensors']['soil_temperature'] = round(floatval($input['soil_7in1']['temperature']), 2);
-    if (isset($input['soil_7in1']['moisture_percent'])) {
-        $state['sensors']['soil_moisture'] = round(floatval($input['soil_7in1']['moisture_percent']), 1);
-    } elseif (isset($state['sensors']['soil_stick_moisture'])) {
-        $state['sensors']['soil_moisture'] = $state['sensors']['soil_stick_moisture'];
-    }
-    if (isset($input['soil_7in1']['nitrogen'])) $state['sensors']['nitrogen'] = round(floatval($input['soil_7in1']['nitrogen']), 1);
-    if (isset($input['soil_7in1']['phosphorus'])) $state['sensors']['phosphorus'] = round(floatval($input['soil_7in1']['phosphorus']), 1);
-    if (isset($input['soil_7in1']['potassium'])) $state['sensors']['potassium'] = round(floatval($input['soil_7in1']['potassium']), 1);
+    if ($in_stick_adc !== null) {
+        $state['sensors']['soil_stick_adc'] = intval($in_stick_adc);
+        $adc_val = intval($in_stick_adc);
+        // Calibration curve: AIR=2950 (0%), WATER=1450 (100%)
+        $calc_moist = ((2950 - $adc_val) / (2950 - 1450)) * 100.0;
+        $calc_moist = max(0.0, min(100.0, $calc_moist));
 
-    // TinyML AI Calibrated (pH, N, P, K, Moisture ทศนิยม 1 ตำแหน่ง)
-    if (isset($input['ai_calibrated'])) {
-        $ai = $input['ai_calibrated'];
-        if (isset($ai['nitrogen'])) $state['ai_calibrated']['nitrogen'] = round(floatval($ai['nitrogen']), 1);
-        if (isset($ai['phosphorus'])) $state['ai_calibrated']['phosphorus'] = round(floatval($ai['phosphorus']), 1);
-        if (isset($ai['potassium'])) $state['ai_calibrated']['potassium'] = round(floatval($ai['potassium']), 1);
-        if (isset($ai['ph'])) $state['ai_calibrated']['ph'] = round(floatval($ai['ph']), 1);
-        if (isset($ai['moisture_percent'])) $state['ai_calibrated']['moisture'] = round(floatval($ai['moisture_percent']), 1);
-        if (isset($ai['confidence'])) $state['ai_calibrated']['confidence'] = round(floatval($ai['confidence']), 3);
+        if ($in_stick_moist === null || abs(floatval($in_stick_moist) - 61.8) < 0.05) {
+            $state['sensors']['soil_stick_moisture'] = round($calc_moist, 1);
+        } else {
+            $state['sensors']['soil_stick_moisture'] = round(floatval($in_stick_moist), 1);
+        }
+    } elseif ($in_stick_moist !== null) {
+        $state['sensors']['soil_stick_moisture'] = round(floatval($in_stick_moist), 1);
     }
+
+    $in_stick_ph = $input['soil_stick_ph'] ?? ($input['soil_stick']['ph'] ?? null);
+    if ($in_stick_ph !== null) $state['sensors']['soil_stick_ph'] = round(floatval($in_stick_ph), 2);
+
+    $in_stick_volt = $input['soil_stick_ph_volt'] ?? ($input['soil_stick']['ph_raw_voltage'] ?? null);
+    if ($in_stick_volt !== null) $state['sensors']['soil_stick_ph_volt'] = round(floatval($in_stick_volt), 2);
+
+    // Soil 7-in-1 Modbus (pH, EC, Moisture, N, P, K)
+    $in_s7_ph = $input['soil_ph'] ?? ($input['ph'] ?? ($input['soil_7in1']['ph'] ?? null));
+    if ($in_s7_ph !== null) $state['sensors']['soil_ph'] = round(floatval($in_s7_ph), 2);
+
+    $in_s7_ec = $input['soil_ec'] ?? ($input['ec'] ?? ($input['soil_7in1']['ec'] ?? null));
+    if ($in_s7_ec !== null) $state['sensors']['soil_ec'] = round(floatval($in_s7_ec), 1);
+
+    $in_s7_temp = $input['soil_temperature'] ?? ($input['soil_7in1']['temperature'] ?? ($input['soil_7in1']['temp'] ?? null));
+    if ($in_s7_temp !== null) $state['sensors']['soil_temperature'] = round(floatval($in_s7_temp), 2);
+
+    $in_s7_moist = $input['soil_moisture'] ?? ($input['soil'] ?? ($input['soil_7in1']['moisture_percent'] ?? ($input['soil_7in1']['moisture'] ?? null)));
+    if ($in_s7_moist !== null) {
+        $state['sensors']['soil_moisture'] = round(floatval($in_s7_moist), 1);
+    } elseif ($in_stick_moist !== null) {
+        $state['sensors']['soil_moisture'] = round(floatval($in_stick_moist), 1);
+    }
+
+    $in_n = $input['nitrogen'] ?? ($input['soil_7in1']['nitrogen'] ?? ($input['soil_7in1']['n'] ?? null));
+    if ($in_n !== null) $state['sensors']['nitrogen'] = round(floatval($in_n), 1);
+
+    $in_p = $input['phosphorus'] ?? ($input['soil_7in1']['phosphorus'] ?? ($input['soil_7in1']['p'] ?? null));
+    if ($in_p !== null) $state['sensors']['phosphorus'] = round(floatval($in_p), 1);
+
+    $in_k = $input['potassium'] ?? ($input['soil_7in1']['potassium'] ?? ($input['soil_7in1']['k'] ?? null));
+    if ($in_k !== null) $state['sensors']['potassium'] = round(floatval($in_k), 1);
+
+    // TinyML AI Calibrated (pH, N, P, K, Moisture)
+    $ai_n = $input['ai_calibrated']['nitrogen'] ?? ($input['ai_calibrated']['calibrated_n'] ?? null);
+    if ($ai_n !== null) $state['ai_calibrated']['nitrogen'] = round(floatval($ai_n), 1);
+
+    $ai_p = $input['ai_calibrated']['phosphorus'] ?? ($input['ai_calibrated']['calibrated_p'] ?? null);
+    if ($ai_p !== null) $state['ai_calibrated']['phosphorus'] = round(floatval($ai_p), 1);
+
+    $ai_k = $input['ai_calibrated']['potassium'] ?? ($input['ai_calibrated']['calibrated_k'] ?? null);
+    if ($ai_k !== null) $state['ai_calibrated']['potassium'] = round(floatval($ai_k), 1);
+
+    $ai_ph = $input['ai_calibrated']['ph'] ?? ($input['ai_calibrated']['calibrated_ph'] ?? null);
+    if ($ai_ph !== null) $state['ai_calibrated']['ph'] = round(floatval($ai_ph), 2);
+
+    $ai_m = $input['ai_calibrated']['moisture_percent'] ?? ($input['ai_calibrated']['fused_moisture'] ?? ($input['ai_calibrated']['moisture'] ?? null));
+    if ($ai_m !== null) $state['ai_calibrated']['moisture'] = round(floatval($ai_m), 1);
+
+    $ai_c = $input['ai_calibrated']['confidence'] ?? null;
+    if ($ai_c !== null) $state['ai_calibrated']['confidence'] = round(floatval($ai_c), 3);
 
     // Micro-SD Card Subsystem from ESP32
     if (isset($input['sd_card'])) {

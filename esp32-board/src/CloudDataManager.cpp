@@ -25,6 +25,87 @@ static unsigned long lastWiFiCheckTime = 0;
 static bool isNtpSynchronized = false;
 static bool wasConnected = false;
 
+extern bool isPumpActive;
+extern bool isMistingActive;
+
+static String currentControlMode = "manual";
+
+String CloudDataManager_getControlMode() {
+    return currentControlMode;
+}
+
+void CloudDataManager_setControlMode(const String &mode) {
+    currentControlMode = mode;
+    Serial.printf("[ControlMode] System mode changed to: %s\n", mode.c_str());
+}
+
+bool CloudDataManager_getRelayState(int relayId) {
+    switch (relayId) {
+        case 1: return (digitalRead(RELAY_1_PIN) == HIGH);
+        case 2: return (digitalRead(RELAY_2_PIN) == HIGH);
+        case 3: return (digitalRead(RELAY_3_PIN) == HIGH);
+        case 4: return (digitalRead(RELAY_4_PIN) == HIGH);
+        default: return false;
+    }
+}
+
+void CloudDataManager_applyRelayCommand(int relayId, bool state) {
+    switch (relayId) {
+        case 1:
+            digitalWrite(RELAY_1_PIN, state ? HIGH : LOW);
+            isPumpActive = state;
+            Serial.printf("[RelayActuator] >>> RELAY 1 (PUMP 1) -> %s\n", state ? "ACTIVE [ON]" : "STANDBY [OFF]");
+            break;
+        case 2:
+            digitalWrite(RELAY_2_PIN, state ? HIGH : LOW);
+            Serial.printf("[RelayActuator] >>> RELAY 2 (SOLENOID/PUMP 2) -> %s\n", state ? "ACTIVE [ON]" : "STANDBY [OFF]");
+            break;
+        case 3:
+            digitalWrite(RELAY_3_PIN, state ? HIGH : LOW);
+            Serial.printf("[RelayActuator] >>> RELAY 3 (VALVE) -> %s\n", state ? "ACTIVE [ON]" : "STANDBY [OFF]");
+            break;
+        case 4:
+            digitalWrite(RELAY_4_PIN, state ? HIGH : LOW);
+            isMistingActive = state;
+            Serial.printf("[RelayActuator] >>> RELAY 4 (MISTING) -> %s\n", state ? "ACTIVE [ON]" : "STANDBY [OFF]");
+            break;
+        default:
+            break;
+    }
+}
+
+static void parseRelayResponse(const String &responseBody) {
+    if (responseBody.length() < 10) return;
+    StaticJsonDocument<1024> respDoc;
+    DeserializationError err = deserializeJson(respDoc, responseBody);
+    if (err) return;
+
+    if (respDoc.containsKey("control_mode")) {
+        String m = respDoc["control_mode"].as<String>();
+        if (m.length() > 0) currentControlMode = m;
+    }
+
+    if (respDoc.containsKey("relays_command")) {
+        JsonObject rc = respDoc["relays_command"];
+        if (rc.containsKey("r1")) {
+            bool r1 = (rc["r1"].as<int>() == 1);
+            if (CloudDataManager_getRelayState(1) != r1) CloudDataManager_applyRelayCommand(1, r1);
+        }
+        if (rc.containsKey("r2")) {
+            bool r2 = (rc["r2"].as<int>() == 1);
+            if (CloudDataManager_getRelayState(2) != r2) CloudDataManager_applyRelayCommand(2, r2);
+        }
+        if (rc.containsKey("r3")) {
+            bool r3 = (rc["r3"].as<int>() == 1);
+            if (CloudDataManager_getRelayState(3) != r3) CloudDataManager_applyRelayCommand(3, r3);
+        }
+        if (rc.containsKey("r4")) {
+            bool r4 = (rc["r4"].as<int>() == 1);
+            if (CloudDataManager_getRelayState(4) != r4) CloudDataManager_applyRelayCommand(4, r4);
+        }
+    }
+}
+
 // รับเวลาปัจจุบันในรูปแบบ Unix Epoch Time (วินาที)
 unsigned long CloudDataManager_getEpochTime() {
     time_t now;
@@ -272,37 +353,62 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
     JsonObject actuators = doc.createNestedObject("actuators");
     actuators["pump"]    = pumpState;
     actuators["misting"] = mistingState;
+    actuators["r1"]      = CloudDataManager_getRelayState(1) ? 1 : 0;
+    actuators["r2"]      = CloudDataManager_getRelayState(2) ? 1 : 0;
+    actuators["r3"]      = CloudDataManager_getRelayState(3) ? 1 : 0;
+    actuators["r4"]      = CloudDataManager_getRelayState(4) ? 1 : 0;
+    actuators["mode"]    = currentControlMode;
 
     String jsonPayload;
     serializeJson(doc, jsonPayload);
 
     // 1. ส่งข้อมูลเข้า Cloud Telemetry Hub (14.207.141.164:8000)
 #if defined(ENABLE_CUSTOM_SERVER) && ENABLE_CUSTOM_SERVER == true
-    if (String(CUSTOM_SERVER_URL).startsWith("http")) {
+    // Cool-down tracker สำหรับ Cloud Server ป้องกันการบล็อก Loop เมื่อเครือข่ายภายนอกล่าช้า
+    static unsigned long lastCloudFailTime = 0;
+    static int cloudFailCount = 0;
+    bool skipCloud = (cloudFailCount >= 2 && (millis() - lastCloudFailTime < 25000));
+
+    if (String(CUSTOM_SERVER_URL).startsWith("http") && !skipCloud) {
         HTTPClient http;
         if (http.begin(CUSTOM_SERVER_URL)) {
             http.addHeader("Content-Type", "application/json");
-            http.setTimeout(3000); // Timeout สั้น 3 วินาที เพื่อไม่ให้ระบบหน่วง
+            http.setTimeout(450); // Timeout สั้น 450ms เพื่อรักษาความลื่นไหลของหน้าจอสัมผัส
             int httpCode = http.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
+                String resp = http.getString();
+                parseRelayResponse(resp);
+                cloudFailCount = 0;
                 Serial.printf("[CloudData] >>> Sent Telemetry to Cloud Telemetry Hub [OK] (Code: %d)\n", httpCode);
             } else {
-                Serial.printf("[CloudData] [!] Cloud Hub POST returned: %d\n", httpCode);
+                cloudFailCount++;
+                lastCloudFailTime = millis();
+                Serial.printf("[CloudData] [!] Cloud Hub POST returned: %d (fails: %d)\n", httpCode, cloudFailCount);
             }
             http.end();
         }
     }
 #if defined(LOCAL_SERVER_URL)
-    if (String(LOCAL_SERVER_URL).startsWith("http")) {
+    // Cool-down tracker สำหรับ Local Server
+    static unsigned long lastLocalFailTime = 0;
+    static int localFailCount = 0;
+    bool skipLocal = (localFailCount >= 3 && (millis() - lastLocalFailTime < 15000));
+
+    if (String(LOCAL_SERVER_URL).startsWith("http") && !skipLocal) {
         HTTPClient httpLocal;
         if (httpLocal.begin(LOCAL_SERVER_URL)) {
             httpLocal.addHeader("Content-Type", "application/json");
-            httpLocal.setTimeout(2000);
+            httpLocal.setTimeout(350); // Local LAN ตอบสนอง 20-50ms ใช้ 350ms รวดเร็วไม่ค้าง
             int httpCode = httpLocal.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
-                Serial.printf("[CloudData] >>> Sent Telemetry to Local PHP API [OK] (Code: %d)\n", httpCode);
+                String resp = httpLocal.getString();
+                parseRelayResponse(resp);
+                localFailCount = 0;
+                Serial.printf("[CloudData] >>> Sent Telemetry to Local PHP API [OK] (Code: %d, Response synced)\n", httpCode);
             } else {
-                Serial.printf("[CloudData] [!] Local PHP API returned: %d (URL: %s)\n", httpCode, LOCAL_SERVER_URL);
+                localFailCount++;
+                lastLocalFailTime = millis();
+                Serial.printf("[CloudData] [!] Local PHP API returned: %d (fails: %d, URL: %s)\n", httpCode, localFailCount, LOCAL_SERVER_URL);
             }
             httpLocal.end();
         }
@@ -324,9 +430,11 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
             HTTPClient httpDyn;
             if (httpDyn.begin(dynServerUrl)) {
                 httpDyn.addHeader("Content-Type", "application/json");
-                httpDyn.setTimeout(2500);
+                httpDyn.setTimeout(400); // 400ms สั้นกระชับ
                 int httpCode = httpDyn.POST(jsonPayload);
                 if (httpCode == HTTP_CODE_OK || httpCode == 200) {
+                    String resp = httpDyn.getString();
+                    parseRelayResponse(resp);
                     Serial.printf("[CloudData] >>> Sent Telemetry to Configured Dashboard [OK] (Code: %d)\n", httpCode);
                 } else {
                     Serial.printf("[CloudData] [!] Configured Dashboard POST returned: %d\n", httpCode);

@@ -32,3 +32,9 @@ void CloudDataManager_checkSerialTimeSync();
 
 // รับค่า Unix Timestamp ปัจจุบัน (วินาที)
 unsigned long CloudDataManager_getEpochTime();
+
+// ระบบควบคุมรีเลย์สองทิศทาง (Bidirectional Relay Control) & โหมดการทำงาน
+void CloudDataManager_applyRelayCommand(int relayId, bool state);
+String CloudDataManager_getControlMode();
+void CloudDataManager_setControlMode(const String &mode);
+bool CloudDataManager_getRelayState(int relayId);

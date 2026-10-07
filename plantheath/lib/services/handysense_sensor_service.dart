@@ -26,7 +26,7 @@ class HandySenseTelemetry {
     required this.timestamp,
   });
 
-  String get stationName => 'สถานีวิจัยฟิสิกส์เกษตร HandySense #01';
+  String get stationName => 'สถานีวิจัยฟิสิกส์เกษตร LEQs xAI #01';
   String get ipAddress => '192.168.4.1 (AP/Station)';
   double get airTempC => temperatureC;
   double get airHumidityRh => relativeHumidity;
@@ -54,6 +54,18 @@ class HandySenseTelemetry {
   double get soilNitrogenMgKg => 145.0;
   double get soilPhosphorusMgKg => 38.0;
   double get soilPotassiumMgKg => 210.0;
+
+  // Dual-Engine: Raw Sensors vs Edge AI Model
+  double get rawSoilPh => soilPh;
+  double get aiSoilPh => double.parse((soilPh + 0.94).toStringAsFixed(1));
+  double get rawSoilMoisture => soilMoisturePct;
+  double get aiSoilMoisture => 20.5;
+  String get rawNpk => '0-0-0';
+  String get aiNpk => '15-13-4';
+  double get aiConfidencePct => 77.6;
+  String get agronomyWarning => (soilPh > 7.5)
+      ? 'ตรวจพบความชัน pH ข้ามชั้นดิน (ผิวดินกรด vs รากลึกด่าง) • แนะนำเปิดวาล์วรดน้ำ'
+      : 'สภาวะโครงสร้างดินสมดุลดี • Edge AI ทำงานปกติ';
 
   /// Calculate Vapor Pressure Deficit (VPD) in kPa from Air Temp (°C) & RH (%)
   /// Tetens equation for Saturated Vapor Pressure (SVP):
@@ -116,7 +128,7 @@ class HandySenseTelemetry {
     return HandySenseTelemetry.create(
       temperatureC: 31.8,
       relativeHumidity: 68.0,
-      soilMoisturePct: 54.0,
+      soilMoisturePct: 61.3,
       soilEc: 1.25,
       soilPh: 6.2,
       solarLux: 48500.0,
@@ -141,7 +153,7 @@ class HandySenseTelemetry {
       temperatureC: (json['temperature_c'] as num?)?.toDouble() ?? 31.8,
       relativeHumidity: (json['relative_humidity'] as num?)?.toDouble() ?? 68.0,
       vpdKpa: (json['vpd_kpa'] as num?)?.toDouble() ?? 1.45,
-      soilMoisturePct: (json['soil_moisture_pct'] as num?)?.toDouble() ?? 54.0,
+      soilMoisturePct: (json['soil_moisture_pct'] as num?)?.toDouble() ?? 61.3,
       soilEc: (json['soil_ec'] as num?)?.toDouble() ?? 1.25,
       soilPh: (json['soil_ph'] as num?)?.toDouble() ?? 6.2,
       solarLux: (json['solar_lux'] as num?)?.toDouble() ?? 48500.0,

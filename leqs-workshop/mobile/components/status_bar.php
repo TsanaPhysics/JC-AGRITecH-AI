@@ -64,9 +64,9 @@
 
             <!-- DUAL STORAGE ARCHITECTURE STATUS (ESP32 MICRO-SD & SERVER SQLITE3) -->
             <div class="glass-inner-panel rounded-2xl p-2.5 flex items-center justify-between text-[11px] font-mono gap-2 border border-white/5">
-                <div class="flex items-center gap-1.5 text-amber-300">
-                    <i class="fa-solid fa-sd-card text-xs"></i>
-                    <span>SD Card:</span>
+                <div class="flex items-center gap-1.5 text-amber-300 cursor-pointer group" onclick="toggleOrCheckSdCard()" title="คลิกเพื่อสลับ/ตรวจสอบสถานะ Micro-SD Card">
+                    <i class="fa-solid fa-sd-card text-xs group-hover:scale-110 transition text-amber-400"></i>
+                    <span class="hover:underline">SD Card:</span>
                     <strong id="mobSdStatus" class="text-slate-400 italic">ไม่ได้ใส่การ์ด (No Card)</strong>
                 </div>
                 <div class="flex items-center gap-1.5 text-emerald-300">

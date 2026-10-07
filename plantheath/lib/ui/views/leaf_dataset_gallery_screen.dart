@@ -359,7 +359,7 @@ class _LeafDatasetGalleryScreenState extends State<LeafDatasetGalleryScreen> {
                 _buildDetailRow('เหล็ก (Fe)', '${item.nutrition.ironPpm.toStringAsFixed(0)} ppm', Colors.orangeAccent),
                 _buildDetailRow('ความเชื่อมั่น AI', '${item.nutrition.overallConfidence.toStringAsFixed(1)}%', Colors.greenAccent),
                 const Divider(color: Colors.white24, height: 20),
-                const Text('HandySense Microclimate & พิกัด', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Text('LEQs xAI Microclimate & พิกัด', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 _buildDetailRow('VPD แรงดึงระเหยน้ำ', '${item.vpdKpa.toStringAsFixed(2)} kPa', Colors.cyanAccent),
                 _buildDetailRow('พิกัดภูมิศาสตร์ (GPS)', item.location.formattedCoordinates, Colors.amberAccent),
