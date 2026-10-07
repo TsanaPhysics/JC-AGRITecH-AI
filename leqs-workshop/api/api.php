@@ -318,40 +318,44 @@ if (class_exists('SQLite3')) {
                 ['นางสาว', 'พิมลวรรณ สุขวิชัย', 'นักวิจัย/บุคคลทั่วไป', 'ศูนย์วิจัยและพัฒนาการเกษตรจันทบุรี', '089-334-5566', 'pimonwan@agri.go.th', 'Track D — Dissolved Oxygen AI Controller', 18, 20, 'checked-in']
             ];
             $ins_p = $db->prepare("INSERT INTO participants (prefix, fullname, target_group, organization, phone, email, project_track, pre_score, post_score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            foreach ($seed_p as $sp) {
-                $ins_p->bindValue(1, $sp[0], SQLITE3_TEXT);
-                $ins_p->bindValue(2, $sp[1], SQLITE3_TEXT);
-                $ins_p->bindValue(3, $sp[2], SQLITE3_TEXT);
-                $ins_p->bindValue(4, $sp[3], SQLITE3_TEXT);
-                $ins_p->bindValue(5, $sp[4], SQLITE3_TEXT);
-                $ins_p->bindValue(6, $sp[5], SQLITE3_TEXT);
-                $ins_p->bindValue(7, $sp[6], SQLITE3_TEXT);
-                $ins_p->bindValue(8, $sp[7], SQLITE3_INTEGER);
-                $ins_p->bindValue(9, $sp[8], SQLITE3_INTEGER);
-                $ins_p->bindValue(10, $sp[9], SQLITE3_TEXT);
-                $ins_p->execute();
+            if ($ins_p) {
+                foreach ($seed_p as $sp) {
+                    $ins_p->bindValue(1, $sp[0], SQLITE3_TEXT);
+                    $ins_p->bindValue(2, $sp[1], SQLITE3_TEXT);
+                    $ins_p->bindValue(3, $sp[2], SQLITE3_TEXT);
+                    $ins_p->bindValue(4, $sp[3], SQLITE3_TEXT);
+                    $ins_p->bindValue(5, $sp[4], SQLITE3_TEXT);
+                    $ins_p->bindValue(6, $sp[5], SQLITE3_TEXT);
+                    $ins_p->bindValue(7, $sp[6], SQLITE3_TEXT);
+                    $ins_p->bindValue(8, $sp[7], SQLITE3_INTEGER);
+                    $ins_p->bindValue(9, $sp[8], SQLITE3_INTEGER);
+                    $ins_p->bindValue(10, $sp[9], SQLITE3_TEXT);
+                    $ins_p->execute();
+                }
+                sync_participants_json($db, $json_backup);
             }
-            sync_participants_json($db, $json_backup);
         }
 
         // Seed announcements if empty
-        $a_count = $db->querySingle("SELECT COUNT(*) FROM announcements");
-        if ($a_count == 0) {
+        $a_count = @$db->querySingle("SELECT COUNT(*) FROM announcements");
+        if ($a_count === 0) {
             $seed_a = [
                 ['เปิดรับสมัครเข้าร่วมโครงการอบรมเชิงปฏิบัติการ LEQs-xAI Young Digital Agri-Innovator 2026', 'ขอเชิญนักเรียน ครู และเกษตรกรเข้าร่วมโครงการอบรมเชิงปฏิบัติการ วันที่ 28 - 30 พฤศจิกายน 2569 ณ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี จันทบุรี รับจำนวนจำกัด 30 ท่าน ฟรีตลอดหลักสูตร', 'รับสมัคร', 'emerald', 1],
                 ['กำหนดการรายงานตัวและรับชุดอุปกรณ์บอร์ดทดลอง ESP32-S3 ATD3.5', 'ผู้ผ่านการคัดเลือกสามารถนำบัตรประชาชนหรือบัตรนักเรียนมารายงานตัว ณ คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี ในวันที่ 28 พฤศจิกายน 2569 ตั้งแต่เวลา 08.00 - 09.00 น.', 'กำหนดการ', 'cyan', 1],
                 ['การจัดแสดงและนำเสนอผลงาน Capstone Mini-Projects 6 แทร็ก', 'ร่วมรับฟังการ Pitching โครงงานนวัตกรรมสิ่งแวดล้อมและเกษตรดิจิทัล วันที่ 30 พฤศจิกายน 2569 ชิงทุนการศึกษาและโล่รางวัลจากคณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี', 'รางวัล', 'amber', 1]
             ];
             $ins_a = $db->prepare("INSERT INTO announcements (title, content, badge, badge_color, is_active) VALUES (?, ?, ?, ?, ?)");
-            foreach ($seed_a as $sa) {
-                $ins_a->bindValue(1, $sa[0], SQLITE3_TEXT);
-                $ins_a->bindValue(2, $sa[1], SQLITE3_TEXT);
-                $ins_a->bindValue(3, $sa[2], SQLITE3_TEXT);
-                $ins_a->bindValue(4, $sa[3], SQLITE3_TEXT);
-                $ins_a->bindValue(5, $sa[4], SQLITE3_INTEGER);
-                $ins_a->execute();
+            if ($ins_a) {
+                foreach ($seed_a as $sa) {
+                    $ins_a->bindValue(1, $sa[0], SQLITE3_TEXT);
+                    $ins_a->bindValue(2, $sa[1], SQLITE3_TEXT);
+                    $ins_a->bindValue(3, $sa[2], SQLITE3_TEXT);
+                    $ins_a->bindValue(4, $sa[3], SQLITE3_TEXT);
+                    $ins_a->bindValue(5, $sa[4], SQLITE3_INTEGER);
+                    $ins_a->execute();
+                }
+                sync_announcements_json($db, $data_dir . '/announcements.json');
             }
-            sync_announcements_json($db, $data_dir . '/announcements.json');
         }
 
         // Complete Telemetry Logs Table (30+ Parameters)

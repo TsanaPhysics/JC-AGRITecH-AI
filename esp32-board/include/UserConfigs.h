@@ -60,8 +60,8 @@
 #define ENABLE_CUSTOM_SERVER        true
 // Cloud Telemetry Hub (14.207.141.164:8000) ที่เว็บแดชบอร์ดดึงข้อมูลเรียลไทม์
 #define CUSTOM_SERVER_URL           "http://14.207.141.164:8000/api/telemetry"
-// Localhost Web Server บนเครื่อง Mac (พอร์ต 80 Apache XAMPP)
-#define LOCAL_SERVER_URL            "http://192.168.0.107/handysense/leqs-workshop/api/api.php?action=update_telemetry"
+// Localhost Web Server บนเครื่อง Mac (พอร์ต 80 Apache XAMPP - IP ปัจจุบัน: 10.100.2.179)
+#define LOCAL_SERVER_URL            "http://10.100.2.179/handysense/leqs-workshop/api/api.php?action=update_telemetry"
 
 // 5.2 ตัวเลือกส่งเข้า Google Firebase Realtime Database
 #define ENABLE_FIREBASE             false

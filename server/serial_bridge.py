@@ -136,6 +136,17 @@ def insert_telemetry(data):
         except Exception:
             pass
 
+        # Forward telemetry to Localhost PHP API
+        try:
+            local_req = urllib.request.Request(
+                "http://localhost/handysense/leqs-workshop/api/api.php?action=update_telemetry",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            urllib.request.urlopen(local_req, timeout=1.0)
+        except Exception:
+            pass
+
         return True
     except Exception as e:
         print(f"[Bridge DB Error] {e}")

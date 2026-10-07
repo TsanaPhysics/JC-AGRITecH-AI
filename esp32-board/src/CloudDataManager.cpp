@@ -299,6 +299,8 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
             int httpCode = httpLocal.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
                 Serial.printf("[CloudData] >>> Sent Telemetry to Local PHP API [OK] (Code: %d)\n", httpCode);
+            } else {
+                Serial.printf("[CloudData] [!] Local PHP API returned: %d (URL: %s)\n", httpCode, LOCAL_SERVER_URL);
             }
             httpLocal.end();
         }
