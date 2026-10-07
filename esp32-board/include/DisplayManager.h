@@ -92,6 +92,8 @@ enum DisplayLanguage {
 };
 
 void DisplayManager_init();
+void DisplayManager_showBootProgress(const char* stepName, int percent);
+void DisplayManager_finishBoot(const FarmSensorTelemetry &data, bool pumpState, bool mistingState);
 void DisplayManager_update(const FarmSensorTelemetry &data, bool pumpState, bool mistingState);
 bool DisplayManager_getTouch(int32_t *x, int32_t *y);
 void DisplayManager_handleTouch(bool &pumpState, bool &mistingState);

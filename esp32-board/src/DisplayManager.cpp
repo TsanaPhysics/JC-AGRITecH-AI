@@ -668,26 +668,71 @@ static void drawSplashScreen() {
     delay(80);
 
     // ─────────────────────────────────────────────────────────────
-    // Phase 8: Ultra-Thin Glowing Laser Progress Bar
+    // Phase 8: Ultra-Thin Glowing Laser Progress Bar Track Setup
     // ─────────────────────────────────────────────────────────────
-    const int bx = 50, by_bar = 292, bw = 380, bh = 4;
-    lcd.fillRoundRect(bx, by_bar, bw, bh, 2, 0x10A2); // track
+    const int bx = 40, by_bar = 296, bw = 400, bh = 8;
+    lcd.drawRoundRect(bx - 1, by_bar - 1, bw + 2, bh + 2, 4, 0x0478);
+    lcd.fillRoundRect(bx, by_bar, bw, bh, 3, 0x0164); // Dark track background
+    delay(50);
+}
 
-    // Laser progress sweep
-    for (int p = 0; p <= bw; p += 10) {
-        uint16_t col = (p < bw / 2) ? 0x07FF : 0x07E0;
-        lcd.fillRoundRect(bx, by_bar, p, bh, 2, col);
-        
-        // Travelling white laser flare
-        if (p > 4 && p < bw) {
-            lcd.drawFastVLine(bx + p, by_bar - 2, bh + 4, 0xFFFF);
-            lcd.drawFastVLine(bx + p + 1, by_bar - 1, bh + 2, 0xFFFF);
+void DisplayManager_showBootProgress(const char* stepName, int percent) {
+    const uint16_t SBGC = 0x0020; // Deep Obsidian Dark Background
+    const int bx = 40, by_bar = 296, bw = 400, bh = 8;
+
+    int clamped = (percent < 0) ? 0 : (percent > 100 ? 100 : percent);
+
+    // 1. เคลียร์และวาดแถบข้อความสถานะด้านบน Progress bar
+    lcd.fillRect(20, 274, 440, 18, SBGC);
+    lcd.loadFont(thai_font_vlw);
+    
+    // ข้อความขั้นตอน (ด้านซ้าย) สีฟ้าไซแอนเรืองแสง
+    lcd.setTextDatum(textdatum_t::middle_left);
+    lcd.setTextColor(0x07FF, SBGC);
+    lcd.drawString(stepName, bx, 283);
+
+    // ตัวเลขเปอร์เซ็นต์ (ด้านขวา) สีนีออนเขียวมรกต
+    char pctBuf[16];
+    snprintf(pctBuf, sizeof(pctBuf), "%d%%", clamped);
+    lcd.setTextDatum(textdatum_t::middle_right);
+    lcd.setTextColor(0x07E0, SBGC);
+    lcd.drawString(pctBuf, bx + bw, 283);
+
+    // 2. เคลียร์และวาดหลอดความคืบหน้า (Progress Bar)
+    int fillW = (bw * clamped) / 100;
+    if (fillW > 0) {
+        // ครึ่งแรก (0-50%) สีฟ้าไซแอน (0x07FF) ครึ่งหลัง (51-100%) สีเขียวมรกต (0x07E0)
+        int midW = (fillW < (bw / 2)) ? fillW : (bw / 2);
+        lcd.fillRoundRect(bx, by_bar, midW, bh, 3, 0x07FF);
+        if (fillW > (bw / 2)) {
+            lcd.fillRoundRect(bx + (bw / 2) - 2, by_bar, fillW - (bw / 2) + 2, bh, 3, 0x07E0);
         }
-        delay(22);
+
+        // หัวเลเซอร์เรืองแสงสีขาว (Laser Flare)
+        if (fillW < bw) {
+            lcd.fillCircle(bx + fillW, by_bar + (bh / 2), 4, 0xFFFF);
+            lcd.drawCircle(bx + fillW, by_bar + (bh / 2), 5, 0x07FF);
+        } else {
+            lcd.fillRoundRect(bx, by_bar, bw, bh, 3, 0x07E0);
+        }
     }
-    // Clean finish
-    lcd.fillRoundRect(bx, by_bar, bw, bh, 2, 0x07E0);
-    delay(150);
+
+    lcd.setTextDatum(textdatum_t::top_left);
+    Serial.printf("[Boot %3d%%] %s\n", clamped, stepName);
+}
+
+void DisplayManager_finishBoot(const FarmSensorTelemetry &data, bool pumpState, bool mistingState) {
+    DisplayManager_showBootProgress("ระบบพร้อมทำงานสมบูรณ์ 100%!", 100);
+    delay(400);
+
+    // เคลียร์จอและโหลดฟอนต์หลัก
+    lcd.fillScreen(COLOR_BG);
+    ensureAppFont();
+
+    // สลับเข้าหน้าแสดงผลหลักทันที พร้อมเรนเดอร์ข้อมูลสดรอบแรก
+    pageChanged = true;
+    DisplayManager_update(data, pumpState, mistingState);
+    Serial.println("[Display] Seamless transition to Overview Dashboard completed.");
 }
 
 void DisplayManager_init() {
@@ -700,26 +745,20 @@ void DisplayManager_init() {
     lcd.setRotation(1); // แนวนอน 480x320
     lcd.setBrightness(255);
     digitalWrite(LCD_BL_PIN, HIGH);
-    lcd.fillScreen(0x0820);
+    lcd.fillScreen(0x0020);
 
     // โหลดฟอนต์ไทยก่อนแสดง splash (ใช้สำหรับชื่อผู้พัฒนา)
     lcd.loadFont(thai_font_vlw);
 
-    // แสดง splash screen LEQs-AgriEnvi-xAI
+    // แสดง splash screen LEQs-AgriEnvi-xAI (คงหน้าจอไว้ตลอดการบูต)
     drawSplashScreen();
 
-    // เคลียร์ splash → เตรียมหน้าภาพรวม
-    lcd.fillScreen(COLOR_BG);
+    // แสดงสถานะบูตเริ่มต้น (10%)
+    DisplayManager_showBootProgress("กำลังเริ่มต้นระบบและจัดเตรียมฮาร์ดแวร์...", 10);
 
-    // โหลดฟอนต์ตามภาษาที่ตั้งค่าไว้
-    ensureAppFont();
-
-    if (currentPage != PAGE_OVERVIEW && currentPage != PAGE_BIG_NUMBERS) {
-        drawTopNavBar();
-    }
-
-    Serial.println("[Display] Display initialized successfully! Multi-Screen Touch UI (TH/EN/ZH) is READY.");
+    Serial.println("[Display] Display initialized with Splash Screen & Boot Progress.");
 }
+
 
 // ============================================================================
 // แถบหัวด้านบนสำหรับหน้าภาพรวม (LEQs-AgriEnvi-xAI Branding + Wi-Fi Status + ปุ่มภาษา)

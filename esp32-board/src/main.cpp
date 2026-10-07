@@ -16,20 +16,24 @@ static unsigned long lastDisplayUpdateTime = 0;
 bool isPumpActive = false;
 bool isMistingActive = false;
 
+// ประกาศฟังก์ชันล่วงหน้า (Forward Declaration)
+void executeAgronomyControl(const FarmSensorTelemetry &data);
+
 void setup() {
     // 1. เริ่มต้น Serial Console เพื่อดูข้อมูลทดสอบ
     Serial.begin(115200);
-    delay(1000);
+    delay(200);
 
     Serial.println("\n\n=======================================================");
     Serial.println("  AGRICULTURAL IOT CONTROLLER FOR ATD3.5-S3 (GRAVITY)  ");
     Serial.println("  Smart Farm Firmware with SHT45, Light, Soil & NPK/pH ");
     Serial.println("=======================================================");
 
-    // 2. เริ่มต้นหน้าจอแสดงผล 3.5 นิ้ว TFT ทันที
+    // 2. เริ่มต้นหน้าจอแสดงผล 3.5 นิ้ว TFT ทันที (แสดง Splash Screen + 10%)
     DisplayManager_init();
 
-    // 3. กำหนดโหมดขา Relay
+    // 3. กำหนดโหมดขา Relay (25%)
+    DisplayManager_showBootProgress("ตรวจสอบและตั้งค่ารีเลย์ควบคุม...", 25);
     pinMode(RELAY_1_PIN, OUTPUT);
     pinMode(RELAY_2_PIN, OUTPUT);
     pinMode(RELAY_3_PIN, OUTPUT);
@@ -39,17 +43,30 @@ void setup() {
     digitalWrite(RELAY_3_PIN, LOW);
     digitalWrite(RELAY_4_PIN, LOW);
 
-    // 4. เริ่มต้นระบบเซนเซอร์ทั้งหมด
+    // 4. เริ่มต้นระบบเซนเซอร์ทั้งหมด (45%)
+    DisplayManager_showBootProgress("เชื่อมต่อ I2C SHT45, โดมตะวัน และ Modbus 7-in-1...", 45);
     AgriSensors_init();
 
-    // 5. เริ่มต้นระบบ Micro-SD Card Logging บันทึกข้อมูลลงการ์ดในตัวบอร์ด
+    // 5. เริ่มต้นระบบ Micro-SD Card Logging บันทึกข้อมูลลงการ์ดในตัวบอร์ด (65%)
+    DisplayManager_showBootProgress("ตรวจสอบ Micro-SD Card และพาร์ติชัน NVS...", 65);
     SDCardManager_init();
 
-    // 6. เริ่มต้นระบบเชื่อมต่อ Wi-Fi และส่งข้อมูล Cloud Data Logger (Non-blocking)
+    // 6. เริ่มต้นระบบเชื่อมต่อ Wi-Fi และส่งข้อมูล Cloud Data Logger (85%)
+    DisplayManager_showBootProgress("ค้นหาและเชื่อมต่อเครือข่าย Wi-Fi...", 85);
     CloudDataManager_init();
+
+    // 7. อ่านค่าข้อมูลเซนเซอร์รอบแรกทันที (95%)
+    DisplayManager_showBootProgress("อ่านข้อมูลโทรมาตรและประเมินผล TinyML AI...", 95);
+    AgriSensors_update();
+
+    // 8. สลับเข้าสู่หน้าหลักทันทีพร้อมข้อมูลเซนเซอร์รอบแรก (100% ไร้จอดำ)
+    const FarmSensorTelemetry &initTelemetry = AgriSensors_getTelemetry();
+    executeAgronomyControl(initTelemetry);
+    DisplayManager_finishBoot(initTelemetry, isPumpActive, isMistingActive);
 
     Serial.println("[System] System setup completed successfully. Starting telemetry loop...\n");
 }
+
 
 /**
  * ============================================================================
