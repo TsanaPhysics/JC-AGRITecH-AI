@@ -425,6 +425,12 @@ void CloudDataManager_update(const FarmSensorTelemetry &telemetry, bool pumpStat
             candidateAttemptTime = currentMillis;
         }
 
+        // หาก SoftAP Provisioning Portal กำลังเปิดอยู่ ให้หยุดการหมุนเวียน candidate ชั่วคราว
+        // เพื่อคืนคลื่นวิทยุ 2.4GHz 100% ให้แก่ระบบสแกนหา Wi-Fi และหน้าเว็บ Portal
+        if (WiFiConfigManager_isPortalActive()) {
+            return;
+        }
+
         if (totalCandidates > 0 && (currentMillis - candidateAttemptTime >= 14000)) {
             candidateAttemptTime = currentMillis;
             currentCandidateIdx = (currentCandidateIdx + 1) % totalCandidates;

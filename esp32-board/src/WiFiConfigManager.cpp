@@ -114,8 +114,17 @@ void WiFiConfigManager_resetCredentials() {
 
 void WiFiConfigManager_scanNetworksAndPrint() {
     Serial.println("\n[WiFiConfig] ========================================================");
-    Serial.println("[WiFiConfig] >>> Scanning for 2.4GHz Wi-Fi networks (Channels 1-13)...");
-    int n = WiFi.scanNetworks(false, true);
+    WiFi.scanDelete();
+    if (WiFi.status() != WL_CONNECTED) {
+        WiFi.disconnect(false);
+        delay(50);
+    }
+    int16_t n = WiFi.scanNetworks(false, false, false, 250);
+    if (n < 0) {
+        delay(150);
+        WiFi.scanDelete();
+        n = WiFi.scanNetworks(false, false, false, 300);
+    }
     if (n < 0) {
         Serial.printf("[WiFiConfig] Scan failed or Wi-Fi engine busy (Code: %d)\n", n);
     } else if (n == 0) {
@@ -142,18 +151,6 @@ void WiFiConfigManager_scanNetworksAndPrint() {
 }
 
 static String buildHtmlPage() {
-    // สแกน Wi-Fi รอบตัวเบื้องต้น
-    int n = WiFi.scanNetworks(false, false);
-    String options = "";
-    for (int i = 0; i < n; ++i) {
-        String s = WiFi.SSID(i);
-        if (s.length() > 0) {
-            int rssi = WiFi.RSSI(i);
-            String sig = (rssi >= -60) ? "📶 ยอดเยี่ยม" : (rssi >= -75 ? "📶 ปานกลาง" : "⚠️ อ่อน");
-            options += "<option value='" + s + "'>" + s + " (" + String(rssi) + " dBm | " + sig + ")</option>";
-        }
-    }
-
     String defaultLocalServer = "";
     String defaultCloudServer = "";
 #if defined(LOCAL_SERVER_URL)
@@ -175,11 +172,14 @@ static String buildHtmlPage() {
     html += "h1 {font-size: 22px; color: #38bdf8; margin: 0 0 6px 0; display: flex; align-items: center; justify-content: center; gap: 8px;}";
     html += ".sub {font-size: 13px; color: #94a3b8; margin: 0;}";
     html += ".badge {display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; background: #0284c7; color: #fff; margin-top: 8px;}";
-    html += "label {display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-top: 14px; margin-bottom: 6px;}";
+    html += ".scan-bar {display: flex; justify-content: space-between; align-items: center; margin-top: 14px; margin-bottom: 6px;}";
+    html += "label {font-size: 13px; font-weight: 600; color: #cbd5e1;}";
     html += "input, select {width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #475569; background: #090e1a; color: #f8fafc; font-size: 14px; outline: none; transition: all 0.2s;}";
     html += "input:focus, select:focus {border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);}";
-    html += ".btn-scan {background: #334155; color: #38bdf8; border: 1px solid #475569; border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; float: right; margin-top: -30px; font-weight: bold;}";
-    html += ".btn-scan:hover {background: #475569;}";
+    html += ".btn-scan {background: #0284c7; color: #fff; border: 1px solid #38bdf8; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: bold; transition: all 0.2s;}";
+    html += ".btn-scan:hover {background: #0369a1;}";
+    html += ".btn-scan:disabled {background: #334155; color: #94a3b8; border-color: #475569; cursor: not-allowed;}";
+    html += ".hint-box {background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #38bdf8; margin-top: 6px; margin-bottom: 12px;}";
     html += ".quick-tags {display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;}";
     html += ".tag {font-size: 11px; background: #1e293b; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; color: #38bdf8; cursor: pointer;}";
     html += ".tag:hover {background: #334155;}";
@@ -192,27 +192,48 @@ static String buildHtmlPage() {
     html += "<script>";
     html += "function rescan() {";
     html += "  const btn = document.getElementById('btnScan');";
+    html += "  const sel = document.getElementById('ssid_select');";
     html += "  btn.innerText = '⏳ กำลังสแกน...'; btn.disabled = true;";
+    html += "  sel.innerHTML = '<option value=\"\">⏳ กำลังค้นหาเครือข่าย Wi-Fi 2.4GHz รอบตัว (2-3 วินาที)...</option>';";
     html += "  fetch('/scan').then(r=>r.json()).then(data=>{";
-    html += "    const sel = document.getElementById('ssid_select');";
-    html += "    sel.innerHTML = '<option value=\"\">-- แตะเพื่อเลือก Wi-Fi --</option>';";
-    html += "    data.forEach(item => {";
-    html += "      const opt = document.createElement('option');";
-    html += "      opt.value = item.ssid;";
-    html += "      const q = item.rssi >= -60 ? '📶 เยี่ยม' : (item.rssi >= -75 ? '📶 กลาง' : '⚠️ อ่อน');";
-    html += "      opt.text = item.ssid + ' (' + item.rssi + ' dBm | ' + q + ')';";
-    html += "      sel.appendChild(opt);";
-    html += "    });";
+    html += "    sel.innerHTML = '';";
+    html += "    if (!Array.isArray(data) || data.length === 0) {";
+    html += "      const o = document.createElement('option');";
+    html += "      o.value = ''; o.text = '⚠️ ไม่พบสัญญาณ Wi-Fi (กรุณากดสแกนใหม่ หรือพิมพ์ชื่อ SSID เองด้านล่าง)';";
+    html += "      sel.appendChild(o);";
+    html += "      btn.innerText = '⚠️ ลองสแกนใหม่'; btn.disabled = false;";
+    html += "    } else {";
+    html += "      const defOpt = document.createElement('option');";
+    html += "      defOpt.value = ''; defOpt.text = '-- แตะเพื่อเลือก Wi-Fi (พบ ' + data.length + ' เครือข่าย) --';";
+    html += "      sel.appendChild(defOpt);";
+    html += "      data.forEach(item => {";
+    html += "        if(!item.ssid) return;";
+    html += "        const opt = document.createElement('option');";
+    html += "        opt.value = item.ssid;";
+    html += "        const q = item.rssi >= -60 ? '📶 ยอดเยี่ยม' : (item.rssi >= -75 ? '📶 ปานกลาง' : '⚠️ อ่อน');";
+    html += "        const lock = item.auth ? '🔒' : '🔓';";
+    html += "        opt.text = lock + ' ' + item.ssid + ' (' + item.rssi + ' dBm | ' + q + ')';";
+    html += "        sel.appendChild(opt);";
+    html += "      });";
+    html += "      btn.innerText = '✅ พบ ' + data.length + ' เครือข่าย';";
+    html += "      setTimeout(()=>{ btn.innerText = '🔄 สแกนใหม่'; btn.disabled = false; }, 2000);";
+    html += "    }";
     html += "    const custom = document.createElement('option');";
-    html += "    custom.value = '__custom__'; custom.text = '-- ระบุชื่อ Wi-Fi เอง (Custom) --';";
+    html += "    custom.value = '__custom__'; custom.text = '✏️ -- ระบุชื่อ Wi-Fi เอง (Custom) --';";
     html += "    sel.appendChild(custom);";
-    html += "    btn.innerText = '🔄 สแกนใหม่'; btn.disabled = false;";
-    html += "  }).catch(e=>{ btn.innerText = '❌ สแกนล้มเหลว'; btn.disabled = false; });";
+    html += "  }).catch(e=>{";
+    html += "    sel.innerHTML = '<option value=\"\">❌ สแกนไม่สำเร็จ (กรุณากดลองใหม่อีกครั้ง หรือพิมพ์ชื่อด้านล่าง)</option>';";
+    html += "    btn.innerText = '❌ ลองสแกนใหม่'; btn.disabled = false;";
+    html += "  });";
     html += "}";
     html += "function onSelectSSID(val) {";
-    html += "  if(val && val !== '__custom__') { document.getElementById('ssid').value = val; }";
+    html += "  if(val && val !== '__custom__') {";
+    html += "    document.getElementById('ssid').value = val;";
+    html += "    document.getElementById('password').focus();";
+    html += "  }";
     html += "}";
     html += "function fillServer(url) { document.getElementById('server_url').value = url; }";
+    html += "window.addEventListener('DOMContentLoaded', ()=>{ setTimeout(rescan, 400); });";
     html += "</script>";
     html += "</head><body>";
     html += "<div class='container'>";
@@ -225,26 +246,28 @@ static String buildHtmlPage() {
     html += "<form action='/save' method='POST'>";
     
     // Wi-Fi Selection
+    html += "<div class='scan-bar'>";
     html += "<label>เลือกเครือข่าย Wi-Fi 2.4GHz:</label>";
-    html += "<button type='button' id='btnScan' class='btn-scan' onclick='rescan()'>🔄 สแกนใหม่</button>";
+    html += "<button type='button' id='btnScan' class='btn-scan' onclick='rescan()'>🔍 สแกนหา Wi-Fi</button>";
+    html += "</div>";
     html += "<select id='ssid_select' onchange='onSelectSSID(this.value)'>";
-    html += "<option value=''>-- แตะเพื่อเลือก Wi-Fi --</option>";
-    html += options;
-    html += "<option value='__custom__'>-- ระบุชื่อ Wi-Fi เอง (Custom) --</option>";
+    html += "<option value=''>⏳ กำลังเตรียมระบบสแกน Wi-Fi...</option>";
+    html += "<option value='__custom__'>✏️ -- ระบุชื่อ Wi-Fi เอง (Custom) --</option>";
     html += "</select>";
+    html += "<div class='hint-box'>💡 ระบบจะสแกนหา Wi-Fi 2.4GHz อัตโนมัติเมื่อเปิดหน้านี้ หากยังไม่พบให้กดปุ่ม <b>สแกนหา Wi-Fi</b> อีกครั้ง</div>";
 
-    html += "<label for='ssid'>ชื่อ Wi-Fi (SSID):</label>";
+    html += "<label for='ssid' style='display:block; margin-top:12px; margin-bottom:6px;'>ชื่อ Wi-Fi (SSID):</label>";
     html += "<input type='text' id='ssid' name='ssid' value='" + storedSSID + "' placeholder='เช่น MyFarm_WiFi หรือ Hotspot' required>";
 
-    html += "<label for='password'>รหัสผ่าน Wi-Fi (Password):</label>";
+    html += "<label for='password' style='display:block; margin-top:12px; margin-bottom:6px;'>รหัสผ่าน Wi-Fi (Password):</label>";
     html += "<input type='password' id='password' name='password' value='" + storedPass + "' placeholder='เว้นว่างไว้หากเป็นเครือข่ายไม่มีรหัสผ่าน'>";
 
     // Server API URL
-    html += "<label for='server_url'>Dashboard / Server API URL ปลายทาง:</label>";
-    html += "<input type='text' id='server_url' name='server_url' value='" + storedServerUrl + "' placeholder='http://192.168.x.x/... หรือ Cloud Hub'>";
+    html += "<label for='server_url' style='display:block; margin-top:14px; margin-bottom:6px;'>Dashboard / Server API URL ปลายทาง:</label>";
+    html += "<input type='text' id='server_url' name='server_url' value='" + storedServerUrl + "' placeholder='http://10.100.2.179/... หรือ Cloud Hub'>";
     html += "<div class='quick-tags'>";
     if (defaultLocalServer.length() > 0) {
-        html += "<span class='tag' onclick=\"fillServer('" + defaultLocalServer + "')\">🏠 Local XAMPP API</span>";
+        html += "<span class='tag' onclick=\"fillServer('" + defaultLocalServer + "')\">🏠 Local XAMPP API (" + defaultLocalServer.substring(7, defaultLocalServer.indexOf('/', 7)) + ")</span>";
     }
     if (defaultCloudServer.length() > 0) {
         html += "<span class='tag' onclick=\"fillServer('" + defaultCloudServer + "')\">☁️ Cloud Telemetry Hub</span>";
@@ -252,7 +275,7 @@ static String buildHtmlPage() {
     html += "</div>";
 
     // Device ID
-    html += "<label for='device_id'>รหัสประจำอุปกรณ์ (Device ID):</label>";
+    html += "<label for='device_id' style='display:block; margin-top:14px; margin-bottom:6px;'>รหัสประจำอุปกรณ์ (Device ID):</label>";
     html += "<input type='text' id='device_id' name='device_id' value='" + storedDeviceId + "' placeholder='ESP32-S3-ATD35'>";
 
     html += "<button type='submit' class='btn-submit'>💾 บันทึกและเชื่อมต่อทันที</button>";
@@ -277,16 +300,50 @@ static void handleRoot() {
 }
 
 static void handleScanJson() {
-    int n = WiFi.scanNetworks(false, true);
+    Serial.println("[WiFiConfig] Client triggered Wi-Fi scan via /scan...");
+
+    // 1. ล้างแคชการสแกนเก่า
+    WiFi.scanDelete();
+    delay(50);
+
+    // 2. หยุดการเชื่อมต่อ STA ชั่วคราว เพื่อปลดล็อกวิทยุ 2.4GHz
+    if (WiFi.status() != WL_CONNECTED) {
+        WiFi.disconnect(false);
+        delay(60);
+    }
+
+    // 3. สแกน Wi-Fi คลื่น 2.4GHz ครบทุกแชนแนล (Channels 1 - 13)
+    // async=false, show_hidden=false, passive=false, max_ms_per_chan=250
+    int16_t n = WiFi.scanNetworks(false, false, false, 250);
+    if (n < 0) {
+        Serial.printf("[WiFiConfig] Scan busy/retry (%d)...\n", n);
+        delay(150);
+        WiFi.scanDelete();
+        n = WiFi.scanNetworks(false, false, false, 300);
+    }
+
+    Serial.printf("[WiFiConfig] Scan complete! Raw networks: %d\n", n > 0 ? n : 0);
+
     String json = "[";
-    for (int i = 0; i < n; i++) {
-        if (i > 0) json += ",";
-        json += "{\"ssid\":\"" + WiFi.SSID(i) + "\",";
-        json += "\"rssi\":" + String(WiFi.RSSI(i)) + ",";
-        json += "\"channel\":" + String(WiFi.channel(i)) + ",";
-        json += "\"auth\":" + String(WiFi.encryptionType(i) != WIFI_AUTH_OPEN ? 1 : 0) + "}";
+    if (n > 0) {
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            String ssid = WiFi.SSID(i);
+            ssid.trim();
+            if (ssid.length() == 0) continue;
+
+            if (count > 0) json += ",";
+            json += "{\"ssid\":\"" + ssid + "\",";
+            json += "\"rssi\":" + String(WiFi.RSSI(i)) + ",";
+            json += "\"channel\":" + String(WiFi.channel(i)) + ",";
+            json += "\"auth\":" + String(WiFi.encryptionType(i) != WIFI_AUTH_OPEN ? 1 : 0) + "}";
+            count++;
+        }
     }
     json += "]";
+
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     server.send(200, "application/json", json);
 }
 
