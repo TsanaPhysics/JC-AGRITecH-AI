@@ -1,0 +1,126 @@
+{
+    "board": {
+        "device_name": "ESP32-S3 ATD3.5 Smart Farm Controller",
+        "status": "CONNECTED (ONLINE)",
+        "ssid": "TsanaC",
+        "ip_address": "10.24.89.144",
+        "rssi": -28,
+        "rssi_desc": "ปกติ",
+        "cloud_url": "http:\/\/14.207.141.164:8000",
+        "cloud_status": "CLOUD HUB (ONLINE)",
+        "data_source": "FALLBACK_CLOUD_HUB (14.207.141.164:8000)",
+        "telemetry_id": 14443,
+        "is_live": true,
+        "web_port": 8500,
+        "direct_url": "http:\/\/192.168.0.111:8500",
+        "system_language": "English",
+        "tabs": [
+            "1. HOME",
+            "2. DATA",
+            "3. GRAPH",
+            "4. RELAY",
+            "5. SETUP",
+            "ENG"
+        ],
+        "last_seen": "2026-10-19 12:15:46",
+        "mac_address": "48:27:E2:B4:8A:1C",
+        "device_id": "ESP32-S3-ATD35",
+        "last_direct_post_time": 1791443796,
+        "telemetry_timestamp": "2026-10-08 14:23:46"
+    },
+    "sensors": {
+        "temperature": 28.75,
+        "temperature_f": 83.75,
+        "humidity": 79.9200000000000017053025658242404460906982421875,
+        "dew_point": 24.92999999999999971578290569595992565155029296875,
+        "dew_margin": 3.819999999999999840127884453977458178997039794921875,
+        "vpd": 0.79000000000000003552713678800500929355621337890625,
+        "vpsat": 3.95000000000000017763568394002504646778106689453125,
+        "vpact": 3.160000000000000142108547152020037174224853515625,
+        "par_lux": 32.5,
+        "klux": 0.0299999999999999988897769753748434595763683319091796875,
+        "solar_radiation": 0.2600000000000000088817841970012523233890533447265625,
+        "soil_stick_adc": 2876,
+        "soil_stick_moisture": 4.9000000000000003552713678800500929355621337890625,
+        "soil_stick_ph_volt": 3.29999999999999982236431605997495353221893310546875,
+        "soil_stick_ph": 0,
+        "soil_moisture": 2.100000000000000088817841970012523233890533447265625,
+        "soil_temperature": 28.5,
+        "soil_ec": 0,
+        "soil_ph": 6.9000000000000003552713678800500929355621337890625,
+        "nitrogen": 0,
+        "phosphorus": 0,
+        "potassium": 0,
+        "battery_pct": 98.5,
+        "updated_at": "2026-10-19 12:15:46"
+    },
+    "sd_card": {
+        "mounted": false,
+        "records": 0,
+        "cs_pin": -1,
+        "size_mb": 0,
+        "file_path": "\/telemetry_data.csv",
+        "status_text": "STANDBY (NO SD CARD)"
+    },
+    "sensor_connection": {
+        "sht45": true,
+        "bh1750": true,
+        "soil_stick": true,
+        "soil_7in1": true
+    },
+    "ai_calibrated": {
+        "nitrogen": 47.2999999999999971578290569595992565155029296875,
+        "phosphorus": 32.60000000000000142108547152020037174224853515625,
+        "potassium": 178.19999999999998863131622783839702606201171875,
+        "ph": 6.9000000000000003552713678800500929355621337890625,
+        "moisture": 2.100000000000000088817841970012523233890533447265625,
+        "confidence": 0.770000000000000017763568394002504646778106689453125,
+        "npk_ratio": "0.0:1:0.0",
+        "npk_total": 0
+    },
+    "relays": {
+        "1": {
+            "id": 1,
+            "name": "ปั๊มน้ำหลัก (Main Pump 1)",
+            "state": 0,
+            "gpio": 39
+        },
+        "2": {
+            "id": 2,
+            "name": "วาล์วน้ำโซลินอยด์\/ปั๊ม 2 (Solenoid\/Pump 2)",
+            "state": 0,
+            "gpio": 38
+        },
+        "3": {
+            "id": 3,
+            "name": "วาล์วน้ำผิวดิน (Surface Valve)",
+            "state": 0,
+            "gpio": 7
+        },
+        "4": {
+            "id": 4,
+            "name": "ระบบพ่นหมอกลดอุณหภูมิ (Misting System)",
+            "state": 0,
+            "gpio": 6
+        }
+    },
+    "auto_mode": false,
+    "control_mode": "manual",
+    "camera_status": {
+        "model": "OV2640 2MP Edge AI YOLOv8",
+        "last_detection": "Healthy Plant Leaf (สมบูรณ์ 98.4%)",
+        "detection_time": "2026-10-08 07:39:54"
+    },
+    "gps": {
+        "latitude": 12.6644000000000005456968210637569427490234375,
+        "longitude": 102.1038999999999958845364744774997234344482421875,
+        "latitude_deg": "12°39'51.8\"N",
+        "longitude_deg": "102°06'14.0\"E",
+        "formatted": "12.6644° N, 102.1039° E",
+        "location_name": "คณะวิทยาศาสตร์และเทคโนโลยี มรภ.รำไพพรรณี (RBRU)",
+        "province": "จันทบุรี (Chanthaburi)",
+        "elevation_m": 24.5,
+        "maps_url": "https:\/\/maps.google.com\/?q=12.6644,102.1039",
+        "status": "ACTIVE (FIXED GNSS)"
+    }
+}

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR RS485 Modbus 7-in-1 Soil Probe Simulator — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #10b981;
+    }
+    .soil-horizon-tag {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .horizon-a { background: rgba(180, 83, 9, 0.4); color: #fde68a; border: 1px solid #d97706; }
+    .horizon-b { background: rgba(5, 150, 105, 0.4); color: #a7f3d0; border: 1px solid #10b981; }
+    .horizon-c { background: rgba(79, 70, 229, 0.4); color: #c7d2fe; border: 1px solid #6366f1; }
+    
+    .modbus-box {
+      background: rgba(2, 6, 23, 0.85);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: #38bdf8;
+      margin-top: 6px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Ambient & Directional Cyber Lights -->
+      <a-entity light="type: ambient; color: #64748b; intensity: 1.2"></a-entity>
+      <a-entity light="type: directional; color: #10b981; intensity: 1.8; position: 2 4 3"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 1.2; position: -3 2 -2"></a-entity>
+
+      <!-- Fixed Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.0 2.2">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot (Position controlled by ARCore) -->
+      <a-entity id="apparatus-pivot" position="0 0.95 -0.2">
+
+        <!-- 3D TRANSLUCENT SOIL STRATA BLOCK -->
+        <!-- Soil Horizon A: Top Layer (0-10cm) -->
+        <a-box position="0 -0.25 0" width="1.8" height="0.3" depth="1.0"
+               material="color: #451a03; opacity: 0.75; roughness: 0.8; transparent: true">
+          <a-text value="ชั้นหน้าดิน (Horizon A): 0 - 10 cm | ดินร่วนฮิวมัส" position="-0.85 0.1 0.52" scale="0.22 0.22 0.22" color="#fef08a" font="kelsonsans"></a-text>
+        </a-box>
+
+        <!-- Soil Horizon B: Subsoil Layer (10-20cm) -->
+        <a-box position="0 -0.55 0" width="1.8" height="0.3" depth="1.0"
+               material="color: #78350f; opacity: 0.80; roughness: 0.7; transparent: true">
+          <a-text value="ชั้นดินลึก (Horizon B): 10 - 20 cm | ดินร่วนปนเหนียว รากดูดซึม" position="-0.85 0.1 0.52" scale="0.22 0.22 0.22" color="#6ee7b7" font="kelsonsans"></a-text>
+        </a-box>
+
+        <!-- Soil Horizon C: Deep Subsoil (20-30cm) -->
+        <a-box position="0 -0.85 0" width="1.8" height="0.3" depth="1.0"
+               material="color: #1e1b4b; opacity: 0.85; roughness: 0.9; transparent: true">
+          <a-text value="ชั้นดินดาน (Horizon C): 20 - 30 cm | ดินเหนียวสะสมความชื้นสูง" position="-0.85 0.1 0.52" scale="0.22 0.22 0.22" color="#93c5fd" font="kelsonsans"></a-text>
+        </a-box>
+
+        <!-- Glass Boundary Outline for Soil Profile -->
+        <a-box position="0 -0.55 0" width="1.84" height="0.94" depth="1.04"
+               material="color: #10b981; wireframe: true; wireframeLinewidth: 2; opacity: 0.4"></a-box>
+
+        <!-- 3D RS485 7-IN-1 STAINLESS PROBE MODEL RIG (Vertical Motion) -->
+        <a-entity id="probe-rig" position="0 0.45 0">
+          
+          <!-- Probe Body (Waterproof ABS Resin Housing) -->
+          <a-cylinder position="0 0.35 0" radius="0.08" height="0.32" 
+                      material="color: #0f172a; metalness: 0.4; roughness: 0.3">
+            <!-- Sensor Cap -->
+            <a-cylinder position="0 0.17 0" radius="0.085" height="0.03" material="color: #10b981; emissive: #059669; emissiveIntensity: 0.4"></a-cylinder>
+            <!-- Laser Engraved Tech Brand -->
+            <a-text value="RS485 Modbus RTU\n7-in-1 Soil Sensor" position="0 0.02 0.082" align="center" scale="0.14 0.14 0.14" color="#00f0ff"></a-text>
+          </a-cylinder>
+
+          <!-- 3 Stainless Steel Needle Electrodes (316L Stainless Steel) -->
+          <!-- Needle 1 (Left) -->
+          <a-cylinder position="-0.04 0.05 0" radius="0.008" height="0.28"
+                      material="color: #e2e8f0; metalness: 0.95; roughness: 0.15"></a-cylinder>
+          <!-- Needle 2 (Center) -->
+          <a-cylinder position="0 0.05 0" radius="0.008" height="0.28"
+                      material="color: #e2e8f0; metalness: 0.95; roughness: 0.15"></a-cylinder>
+          <!-- Needle 3 (Right) -->
+          <a-cylinder position="0.04 0.05 0" radius="0.008" height="0.28"
+                      material="color: #e2e8f0; metalness: 0.95; roughness: 0.15"></a-cylinder>
+
+          <!-- RS485 Shielded Black Cable -->
+          <a-cylinder position="0 0.7 0" radius="0.015" height="0.4"
+                      material="color: #020617; roughness: 0.8"></a-cylinder>
+
+          <!-- Holographic Depth Indicator Ribbon -->
+          <a-plane position="0.28 0.15 0" width="0.4" height="0.14" rotation="0 0 0"
+                   material="color: #020617; opacity: 0.85; border: 1px solid #10b981">
+            <a-text id="3d-depth-readout" value="Depth: 0.0 cm" align="center" scale="0.28 0.28 0.28" color="#34d399" font="kelsonsans"></a-text>
+          </a-plane>
+
+        </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- Camera & Skeleton HUD PiP (Hidden by default, shown when AR button is clicked) -->
+  <div class="cam-box hidden" id="cam-box">
+    <video id="camera-feed" playsinline muted autoplay></video>
+    <canvas id="tracking-canvas" width="320" height="240"></canvas>
+    <div class="cam-badge">
+      <span class="dot-pulse"></span>
+      <span id="cam-status-text">Camera Off</span>
+    </div>
+    <div class="cam-controls">
+      <button class="cam-btn" onclick="core.toggleCamera()" title="เปิด/ปิด กล้อง AI">
+        <i class="fa-solid fa-video"></i>
+      </button>
+      <button class="cam-btn" onclick="document.getElementById('cam-box').classList.toggle('minimized')" title="ย่อ/ขยาย หน้าต่าง">
+        <i class="fa-solid fa-compress"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Zero-Overlap UI Overlay Header -->
+  <div class="ui-overlay">
+    <div class="left-panel-stack">
+      <div class="header-card">
+        <h1>
+          <i class="fa-solid fa-seedling text-emerald-400"></i>
+          Lab 4: 3D AR RS485 Modbus 7-in-1 Smart Soil Probe
+        </h1>
+        <p>
+          จำลองการปักโพรบวัดดินลึก 3 ระดับ วิเคราะห์ความชื้น, EC, pH, N, P, K และโปรโตคอล Modbus RTU แบบเรียลไทม์
+        </p>
+        <div class="header-meta">
+          <span id="mode-indicator-pill" class="mode-indicator-pill"><i class="fa-solid fa-cube text-cyan-400"></i> โหมด 3D Simulation (เมาส์/สัมผัส)</span>
+          <span class="status-badge"><span class="dot-pulse"></span> Realtime Modbus Simulation</span>
+          <span class="tech-badge">RS485 RTU 9600-8-N-1</span>
+          <span class="tech-badge">316L Electrodes</span>
+          <span id="horizon-badge" class="soil-horizon-tag horizon-a">Horizon A (0-10 cm)</span>
+        </div>
+        <div class="modbus-box" id="modbus-frame">
+          TX: 01 03 00 00 00 07 04 08 &nbsp;|&nbsp; RX: 01 03 0E 01 4A 01 1E 02 A8 02 8A 00 3C 00 1E 00 78 8B 1F
+        </div>
+      </div>
+
+      <div class="gesture-guide" id="gesture-guide-text">
+        🖐️ <strong>วิธีใช้งาน:</strong> จีบนิ้ว (🤏 Pinch) เลื่อนมือขึ้น-ลง เพื่อปัก/ดึงโพรบวัดดิน หรือเลื่อนสไลเดอร์ด้านล่าง
+      </div>
+    </div>
+
+    <!-- Top Right Controls -->
+    <div class="control-panel">
+      <button class="btn-ar-mode-toggle" id="btn-toggle-ar-mode"><i class="fa-solid fa-camera"></i> เปิดใช้งานโหมด 3D AR</button>
+      <div class="control-title">ตำแหน่งมุมมอง 3D</div>
+      <div class="btn-group-row">
+        <button class="btn-action btn-secondary" id="btn-elevate-up"><i class="fa-solid fa-arrow-up"></i> ขึ้น</button>
+        <button class="btn-action btn-secondary" id="btn-elevate-down"><i class="fa-solid fa-arrow-down"></i> ลง</button>
+      </div>
+      <button class="btn-action btn-secondary" id="btn-reset-view"><i class="fa-solid fa-rotate-left"></i> รีเซ็ตมุมมอง</button>
+      <a href="../index.html" class="btn-action btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> รวมห้องทดลอง</a>
+    </div>
+  </div>
+
+  <!-- Bottom Telemetry HUD Bar -->
+  <div class="hud-bar">
+    <div class="hud-item">
+      <span class="hud-label">ความลึก (Depth)</span>
+      <span class="hud-val" id="hud-depth">0.0 <span class="unit">cm</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">ความชื้นดิน (Moisture)</span>
+      <span class="hud-val" style="color: #38bdf8;" id="hud-moist">28.4 <span class="unit">%</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">การนำไฟฟ้า (EC)</span>
+      <span class="hud-val" style="color: #facc15;" id="hud-ec">0.68 <span class="unit">mS/cm</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">ความเป็นกรด-ด่าง (pH)</span>
+      <span class="hud-val" style="color: #34d399;" id="hud-ph">6.50 <span class="unit">pH</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">ไนโตรเจน (N)</span>
+      <span class="hud-val" style="color: #a78bfa;" id="hud-n">58 <span class="unit">mg/kg</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">ฟอสฟอรัส (P)</span>
+      <span class="hud-val" style="color: #f472b6;" id="hud-p">32 <span class="unit">mg/kg</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">โพแทสเซียม (K)</span>
+      <span class="hud-val" style="color: #fb923c;" id="hud-k">125 <span class="unit">mg/kg</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">อุณหภูมิดิน (Temp)</span>
+      <span class="hud-val" style="color: #f87171;" id="hud-temp">28.6 <span class="unit">°C</span></span>
+    </div>
+  </div>
+
+  <!-- Direct Touch Slider (Fallback when Camera is off) -->
+  <div style="position: absolute; bottom: 85px; left: 24px; z-index: 25; background: rgba(8, 15, 30, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 6px 14px; display: flex; align-items: center; gap: 10px; font-size: 0.72rem; color: #e2e8f0;">
+    <span><i class="fa-solid fa-arrows-up-down text-emerald-400"></i> ปรับระดับความลึก (0 - 30 cm):</span>
+    <input type="range" id="slider-depth" min="0" max="30" step="0.5" value="0" style="width: 140px; accent-color: #10b981; cursor: pointer;" oninput="updateDepthFromSlider(this.value)">
+    <span id="slider-depth-val" style="font-family: 'JetBrains Mono', monospace; color: #34d399; font-weight: bold;">0.0 cm</span>
+  </div>
+
+  <script>
+    // Initialize AR Core Engine
+    let currentDepthCm = 0.0;
+    let targetDepthCm = 0.0;
+    let lastHorizon = 'A';
+
+    const core = new ARCoreEngine({
+      labId: 'lab-soil-7in1',
+      themeColor: '#10b981',
+      initialPosY: 0.95,
+      onPinchMove: (pos) => {
+        // Map Y position (0 = top of camera, 1 = bottom) to Probe Depth (0 to 30 cm)
+        // pos.y between 0.2 and 0.8
+        const clampedY = Math.max(0.2, Math.min(0.8, pos.y));
+        const depth = ((clampedY - 0.2) / 0.6) * 30.0;
+        setProbeDepth(depth);
+      }
+    });
+
+    function updateDepthFromSlider(val) {
+      setProbeDepth(parseFloat(val));
+    }
+
+    function setProbeDepth(depth) {
+      targetDepthCm = Math.max(0, Math.min(30.0, depth));
+      currentDepthCm = targetDepthCm;
+      renderProbeState();
+    }
+
+    function renderProbeState() {
+      // 3D Visual Position of Probe:
+      // Depth 0 cm -> Y = 0.45 (Above Soil)
+      // Depth 30 cm -> Y = -0.45 (Fully penetrated into Horizon C)
+      const visualY = 0.45 - (currentDepthCm / 30.0) * 0.90;
+      const probeRig = document.getElementById('probe-rig');
+      if (probeRig) {
+        probeRig.setAttribute('position', `0 ${visualY.toFixed(3)} 0`);
+      }
+
+      // Update 3D Text Tag
+      const text3D = document.getElementById('3d-depth-readout');
+      if (text3D) {
+        text3D.setAttribute('value', `Depth: ${currentDepthCm.toFixed(1)} cm`);
+      }
+
+      // Slider Sync
+      const slider = document.getElementById('slider-depth');
+      const sliderVal = document.getElementById('slider-depth-val');
+      if (slider) slider.value = currentDepthCm;
+      if (sliderVal) sliderVal.innerText = `${currentDepthCm.toFixed(1)} cm`;
+
+      // Telemetry Physics Model based on Soil Depth
+      // Horizon A: 0 - 10 cm, Horizon B: 10 - 20 cm, Horizon C: 20 - 30 cm
+      let horizon = 'A';
+      let moist, ec, ph, n, p, k, temp;
+
+      if (currentDepthCm <= 10.0) {
+        horizon = 'A';
+        const t = currentDepthCm / 10.0;
+        moist = 22.0 + t * 14.0; // 22% -> 36%
+        ec = 0.42 + t * 0.35;    // 0.42 -> 0.77 mS/cm
+        ph = 6.60 - t * 0.25;    // 6.60 -> 6.35
+        n = Math.round(75 - t * 15);
+        p = Math.round(42 - t * 12);
+        k = Math.round(140 - t * 25);
+        temp = 29.5 - t * 1.5;   // 29.5 -> 28.0 C
+      } else if (currentDepthCm <= 20.0) {
+        horizon = 'B';
+        const t = (currentDepthCm - 10.0) / 10.0;
+        moist = 36.0 + t * 18.0; // 36% -> 54%
+        ec = 0.77 + t * 0.55;    // 0.77 -> 1.32 mS/cm
+        ph = 6.35 - t * 0.35;    // 6.35 -> 6.00
+        n = Math.round(60 - t * 20);
+        p = Math.round(30 - t * 10);
+        k = Math.round(115 - t * 20);
+        temp = 28.0 - t * 2.0;   // 28.0 -> 26.0 C
+      } else {
+        horizon = 'C';
+        const t = (currentDepthCm - 20.0) / 10.0;
+        moist = 54.0 + t * 22.0; // 54% -> 76% (High Waterlogged Risk)
+        ec = 1.32 + t * 0.75;    // 1.32 -> 2.07 mS/cm (Salinity High)
+        ph = 6.00 - t * 0.50;    // 6.00 -> 5.50 (Acidic Clay)
+        n = Math.round(40 - t * 15);
+        p = Math.round(20 - t * 8);
+        k = Math.round(95 - t * 15);
+        temp = 26.0 - t * 1.8;   // 26.0 -> 24.2 C
+      }
+
+      // Sound Trigger on Horizon Change
+      if (horizon !== lastHorizon) {
+        lastHorizon = horizon;
+        core.playProbeBeep(horizon === 'A' ? 660 : (horizon === 'B' ? 880 : 1100), 0.08);
+      }
+
+      // Update HUD Numbers
+      document.getElementById('hud-depth').innerHTML = `${currentDepthCm.toFixed(1)} <span class="unit">cm</span>`;
+      document.getElementById('hud-moist').innerHTML = `${moist.toFixed(1)} <span class="unit">%</span>`;
+      document.getElementById('hud-ec').innerHTML = `${ec.toFixed(2)} <span class="unit">mS/cm</span>`;
+      document.getElementById('hud-ph').innerHTML = `${ph.toFixed(2)} <span class="unit">pH</span>`;
+      document.getElementById('hud-n').innerHTML = `${n} <span class="unit">mg/kg</span>`;
+      document.getElementById('hud-p').innerHTML = `${p} <span class="unit">mg/kg</span>`;
+      document.getElementById('hud-k').innerHTML = `${k} <span class="unit">mg/kg</span>`;
+      document.getElementById('hud-temp').innerHTML = `${temp.toFixed(1)} <span class="unit">°C</span>`;
+
+      // Update Horizon Badge
+      const hBadge = document.getElementById('horizon-badge');
+      if (hBadge) {
+        if (horizon === 'A') {
+          hBadge.className = 'soil-horizon-tag horizon-a';
+          hBadge.innerText = 'Horizon A (0-10 cm) | หน้าดินฮิวมัส';
+        } else if (horizon === 'B') {
+          hBadge.className = 'soil-horizon-tag horizon-b';
+          hBadge.innerText = 'Horizon B (10-20 cm) | ชั้นรากดูดซึมปุ๋ย';
+        } else {
+          hBadge.className = 'soil-horizon-tag horizon-c';
+          hBadge.innerText = 'Horizon C (20-30 cm) | ชั้นดินเหนียวซับน้ำ';
+        }
+      }
+
+      // Generate Modbus RTU Hex string
+      const hexMoist = Math.round(moist * 10).toString(16).padStart(4, '0').toUpperCase();
+      const hexTemp = Math.round(temp * 10).toString(16).padStart(4, '0').toUpperCase();
+      const hexEc = Math.round(ec * 100).toString(16).padStart(4, '0').toUpperCase();
+      const hexPh = Math.round(ph * 10).toString(16).padStart(4, '0').toUpperCase();
+      const hexN = n.toString(16).padStart(4, '0').toUpperCase();
+      const hexP = p.toString(16).padStart(4, '0').toUpperCase();
+      const hexK = k.toString(16).padStart(4, '0').toUpperCase();
+
+      const modbusEl = document.getElementById('modbus-frame');
+      if (modbusEl) {
+        modbusEl.innerHTML = `TX: 01 03 00 00 00 07 04 08 &nbsp;|&nbsp; RX: 01 03 0E ${hexMoist.slice(0,2)} ${hexMoist.slice(2)} ${hexTemp.slice(0,2)} ${hexTemp.slice(2)} ${hexEc.slice(0,2)} ${hexEc.slice(2)} ${hexPh.slice(0,2)} ${hexPh.slice(2)} ${hexN.slice(0,2)} ${hexN.slice(2)} ${hexP.slice(0,2)} ${hexP.slice(2)} ${hexK.slice(0,2)} ${hexK.slice(2)} [CRC16]`;
+      }
+    }
+
+    // Initialize Default State (3D Simulation Mode by default)
+    window.addEventListener('DOMContentLoaded', () => {
+      renderProbeState();
+    });
+  </script>
+</body>
+</html>

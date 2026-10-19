@@ -1,0 +1,99 @@
+{
+    "project_title": "Edge xAI : 4DAgriEnvi",
+    "project_subtitle": "ปัญญาประดิษฐ์ฝังตัวและเอดจ์ไอโอทีเพื่อการเกษตรและสิ่งแวดล้อม 4 มิติ",
+    "full_title": "โครงการฝึกอบรมเชิงปฏิบัติการปัญญาประดิษฐ์ฝังตัวและเอดจ์ไอโอทีเพื่อการเกษตรและสิ่งแวดล้อม 4 มิติ (Edge xAI : 4DAgriEnvi)",
+    "institution": "คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี จันทบุรี",
+    "coordinator_name": "ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา",
+    "coordinator_title": "หัวหน้าโครงการและอาจารย์ผู้รับผิดชอบหลัก",
+    "coordinator_phone": "093-742-2654",
+    "coordinator_email": "chewa.t@rbru.ac.th",
+    "workshop_dates": "17 - 19 ธันวาคม 2569",
+    "workshop_duration": "3 วัน (รวม 18 ชั่วโมง)",
+    "workshop_venue": "ห้องปฏิบัติการคอมพิวเตอร์และนวัตกรรม อาคาร 9 / อาคาร 35 คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี",
+    "target_participants": 40,
+    "fee_note": "ไม่มีค่าใช้จ่ายในการลงทะเบียน (เข้าร่วมฟรีตลอดหลักสูตร)",
+    "line_oa_id": "@888qrcgj",
+    "line_oa_name": "Edge-xAI",
+    "hero_alert_text": "เปิดรับสมัครเข้าร่วมโครงการฟรี 40 ท่าน • วุฒิบัตรรับรองสมรรถนะมาตรฐาน มรภ.รำไพพรรณี",
+    "modules": [
+        {
+            "id": 1,
+            "code": "MOD-01",
+            "name": "Module 1: Fundamental IoT & Microcontroller Architecture",
+            "desc": "สถาปัตยกรรม ESP32-S3 Dual-Core Xtensa LX7, GPIO, ADC, PWM, I2C, SPI และระบบการเชื่อมต่อ Wi-Fi / BLE",
+            "hours": "2.5 ชม."
+        },
+        {
+            "id": 2,
+            "code": "MOD-02",
+            "name": "Module 2: Agricultural Sensor Hub & Industrial RS485 Modbus",
+            "desc": "การต่อเชื่อมเซ็นเซอร์วัดดิน NPK 7-in-1, ค่า pH, ความชื้น, อุณหภูมิดิน, ค่า EC และโปรโตคอล Modbus RTU มาตรฐานอุตสาหกรรม",
+            "hours": "3.0 ชม."
+        },
+        {
+            "id": 3,
+            "code": "MOD-03",
+            "name": "Module 3: Edge AI & TinyML on Embedded Microcontroller",
+            "desc": "การประมวลผลโมเดล Machine Learning บนอุปกรณ์ฝังตัว การทำนายการดูดซับธาตุอาหาร และการตัดสัญญาณรบกวน",
+            "hours": "3.0 ชม."
+        },
+        {
+            "id": 4,
+            "code": "MOD-04",
+            "name": "Module 4: 4D Agri-Environmental Data Modeling & VPD Analytics",
+            "desc": "การสร้างโมเดลความสัมพันธ์สิ่งแวดล้อม 4 มิติ (ดิน, น้ำ, อากาศ, แสง) และการคำนวณ Vapor Pressure Deficit (VPD)",
+            "hours": "2.5 ชม."
+        },
+        {
+            "id": 5,
+            "code": "MOD-05",
+            "name": "Module 5: Smart Actuators & Multi-Channel Relay Automation",
+            "desc": "ระบบควบคุมรีเลย์ 4 ช่อง สั่งการปั๊มน้ำ วาล์วไฟฟ้า ม่านพรางแสง และพัดลมระบายอากาศอัตโนมัติตามเงื่อนไข AI",
+            "hours": "2.5 ชม."
+        },
+        {
+            "id": 6,
+            "code": "MOD-06",
+            "name": "Module 6: Cloud Telemetry, LINE Messaging API & Google Sheets",
+            "desc": "การสตรีมข้อมูลเซ็นเซอร์ขึ้นคลาวด์ การแจ้งเตือนผู้ลงทะเบียนแบบเรียลไทม์ผ่าน LINE OA และการซิงก์ Google Sheets สด",
+            "hours": "2.5 ชม."
+        },
+        {
+            "id": 7,
+            "code": "MOD-07",
+            "name": "Module 7: Capstone AIoT Prototype & Pitching Showcase",
+            "desc": "การบูรณาการพัฒนาโครงงานต้นแบบ AIoT ทางการเกษตร 4 แทร็ก การทดสอบภาคสนาม และการนำเสนอผลงานระดับมืออาชีพ",
+            "hours": "2.0 ชม."
+        }
+    ],
+    "tracks": [
+        {
+            "code": "Track A",
+            "name": "Smart Agriculture & Sensor Hub",
+            "desc": "ระบบสถานีตรวจวัดและควบคุมโรงเรือนเกษตรอัจฉริยะอัตโนมัติด้วย ESP32-S3",
+            "icon": "fa-solid fa-leaf",
+            "badge": "สถานีโรงเรือน"
+        },
+        {
+            "code": "Track B",
+            "name": "Microclimate & Bio-Environment",
+            "desc": "ระบบเฝ้าระวังจุลภูมิอากาศ การคำนวณ VPD และชีวสิ่งแวดล้อมพืชเศรษฐกิจ",
+            "icon": "fa-solid fa-cloud-sun",
+            "badge": "จุลภูมิอากาศ"
+        },
+        {
+            "code": "Track C",
+            "name": "Soil Health & Precision Fertilizer AI",
+            "desc": "ระบบ AI วิเคราะห์สุขภาพดิน ธาตุอาหาร N-P-K และสูตรคำนวณปุ๋ยแม่นยำสูง",
+            "icon": "fa-solid fa-flask-vial",
+            "badge": "สุขภาพดิน NPK"
+        },
+        {
+            "code": "Track D",
+            "name": "Smart Vision & Edge AI Disease Detection",
+            "desc": "ระบบคอมพิวเตอร์วิชันและ AI ตรวจจับจำแนกโรคใบพืชบนกล้อง ESP32-CAM / ONNX",
+            "icon": "fa-solid fa-camera",
+            "badge": "AI กล้องตรวจโรค"
+        }
+    ]
+}

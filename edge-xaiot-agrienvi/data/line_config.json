@@ -1,0 +1,9 @@
+{
+    "enabled": true,
+    "channel_access_token": "zri6m\/zxfxM0hugXsJ7\/97aCRMf2XjDJsfCaTP+JkPAvFVHoWu6sxSqLKVjYP7uzkrlfLIhNXXeLKtJNtsVJgEFjvmp4AidEknoZg6F7dZWEHID6pSDHseBeL73uZa3pPx6gyA33EHMdU\/lH\/Dh3nQdB04t89\/1O\/w1cDnyilFU=",
+    "target_id": "",
+    "notify_mode": "messaging_api",
+    "auto_notify_on_register": true,
+    "last_status": "success (HTTP 200)",
+    "last_sent": "2026-10-19 11:04:46"
+}

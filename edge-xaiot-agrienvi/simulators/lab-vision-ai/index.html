@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR Computer Vision &amp; Plant Disease AI Simulator — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #8b5cf6;
+      --theme-glow: rgba(139, 92, 246, 0.5);
+    }
+    .specimen-pill {
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .specimen-pill:hover, .specimen-pill.active {
+      background: rgba(139, 92, 246, 0.6);
+      color: #ffffff;
+      border-color: #a78bfa;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    }
+    .gradcam-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-top: 8px;
+    }
+    .conf-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .conf-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      transition: width 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Lighting -->
+      <a-entity light="type: ambient; color: #64748b; intensity: 1.2"></a-entity>
+      <a-entity light="type: directional; color: #a855f7; intensity: 1.8; position: 2 4 3"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 1.2; position: -3 2 -2"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.1 2.2">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot (Controlled by ARCore / Mouse) -->
+      <a-entity id="apparatus-pivot" position="0 0.95 -0.2">
+
+        <!-- CYBER TURNTABLE / EXAMINATION STAGE -->
+        <a-cylinder id="turntable" position="0 -0.15 0" radius="0.9" height="0.08"
+                    material="color: #0f172a; metalness: 0.8; roughness: 0.2">
+          <!-- Outer Neon Ring -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.82" radius-outer="0.88"
+                  material="color: #8b5cf6; emissive: #8b5cf6; emissiveIntensity: 1.5"></a-ring>
+          <!-- Grid Reticle -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.3" radius-outer="0.32"
+                  material="color: #38bdf8; opacity: 0.6"></a-ring>
+        </a-cylinder>
+
+        <!-- SPECIMEN STAGE PIVOT (Rotates) -->
+        <a-entity id="specimen-stage" position="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear">
+
+          <!-- 3D Plant Leaf Plane (High-Res Texture) -->
+          <a-plane id="leaf-plane" position="0 0.25 0" width="1.2" height="0.8" rotation="0 0 0"
+                   material="src: ../../app/durian-leaf-app/sample1.jpg; roughness: 0.4; transparent: true; opacity: 1.0">
+          </a-plane>
+
+          <!-- 3D Grad-CAM Heatmap Overlay Plane -->
+          <a-plane id="gradcam-overlay" position="0 0.25 0.01" width="1.2" height="0.8" rotation="0 0 0"
+                   material="color: #ef4444; opacity: 0.35; transparent: true">
+          </a-plane>
+
+          <!-- 3D AI Bounding Box & HUD Label -->
+          <a-entity id="ai-bbox" position="0.08 0.25 0.03">
+            <!-- Neon Box Outline -->
+            <a-ring radius-inner="0.25" radius-outer="0.27" material="color: #ef4444; emissive: #ef4444; emissiveIntensity: 1.2"></a-ring>
+            <!-- 3D Label Badge -->
+            <a-plane position="0 0.35 0" width="0.75" height="0.14" material="color: #020617; opacity: 0.85">
+              <a-text id="3d-label" value="Leaf Blight (ราใบติด) • 98.7%" align="center" color="#f43f5e" scale="0.22 0.22 0.22" position="0 0 0.01" font="kelsonsans"></a-text>
+            </a-plane>
+          </a-entity>
+
+        </a-entity>
+
+        <!-- SCANNING LASER BEAM (Sweeps vertically) -->
+        <a-plane id="scanner-laser" position="0 0.25 0.05" width="1.3" height="0.015"
+                 material="color: #a855f7; emissive: #c084fc; emissiveIntensity: 2.0"
+                 animation="property: position; from: 0 -0.1 0.05; to: 0 0.6 0.05; loop: true; dir: alternate; dur: 2200; easing: easeInOutSine">
+        </a-plane>
+
+        <!-- SCANNER HEAD (Overhead Sensor) -->
+        <a-box position="0 0.85 0" width="0.6" height="0.08" depth="0.2" material="color: #1e1b4b; metalness: 0.9">
+          <!-- Dual Optical Lenses -->
+          <a-cylinder position="-0.15 -0.05 0" radius="0.04" height="0.03" material="color: #38bdf8; emissive: #38bdf8"></a-cylinder>
+          <a-cylinder position="0.15 -0.05 0" radius="0.04" height="0.03" material="color: #a855f7; emissive: #a855f7"></a-cylinder>
+        </a-box>
+
+      </a-entity>
+
+    </a-scene>
+  </div>
+
+  <!-- FLOATING HUD BAR (Header) -->
+  <header class="hud-header">
+    <div class="hud-brand">
+      <div class="hud-logo"><i class="fa-solid fa-eye text-purple-400"></i></div>
+      <div>
+        <h1 class="hud-title">3D AR COMPUTER VISION &amp; PLANT DISEASE AI</h1>
+        <p class="hud-subtitle">MobileNetV3 PyTorch • ONNX Edge WASM • Grad-CAM Visual Explainability</p>
+      </div>
+    </div>
+    <div class="hud-actions">
+      <button id="btn-toggle-ar-mode" class="hud-btn btn-ar-mode" onclick="toggleVisionArMode()">
+        <i class="fa-solid fa-camera"></i> <span>เปิดโหมดกล้อง AR</span>
+      </button>
+      <a href="../index.html" class="hud-btn"><i class="fa-solid fa-cubes"></i> <span>แล็บทั้งหมด</span></a>
+      <a href="../../index.php" class="hud-btn"><i class="fa-solid fa-house"></i> <span>หน้าหลัก</span></a>
+    </div>
+  </header>
+
+  <!-- FLOATING CONTROL & TELEMETRY OVERLAY -->
+  <aside class="hud-card" style="border-color: rgba(139, 92, 246, 0.4);">
+    <div class="hud-card-title" style="color: #c4b5fd;">
+      <i class="fa-solid fa-brain"></i>
+      <span>Edge AI Vision Diagnostics</span>
+      <span id="badge-mode" class="badge-mode badge-3d">3D Sim</span>
+    </div>
+
+    <!-- Leaf Specimen Switcher (4 Classes) -->
+    <div style="margin-top: 10px;">
+      <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 6px;">
+        <i class="fa-solid fa-leaf text-purple-400"></i> เลือกตัวอย่างใบพืช (4 คลาส):
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+        <button class="specimen-pill active" id="btn-sample-1" onclick="switchSpecimen(1)">
+          1. Healthy (สมบูรณ์)
+        </button>
+        <button class="specimen-pill" id="btn-sample-2" onclick="switchSpecimen(2)">
+          2. ราใบติด (Blight)
+        </button>
+        <button class="specimen-pill" id="btn-sample-3" onclick="switchSpecimen(3)">
+          3. จุดสนิม (Rust Spot)
+        </button>
+        <button class="specimen-pill" id="btn-sample-4" onclick="switchSpecimen(4)">
+          4. โฟมอปซิส (Phomopsis)
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Diagnosis Capsule -->
+    <div class="gradcam-box">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.68rem; font-family: 'JetBrains Mono'; color: #cbd5e1;">DIAGNOSIS RESULT</span>
+        <span id="ai-conf-badge" style="font-size: 0.75rem; font-family: 'JetBrains Mono'; font-weight: bold; color: #a855f7;">98.7% Conf</span>
+      </div>
+      <div id="ai-class-name" style="font-size: 1rem; font-weight: 700; color: #ffffff; margin-top: 2px;">
+        Leaf Blight (โรคราใบติดทุเรียน)
+      </div>
+      <div id="ai-pathogen" style="font-size: 0.7rem; color: #94a3b8; font-style: italic;">
+        Pathogen: Rhizoctonia solani
+      </div>
+      <div class="conf-meter">
+        <div id="conf-progress" class="conf-bar" style="width: 98.7%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; font-family: 'JetBrains Mono';">
+        <span>Model: MobileNetV3-Small</span>
+        <span>Latency: 24.6 ms</span>
+      </div>
+    </div>
+
+    <!-- Heatmap & Threshold Sliders -->
+    <div class="hud-slider-group" style="margin-top: 12px;">
+      <div class="hud-slider-label">
+        <span>Grad-CAM Heatmap Opacity</span>
+        <span id="label-cam-opacity" class="hud-slider-val">35%</span>
+      </div>
+      <input type="range" id="slider-cam-opacity" class="hud-slider" min="0" max="100" value="35" oninput="updateGradCamOpacity(this.value)">
+    </div>
+
+    <div class="hud-slider-group">
+      <div class="hud-slider-label">
+        <span>Confidence Threshold</span>
+        <span id="label-conf-thresh" class="hud-slider-val">75%</span>
+      </div>
+      <input type="range" id="slider-conf-thresh" class="hud-slider" min="50" max="99" value="75" oninput="document.getElementById('label-conf-thresh').innerText = this.value + '%'">
+    </div>
+
+    <div class="hud-slider-group">
+      <div class="hud-slider-label">
+        <span>Turntable Rotation</span>
+        <span id="label-rot-speed" class="hud-slider-val">20s/rev</span>
+      </div>
+      <input type="range" id="slider-rot-speed" class="hud-slider" min="5" max="60" value="20" oninput="updateRotationSpeed(this.value)">
+    </div>
+
+    <!-- Quick Launch Hub Buttons -->
+    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; gap: 6px;">
+      <a href="../../app/durian-leaf-app/index.html" target="_blank"
+         style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; font-weight: 700; font-size: 0.75rem; text-decoration: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+        <i class="fa-solid fa-play"></i> เปิดแอปตรวจโรคใบพืชฉบับเต็ม (Web/PWA)
+      </a>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+        <a href="../../app/durian-leaf-app/durian-leaf-classifier-v1.0.apk" download
+           style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 0.68rem; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.1);">
+          <i class="fa-brands fa-android text-emerald-400"></i> Android APK
+        </a>
+        <a href="../../app/durian-leaf-app/docs/main.pdf" target="_blank"
+           style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 0.68rem; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.1);">
+          <i class="fa-solid fa-file-pdf text-rose-400"></i> คู่มือ XeLaTeX
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- AR MediaPipe Tracking Camera Box (Hidden by default in 3D mode) -->
+  <div id="camera-box" class="camera-box hidden">
+    <video id="camera-feed" class="camera-feed" autoplay playsinline muted></video>
+    <canvas id="tracking-canvas" class="tracking-canvas" width="640" height="480"></canvas>
+    <div id="camera-tip" class="camera-tip">
+      <i class="fa-solid fa-hand"></i> <span>Pinch (🤏) ซูม/หมุนใบพืช • Point (☝️) สลับตัวอย่าง</span>
+    </div>
+  </div>
+
+  <script>
+    // Specimen Dataset Definitions
+    const SPECIMENS = {
+      1: {
+        title: 'Healthy Leaf (ใบปกติสมบูรณ์)',
+        pathogen: 'Normal physiological leaf lamina',
+        samplePath: '../../app/durian-leaf-app/sample1.jpg',
+        conf: '99.4%',
+        badgeColor: '#10b981',
+        bboxColor: '#10b981',
+        gradcamColor: '#10b981',
+        bboxScale: '0.9 0.9 0.9'
+      },
+      2: {
+        title: 'Leaf Blight (โรคราใบติดทุเรียน)',
+        pathogen: 'Rhizoctonia solani Kühn',
+        samplePath: '../../app/durian-leaf-app/sample2.jpg',
+        conf: '98.7%',
+        badgeColor: '#ef4444',
+        bboxColor: '#ef4444',
+        gradcamColor: '#ef4444',
+        bboxScale: '1.0 1.0 1.0'
+      },
+      3: {
+        title: 'Algal/Rust Spot (โรคจุดสนิม/ราสนิม)',
+        pathogen: 'Cephaleuros virescens Kunze',
+        samplePath: '../../app/durian-leaf-app/sample3.jpg',
+        conf: '97.2%',
+        badgeColor: '#f59e0b',
+        bboxColor: '#f59e0b',
+        gradcamColor: '#f59e0b',
+        bboxScale: '0.85 0.85 0.85'
+      },
+      4: {
+        title: 'Phomopsis (โรคใบจุดโฟมอปซิส)',
+        pathogen: 'Phomopsis durionis Sydow',
+        samplePath: '../../app/durian-leaf-app/sample4.jpg',
+        conf: '98.1%',
+        badgeColor: '#ec4899',
+        bboxColor: '#ec4899',
+        gradcamColor: '#ec4899',
+        bboxScale: '0.95 0.95 0.95'
+      }
+    };
+
+    let currentSpecimenId = 1;
+    let arEngine = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Initialize ARCore Engine in 3D Mode
+      arEngine = new ARCoreEngine({
+        labId: 'lab-vision-ai',
+        themeColor: '#8b5cf6',
+        initialPosY: 0.95,
+        onFrame: (gesture, pPos, iPos, tilt) => {
+          // Gesture Mapping
+          if (gesture === 'point' && Math.random() < 0.05) {
+            // Cycle sample
+            const nextId = (currentSpecimenId % 4) + 1;
+            switchSpecimen(nextId);
+          }
+        }
+      });
+      switchSpecimen(1);
+    });
+
+    function switchSpecimen(id) {
+      currentSpecimenId = id;
+      const data = SPECIMENS[id];
+      if (!data) return;
+
+      // Update Active Button
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`btn-sample-${i}`);
+        if (btn) btn.classList.toggle('active', i === id);
+      }
+
+      // Update 3D A-Frame Specimen
+      const leafPlane = document.getElementById('leaf-plane');
+      if (leafPlane) {
+        leafPlane.setAttribute('material', `src: ${data.samplePath}; roughness: 0.4; transparent: true; opacity: 1.0`);
+      }
+
+      const gradcam = document.getElementById('gradcam-overlay');
+      if (gradcam) {
+        gradcam.setAttribute('material', `color: ${data.gradcamColor}; opacity: 0.35; transparent: true`);
+      }
+
+      const label3D = document.getElementById('3d-label');
+      if (label3D) {
+        label3D.setAttribute('value', `${data.title} • ${data.conf}`);
+        label3D.setAttribute('color', data.badgeColor);
+      }
+
+      // Update HUD
+      document.getElementById('ai-class-name').innerText = data.title;
+      document.getElementById('ai-pathogen').innerText = `Pathogen: ${data.pathogen}`;
+      document.getElementById('ai-conf-badge').innerText = `${data.conf} Conf`;
+      document.getElementById('ai-conf-badge').style.color = data.badgeColor;
+      document.getElementById('conf-progress').style.width = data.conf;
+
+      // Play Beep
+      if (arEngine) arEngine.playBeep(880, 0.08);
+    }
+
+    function updateGradCamOpacity(val) {
+      document.getElementById('label-cam-opacity').innerText = `${val}%`;
+      const gradcam = document.getElementById('gradcam-overlay');
+      if (gradcam) {
+        gradcam.setAttribute('material', `opacity: ${val / 100}; transparent: true`);
+      }
+    }
+
+    function updateRotationSpeed(val) {
+      document.getElementById('label-rot-speed').innerText = `${val}s/rev`;
+      const stage = document.getElementById('specimen-stage');
+      if (stage) {
+        stage.setAttribute('animation', `property: rotation; to: 0 360 0; loop: true; dur: ${val * 1000}; easing: linear`);
+      }
+    }
+
+    function toggleVisionArMode() {
+      if (arEngine) {
+        arEngine.toggleArMode();
+      }
+    }
+  </script>
+</body>
+</html>

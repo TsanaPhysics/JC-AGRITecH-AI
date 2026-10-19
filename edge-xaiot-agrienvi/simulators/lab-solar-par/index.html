@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR Solar PAR Radiation &amp; Carbon Assimilation Simulator — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #f59e0b;
+      --theme-glow: rgba(245, 158, 11, 0.5);
+    }
+    .solar-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-top: 8px;
+    }
+    .ppfd-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .ppfd-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #f59e0b, #ef4444);
+      transition: width 0.3s ease;
+    }
+    .time-pill {
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .time-pill:hover, .time-pill.active {
+      background: rgba(245, 158, 11, 0.6);
+      color: #ffffff;
+      border-color: #fbbf24;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Lighting Rig -->
+      <a-entity id="ambient-light" light="type: ambient; color: #334155; intensity: 1.0"></a-entity>
+      <a-entity id="sun-directional-light" light="type: directional; color: #fef08a; intensity: 2.0; castShadow: true" position="0 5 2"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 0.8; position: -3 2 -2"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.2 2.3">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot (Controlled by ARCore / Mouse) -->
+      <a-entity id="apparatus-pivot" position="0 0.85 -0.1">
+
+        <!-- GROUND & FIELD PEDESTAL -->
+        <a-cylinder id="pedestal" position="0 -0.15 0" radius="1.1" height="0.08"
+                    material="color: #0f172a; metalness: 0.8; roughness: 0.2">
+          <!-- Solar Compass Ring -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.98" radius-outer="1.04"
+                  material="color: #f59e0b; emissive: #f59e0b; emissiveIntensity: 1.5"></a-ring>
+          <!-- Grid Reticle -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.45" radius-outer="0.47"
+                  material="color: #38bdf8; opacity: 0.6"></a-ring>
+        </a-cylinder>
+
+        <!-- CELESTIAL SUN TRAJECTORY ARC -->
+        <a-entity position="0 0 0">
+          <a-torus arc="180" radius="1.3" radius-tubular="0.008" rotation="0 0 90" position="0 0 0"
+                   material="color: #f59e0b; opacity: 0.4; transparent: true"></a-torus>
+          
+          <!-- ORBITING 3D SUN SPHERE -->
+          <a-entity id="sun-orbit" position="0 0 0" rotation="0 0 45">
+            <a-sphere id="sun-sphere" position="0 1.3 0" radius="0.09"
+                      material="color: #fef08a; emissive: #f59e0b; emissiveIntensity: 3.0">
+              <!-- Sun Corona Glow Ring -->
+              <a-ring rotation="0 90 0" radius-inner="0.1" radius-outer="0.14"
+                      material="color: #fbbf24; emissive: #fbbf24; opacity: 0.7; transparent: true"></a-ring>
+            </a-sphere>
+          </a-entity>
+        </a-entity>
+
+        <!-- 3D APOGEE QUANTUM PAR SENSOR (Mounted on tripod pole) -->
+        <a-entity id="par-sensor-unit" position="-0.4 0.25 0.2">
+          <!-- Stand Pole -->
+          <a-cylinder position="0 -0.18 0" radius="0.015" height="0.4"
+                      material="color: #334155; metalness: 0.9; roughness: 0.2"></a-cylinder>
+          <!-- Tripod base -->
+          <a-cone position="0 -0.38 0" radius-bottom="0.14" radius-top="0.015" height="0.06"
+                  material="color: #1e293b; metalness: 0.8"></a-cone>
+          <!-- Sensor Head (Black Anodized Body) -->
+          <a-cylinder position="0 0.03 0" radius="0.045" height="0.05"
+                      material="color: #020617; metalness: 0.95; roughness: 0.1">
+            <!-- White Cosine-corrected Diffuser Dome -->
+            <a-sphere position="0 0.026 0" radius="0.038" theta-length="90"
+                      material="color: #ffffff; roughness: 0.1; emissive: #ffffff; emissiveIntensity: 0.6"></a-sphere>
+            <!-- Gold Collar Ring -->
+            <a-ring position="0 0 0" rotation="-90 0 0" radius-inner="0.045" radius-outer="0.049"
+                    material="color: #f59e0b; emissive: #f59e0b"></a-ring>
+          </a-cylinder>
+          <!-- Live Value Label -->
+          <a-text id="label-sensor-ppfd" value="1,850 µmol/m²/s" align="center" position="0 0.11 0" scale="0.22 0.22 0.22" color="#fbbf24" font="monoid"></a-text>
+        </a-entity>
+
+        <!-- 3D PYRANOMETER (Total Solar Irradiance Rs in W/m²) -->
+        <a-entity id="pyranometer-unit" position="-0.15 0.15 -0.3">
+          <a-cylinder position="0 -0.1 0" radius="0.015" height="0.25" material="color: #475569"></a-cylinder>
+          <a-cylinder position="0 0.03 0" radius="0.05" height="0.04" material="color: #e2e8f0; metalness: 0.9">
+            <!-- Glass Dome -->
+            <a-sphere position="0 0.02 0" radius="0.04" theta-length="90" material="color: #38bdf8; transparent: true; opacity: 0.5"></a-sphere>
+          </a-cylinder>
+          <a-text id="label-pyranometer-rs" value="880 W/m²" align="center" position="0 0.1 0" scale="0.18 0.18 0.18" color="#38bdf8" font="monoid"></a-text>
+        </a-entity>
+
+        <!-- 3D MINIATURE CANOPY / DURIAN TREE MODEL (Photosynthesis Engine) -->
+        <a-entity id="canopy-tree" position="0.35 0.15 0">
+          <!-- Trunk -->
+          <a-cylinder position="0 0.05 0" radius="0.035" height="0.35" material="color: #78350f; roughness: 0.9"></a-cylinder>
+          <!-- Foliage Canopy Layers -->
+          <a-cone id="leaf-layer-1" position="0 0.28 0" radius-bottom="0.35" radius-top="0.05" height="0.25"
+                  material="color: #15803d; roughness: 0.6; emissive: #15803d; emissiveIntensity: 0.2"></a-cone>
+          <a-cone id="leaf-layer-2" position="0 0.42 0" radius-bottom="0.26" radius-top="0.02" height="0.22"
+                  material="color: #16a34a; roughness: 0.6; emissive: #16a34a; emissiveIntensity: 0.25"></a-cone>
+          <a-cone id="leaf-layer-3" position="0 0.54 0" radius-bottom="0.16" radius-top="0" height="0.18"
+                  material="color: #22c55e; roughness: 0.5; emissive: #22c55e; emissiveIntensity: 0.3"></a-cone>
+          <!-- Stomatal CO2 Absorption Indicators -->
+          <a-ring position="0 0.68 0" rotation="-90 0 0" radius-inner="0.08" radius-outer="0.1"
+                  material="color: #34d399; emissive: #34d399; opacity: 0.8"></a-ring>
+          <a-text id="label-carbon-an" value="An: 18.4 µmol CO₂/m²/s" align="center" position="0 0.76 0" scale="0.22 0.22 0.22" color="#34d399" font="monoid"></a-text>
+        </a-entity>
+
+        <!-- 3D SOLAR PV PANEL MINI-ARRAY -->
+        <a-entity id="solar-pv" position="0.1 0.15 0.45" rotation="-25 0 0">
+          <!-- Panel Frame -->
+          <a-box position="0 0 0" width="0.32" height="0.02" depth="0.22" material="color: #0f172a; metalness: 0.9"></a-box>
+          <!-- Silicon Photovoltaic Cells -->
+          <a-plane position="0 0.011 0" rotation="-90 0 0" width="0.3" height="0.2"
+                   material="color: #1e3a8a; metalness: 0.95; roughness: 0.1; emissive: #1d4ed8; emissiveIntensity: 0.3"></a-plane>
+          <!-- Ground Stand -->
+          <a-cylinder position="0 -0.12 -0.05" radius="0.012" height="0.24" rotation="25 0 0" material="color: #64748b"></a-cylinder>
+        </a-entity>
+
+        <!-- 3D FLOATING HUD HEADER -->
+        <a-entity position="0 0.85 0">
+          <a-plane position="0 0 0" width="1.5" height="0.24" material="color: #0f172a; opacity: 0.85; transparent: true">
+            <a-text id="hud-solar-title" value="SOLAR PAR TELEMETRY: 12:00 SOLAR NOON" align="center" position="0 0.05 0.01" scale="0.28 0.28 0.28" color="#f59e0b" font="monoid"></a-text>
+            <a-text id="hud-solar-stat" value="PPFD: 1,850 µmol/m²/s | An: 18.4 µmol CO2/m²/s" align="center" position="0 -0.05 0.01" scale="0.22 0.22 0.22" color="#38bdf8" font="monoid"></a-text>
+          </a-plane>
+        </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- 2D Video & MediaPipe Canvas -->
+  <video id="camera-feed" playsinline></video>
+  <canvas id="tracking-canvas"></canvas>
+
+  <!-- HTML HUD OVERLAY -->
+  <div id="hud-overlay">
+    
+    <!-- Top Header Navigation Bar -->
+    <header id="hud-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="../index.html" class="hud-btn" title="กลับหน้าศูนย์รวมห้องปฏิบัติการ">
+          <i class="fa-solid fa-arrow-left"></i> สารบัญแล็บ
+        </a>
+        <div>
+          <h1 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin: 0; font-family: 'Chakra Petch', sans-serif;">
+            Lab 7: รังสีโฟตอนแสงสังเคราะห์ PAR &amp; การตรึงคาร์บอนของพืช 3D
+          </h1>
+          <div style="font-size: 0.7rem; color: #fde68a; font-family: 'JetBrains Mono', monospace;">
+            Solar PAR • PPFD (400–700 nm) • Beer-Lambert Light Extinction • Net Carbon Assimilation
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-toggle-sound" class="hud-btn" title="เปิด/ปิดเสียงเอฟเฟกต์">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button id="btn-toggle-ar-mode" class="hud-btn" style="border-color: #f59e0b; color: #f59e0b;" title="สลับโหมดกล้อง AR MediaPipe">
+          <i class="fa-solid fa-camera"></i> เปิดโหมด AR Gesture
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace (Panels) -->
+    <main id="hud-main">
+      
+      <!-- LEFT CONTROL PANEL: Solar Parameters -->
+      <section class="hud-panel" style="width: 320px; max-width: 90vw;">
+        <h2><i class="fa-solid fa-sun" style="color: #f59e0b;"></i> ตั้งค่าตำแหน่งดวงอาทิตย์ &amp; บรรยากาศ</h2>
+        
+        <!-- Quick Preset Times -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px;">
+          <button class="time-pill" onclick="setSolarTime(8)">08:00</button>
+          <button class="time-pill active" onclick="setSolarTime(12)">12:00</button>
+          <button class="time-pill" onclick="setSolarTime(15)">15:00</button>
+          <button class="time-pill" onclick="setSolarTime(17.5)">17:30</button>
+        </div>
+
+        <div class="solar-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>เวลาสุริยะ (Time of Day):</span>
+            <span id="txt-solar-time" style="color: #f59e0b; font-weight: bold;">12:00 น.</span>
+          </div>
+          <input type="range" id="slider-solar-time" min="6" max="18" value="12" step="0.25" style="width: 100%; margin-top: 4px;" oninput="updateTimeSlider(this.value)">
+          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; font-family: 'JetBrains Mono', monospace;">
+            <span>06:00 (อรุณ)</span>
+            <span>12:00 (เที่ยง)</span>
+            <span>18:00 (พลบค่ำ)</span>
+          </div>
+        </div>
+
+        <div class="solar-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>เมฆบดบัง (Cloud Cover):</span>
+            <span id="txt-cloud-cover" style="color: #38bdf8; font-weight: bold;">10% (ท้องฟ้าโปร่ง)</span>
+          </div>
+          <input type="range" id="slider-cloud-cover" min="0" max="95" value="10" step="5" style="width: 100%; margin-top: 4px;" oninput="updateCloudCover(this.value)">
+        </div>
+
+        <div class="solar-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>ดัชนีพื้นที่ใบพืช (LAI):</span>
+            <span id="txt-lai-val" style="color: #34d399; font-weight: bold;">3.5 m²/m²</span>
+          </div>
+          <input type="range" id="slider-lai-val" min="1.0" max="6.0" value="3.5" step="0.2" style="width: 100%; margin-top: 4px;" oninput="updateLai(this.value)">
+        </div>
+
+        <div class="solar-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>มุมเอียงแผงโซลาร์เซลล์ (Tilt):</span>
+            <span id="txt-tilt-val" style="color: #a78bfa; font-weight: bold;">25°</span>
+          </div>
+          <input type="range" id="slider-tilt-val" min="0" max="60" value="25" step="5" style="width: 100%; margin-top: 4px;" oninput="updateTilt(this.value)">
+        </div>
+      </section>
+
+      <!-- RIGHT DIAGNOSTIC & PHYSICS ENGINE PANEL -->
+      <section class="hud-panel" style="width: 330px; max-width: 90vw;">
+        <h2><i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i> ผลการวัดฟิสิกส์แสง &amp; สังเคราะห์แสงสุทธิ</h2>
+        
+        <!-- Live PPFD Readout Card -->
+        <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 10px; margin-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">ความหนาแน่นฟลักซ์โฟตอน (PPFD):</span>
+            <span id="val-ppfd-readout" style="font-size: 1.35rem; font-weight: 900; color: #f59e0b; font-family: 'JetBrains Mono', monospace;">1,850</span>
+          </div>
+          <div style="font-size: 0.68rem; color: #fef08a; font-family: 'JetBrains Mono', monospace;">
+            µmol photons · m⁻² · s⁻¹ (ช่วง 400 - 700 nm)
+          </div>
+          <div class="ppfd-meter">
+            <div id="ppfd-bar" class="ppfd-bar" style="width: 92%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; font-family: 'JetBrains Mono', monospace;">
+            <span>0 จุดชดเชยแสง (LCP)</span>
+            <span id="txt-sat-status" style="color: #fbbf24; font-weight: bold;">จุดอิ่มตัวแสง (LSP)</span>
+          </div>
+        </div>
+
+        <!-- Physical Equations Grid -->
+        <div style="margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.72rem; line-height: 1.6;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 4px;">
+            <span style="color: #cbd5e1;">รังสีดวงอาทิตย์รวม (Rs):</span>
+            <span id="val-rs-readout" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-weight: bold;">881 W/m²</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 4px;">
+            <span style="color: #cbd5e1;">อัตราสังเคราะห์แสงสุทธิ (An):</span>
+            <span id="val-an-readout" style="color: #34d399; font-weight: bold; font-family: 'JetBrains Mono', monospace;">18.42 µmol CO₂/m²/s</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">แสงส่องถึงใต้ทรงพุ่ม (Beer):</span>
+            <span id="val-canopy-ext" style="color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">17.4% (ดูดกลืน 82.6%)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">กำลังไฟฟ้าแผงโซลาร์ (P):</span>
+            <span id="val-pv-power" style="color: #a78bfa; font-weight: bold; font-family: 'JetBrains Mono', monospace;">42.8 Watts (12.4 V)</span>
+          </div>
+        </div>
+
+        <!-- Agronomic Interpretation & Solar Decision -->
+        <div style="margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.7rem; line-height: 1.5;">
+          <div style="font-weight: bold; color: #7dd3fc; margin-bottom: 4px; display: flex; items-center; gap: 4px;">
+            <i class="fa-solid fa-leaf"></i> สภาวะสรีรวิทยาทุเรียน:
+          </div>
+          <div id="txt-solar-agri-desc" style="color: #e2e8f0;">
+            พืชได้รับความเข้มแสงเหนือจุดอิ่มตัวแสง (Light Saturation Point ~ 1,200 µmol/m²/s) อัตราการสังเคราะห์แสงสูงสุด ระวังการเกิด Photoinhibition หากขาดน้ำ
+          </div>
+          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255, 255, 255, 0.15); color: #fbbf24; font-weight: bold;">
+            <i class="fa-solid fa-bolt"></i> โซลาร์เซลล์: จ่ายกระแสชาร์จแบตเตอรี่สถานี IoT แปลงเกษตรได้ 100%
+          </div>
+        </div>
+
+        <!-- Academic & Capstone Links -->
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+          <a href="#capstone" target="_blank" style="padding: 7px 10px; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fde68a; text-decoration: none; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-cloud-sun"></i> โครงงาน Capstone Track C (Environmental AI)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+          <a href="../../index.php#iot-platform" target="_blank" style="padding: 7px 10px; border-radius: 8px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #7dd3fc; text-decoration: none; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-network-wired"></i> IoT Fleet Dashboard Live</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Gesture Guide -->
+    <footer id="hud-footer">
+      <div style="display: flex; align-items: center; gap: 15px; font-size: 0.72rem; color: #cbd5e1; font-family: 'JetBrains Mono', monospace;">
+        <span><i class="fa-solid fa-hand-pointer" style="color: #f59e0b;"></i> เมาส์ลาก: หมุนตรวจสถานี 360°</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-hand-back-fist" style="color: #38bdf8;"></i> โหมด AR: หยิบนิ้ว (🤏 Pinch) สลับช่วงเวลาสุริยะ</span>
+        <span>•</span>
+        <span style="color: #94a3b8;">มรภ.รำไพพรรณี (ผศ.ดร.ชีวะ ทัศนา และคณะ)</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Realtime Solar Physics Engine Script -->
+  <script>
+    let solarHour = 12.0;
+    let cloudCoverPct = 10;
+    let lai = 3.5;
+    let panelTilt = 25;
+    let isSoundMuted = false;
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    function initSound() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSolarTone(freq = 520, duration = 0.08) {
+      if (isSoundMuted || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // Solar calculation engine based on astronomical geometry
+    function computeSolarPhysics() {
+      // Solar elevation angle alpha (degrees)
+      // Assume solar noon is at 12:00 with max elevation 85 deg in Chanthaburi
+      const hourAngle = (solarHour - 12.0) * 15.0; // deg
+      const elevationRad = Math.max(0, Math.sin((90 - Math.abs(hourAngle) * 0.95) * Math.PI / 180));
+      const elevationDeg = elevationRad * 85.0;
+
+      // Zenith angle
+      const zenithDeg = Math.max(0, 90 - elevationDeg);
+
+      // Max clear sky PPFD at noon ~ 2000 umol/m2/s
+      const cloudFactor = 1.0 - (cloudCoverPct / 100.0) * 0.75;
+      let ppfd = 2050 * elevationRad * cloudFactor;
+      if (solarHour <= 6.0 || solarHour >= 18.0) ppfd = 0;
+
+      // Solar Irradiance Rs in W/m2 (Ratio ~ 2.1 for natural sunlight)
+      const rs = ppfd / 2.1;
+
+      // Non-rectangular hyperbola for Net Carbon Assimilation (An)
+      // An = (alpha * PPFD + Amax - sqrt((alpha*PPFD+Amax)^2 - 4*theta*alpha*PPFD*Amax)) / (2*theta) - Rd
+      const aMax = 22.0; // umol CO2/m2/s for healthy tropical foliage
+      const alphaLeaf = 0.052; // quantum yield
+      const theta = 0.85; // curvature
+      const rDark = 1.2; // dark respiration
+
+      const aPPFD = alphaLeaf * ppfd;
+      let an = 0;
+      if (ppfd > 20) {
+        an = (aPPFD + aMax - Math.sqrt(Math.pow(aPPFD + aMax, 2) - 4 * theta * aPPFD * aMax)) / (2 * theta) - rDark;
+        if (an < 0) an = 0;
+      }
+
+      // Beer-Lambert canopy extinction: I / I0 = exp(-k * LAI), k ~ 0.55
+      const canopyTransmission = Math.exp(-0.55 * lai) * 100.0;
+
+      // Solar PV power (Assume 50W peak panel, tilt factor)
+      const tiltRad = panelTilt * Math.PI / 180;
+      const effectiveIncidence = Math.cos(Math.abs(zenithDeg * Math.PI / 180 - tiltRad));
+      const pvWatts = Math.max(0, (rs / 1000.0) * 50.0 * Math.max(0, effectiveIncidence));
+
+      return {
+        elevationDeg,
+        zenithDeg,
+        ppfd: Math.round(ppfd),
+        rs: Math.round(rs),
+        an: Math.max(0, an).toFixed(2),
+        canopyTransmission: canopyTransmission.toFixed(1),
+        pvWatts: pvWatts.toFixed(1)
+      };
+    }
+
+    function updateSimulation() {
+      const data = computeSolarPhysics();
+
+      // Update Sun Sphere in 3D Scene
+      const orbit = document.getElementById('sun-orbit');
+      if (orbit) {
+        // Map 6:00 - 18:00 to 0 - 180 degrees
+        const rotZ = (solarHour - 6.0) / 12.0 * 180.0;
+        orbit.setAttribute('rotation', `0 0 ${rotZ}`);
+      }
+
+      // Update Directional Light color and position
+      const sunLight = document.getElementById('sun-directional-light');
+      if (sunLight) {
+        const rad = (solarHour - 6.0) / 12.0 * Math.PI;
+        const posX = Math.cos(rad) * 4.0;
+        const posY = Math.max(0.2, Math.sin(rad) * 5.0);
+        sunLight.setAttribute('position', `${posX} ${posY} 2`);
+
+        // Warm dawn/dusk color vs white-gold noon
+        if (solarHour < 7.5 || solarHour > 16.5) {
+          sunLight.setAttribute('light', 'color: #f97316; intensity: 1.6');
+        } else {
+          sunLight.setAttribute('light', 'color: #fef08a; intensity: 2.2');
+        }
+      }
+
+      // 3D Text & HUD labels
+      document.getElementById('label-sensor-ppfd').setAttribute('value', `${data.ppfd.toLocaleString()} µmol/m²/s`);
+      document.getElementById('label-pyranometer-rs').setAttribute('value', `${data.rs} W/m²`);
+      document.getElementById('label-carbon-an').setAttribute('value', `An: ${data.an} µmol CO₂/m²/s`);
+
+      // 2D HUD Readouts
+      document.getElementById('val-ppfd-readout').innerText = data.ppfd.toLocaleString();
+      document.getElementById('val-rs-readout').innerText = `${data.rs} W/m²`;
+      document.getElementById('val-an-readout').innerText = `${data.an} µmol CO₂/m²/s`;
+      document.getElementById('val-canopy-ext').innerText = `${data.canopyTransmission}% (ดูดกลืน ${(100 - data.canopyTransmission).toFixed(1)}%)`;
+      document.getElementById('val-pv-power').innerText = `${data.pvWatts} Watts (12.4 V)`;
+
+      // PPFD Bar (0 - 2000 scale)
+      const barPct = Math.min(100, Math.round((data.ppfd / 2000.0) * 100));
+      document.getElementById('ppfd-bar').style.width = barPct + '%';
+
+      // Status text
+      const satEl = document.getElementById('txt-sat-status');
+      if (data.ppfd < 80) {
+        satEl.innerText = "ต่ำกว่าจุดชดเชยแสง (LCP)";
+        satEl.style.color = "#38bdf8";
+      } else if (data.ppfd < 1200) {
+        satEl.innerText = "ช่วงตอบสนองเชิงเส้น (Linear Phase)";
+        satEl.style.color = "#34d399";
+      } else {
+        satEl.innerText = "จุดอิ่มตัวแสงสูงสุด (LSP Saturated)";
+        satEl.style.color = "#fbbf24";
+      }
+
+      // Top floating 3D Banner
+      const hrInt = Math.floor(solarHour);
+      const minInt = Math.round((solarHour - hrInt) * 60);
+      const timeStr = `${String(hrInt).padStart(2, '0')}:${String(minInt).padStart(2, '0')}`;
+      document.getElementById('hud-solar-title').setAttribute('value', `SOLAR PAR TELEMETRY: ${timeStr} HRS`);
+      document.getElementById('hud-solar-stat').setAttribute('value', `PPFD: ${data.ppfd} µmol/m²/s | An: ${data.an} µmol CO2/m²/s`);
+    }
+
+    function setSolarTime(h) {
+      initSound();
+      solarHour = parseFloat(h);
+      document.getElementById('slider-solar-time').value = h;
+      updateTimeSlider(h);
+
+      document.querySelectorAll('.time-pill').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.time-pill')).find(b => parseFloat(b.innerText) === Math.floor(h));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      playSolarTone(440 + h * 30, 0.1);
+    }
+
+    function updateTimeSlider(val) {
+      initSound();
+      solarHour = parseFloat(val);
+      const hr = Math.floor(solarHour);
+      const mn = Math.round((solarHour - hr) * 60);
+      document.getElementById('txt-solar-time').innerText = `${String(hr).padStart(2, '0')}:${String(mn).padStart(2, '0')} น.`;
+      playSolarTone(350 + solarHour * 25, 0.03);
+      updateSimulation();
+    }
+
+    function updateCloudCover(val) {
+      initSound();
+      cloudCoverPct = parseInt(val);
+      let desc = "โปร่ง";
+      if (cloudCoverPct > 70) desc = "เมฆหนาทึบ";
+      else if (cloudCoverPct > 30) desc = "มีเมฆบางส่วน";
+      document.getElementById('txt-cloud-cover').innerText = `${val}% (${desc})`;
+      playSolarTone(600 - cloudCoverPct * 2, 0.04);
+      updateSimulation();
+    }
+
+    function updateLai(val) {
+      initSound();
+      lai = parseFloat(val);
+      document.getElementById('txt-lai-val').innerText = `${val} m²/m²`;
+      playSolarTone(500, 0.04);
+      updateSimulation();
+    }
+
+    function updateTilt(val) {
+      initSound();
+      panelTilt = parseInt(val);
+      document.getElementById('txt-tilt-val').innerText = `${val}°`;
+      const pv = document.getElementById('solar-pv');
+      if (pv) pv.setAttribute('rotation', `-${val} 0 0`);
+      playSolarTone(580, 0.04);
+      updateSimulation();
+    }
+
+    // Toggle Sound Button
+    document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+      initSound();
+      isSoundMuted = !isSoundMuted;
+      const icon = document.getElementById('btn-toggle-sound').querySelector('i');
+      if (isSoundMuted) {
+        icon.className = 'fa-solid fa-volume-xmark';
+        document.getElementById('btn-toggle-sound').style.opacity = '0.5';
+      } else {
+        icon.className = 'fa-solid fa-volume-high';
+        document.getElementById('btn-toggle-sound').style.opacity = '1';
+        playSolarTone(660, 0.1);
+      }
+    });
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSimulation();
+
+      // Mouse drag rotation of pedestal pivot
+      let isDragging = false;
+      let prevMouseX = 0;
+      window.addEventListener('mousedown', (e) => {
+        if (e.target.closest('#hud-overlay') && !e.target.closest('#scene-container')) return;
+        isDragging = true;
+        prevMouseX = e.clientX;
+        initSound();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevMouseX;
+        prevMouseX = e.clientX;
+        const pivot = document.getElementById('apparatus-pivot');
+        if (pivot) {
+          const currentRot = pivot.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+          pivot.setAttribute('rotation', `${currentRot.x} ${currentRot.y + dx * 0.5} ${currentRot.z}`);
+        }
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      // AR Mode integration
+      const btnAr = document.getElementById('btn-toggle-ar-mode');
+      if (btnAr && window.ARCoreEngine) {
+        const ar = new ARCoreEngine({
+          labId: 'lab-solar-par',
+          themeColor: '#f59e0b',
+          onPinchStart: () => {
+            // Cycle time of day on pinch
+            const times = [8, 12, 15, 17.5];
+            const nextTime = times[(times.indexOf(solarHour) + 1) % times.length] || 12;
+            setSolarTime(nextTime);
+          }
+        });
+        btnAr.addEventListener('click', () => {
+          ar.toggleMode();
+          btnAr.innerHTML = ar.isCameraActive 
+            ? '<i class="fa-solid fa-cube"></i> กลับสู่ 3D Simulator' 
+            : '<i class="fa-solid fa-camera"></i> เปิดโหมด AR Gesture';
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

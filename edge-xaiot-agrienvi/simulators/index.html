@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ห้องปฏิบัติการจำลองเสมือนจริง 3D AR MediaPipe (Virtual Labs) — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #030712;
+      color: #f8fafc;
+      font-family: 'Prompt', sans-serif;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 240, 255, 0.4);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(0, 240, 255, 0.2);
+    }
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      background: #34d399;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #34d399;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg shadow-cyan-500/20">
+          <i class="fa-solid fa-cube"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base md:text-lg text-white font-['Chakra_Petch'] tracking-wide">
+            3D AR MediaPipe Virtual Labs Hub
+          </h1>
+          <p class="text-xs text-slate-400">
+            ห้องปฏิบัติการจำลองเสมือนจริงแบบเรียลไทม์ &bull; Edge xAIoT : 4D-AgriEnvi | RBRU 2026
+          </p>
+        </div>
+      </div>
+      <a href="../index.php#simulators" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 border border-slate-700 transition">
+        <i class="fa-solid fa-arrow-left"></i> กลับสู่หน้าหลัก
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main class="max-w-7xl mx-auto px-4 py-10 space-y-12">
+    
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider font-mono">
+        <span class="dot-pulse"></span> Spatial AR 3D Computing &amp; Zero-GC Loop
+      </div>
+      <h2 class="text-3xl md:text-5xl font-black font-['Chakra_Petch'] tracking-tight bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+        ห้องปฏิบัติการจำลองเสมือนจริง 3D Interactive &amp; AR
+      </h2>
+      <p class="text-sm md:text-base text-slate-300 leading-relaxed">
+        เริ่มต้นใช้งานทันทีในโหมด <strong>3D Interactive Realtime Simulation Experimental Lab</strong> (หมุนสัมผัส 3 มิติ 360°, ปรับสไลเดอร์ฟิสิกส์ 60 FPS, เสียงสังเคราะห์ Web Audio API โดยไม่ต้องรอกล้อง) พร้อม <strong>ปุ่มกดสลับเปิดโหมด 3D AR MediaPipe Gesture AI</strong> ตรวจจับท่าทางมือแบบไร้สัมผัสผ่านกล้องได้ทุกเมื่อตามต้องการ
+      </p>
+    </div>
+
+    <!-- 7 FLAGSHIP 3D AR LABS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      
+      <!-- LAB 1: RS485 Modbus 7-in-1 Soil Probe -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 group-hover:bg-emerald-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Lab 1 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-hand text-emerald-400"></i> Pinch (🤏) Depth</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-seedling"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                โพรบวัดดินอัจฉริยะ 7-in-1 RS485 Modbus RTU
+              </h3>
+              <p class="text-xs text-slate-400">
+                Multi-Depth Stratified Soil Profile (Horizon A, B, C)
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            จำลองการปักหัววัดสแตนเลสสตีล 3 เข็มลงในชั้นดินลึก 0-30 ซม. ตรวจวัดความชื้นดิน, ค่า EC, pH, N, P, K และอุณหภูมิ พร้อมสร้างเฟรมข้อมูล Modbus Hex Packet RX/TX แบบเรียลไทม์
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 border border-slate-800">316L Electrodes</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-cyan-300 border border-slate-800">Modbus RTU Frame</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">Horizon Detection Beep</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-emerald-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-soil-7in1/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+      <!-- LAB 2: ESP32-S3 ATD3.5 Controller & 4 Relays -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl -z-10 group-hover:bg-sky-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-sky-500/20 text-sky-300 border border-sky-500/30">
+              Lab 2 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-hand-pointer text-sky-400"></i> Point (☝️) Relay</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                บอร์ดควบคุม ESP32-S3 ATD3.5 &amp; 4-Relay Hub
+              </h3>
+              <p class="text-xs text-slate-400">
+                Interactive Touchscreen &amp; Actuators Control Center
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            ทดลองสั่งการบอร์ดไมโครคอนโทรลเลอร์ ESP32-S3 WROOM พร้อมจอสี ATD3.5 นิ้ว และชุดรีเลย์ 4 ช่อง สำหรับปั๊มน้ำ, วาล์วปุ๋ย, พัดลม และระบบพ่นหมอก พร้อมเสียงคลิกสวิตช์รีเลย์สมจริง
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-sky-300 border border-slate-800">ESP32-S3 240MHz</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-teal-300 border border-slate-800">Songle 10A Relays</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">Audio Relay Click</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-sky-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-esp32-controller/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-sky-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+      <!-- LAB 3: SHT45 Microclimate & Stomatal Transpiration -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -z-10 group-hover:bg-teal-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-teal-500/20 text-teal-300 border border-teal-500/30">
+              Lab 3 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-hand text-teal-400"></i> Pinch (🤏) Temp/RH</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/40 text-teal-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-leaf"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                จุลอากาศ SHT45 &amp; การคายน้ำของเซลล์คุมปากใบ
+              </h3>
+              <p class="text-xs text-slate-400">
+                Stomatal Guard Cells Morphing &amp; VPD Equation
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            วิเคราะห์ความดันไอขาดดุล (VPD) ผ่านแบบจำลอง 3 มิติของหัววัด SHT45 ในกระเปาะป้องกันรังสี และการเปิด-ปิดของเซลล์คุมปากใบพืชทุเรียน พร้อมละอองน้ำคายน้ำเสมือนจริง
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-teal-300 border border-slate-800">VPD Tetens Eq.</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 border border-slate-800">Dynamic Stomata</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">Radiation Shield 3D</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-teal-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-vpd-microclimate/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+      <!-- LAB 4: Coastal Aquaculture Aeration & VFD Inverter -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -z-10 group-hover:bg-indigo-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              Lab 4 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-hand text-indigo-400"></i> Pinch (🤏) Water Temp</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-water"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                การจัดการออกซิเจนละลาย DO &amp; อินเวอร์เตอร์ VFD
+              </h3>
+              <p class="text-xs text-slate-400">
+                Benson-Krause Saturation &amp; Affinity Power Laws
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            จำลองบ่อเพาะเลี้ยงสัตว์น้ำชายฝั่ง กังหันตีน้ำหมุน 60 FPS และตู้คอนโทรล VFD Inverter คำนวณการประหยัดพลังงานไฟฟ้าระดับ 56% พร้อมเสียงฮัมมอเตอร์ปรับความถี่ตาม Hz
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-indigo-300 border border-slate-800">Affinity P ∝ f³</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-sky-300 border border-slate-800">60 FPS Paddle</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">Acoustic Motor Hum</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-indigo-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-aquaculture-vfd/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-500 hover:from-indigo-500 hover:to-sky-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+      <!-- LAB 5: Computer Vision & Leaf Disease AI (MobileNetV3 & Grad-CAM) -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl -z-10 group-hover:bg-purple-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              Lab 5 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-eye text-purple-400"></i> AI Leaf Diagnostics &bull; Grad-CAM</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                วิทัศน์คอมพิวเตอร์และปัญญาประดิษฐ์ตรวจโรคใบพืช (Computer Vision &amp; Leaf Disease AI)
+              </h3>
+              <p class="text-xs text-slate-400">
+                MobileNetV3 PyTorch &bull; ONNX WASM Inference (24.6 ms) &bull; Grad-CAM Heatmap
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            จำลองแท่นตรวจสอบใบพืช 3 มิติ 360&deg; คัดแยกโรคใบพืชทุเรียน 4 คลาส (Healthy, ราใบติด, จุดสนิม, โฟมอปซิส) ด้วยโมเดลสถาปัตยกรรม MobileNetV3 ความแม่นยำ 98.4% พร้อมเลเยอร์ภาพความร้อน Grad-CAM Visual Explainability สำหรับอธิบายการตัดสินใจของโครงข่ายประสาทเทียม
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-purple-300 border border-slate-800">4-Class Classification</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-pink-300 border border-slate-800">Grad-CAM Heatmap</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 border border-slate-800">24.6ms Edge WASM</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-hand-pointer text-purple-400 mr-1"></i> สลับตัวอย่างใบพืชและปรับความโปร่งแสง Grad-CAM ได้ทันที</span>
+          <div class="flex items-center gap-2">
+            <a href="../app/durian-leaf-app/index.html" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 border border-slate-700 transition">
+              <i class="fa-solid fa-window-maximize"></i> PWA
+            </a>
+            <a href="lab-vision-ai/index.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-500/30 transition transform hover:scale-105">
+              <i class="fa-solid fa-play"></i> เปิด 3D AR
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 6: Soil Quality Analysis with Computer Vision & Deep Learning (CV+DL) -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl -z-10 group-hover:bg-amber-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Lab 6 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-hand text-amber-400"></i> Pinch (🤏) Soil Type</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-camera-rotate"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                วิเคราะห์คุณภาพดินด้วย CV+DL 3D
+              </h3>
+              <p class="text-xs text-slate-400">
+                Munsell Soil Color (CIE-Lab) &bull; Soil Texture &bull; Deep Learning SOM%
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            จำลองแท่นตรวจวิเคราะห์หน้าดิน 3 มิติ 360° ร่วมกับการเทียบการ์ด White Balance ColorChecker แปลงค่าภาพถ่ายกล้องสู่พิกัดสีดินมาตรฐาน Munsell และประมวลผลด้วย Deep CNN เพื่อพยากรณ์อินทรียวัตถุ (SOM %) และเนื้อดินแบบเรียลไทม์
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">Munsell System</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 border border-slate-800">CNN SOM% Regress</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-cyan-300 border border-slate-800">CIE-Lab ΔE*ab</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-amber-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-soil-vision-ai/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+      <!-- LAB 7: Solar PAR Radiation & Carbon Assimilation Station -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl -z-10 group-hover:bg-amber-500/20 transition"></div>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Lab 7 &bull; 3D AR Spatial
+            </span>
+            <span class="text-xs text-slate-400 font-mono"><i class="fa-solid fa-sun text-amber-400"></i> Pinch (🤏) Solar Time</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-solar-panel"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white font-['Chakra_Petch']">
+                โฟตอนสังเคราะห์แสง PAR &amp; การตรึงคาร์บอน 3D
+              </h3>
+              <p class="text-xs text-slate-400">
+                Quantum PPFD &bull; Beer-Lambert Canopy Extinction &bull; Photosynthetic Assimilation
+              </p>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            จำลองวิถีโคจรดวงอาทิตย์บนท้องฟ้า 3 มิติ และหัววัด Quantum PAR Sensor / Pyranometer ตรวจวัดความเข้มแสงสังเคราะห์ PPFD คำนวณอัตราการสังเคราะห์แสงสุทธิ An และการผลิตไฟฟ้าจากแผงโซลาร์เซลล์
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 border border-slate-800">PPFD µmol/m²/s</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-cyan-300 border border-slate-800">An Carbon Model</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 border border-slate-800">Beer Canopy LAI</span>
+          </div>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-400"><i class="fa-solid fa-camera text-amber-400 mr-1"></i> รองรับกล้อง AI และเมาส์</span>
+          <a href="lab-solar-par/index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/30 transition transform hover:scale-105">
+            <i class="fa-solid fa-play"></i> เปิดห้องทดลอง 3D AR
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SYSTEM ARCHITECTURE SUMMARY -->
+    <div class="glass-card rounded-3xl p-8 border border-slate-800 text-slate-300 space-y-6">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-layer-group text-cyan-400 text-xl"></i>
+        <h3 class="text-lg font-bold text-white font-['Chakra_Petch']">
+          สถาปัตยกรรมระบบห้องปฏิบัติการจำลองเสมือนจริง (Modular System Architecture)
+        </h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs leading-relaxed">
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="font-bold text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-hand"></i> 1. Touchless AI Vision Core
+          </div>
+          <p>
+            MediaPipe Hands ประมวลผลจุดพิกัดมือ 21 ข้อต่อแบบ On-Device บนเว็บเบราว์เซอร์ จำแนกท่าทาง Pinch, Point, Fist และ Tilt โดยไม่ส่งข้อมูลภาพออกจากเครื่อง เพื่อความปลอดภัยและเป็นส่วนตัว 100%
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="font-bold text-emerald-400 flex items-center gap-2">
+            <i class="fa-solid fa-cubes"></i> 2. 3D WebXR &amp; Zero-GC Engine
+          </div>
+          <p>
+            สร้างชิ้นงาน 3D ด้วย A-Frame 1.4.2 และ Three.js PBR Shaders พร้อมการออกแบบวงรอบคำนวณแบบ Zero-GC Loop Engineering เพื่อรักษาความเร็วระดับ 60 FPS ต่อเนื่องบนทุกอุปกรณ์
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="font-bold text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-volume-high"></i> 3. Web Audio Acoustic Synthesizer
+          </div>
+          <p>
+            สังเคราะห์คลื่นเสียงฟิสิกส์สดผ่าน Web Audio API อัตโนมัติ (เสียงหน้าสัมผัสรีเลย์, เสียงโพรบปิ๊บ, เสียงฮัมความถี่มอเตอร์ และเสียงฟองน้ำ) โดยไม่ต้องดาวน์โหลดไฟล์เสียงภายนอก
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 py-8 border-t border-slate-800/80 text-center text-xs text-slate-500 space-y-2">
+    <div>
+      คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ร่วมกับ โรงเรียนประณีตวิทยาคม
+    </div>
+    <div class="font-mono text-slate-600">
+      Edge xAIoT : 4D-AgriEnvi &bull; 3D AR Spatial Simulation Platform 2026
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+    "enabled": true,
+    "webhook_url": "https:\/\/script.google.com\/macros\/s\/AKfycbxNRE01q2xwNmCjmxbJ7-p8WNwZYIyIYHBxRZmPbMyqcffMsTjm7V57GreUx3QK6IQ\/exec",
+    "sheet_url": "https:\/\/docs.google.com\/spreadsheets\/d\/1lMmyec36gMVBUKPk3Jp8yaE8schk7yg0XkMyU6JiyWc\/edit?gid=838789992#gid=838789992",
+    "auto_sync_on_register": true,
+    "last_sync": "2026-10-19 11:04:45",
+    "last_sync_count": 0,
+    "last_status": "success (HTTP 401)"
+}

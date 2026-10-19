@@ -2059,7 +2059,16 @@ graph TD
 | `RESET_CONFIG` | - | `RESET_CONFIG` | ล้างค่าคอนฟิกทั้งหมดใน NVS คืนสู่ค่าโรงงาน |
 | `REBOOT` | - | `REBOOT` | สั่งรีสตาร์ตระบบบอร์ด ESP32-S3 |
 
+### 12.4 สถาปัตยกรรมการเชื่อมต่อสื่อสารข้ามเครือข่ายต่างวง (Cross-Network IoT Communication)
+ในสถานการณ์จริง บอร์ด ESP32 ในแปลงอาจเชื่อมต่ออินเทอร์เน็ตผ่าน **Mobile Hotspot ของสมาร์ทโฟน** (ซับเน็ต `192.168.43.x` ติด Carrier-Grade NAT) ในขณะที่คอมพิวเตอร์เปิดแดชบอร์ดผ่าน **Wi-Fi มหาวิทยาลัยหรือบ้าน** (ซับเน็ต `192.168.1.x` หรือติด AP Isolation) ทำให้ไม่สามารถสื่อสารผ่าน Local IP ตรงๆ ได้
+
+โครงการได้จัดทำคู่มือวิศวกรรมฉบับสมบูรณ์สำหรับผู้เริ่มต้นไว้ที่ **[`MANUAL_IOT_CROSS_NETWORK_GUIDE.md`](file:///Applications/XAMPP/xamppfiles/htdocs/handysense/MANUAL_IOT_CROSS_NETWORK_GUIDE.md)** ครอบคลุม 3 สถาปัตยกรรมหลัก:
+1. **Cloud MQTT Broker (HiveMQ Cloud / EMQX):** สถาปัตยกรรม Publish/Subscribe ข้ามทวีป Latency < 100ms ปลอดภัยผ่านพอร์ต TLS 8883 / WebSocket 8884 ไม่ติดบล็อกไฟร์วอลล์สถาบัน
+2. **Google Firebase Realtime Database:** สถาปัตยกรรม Cloud JSON Tree อัปเดตข้อมูลและสวิตช์ควบคุมอัตโนมัติ Real-time พร้อมเก็บบันทึกประวัติ
+3. **Localhost Server (XAMPP/Python) + Cloudflare Tunnel:** การเจาะอุโมงค์ HTTPS ปลอดภัยจากเครื่องคอมพิวเตอร์ส่วนบุคคลสู่โลกภายนอกฟรี 100% โดยไม่ต้องเปิดพอร์ตเราเตอร์
+
 ---
+
 
 ## 13. สถาปัตยกรรมเรนเดอร์ฟอนต์และการขจัดปัญหากล่องสี่เหลี่ยมสามภาษาบนจอ 3.5 นิ้ว IPS (Tri-Lingual Display Font Engine & Zero-Tofu Architecture)
 
@@ -2092,6 +2101,160 @@ Boot (thai_font_vlw) ──> วาดจอไทยสมบูรณ์ ─�
    * ตัดพารามิเตอร์ `&fonts::Font2` ออกจาก `updateTopHeaderClock()` ทั้งหมด
 3. **การสลับภาษาแบบ Tri-Lingual Touch Control:**
    * ออกแบบปุ่มกด 3 ภาษาในหน้า Wi-Fi Setup (ภาษาไทย, English, 中文) โดยเรนเดอร์ชื่อภาษาด้วยฟอนต์เฉพาะทางอย่างถูกต้อง คมชัดสูง 100%
+
+---
+
+## 14. สถาปัตยกรรมเมนูนำทางสมดุล 5 หมวดหมู่ และระบบบริหารจัดการฐานข้อมูลรายชื่อ (Balanced Navigation & Database CRUD Architecture)
+
+### 14.1 สถาปัตยกรรมจัดระเบียบเมนูนำทาง 5 กลุ่ม (Balanced 5-Category Navigation Architecture)
+เพื่อรองรับความต้องการใช้งานของผู้เข้าร่วมอบรมและผู้ดูแลระบบที่มีความหลากหลาย โดยปรับปรุงจากการแสดงผลเดิมที่แออัด ให้กลายเป็นการจัดหมวดหมู่ที่มีความสมดุล สวยงาม และเข้าถึงได้สะดวกบนทุกอุปกรณ์:
+
+1. **หมวดที่ 1: ควบคุม & ตรวจวัด (Control & Sensors):**
+   - รวมหน้าต่างแผงควบคุมอุปกรณ์จริง (`index.php`), หน้าต่างสถานะเซนเซอร์ 4 สถานีแบบละเอียด, การจำลองสถานะรีเลย์ปั๊มน้ำ พัดลม สปริงเกอร์ และการควบคุมแบบ Manual/Auto
+2. **หมวดที่ 2: วางแผน & นัดหมาย (Schedule & Calendar):**
+   - รวบรวมหน้าตารางกำหนดการอบรมเชิงปฏิบัติการ (Workshop Timeline), ปฏิทินการเพาะปลูกอัจฉริยะ, แผนผังกิจกรรมประจำวัน และเอกสารประกอบการบรรยาย
+3. **หมวดที่ 3: ปัญญาประดิษฐ์ (AI & Vision):**
+   - หน้าต่างตรวจจับและจำแนกโรคพืชด้วยคอมพิวเตอร์วิชัน (Computer Vision & TinyML), ระบบแบบจำลองการจำลองฟิสิกส์-เคมีดิน (Soil pH & NPK Predictor), และห้องแล็บจำลองเสมือนจริง (Interactive Virtual Lab)
+4. **หมวดที่ 4: วิเคราะห์ & ประวัติ (Analytics & Telemetry Logs):**
+   - กราฟแนวโน้มอนุกรมเวลา (Time-Series Charts), ค่าดัชนี VPD (Vapor Pressure Deficit), สถิติการสะสมแสง PAR, และระบบดาวน์โหลดบันทึกข้อมูลย้อนหลัง (Telemetry CSV Exporter)
+5. **หมวดที่ 5: ลงทะเบียน & ทะเบียน (Register & Directory):**
+   - แบบฟอร์มลงทะเบียนเข้าร่วมโครงการ (`register.php`), หน้าประกาศรายชื่อและสถานะการยืนยันสิทธิ์ (`student_list.php`), และระบบเข้าสู่ระบบผู้ดูแลระบบ (Admin CMS Portal)
+
+### 14.2 การแก้ไขเส้นทางฐานข้อมูล Admin `$data_dir` และการขจัดปัญหา Auto-Seeding ซ้ำซ้อน (Zero-Ghost Record Engineering)
+
+#### 1. การแก้ไขเส้นทางฐานข้อมูลแบบรวมศูนย์ (Database Path Centralization)
+* **ปัญหาที่พบ:** ไฟล์ `admin/includes/auth_and_data.php` มีการประกาศ `$data_dir = __DIR__ . '/../data'` ซึ่งทำให้ตัวจัดการชี้ไปยัง `admin/data/` ซึ่งอยู่คนละตำแหน่งกับระบบหน้าบ้านที่ใช้ `edge-xaiot-agrienvi/data/`
+* **แนวทางแก้ไข:** ปรับปรุงเส้นทางอ้างอิงให้ถอยหลัง 2 ระดับ เป็น:
+  ```php
+  $data_dir = __DIR__ . '/../../data';
+  ```
+  ส่งผลให้ทั้งหน้าบ้าน (`index.php`, `register.php`, `student_list.php`), แบ็กเอนด์ API (`api/api.php`) และระบบหลังบ้าน Admin CMS เชื่อมต่อและทำงานบนฐานข้อมูล SQLite3 ไฟล์เดียวกันอย่างสมบูรณ์ (`data/smart_farm.sqlite3`)
+
+#### 2. การขจัดข้อผิดพลาดข้อมูลผีหลอก (Eradicating Ghost-Record Auto-Seeding Loop)
+* **การวิเคราะห์รากเหง้าของปัญหา (Root Cause Analysis):**
+  ในโค้ดเดิมของ `auth_and_data.php` (บรรทัดที่ 79) และ `api.php` (บรรทัดที่ 508) มีการเขียนตรรกะตรวจสอบจำนวนข้อมูล:
+  ```php
+  // ตรรกะเดิมที่ก่อให้เกิดข้อผิดพลาด:
+  $cnt = $db->querySingle("SELECT COUNT(*) FROM participants");
+  if ($cnt == 0) {
+      // ทำการรันคำสั่ง INSERT รายชื่อตัวอย่าง 10 คนโดยอัตโนมัติ
+  }
+  ```
+  ส่งผลให้เมื่อผู้ดูแลระบบกด "ลบ" หรือ "ล้างข้อมูล" จนกระทั่งตารางว่างเปล่า (`COUNT == 0`) เมื่อมีการรีเฟรชหน้าเว็บหรือเรียกดูข้อมูลผ่าน API ระบบจะทำการสร้างข้อมูลตัวอย่าง 10 รายชื่อใส่กลับเข้ามาในฐานข้อมูลทันที ทำให้ดูเสมือนว่าการลบไม่ทำงาน
+* **การปรับปรุงสถาปัตยกรรม:**
+  - ตัดบล็อกเงื่อนไข Auto-seed อัตโนมัติออกจากกระบวนการโหลดหน้าปกติของทั้ง `auth_and_data.php` และ `api/api.php`
+  - ย้ายการสร้างข้อมูลตัวอย่าง 10 รายชื่อไปผูกไว้กับคำสั่งผู้ดูแลระบบอย่างชัดเจน (Explicit Admin Action) ผ่าน API endpoint: `action=reset_participants` เท่านั้น
+  - ปรับปรุง `pages/student_list.php` โดยนำข้อมูลจำลองสำรอง (Hardcoded Fallback Array) ออก 100% เพื่อให้อ่านผลลัพธ์จากฐานข้อมูล SQLite3 จริงเท่านั้น หากไม่มีข้อมูลจะแสดงสถานะว่างอย่างถูกต้อง
+
+### 14.3 ฟังก์ชันล้างข้อมูลทั้งหมดสู่ 0 (Clear All Participants API) และระบบยืนยันความปลอดภัย SweetAlert2
+
+เพื่อเพิ่มประสิทธิภาพและความมั่นใจในการเตรียมระบบก่อนเปิดรับลงทะเบียนจริง ได้มีการติดตั้งฟังก์ชันและปุ่มล้างข้อมูลทั้งหมด:
+1. **API Endpoint (`api/api.php`):**
+   ```php
+   case 'clear_all_participants':
+       $db->exec("DELETE FROM participants");
+       $db->exec("DELETE FROM sqlite_sequence WHERE name='participants'"); // รีเซ็ตเลขออโต้รัน ID
+       $db->exec("VACUUM"); // บีบอัดคืนพื้นที่ไฟล์ฐานข้อมูล
+       echo json_encode(['success' => true, 'message' => 'ล้างข้อมูลผู้ลงทะเบียนทั้งหมดเรียบร้อยแล้ว']);
+       break;
+   ```
+2. **ระบบยืนยันความปลอดภัย 2 ชั้น (Two-Step SweetAlert2 Confirmation):**
+   - เมื่อกดปุ่ม "ล้างข้อมูลทั้งหมด" (สีแดง Danger) หน้าต่างแจ้งเตือนจะแสดงข้อความเตือนความปลอดภัย พร้อมถามยืนยันซ้ำ
+   - หากยืนยัน ระบบจะส่งคำขอแบบ Asynchronous ผ่าน AJAX POST และรีเฟรชตารางข้อมูลทันที ทำให้ข้อมูลกลายเป็น 0 รายการอย่างแท้จริง
+
+---
+
+## 15. ชุดคำสั่งสร้างวิดีโอ 3D Pixar Animation 50 วินาที และบทพากย์เสียงภาษาไทย "น้องสมาร์ทไซน์" ประชาสัมพันธ์กิจกรรมอบรมฟรี (3D Pixar Promo Video Prompts & Thai Narration Scripts)
+
+### 15.1 แนวคิดตัวละครหลักและสไตล์ภาพ (Character Conception & Visual Aesthetic)
+* **ตัวละครหลัก:** **"น้องสมาร์ทไซน์" (Nong SmartScience)**
+  * เด็กชายวัย 10-12 ปี บุคลิกร่าเริง ฉลาด ดวงตากลมโตเป็นประกาย สวมแว่นตากลมทันสมัย
+  * เครื่องแต่งกาย: เสื้อกาวน์สีขาวพับแขน สวมทับเสื้อยืดสีเขียวมรกต บนอกเสื้อกาวน์ปักตราสัญลักษณ์คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ถือสมาร์ทแท็บเล็ตและอุปกรณ์เซนเซอร์วัดดิน
+* **สไตล์งานภาพ (Visual Art Direction):**
+  * 3D Pixar Animation & Disney Character Concept Art
+  * เรนเดอร์ด้วย Octane Render, Unreal Engine 5.4 Lumen & Nanite, Ray-traced Subsurface Scattering, ฟิสิกส์แสงแดดอบอุ่น (Golden Hour & Volumetric Sunlight Shafts) ทะลุผ่านหลังคาโรงเรือนเกษตรอัจฉริยะ
+* **อารมณ์และโทนเสียง (Tone & Mood):**
+  * สนุกสนาน ตื่นเต้น เข้าถึงง่าย ได้สาระความรู้เชิงวิทยาศาสตร์ล้ำสมัย ดนตรีประกอบสไตล์ Acoustic Pop สดใส จังหวะเร็วปานกลาง (Uptempo 118 BPM)
+
+---
+
+### 15.2 ตารางสรุป 5 ฉากและเวลา (50-Second Scene Breakdown Matrix)
+
+| ตอน (Scene) | ช่วงเวลา (Time) | ธีมหลัก (Theme) | การกระทำของตัวละคร (Action & Visual Focus) |
+| :---: | :---: | :---: | :--- |
+| **ฉากที่ 1** | 00:00 - 00:10 (10 วินาที) | เปิดตัว & สร้างแรงดึงดูด (Hook & Welcome) | น้องสมาร์ทไซน์วิ่งยิ้มแย้มโบกมือเข้ามาในโรงเรือนสมาร์ทฟาร์ม แนะนำโครงการอบรมฟรี |
+| **ฉากที่ 2** | 00:10 - 00:20 (10 วินาที) | เทคโนโลยี IoT & เซนเซอร์ดิน (Sensors & IoT) | น้องสมาร์ทไซน์ถือโพรบวัดดินเสียบลงดิน กราฟิกโฮโลแกรมค่า NPK, pH, EC พุ่งขึ้นรอบตัว |
+| **ฉากที่ 3** | 00:20 - 00:30 (10 วินาที) | ปัญญาประดิษฐ์ตรวจโรคพืช (Edge AI & Vision) | ยกแท็บเล็ตส่องใบพืช เกิดกรอบ Bounding Box สแกนตรวจโรคพืชและแสดงคำแนะนำด้วย AI |
+| **ฉากที่ 4** | 00:30 - 00:40 (10 วินาที) | ห้องแล็บปฏิบัติการจริง (Hands-on Workshop) | ภาพบรรยากาศห้องอบรมสุดทันสมัย ผู้เข้าร่วมลงมือต่อวงจรและเขียนโค้ดจริงร่วมกับอาจารย์ |
+| **ฉากที่ 5** | 00:40 - 00:50 (10 วินาที) | ชวนสมัครฟรี & รับเกียรติบัตร (Call to Action) | น้องสมาร์ทไซน์ชูเกียรติบัตรเรืองแสง พร้อมผายมือไปยัง QR Code และลิงก์ลงทะเบียนฟรี |
+
+---
+
+### 15.3 ชุดพรอมต์สร้างภาพและวิดีโอ 3D ระดับ Masterclass (AI Video Generation Prompts)
+*(สามารถนำชุดพรอมต์ภาษาอังกฤษด้านล่างไปใส่ใน Runway Gen-3 Alpha, Luma Dream Machine, OpenAI Sora, Kling AI หรือ Midjourney v6 ได้ทันที)*
+
+#### 🎬 Scene 1 (0:00 - 0:10) — The Welcoming Hook in the Futuristic Smart Farm
+> **Prompt:**  
+> `High-end 3D Pixar Disney style animation. Wide angle shot. A cute cheerful 11-year-old boy named 'Nong SmartScience' with big expressive eyes, round modern glasses, messy brown hair, wearing a neat white lab coat with RBRU Science green emblem over an emerald green polo shirt. He excitedly runs towards the camera inside a hyper-modern lush greenhouse hydroponic farm, stopping with an energetic welcoming wave and a bright warm smile. Soft golden hour volumetric sunlight beams filter through the greenhouse glass roof, misting nozzles spraying delicate water particles in slow-motion, floating glowing digital hologram badges. Dynamic cinematic camera zoom-in, Octane render, 8K resolution, photorealistic textures, Disney Pixar feature film quality.`
+
+#### 🎬 Scene 2 (0:10 - 0:20) — High-Tech Soil Sensing & IoT Telemetry
+> **Prompt:**  
+> `Pixar 3D animation style. Medium close-up shot. Nong SmartScience kneels gently beside a vibrant green organic crop bed. He confidently inserts a sleek high-tech stainless steel 7-in-1 soil sensor probe into the rich dark soil. Suddenly, vivid 3D glowing holographic data particles erupt from the soil—neon green and cyan data graphs displaying 'NPK, pH 6.5, Moisture 72%, EC 1.2 mS/cm' swirling elegantly around him. Nong SmartScience looks at the camera with an amazed, confident expression, tapping his futuristic tablet. Depth of field, bokeh background, macro soil details, vibrant cinematic lighting, Unreal Engine 5 render.`
+
+#### 🎬 Scene 3 (0:20 - 0:30) — Edge AI Computer Vision & Plant Doctor
+> **Prompt:**  
+> `Pixar 3D character animation. Dynamic over-the-shoulder medium shot. Nong SmartScience holds up a transparent futuristic glass tablet in front of a tomato leaf showing slight nutrient spots. The tablet's smart camera emits an interactive neon cyan laser scanner grid across the leaf. Instant glowing AI bounding boxes lock onto the leaf with a cheerful sound effect visualization, revealing a 99.8% health diagnosis badge and smart organic nutrient recommendation. Nong SmartScience gives a confident thumbs up to the viewer with an enthusiastic nodding smile. Vibrant studio lighting, ray-traced reflections, Disney movie finish.`
+
+#### 🎬 Scene 4 (0:30 - 0:40) — Interactive Hands-on Workshop & Collaborative Joy
+> **Prompt:**  
+> `Inspiring Pixar 3D animation. Tracking medium wide shot. Inside a sunlit, high-tech academic computer laboratory at Rambhai Barni Rajabhat University. Nong SmartScience is happily guiding excited diverse students and agricultural hobbyists. Glowing ESP32-S3 IoT microcontrollers, colorful breadboard wires, and interactive dashboard screens line the wooden tables. Everyone is smiling, collaborating, high-fiving, and testing their live smart farm dashboard. Warm joyful atmosphere, depth of field, lively ambient workshop sounds visualization, Pixar signature storytelling style, ultra-detailed 8K.`
+
+#### 🎬 Scene 5 (0:40 - 0:50) — Grand Finale: Free Registration, Certificate & Call to Action
+> **Prompt:**  
+> `Epic cheerful Pixar 3D animated climax. Center portrait medium shot. Nong SmartScience proudly holds up a shimmering, golden-embossed official Certificate of Completion with gentle sparkling lens flare particles. Behind him, the modern smart greenhouse glows warmly under a sunset sky. A prominent, high-contrast 3D styled QR Code and bold glowing text "อบรมฟรี! มีเกียรติบัตร" float gracefully beside him. Nong SmartScience enthusiastically points forward towards the audience, inviting them to join with an irresistible friendly wink. Confetti and floating digital leaves, ultra-crisp typography layout, cinematic masterpiece.`
+
+---
+
+### 15.4 บทพากย์เสียงภาษาไทยฉบับสมบูรณ์ (Thai Voiceover Narration Script)
+
+#### 🎙️ ตารางแบ่งคำพูดและการจับจังหวะวินาที (Timestamped Voice Script Matrix)
+
+| ตอน (Scene) | เวลา (Time) | บทพูดภาษาไทย (Thai Voiceover Narration) | อารมณ์และจังหวะการพูด (Pacing & Mood) |
+| :---: | :---: | :--- | :--- |
+| **ฉากที่ 1** | **00:00 - 00:10** | "สวัสดีครับเพื่อน ๆ! พบกับผม **'น้องสมาร์ทไซน์'** วันนี้จะพาทุกคนไปสัมผัสโลกฟาร์มอัจฉริยะ ที่วิทยาศาสตร์เปลี่ยนการเกษตรให้ง่ายและล้ำกว่าที่เคย!" | สดใส ตื่นเต้น ดึงดูดความสนใจ ทักทายอย่างเป็นกันเองและมีพลัง |
+| **ฉากที่ 2** | **00:10 - 00:20** | "ดินต้องการอะไร? ปุ๋ยพอหรือยัง? ไม่ต้องสุ่มเดาอีกต่อไปครับ! ด้วยเซนเซอร์อัจฉริยะ IoT ตรวจลึกถึงราก รู้ทั้งค่า N-P-K, pH และความชื้นแบบเรียลไทม์!" | เน้นเสียงหนักแน่นตอนพูด N-P-K และเรียลไทม์ แสดงความมั่นใจในเทคโนโลยี |
+| **ฉากที่ 3** | **00:20 - 00:30** | "แถมยังมีคุณหมอพืชพกพา! ใช้ AI สแกนใบพืชปุ๊บ รู้โรคทันที วิเคราะห์แม่นยำ พร้อมบอกวิธีดูแลแปลงปลูกอย่างมือโปรผ่านสมาร์ทโฟน!" | อารมณ์ทึ่ง ว้าว น้ำเสียงสนุกสนาน เน้นคำว่า 'สแกนปุ๊บ รู้โรคทันที' |
+| **ฉากที่ 4** | **00:30 - 00:40** | "และข่าวดีที่สุด! คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ชวนเพื่อน ๆ มาลงมือทำจริง ทดลองจริง ในแล็บเกษตรดิจิทัลสุดทันสมัย!" | น้ำเสียงอบอุ่น ภาคภูมิใจ ชวนเชิญ ให้ความรู้สึกว่าทุกคนทำได้แน่นอน |
+| **ฉากที่ 5** | **00:40 - 00:50** | "ที่สำคัญ… **อบรมฟรี 100%!** พร้อมรับเกียรติบัตรมอบให้ถึงมือ! ที่นั่งมีจำนวนจำกัด สแกนคิวอาร์โค้ดลงทะเบียนด่วน แล้วพบกับผมนะครับ!" | ย้ำคำว่า 'ฟรี 100%' และ 'รับเกียรติบัตร' ปิดท้ายด้วยความอบอุ่นและเร่งด่วน |
+
+---
+
+#### 💡 คำแนะนำสำหรับการลงเสียงและการใช้โปรแกรม AI Voice (Audio Production Notes)
+1. **การออกเสียงศัพท์เทคนิค (Pronunciation Guide):**
+   * **IoT** ➔ ให้ออกเสียงว่า *"ไอ-โอ-ที"* ชัดเจน
+   * **N-P-K** ➔ ให้ออกเสียงว่า *"เอ็น - พี - เค"*
+   * **pH** ➔ ให้ออกเสียงว่า *"พี-เอช"*
+   * **AI** ➔ ให้ออกเสียงว่า *"เอ-ไอ"*
+   * **มหาวิทยาลัยราชภัฏรำไพพรรณี** ➔ ออกเสียงต่อเนื่อง *"มะ-หา-วิด-ทะ-ยา-ลัย-ราด-ชะ-พัด-รำ-ไพ-พัน-นี"* ชัดถ้อยชัดคำ
+2. **ข้อแนะนำโปรแกรมสังเคราะห์เสียง AI (TTS):**
+   * **Botnoi Voice:** แนะนำเลือกคาแรคเตอร์เสียงเด็กชาย/วัยรุ่นสดใส เช่น *"น้องนนท์"* หรือ *"กัปตัน"* ปรับ Speed: `1.05x`, Tone: `+1`
+   * **ElevenLabs:** ใช้โมเดล Multilingual v2 เลือกเสียงแนว Young Energetic Male (เช่น Charlie หรือ Adam) ปรับ Stability: `45%`, Clarity: `80%`
+   * **Microsoft Clipchamp / Azure Speech:** เลือกเสียงภาษาไทย `th-TH-NiwatNeural` หรือ `th-TH-PremwadeeNeural` ปรับ Pitch ขึ้นเล็กน้อย
+
+---
+
+#### 📋 บล็อกข้อความรวมพร้อมคัดลอกลงระบบเสียงพากย์ (Full TTS-Ready Copy Block)
+```text
+สวัสดีครับเพื่อน ๆ! พบกับผม น้องสมาร์ทไซน์ วันนี้จะพาทุกคนไปสัมผัสโลกฟาร์มอัจฉริยะ ที่วิทยาศาสตร์เปลี่ยนการเกษตรให้ง่ายและล้ำกว่าที่เคย!
+
+ดินต้องการอะไร? ปุ๋ยพอหรือยัง? ไม่ต้องสุ่มเดาอีกต่อไปครับ! ด้วยเซนเซอร์อัจฉริยะ ไอโอที ตรวจลึกถึงราก รู้ทั้งค่า เอ็น-พี-เค, พีเอช และความชื้นแบบเรียลไทม์!
+
+แถมยังมีคุณหมอพืชพกพา! ใช้ เอไอ สแกนใบพืชปุ๊บ รู้โรคทันที วิเคราะห์แม่นยำ พร้อมบอกวิธีดูแลแปลงปลูกอย่างมือโปรผ่านสมาร์ทโฟน!
+
+และข่าวดีที่สุด! คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี ชวนเพื่อน ๆ มาลงมือทำจริง ทดลองจริง ในแล็บเกษตรดิจิทัลสุดทันสมัย!
+
+ที่สำคัญ… อบรมฟรี 100%! พร้อมรับเกียรติบัตรมอบให้ถึงมือ! ที่นั่งมีจำนวนจำกัด สแกนคิวอาร์โค้ดลงทะเบียนด่วน แล้วพบกับผมนะครับ!
+```
 
 ---
 *บันทึกวิศวกรรมฉบับปรับปรุงสมบูรณ์ © 2026 โครงการ JC -AgriTech + AI | LEQs-xAI Workshop*

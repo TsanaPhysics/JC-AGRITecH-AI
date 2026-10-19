@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR SHT45 Microclimate & Stomatal Chamber — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #10b981;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Lighting -->
+      <a-entity light="type: ambient; color: #64748b; intensity: 1.2"></a-entity>
+      <a-entity light="type: directional; color: #10b981; intensity: 1.8; position: 2 4 3"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 1.2; position: -2 3 -2"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.0 2.2">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot -->
+      <a-entity id="apparatus-pivot" position="0 0.95 -0.2">
+
+        <!-- 3D SHT45 RADIATION SHIELD PROBE (Left Side) -->
+        <a-entity position="-0.65 0 0">
+          <!-- White Multi-Plate Radiation Shield Louvres -->
+          <a-cone position="0 0.35 0" radius-bottom="0.22" radius-top="0.04" height="0.08" material="color: #ffffff; roughness: 0.3"></a-cone>
+          <a-cylinder position="0 0.25 0" radius="0.20" height="0.03" material="color: #f8fafc; roughness: 0.3"></a-cylinder>
+          <a-cylinder position="0 0.17 0" radius="0.20" height="0.03" material="color: #f8fafc; roughness: 0.3"></a-cylinder>
+          <a-cylinder position="0 0.09 0" radius="0.20" height="0.03" material="color: #f8fafc; roughness: 0.3"></a-cylinder>
+          <a-cylinder position="0 0.01 0" radius="0.20" height="0.03" material="color: #f8fafc; roughness: 0.3"></a-cylinder>
+          <!-- Support Rod -->
+          <a-cylinder position="0 -0.25 0" radius="0.015" height="0.5" material="color: #64748b; metalness: 0.8"></a-cylinder>
+          <!-- Sensor Tag -->
+          <a-text value="Sensirion SHT45\nHigh-Accuracy\nMicroclimate" position="0 -0.08 0.22" align="center" scale="0.14 0.14 0.14" color="#00f0ff" font="kelsonsans"></a-text>
+        </a-entity>
+
+        <!-- 3D DURIAN BOTANICAL LEAF & STOMATA GUARD CELL MODEL (Right Side) -->
+        <a-entity position="0.45 0 0">
+          
+          <!-- Outer Leaf Contour Plate -->
+          <a-cylinder position="0 0.05 -0.05" radius="0.38" height="0.02" rotation="45 20 0"
+                      material="color: #15803d; roughness: 0.5">
+            <a-text value="Durian Folio Leaf" position="0 0.42 0.02" align="center" scale="0.16 0.16 0.16" color="#a7f3d0"></a-text>
+          </a-cylinder>
+
+          <!-- Microscopic Stomatal Pore Assembly (Guard Cells) -->
+          <a-entity id="stomata-assembly" position="0 0.05 0.12" rotation="0 0 0">
+            <!-- Left Kidney-shaped Guard Cell -->
+            <a-torus id="guard-cell-left" arc="180" radius="0.16" radius-tubular="0.04" rotation="0 0 90" position="-0.04 0 0"
+                     material="color: #22c55e; emissive: #15803d; emissiveIntensity: 0.3"></a-torus>
+            <!-- Right Kidney-shaped Guard Cell -->
+            <a-torus id="guard-cell-right" arc="180" radius="0.16" radius-tubular="0.04" rotation="0 0 -90" position="0.04 0 0"
+                     material="color: #22c55e; emissive: #15803d; emissiveIntensity: 0.3"></a-torus>
+            
+            <!-- Stomatal Aperture (Inner Pore Darkness) -->
+            <a-sphere id="pore-aperture" position="0 0 -0.02" radius="0.08" scale="0.5 1.5 0.1" material="color: #020617"></a-sphere>
+
+            <!-- Holographic Stomatal Status Banner -->
+            <a-plane position="0 -0.32 0" width="0.75" height="0.15" material="color: #020617; opacity: 0.85; border: 1px solid #10b981">
+              <a-text id="3d-stomata-status" value="Aperture: 82% (Open)" align="center" scale="0.24 0.24 0.24" color="#34d399"></a-text>
+            </a-plane>
+          </a-entity>
+
+          <!-- Transpiration Water Droplets Emitter Particles -->
+          <a-entity id="water-particles" position="0 0.18 0.15">
+            <a-sphere position="-0.03 0 0" radius="0.015" material="color: #38bdf8; opacity: 0.8; transparent: true"></a-sphere>
+            <a-sphere position="0.04 0.06 0" radius="0.018" material="color: #67e8f9; opacity: 0.8; transparent: true"></a-sphere>
+            <a-sphere position="-0.01 0.12 0" radius="0.012" material="color: #a5f3fc; opacity: 0.8; transparent: true"></a-sphere>
+          </a-entity>
+
+        </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- Camera & Skeleton HUD PiP -->
+  <div class="cam-box hidden" id="cam-box">
+    <video id="camera-feed" playsinline muted autoplay></video>
+    <canvas id="tracking-canvas" width="320" height="240"></canvas>
+    <div class="cam-badge">
+      <span class="dot-pulse"></span>
+      <span id="cam-status-text">Camera Off</span>
+    </div>
+    <div class="cam-controls">
+      <button class="cam-btn" onclick="core.toggleCamera()" title="เปิด/ปิด กล้อง AI">
+        <i class="fa-solid fa-video"></i>
+      </button>
+      <button class="cam-btn" onclick="document.getElementById('cam-box').classList.toggle('minimized')" title="ย่อ/ขยาย หน้าต่าง">
+        <i class="fa-solid fa-compress"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Zero-Overlap UI Overlay Header -->
+  <div class="ui-overlay">
+    <div class="left-panel-stack">
+      <div class="header-card">
+        <h1>
+          <i class="fa-solid fa-leaf text-emerald-400"></i>
+          Lab 1: 3D AR SHT45 Microclimate &amp; Stomatal Transpiration
+        </h1>
+        <p>
+          จำลองการคายน้ำและการเปิด-ปิดของเซลล์คุมปากใบพืช (Guard Cells) สอดคล้องกับค่า VPD และสภาพจุลอากาศแบบ 3 มิติ
+        </p>
+        <div class="header-meta">
+          <span class="status-badge"><span class="dot-pulse"></span> SHT45 Physics Engine</span>
+          <span class="mode-indicator-pill mode-3d" id="mode-indicator-pill"><i class="fa-solid fa-cube"></i> โหมด: 3D Realtime Simulation Lab</span>
+          <span class="tech-badge">SVP = 0.61078 exp(17.27T/(T+237.3))</span>
+          <span class="tech-badge">VPD = SVP - AVP</span>
+        </div>
+      </div>
+
+      <div class="gesture-guide" id="gesture-guide-text">
+        <i class="fa-solid fa-hand-pointer text-emerald-400"></i> <strong>โหมดปกติ:</strong> หมุนมุมมอง 3 มิติด้วยเมาส์/สัมผัสหน้าจอ และปรับสไลเดอร์อุณหภูมิและความชื้นด้านล่างแบบ Realtime หรือกดปุ่ม <strong>"เปิดโหมด AR Gesture"</strong> เพื่อตรวจจับมือด้วย AI
+      </div>
+    </div>
+
+    <!-- Top Right Controls -->
+    <div class="control-panel">
+      <div class="control-title">โหมดและมุมมองแล็บ</div>
+      <button class="btn-action btn-ar-mode-toggle" id="btn-toggle-ar-mode" onclick="core.toggleArMode()">
+        <i class="fa-solid fa-camera-rotate"></i> <span>เปิดโหมด AR Gesture</span>
+      </button>
+      <div class="btn-group-row">
+        <button class="btn-action btn-secondary" id="btn-elevate-up"><i class="fa-solid fa-arrow-up"></i> ขึ้น</button>
+        <button class="btn-action btn-secondary" id="btn-elevate-down"><i class="fa-solid fa-arrow-down"></i> ลง</button>
+      </div>
+      <button class="btn-action btn-secondary" id="btn-reset-view"><i class="fa-solid fa-rotate-left"></i> รีเซ็ตมุมมอง</button>
+      <a href="../index.html" class="btn-action btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> รวมห้องทดลอง</a>
+    </div>
+  </div>
+
+  <!-- Direct Sliders (Fallback when camera is off) -->
+  <div style="position: absolute; bottom: 85px; left: 24px; z-index: 25; background: rgba(8, 15, 30, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 0.72rem; color: #e2e8f0;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span><i class="fa-solid fa-temperature-half text-rose-400"></i> อุณหภูมิอากาศ:</span>
+      <input type="range" id="slider-temp" min="15" max="45" step="0.5" value="30" style="width: 100px; accent-color: #f43f5e; cursor: pointer;" oninput="updateTemp(this.value)">
+      <span id="slider-temp-val" style="font-family: 'JetBrains Mono', monospace; color: #f87171; font-weight: bold;">30.0 °C</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span><i class="fa-solid fa-droplet text-sky-400"></i> ความชื้นสัมพัทธ์:</span>
+      <input type="range" id="slider-hum" min="20" max="98" step="1" value="74" style="width: 100px; accent-color: #38bdf8; cursor: pointer;" oninput="updateHum(this.value)">
+      <span id="slider-hum-val" style="font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-weight: bold;">74 %</span>
+    </div>
+  </div>
+
+  <!-- Bottom Telemetry HUD Bar -->
+  <div class="hud-bar">
+    <div class="hud-item">
+      <span class="hud-label">VPD (ความดันไอขาดดุล)</span>
+      <span class="hud-val" id="hud-vpd" style="color: #34d399;">1.10 <span class="unit">kPa</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">SVP (ความดันไออิ่มตัว)</span>
+      <span class="hud-val" id="hud-svp" style="color: #38bdf8;">4.24 <span class="unit">kPa</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">AVP (ความดันไอจริง)</span>
+      <span class="hud-val" id="hud-avp" style="color: #818cf8;">3.14 <span class="unit">kPa</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">สถานะการคายน้ำ</span>
+      <span class="hud-val" id="hud-status" style="color: #10b981; font-size: 0.88rem;">OPTIMAL (สมบูรณ์)</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">คำแนะนำ xAI</span>
+      <span class="hud-val" id="hud-action" style="color: #fde68a; font-size: 0.74rem;">พืชสังเคราะห์แสงและดูดซึมปุ๋ยเต็มที่</span>
+    </div>
+  </div>
+
+  <script>
+    let airTemp = 30.0;
+    let airHum = 74.0;
+
+    const core = new ARCoreEngine({
+      labId: 'lab-vpd-microclimate',
+      themeColor: '#10b981',
+      initialPosY: 0.95,
+      onPinchMove: (pos) => {
+        // Horizontal pinch pos.x maps to Temp (15 - 45 C)
+        const t = Math.max(0.1, Math.min(0.9, pos.x));
+        airTemp = 15.0 + ((t - 0.1) / 0.8) * 30.0;
+        
+        // Vertical pinch pos.y maps to Humidity (20 - 98%)
+        const h = Math.max(0.1, Math.min(0.9, pos.y));
+        airHum = 20.0 + ((h - 0.1) / 0.8) * 78.0;
+
+        renderVpdPhysics();
+      }
+    });
+
+    function updateTemp(val) {
+      airTemp = parseFloat(val);
+      renderVpdPhysics();
+    }
+
+    function updateHum(val) {
+      airHum = parseFloat(val);
+      renderVpdPhysics();
+    }
+
+    function renderVpdPhysics() {
+      // Tetens Formula
+      const SVP = 0.61078 * Math.exp((17.27 * airTemp) / (airTemp + 237.3));
+      const AVP = SVP * (airHum / 100.0);
+      const VPD = Math.max(0.01, SVP - AVP);
+
+      // Sync Sliders
+      const sTemp = document.getElementById('slider-temp');
+      const sTempV = document.getElementById('slider-temp-val');
+      const sHum = document.getElementById('slider-hum');
+      const sHumV = document.getElementById('slider-hum-val');
+      if (sTemp) sTemp.value = airTemp;
+      if (sTempV) sTempV.innerText = `${airTemp.toFixed(1)} °C`;
+      if (sHum) sHum.value = airHum;
+      if (sHumV) sHumV.innerText = `${airHum.toFixed(0)} %`;
+
+      // Update HUD Numbers
+      document.getElementById('hud-vpd').innerHTML = `${VPD.toFixed(2)} <span class="unit">kPa</span>`;
+      document.getElementById('hud-svp').innerHTML = `${SVP.toFixed(2)} <span class="unit">kPa</span>`;
+      document.getElementById('hud-avp').innerHTML = `${AVP.toFixed(2)} <span class="unit">kPa</span>`;
+
+      // Stomatal aperture opening percentage & 3D Reaction
+      let aperturePercent = 85;
+      let statusText = 'OPTIMAL (สมบูรณ์)';
+      let statusColor = '#34d399';
+      let actionText = 'พืชสังเคราะห์แสงและดูดซึมปุ๋ยเต็มที่';
+
+      if (VPD < 0.4) {
+        aperturePercent = 20;
+        statusText = 'POOR (ปากใบหดปิด)';
+        statusColor = '#38bdf8';
+        actionText = 'ความชื้นสูงเกินไป เสี่ยงโรคราสนิม/ราแป้ง ควรเปิดพัดลม';
+      } else if (VPD <= 1.25) {
+        aperturePercent = 95;
+        statusText = 'PERFECT (เปิดกว้างสุด)';
+        statusColor = '#10b981';
+        actionText = 'สภาวะเหมาะสมสมบูรณ์แบบ ทุเรียนขยายขนาดผลได้เต็มที่';
+      } else if (VPD <= 1.6) {
+        aperturePercent = 60;
+        statusText = 'MILD STRESS (เริ่มเครียด)';
+        statusColor = '#facc15';
+        actionText = 'อากาศเริ่มแห้งแล้ง แนะนำให้เปิดสปริงเกลอร์รดน้ำใต้ทรงพุ่ม';
+      } else {
+        aperturePercent = 10;
+        statusText = 'SEVERE DROUGHT (ปิดสนิท)';
+        statusColor = '#f87171';
+        actionText = 'วิกฤตความร้อนแห้งแล้งสูง เสี่ยงสลัดผลอ่อน เปิดพ่นหมอกด่วน!';
+      }
+
+      document.getElementById('hud-status').innerHTML = statusText;
+      document.getElementById('hud-status').style.color = statusColor;
+      document.getElementById('hud-action').innerText = actionText;
+
+      // 3D Stomata Morphing
+      const gLeft = document.getElementById('guard-cell-left');
+      const gRight = document.getElementById('guard-cell-right');
+      const pore = document.getElementById('pore-aperture');
+      const text3D = document.getElementById('3d-stomata-status');
+      const waterParticles = document.getElementById('water-particles');
+
+      const separation = 0.02 + (aperturePercent / 100.0) * 0.06;
+      if (gLeft) gLeft.setAttribute('position', `-${separation.toFixed(3)} 0 0`);
+      if (gRight) gRight.setAttribute('position', `${separation.toFixed(3)} 0 0`);
+      if (pore) {
+        const poreWidth = 0.2 + (aperturePercent / 100.0) * 0.8;
+        pore.setAttribute('scale', `${poreWidth.toFixed(2)} 1.5 0.1`);
+      }
+      if (text3D) {
+        text3D.setAttribute('value', `Aperture: ${aperturePercent}% (${VPD.toFixed(2)} kPa)`);
+        text3D.setAttribute('color', statusColor);
+      }
+      if (waterParticles) {
+        waterParticles.setAttribute('visible', aperturePercent > 40);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderVpdPhysics();
+    });
+  </script>
+</body>
+</html>

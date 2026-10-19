@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR Soil Quality Analysis with CV+DL Simulator — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #d97706;
+      --theme-glow: rgba(217, 119, 6, 0.5);
+    }
+    .soil-pill {
+      font-size: 0.68rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid rgba(217, 119, 6, 0.4);
+      background: rgba(217, 119, 6, 0.15);
+      color: #fde68a;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .soil-pill:hover, .soil-pill.active {
+      background: rgba(217, 119, 6, 0.65);
+      color: #ffffff;
+      border-color: #fbbf24;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    .cv-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(217, 119, 6, 0.4);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-top: 8px;
+    }
+    .som-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+    .som-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #d97706, #10b981);
+      transition: width 0.4s ease;
+    }
+    .color-chip {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Lighting Rig -->
+      <a-entity light="type: ambient; color: #475569; intensity: 1.2"></a-entity>
+      <a-entity id="main-light" light="type: directional; color: #fef08a; intensity: 1.8; position: 2 4 3"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 1.0; position: -3 2 -2"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.15 2.1">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot (Controlled by ARCore / Mouse) -->
+      <a-entity id="apparatus-pivot" position="0 0.95 -0.2">
+
+        <!-- TURNTABLE / OPTICAL STAGE -->
+        <a-cylinder id="turntable" position="0 -0.15 0" radius="0.95" height="0.08"
+                    material="color: #0f172a; metalness: 0.85; roughness: 0.2">
+          <!-- Outer Neon Ring (Amber glow) -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.86" radius-outer="0.92"
+                  material="color: #f59e0b; emissive: #f59e0b; emissiveIntensity: 1.5"></a-ring>
+          <!-- Grid Reticle Inner -->
+          <a-ring position="0 0.045 0" rotation="-90 0 0" radius-inner="0.35" radius-outer="0.37"
+                  material="color: #10b981; opacity: 0.7"></a-ring>
+        </a-cylinder>
+
+        <!-- SPECIMEN STAGE PIVOT (Rotates slowly) -->
+        <a-entity id="soil-stage" position="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 24000; easing: linear">
+
+          <!-- 3D SOIL PETRI CRUCIBLE DISH -->
+          <a-cylinder id="soil-dish" position="0 -0.05 0" radius="0.7" height="0.07"
+                      material="color: #1e293b; roughness: 0.3; metalness: 0.8; side: double">
+            <!-- Steel Rim -->
+            <a-torus position="0 0.035 0" rotation="90 0 0" radius="0.7" radius-tubular="0.015"
+                     material="color: #94a3b8; roughness: 0.2; metalness: 0.9"></a-torus>
+          </a-cylinder>
+
+          <!-- 3D SOIL CORE MESH (Texture & Color dynamically updated) -->
+          <a-cylinder id="soil-core" position="0 -0.025 0" radius="0.67" height="0.05"
+                      material="color: #451a03; roughness: 0.9; metalness: 0.05">
+            <!-- Soil Surface Aggregates & Grain Clumps -->
+            <a-sphere position="0.2 0.025 0.1" radius="0.06" material="color: #3f1d0b; roughness: 0.95"></a-sphere>
+            <a-sphere position="-0.25 0.025 -0.15" radius="0.05" material="color: #3b1c0a; roughness: 0.95"></a-sphere>
+            <a-sphere position="0.1 0.025 -0.28" radius="0.045" material="color: #451a03; roughness: 0.95"></a-sphere>
+            <a-sphere position="-0.15 0.025 0.22" radius="0.055" material="color: #361705; roughness: 0.95"></a-sphere>
+          </a-cylinder>
+
+          <!-- WHITE BALANCE / COLOR CALIBRATION TARGET CARD (24-Patch Mini ColorChecker) -->
+          <a-entity id="calib-card" position="0.5 0.01 0.25" rotation="-90 -30 0">
+            <!-- Card Base -->
+            <a-plane width="0.22" height="0.16" material="color: #0f172a; roughness: 0.2"></a-plane>
+            <!-- 18% Neutral Gray Patch -->
+            <a-plane position="-0.06 0.04 0.001" width="0.045" height="0.045" material="color: #777777; roughness: 0.5"></a-plane>
+            <!-- White 95% Patch -->
+            <a-plane position="0 0.04 0.001" width="0.045" height="0.045" material="color: #ffffff; roughness: 0.2"></a-plane>
+            <!-- Black Patch -->
+            <a-plane position="0.06 0.04 0.001" width="0.045" height="0.045" material="color: #111111; roughness: 0.2"></a-plane>
+            <!-- Primary Color Patches -->
+            <a-plane position="-0.06 -0.04 0.001" width="0.045" height="0.045" material="color: #b91c1c"></a-plane>
+            <a-plane position="0 -0.04 0.001" width="0.045" height="0.045" material="color: #15803d"></a-plane>
+            <a-plane position="0.06 -0.04 0.001" width="0.045" height="0.045" material="color: #1d4ed8"></a-plane>
+          </a-entity>
+
+          <!-- DEEP LEARNING FEATURE EXTRACTION GRID & SALIENCY MAP -->
+          <a-entity id="dl-saliency-grid" position="0 -0.005 0">
+            <a-ring rotation="-90 0 0" radius-inner="0.25" radius-outer="0.255"
+                    material="color: #10b981; opacity: 0.6; transparent: true"></a-ring>
+            <a-ring rotation="-90 0 0" radius-inner="0.48" radius-outer="0.485"
+                    material="color: #f59e0b; opacity: 0.5; transparent: true"></a-ring>
+            <!-- Saliency Attention Points -->
+            <a-circle position="0.15 0.005 0.12" rotation="-90 0 0" radius="0.08"
+                      material="color: #10b981; transparent: true; opacity: 0.35"></a-circle>
+            <a-circle position="-0.2 0.005 -0.1" rotation="-90 0 0" radius="0.09"
+                      material="color: #f59e0b; transparent: true; opacity: 0.3"></a-circle>
+          </a-entity>
+
+        </a-entity>
+
+        <!-- OPTICAL MULTI-SPECTRAL SCANNER & D65 ILLUMINATION RING -->
+        <a-entity id="optical-scanner" position="0 0.28 0"
+                  animation="property: position; from: 0 0.28 0; to: 0 0.08 0; dir: alternate; loop: true; dur: 3000; easing: easeInOutSine">
+          <a-ring rotation="-90 0 0" radius-inner="0.7" radius-outer="0.74"
+                  material="color: #fbbf24; emissive: #fbbf24; emissiveIntensity: 2.0; transparent: true; opacity: 0.85"></a-ring>
+          <!-- Crosshair Laser Reticle -->
+          <a-entity rotation="-90 0 0">
+            <a-circle radius="0.7" material="color: #f59e0b; transparent: true; opacity: 0.12; side: double"></a-circle>
+          </a-entity>
+        </a-entity>
+
+        <!-- 3D FLOATING HOLOGRAPHIC HUD HEADER -->
+        <a-entity position="0 0.6 0">
+          <a-plane position="0 0 0" width="1.5" height="0.25" material="color: #0f172a; opacity: 0.88; transparent: true">
+            <a-text id="hud-soil-title" value="CV+DL SOIL: CHANTHABURI RED OXISOL" align="center" position="0 0.055 0.01" scale="0.28 0.28 0.28" color="#fbbf24" font="monoid"></a-text>
+            <a-text id="hud-soil-stat" value="MUNSELL: 7.5YR 5/6 | SOM: 2.65% | TEXTURE: CLAY LOAM" align="center" position="0 -0.055 0.01" scale="0.22 0.22 0.22" color="#34d399" font="monoid"></a-text>
+          </a-plane>
+        </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- 2D Video & MediaPipe Canvas -->
+  <video id="camera-feed" playsinline></video>
+  <canvas id="tracking-canvas"></canvas>
+
+  <!-- HTML HUD OVERLAY -->
+  <div id="hud-overlay">
+    
+    <!-- Top Header Navigation Bar -->
+    <header id="hud-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="../index.html" class="hud-btn" title="กลับหน้าศูนย์รวมห้องปฏิบัติการ">
+          <i class="fa-solid fa-arrow-left"></i> สารบัญแล็บ
+        </a>
+        <div>
+          <h1 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin: 0; font-family: 'Chakra Petch', sans-serif;">
+            Lab 6: วิเคราะห์คุณภาพดินและอินทรียวัตถุด้วย CV+DL 3D
+          </h1>
+          <div style="font-size: 0.7rem; color: #fde68a; font-family: 'JetBrains Mono', monospace;">
+            Soil Vision AI • Munsell Color System (CIE-Lab ΔE*ab) • Soil Texture • Organic Matter (SOM %)
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-toggle-sound" class="hud-btn" title="เปิด/ปิดเสียงเอฟเฟกต์">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button id="btn-toggle-ar-mode" class="hud-btn" style="border-color: #d97706; color: #fbbf24;" title="สลับโหมดกล้อง AR MediaPipe">
+          <i class="fa-solid fa-camera"></i> เปิดโหมด AR Gesture
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace (Panels) -->
+    <main id="hud-main">
+      
+      <!-- LEFT CONTROL PANEL: Soil Samples & CV Parameters -->
+      <section class="hud-panel" style="width: 330px; max-width: 90vw;">
+        <h2><i class="fa-solid fa-flask" style="color: #f59e0b;"></i> เลือกชุดตัวอย่างดินเขตร้อน (4 ชนิด)</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+          <button class="soil-pill" onclick="switchSoil('sandy_loam')">
+            <span class="color-chip" style="background: #9a7b56;"></span> 
+            <span>1. ดินร่วนปนทราย (Sandy Loam - SOM 1.1%)</span>
+          </button>
+          <button class="soil-pill active" onclick="switchSoil('chanthaburi_red')">
+            <span class="color-chip" style="background: #8b3a1d;"></span> 
+            <span>2. ดินเหนียวแดงจันทบุรี (Oxisol - Iron Rich)</span>
+          </button>
+          <button class="soil-pill" onclick="switchSoil('silt_loam_high')">
+            <span class="color-chip" style="background: #3f352b;"></span> 
+            <span>3. ดินร่วนตะกอนอินทรีย์สูง (Silt Loam - SOM 3.8%)</span>
+          </button>
+          <button class="soil-pill" onclick="switchSoil('durian_compost')">
+            <span class="color-chip" style="background: #2a1f18;"></span> 
+            <span>4. ดินสวนทุเรียนปุ๋ยหมักชีวภาพ (SOM 4.5%)</span>
+          </button>
+        </div>
+
+        <div class="cv-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>การปรับเทียบ White Balance (D65):</span>
+            <span id="txt-calib-status" style="color: #10b981; font-weight: bold;">Calibrated (ΔE &lt; 1.2)</span>
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: 6px;">
+            <button id="btn-calib-auto" onclick="toggleCalib(true)" style="flex: 1; padding: 4px; border-radius: 6px; background: rgba(16,185,129,0.3); border: 1px solid #10b981; color: white; font-size: 0.65rem; font-weight: bold; cursor: pointer;">
+              <i class="fa-solid fa-crosshairs"></i> เทียบ ColorChecker
+            </button>
+            <button id="btn-calib-raw" onclick="toggleCalib(false)" style="flex: 1; padding: 4px; border-radius: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-size: 0.65rem; cursor: pointer;">
+              Raw Camera
+            </button>
+          </div>
+        </div>
+
+        <div class="cv-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>โมเดลโครงข่ายประสาทเทียม:</span>
+            <span id="txt-model-name" style="color: #38bdf8; font-weight: bold;">MobileNetV3-SoilNet</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">
+            <span>Latent Features: 512-D</span>
+            <span style="color: #a78bfa;">ONNX Edge WASM (18.2 ms)</span>
+          </div>
+        </div>
+
+        <div class="cv-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #e2e8f0; font-family: 'JetBrains Mono', monospace;">
+            <span>ความเร็วหมุนแท่นตรวจ (วิ/รอบ):</span>
+            <span id="txt-soil-speed" style="color: #fbbf24; font-weight: bold;">24s</span>
+          </div>
+          <input type="range" id="slider-soil-speed" min="8" max="45" value="24" style="width: 100%; margin-top: 4px;" oninput="updateSpeed(this.value)">
+        </div>
+
+        <button onclick="triggerVisionInference()" style="width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; background: linear-gradient(90deg, #d97706, #b45309); color: white; border: none; font-weight: bold; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 0 10px rgba(217,119,6,0.4);">
+          <i class="fa-solid fa-camera"></i> สแกนวิเคราะห์หน้าดินด้วย CV+DL (Run Inference)
+        </button>
+      </section>
+
+      <!-- RIGHT DIAGNOSTIC & SOIL FERTILITY PREDICTION PANEL -->
+      <section class="hud-panel" style="width: 330px; max-width: 90vw;">
+        <h2><i class="fa-solid fa-chart-simple" style="color: #34d399;"></i> ผลการประเมินคุณภาพดิน &amp; ธาตุอาหาร</h2>
+        
+        <!-- Live SOM % Prediction Box -->
+        <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 10px; margin-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase;">อินทรียวัตถุในดิน (SOM %):</span>
+            <span id="val-som-pct" style="font-size: 1.4rem; font-weight: 900; color: #10b981; font-family: 'JetBrains Mono', monospace;">2.65%</span>
+          </div>
+          <div class="som-meter">
+            <div id="som-bar" class="som-bar" style="width: 58%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; font-family: 'JetBrains Mono', monospace;">
+            <span>เกณฑ์มาตรฐาน: 2.5 - 3.5%</span>
+            <span id="txt-som-level" style="color: #34d399; font-weight: bold;">ระดับปานกลาง-เหมาะสม</span>
+          </div>
+        </div>
+
+        <!-- Munsell & CIE-Lab Colorimetrics -->
+        <div style="margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.72rem; line-height: 1.6;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 4px;">
+            <span style="color: #cbd5e1;">พิกัดสีดินมาตรฐาน Munsell:</span>
+            <span id="val-munsell-code" style="color: #fbbf24; font-family: 'JetBrains Mono', monospace; font-weight: bold;">7.5YR 5/6 (Strong Brown)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 4px;">
+            <span style="color: #cbd5e1;">พิกัดสเปกตรัม CIE-Lab:</span>
+            <span id="val-cielab-code" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">L*: 48.2, a*: 16.4, b*: 22.8</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">เนื้อดินจำแนก (Texture):</span>
+            <span id="val-texture-class" style="color: #a78bfa; font-weight: bold;">ดินร่วนเหนียว (Clay Loam)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">อินทรีย์คาร์บอน (SOC g/kg):</span>
+            <span id="val-soc-gkg" style="color: #34d399; font-weight: bold; font-family: 'JetBrains Mono', monospace;">15.37 g C/kg</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">ความชื้นผิวหน้าดิน (VWC):</span>
+            <span id="val-soil-moist" style="color: #38bdf8; font-weight: bold; font-family: 'JetBrains Mono', monospace;">24.8% (กำลังพอเหมาะ)</span>
+          </div>
+        </div>
+
+        <!-- Agronomic Interpretation & xAI Decision -->
+        <div style="margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(217, 119, 6, 0.3); font-size: 0.7rem; line-height: 1.5;">
+          <div style="font-weight: bold; color: #fde68a; margin-bottom: 4px; display: flex; items-center; gap: 4px;">
+            <i class="fa-solid fa-lightbulb"></i> ข้อสรุปเชิงฟิสิกส์เกษตร &amp; xAI Recommendation:
+          </div>
+          <div id="txt-soil-ai-advice" style="color: #e2e8f0;">
+            ดินชุดดินแดงจันทบุรีมีความพรุนสูงและระบายน้ำดีเยี่ยม แต่มีแนวโน้มตรึงธาตุฟอสฟอรัสจากสารประกอบเหล็กออกไซด์ แนะนำใส่ปุ๋ยหมักชีวภาพ 15 กก./ต้น ควบคู่เชื้อราไตรโคเดอร์มาเพื่อช่วยปลดปล่อยฟอสเฟต
+          </div>
+          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255, 255, 255, 0.15); color: #34d399; font-weight: bold;">
+            <i class="fa-solid fa-seedling"></i> ความเหมาะสมปลูกทุเรียน: ดีมาก (Excellent Orchard Soil)
+          </div>
+        </div>
+
+        <!-- Academic & Smart App Links -->
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+          <a href="#capstone" target="_blank" style="padding: 7px 10px; border-radius: 8px; background: rgba(217,119,6,0.15); border: 1px solid rgba(217,119,6,0.4); color: #fde68a; text-decoration: none; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-cube"></i> โครงงาน Capstone Track A &amp; E</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+          <a href="../../index.php#smart-apps-suite" target="_blank" style="padding: 7px 10px; border-radius: 8px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; text-decoration: none; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-mobile-screen"></i> Munsell Vision Colorimeter App</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Gesture Guide -->
+    <footer id="hud-footer">
+      <div style="display: flex; align-items: center; gap: 15px; font-size: 0.72rem; color: #cbd5e1; font-family: 'JetBrains Mono', monospace;">
+        <span><i class="fa-solid fa-hand-pointer" style="color: #f59e0b;"></i> เมาส์ลาก: หมุนแท่นตรวจหน้าดิน 360°</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-hand-back-fist" style="color: #34d399;"></i> โหมด AR: หยิบนิ้ว (🤏 Pinch) เพื่อสลับชุดตัวอย่างดิน</span>
+        <span>•</span>
+        <span style="color: #94a3b8;">มรภ.รำไพพรรณี (ผศ.ดร.ชีวะ ทัศนา และคณะ)</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Realtime Soil Vision AI Engine Script -->
+  <script>
+    const SOIL_SAMPLES = {
+      sandy_loam: {
+        name: "ดินร่วนปนทราย (Sandy Loam)",
+        hudTitle: "CV+DL SOIL: COASTAL SANDY LOAM",
+        colorHex: "#9a7b56",
+        munsell: "10YR 6/3 (Pale Brown)",
+        cielab: "L*: 64.1, a*: 5.2, b*: 14.8",
+        somPct: 1.15,
+        socGkg: 6.67,
+        moisture: "12.4% (ค่อนข้างแห้ง)",
+        texture: "ดินร่วนปนทราย (Sandy Loam)",
+        somLevel: "ระดับต่ำ (Low SOM)",
+        suitability: "ควรปรับปรุงโครงสร้างดิน",
+        advice: "ดินมีอินทรียวัตถุต่ำ อนุภาคทรายสูงทำให้สูญเสียน้ำและปุ๋ยง่าย แนะนำเติมปุ๋ยคอก/ปุ๋ยหมักปีละ 20-30 กก./ต้น และคลุมโคนด้วยฟางหรือหญ้าแห้งเพื่อรักษาความชื้น"
+      },
+      chanthaburi_red: {
+        name: "ดินเหนียวแดงจันทบุรี (Chanthaburi Red Oxisol)",
+        hudTitle: "CV+DL SOIL: CHANTHABURI RED OXISOL",
+        colorHex: "#8b3a1d",
+        munsell: "7.5YR 5/6 (Strong Brown)",
+        cielab: "L*: 48.2, a*: 16.4, b*: 22.8",
+        somPct: 2.65,
+        socGkg: 15.37,
+        moisture: "24.8% (กำลังพอเหมาะ)",
+        texture: "ดินร่วนเหนียว (Clay Loam)",
+        somLevel: "ระดับปานกลาง-เหมาะสม",
+        suitability: "ดีมาก (Excellent Orchard Soil)",
+        advice: "ดินชุดดินแดงจันทบุรีมีความพรุนสูงและระบายน้ำดีเยี่ยม แต่มีแนวโน้มตรึงธาตุฟอสฟอรัสจากสารประกอบเหล็กออกไซด์ แนะนำใส่ปุ๋ยหมักชีวภาพควบคู่เชื้อราไตรโคเดอร์มาเพื่อช่วยปลดปล่อยฟอสเฟต"
+      },
+      silt_loam_high: {
+        name: "ดินร่วนตะกอนอินทรีย์สูง (Silt Loam - High SOM)",
+        hudTitle: "CV+DL SOIL: ALLUVIAL SILT LOAM",
+        colorHex: "#3f352b",
+        munsell: "10YR 3/2 (Very Dark Grayish Brown)",
+        cielab: "L*: 32.4, a*: 2.8, b*: 8.5",
+        somPct: 3.82,
+        socGkg: 22.16,
+        moisture: "29.2% (ความชื้นสูง)",
+        texture: "ดินร่วนตะกอนทับถม (Silt Loam)",
+        somLevel: "ระดับสูง (High SOM - Rich)",
+        suitability: "อุดมสมบูรณ์สูงมาก",
+        advice: "ดินมีปริมาณอินทรียวัตถุและฮิวมัสสูงมาก ความสามารถในการแลกเปลี่ยนประจุบวก (CEC) สูง พืชดูดซึมธาตุอาหารได้เต็มที่ ระวังอย่าให้น้ำขังแฉะเกินไปในช่วงก่อนออกดอก"
+      },
+      durian_compost: {
+        name: "ดินสวนทุเรียนปุ๋ยหมักชีวภาพ (Compost Enriched)",
+        hudTitle: "CV+DL SOIL: COMPOST-ENRICHED LOAM",
+        colorHex: "#2a1f18",
+        munsell: "7.5YR 3/2 (Dark Brown)",
+        cielab: "L*: 28.6, a*: 3.4, b*: 6.9",
+        somPct: 4.50,
+        socGkg: 26.10,
+        moisture: "31.5% (สมบูรณ์เยี่ยม)",
+        texture: "ดินร่วนอินทรีย์ชีวภาพ (Rich Bio-Loam)",
+        somLevel: "ระดับสมบูรณ์สูงสุด (Optimal)",
+        suitability: "ดินเกรดพรีเมียมสำหรับการปลูกทุเรียน",
+        advice: "โครงสร้างดินเกาะกลุ่มเป็นเม็ดดีเยี่ยม (Well-aggregated) รากพืชแตกแขนงได้ลึก มีจุลินทรีย์ดินกลุ่มตรึงไนโตรเจนและละลายฟอสเฟตหนาแน่น เป็นต้นแบบดินมีชีวิต (Living Soil)"
+      }
+    };
+
+    let currentSoilKey = 'chanthaburi_red';
+    let isCalibrated = true;
+    let isSoundMuted = false;
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    function initSound() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playAudioTone(freq = 600, duration = 0.08) {
+      if (isSoundMuted || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function updateSoilDisplay() {
+      const data = SOIL_SAMPLES[currentSoilKey];
+      if (!data) return;
+
+      // Update 3D Soil Core Mesh Color
+      const soilCore = document.getElementById('soil-core');
+      if (soilCore) {
+        soilCore.setAttribute('material', `color: ${data.colorHex}; roughness: 0.9; metalness: 0.05`);
+      }
+
+      // Update 3D Floating HUD Header
+      document.getElementById('hud-soil-title').setAttribute('value', data.hudTitle);
+      document.getElementById('hud-soil-stat').setAttribute('value', `MUNSELL: ${data.munsell} | SOM: ${data.somPct.toFixed(2)}% | ${data.texture}`);
+
+      // 2D Panel Updates
+      document.getElementById('val-som-pct').innerText = `${data.somPct.toFixed(2)}%`;
+      document.getElementById('val-munsell-code').innerText = data.munsell;
+      document.getElementById('val-cielab-code').innerText = data.cielab;
+      document.getElementById('val-texture-class').innerText = data.texture;
+      document.getElementById('val-soc-gkg').innerText = `${data.socGkg.toFixed(2)} g C/kg`;
+      document.getElementById('val-soil-moist').innerText = data.moisture;
+      document.getElementById('txt-som-level').innerText = data.somLevel;
+      document.getElementById('txt-soil-ai-advice').innerText = data.advice;
+
+      // Bar percentage (0 - 5.0% scale)
+      const barPct = Math.min(100, Math.round((data.somPct / 5.0) * 100));
+      document.getElementById('som-bar').style.width = `${barPct}%`;
+    }
+
+    function switchSoil(key) {
+      initSound();
+      currentSoilKey = key;
+      document.querySelectorAll('.soil-pill').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.soil-pill')).find(b => b.getAttribute('onclick').includes(key));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      playAudioTone(700, 0.08);
+      setTimeout(() => playAudioTone(920, 0.12), 80);
+      updateSoilDisplay();
+    }
+
+    function toggleCalib(state) {
+      initSound();
+      isCalibrated = state;
+      const statusEl = document.getElementById('txt-calib-status');
+      const cardEl = document.getElementById('calib-card');
+
+      if (state) {
+        statusEl.innerText = "Calibrated (ΔE < 1.2)";
+        statusEl.style.color = "#10b981";
+        if (cardEl) cardEl.setAttribute('visible', 'true');
+        playAudioTone(880, 0.06);
+      } else {
+        statusEl.innerText = "Raw Camera (Uncorrected)";
+        statusEl.style.color = "#f97316";
+        if (cardEl) cardEl.setAttribute('visible', 'false');
+        playAudioTone(440, 0.08);
+      }
+    }
+
+    function updateSpeed(val) {
+      const stage = document.getElementById('soil-stage');
+      if (stage) {
+        stage.setAttribute('animation', `property: rotation; to: 0 360 0; loop: true; dur: ${val * 1000}; easing: linear`);
+      }
+      document.getElementById('txt-soil-speed').innerText = `${val}s`;
+    }
+
+    function triggerVisionInference() {
+      initSound();
+      // Shutter click effect
+      playAudioTone(1200, 0.04);
+      setTimeout(() => playAudioTone(600, 0.06), 60);
+      setTimeout(() => playAudioTone(1500, 0.12), 160);
+      updateSoilDisplay();
+    }
+
+    // Toggle Sound Button
+    document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+      initSound();
+      isSoundMuted = !isSoundMuted;
+      const icon = document.getElementById('btn-toggle-sound').querySelector('i');
+      if (isSoundMuted) {
+        icon.className = 'fa-solid fa-volume-xmark';
+        document.getElementById('btn-toggle-sound').style.opacity = '0.5';
+      } else {
+        icon.className = 'fa-solid fa-volume-high';
+        document.getElementById('btn-toggle-sound').style.opacity = '1';
+        playAudioTone(800, 0.1);
+      }
+    });
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSoilDisplay();
+
+      // Mouse drag rotation of apparatus pivot
+      let isDragging = false;
+      let prevMouseX = 0;
+      window.addEventListener('mousedown', (e) => {
+        if (e.target.closest('#hud-overlay') && !e.target.closest('#scene-container')) return;
+        isDragging = true;
+        prevMouseX = e.clientX;
+        initSound();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevMouseX;
+        prevMouseX = e.clientX;
+        const pivot = document.getElementById('apparatus-pivot');
+        if (pivot) {
+          const currentRot = pivot.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+          pivot.setAttribute('rotation', `${currentRot.x} ${currentRot.y + dx * 0.5} ${currentRot.z}`);
+        }
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      // AR Mode integration
+      const btnAr = document.getElementById('btn-toggle-ar-mode');
+      if (btnAr && window.ARCoreEngine) {
+        const ar = new ARCoreEngine({
+          labId: 'lab-soil-vision-ai',
+          themeColor: '#d97706',
+          onPinchStart: () => {
+            // Cycle soil sample on pinch
+            const keys = Object.keys(SOIL_SAMPLES);
+            const nextIdx = (keys.indexOf(currentSoilKey) + 1) % keys.length;
+            switchSoil(keys[nextIdx]);
+          }
+        });
+        btnAr.addEventListener('click', () => {
+          ar.toggleMode();
+          btnAr.innerHTML = ar.isCameraActive 
+            ? '<i class="fa-solid fa-cube"></i> กลับสู่ 3D Simulator' 
+            : '<i class="fa-solid fa-camera"></i> เปิดโหมด AR Gesture';
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

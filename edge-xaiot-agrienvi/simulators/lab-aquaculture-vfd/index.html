@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D AR Coastal Aquaculture Aeration & VFD Inverter — Edge xAIoT : 4D-AgriEnvi</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- A-Frame 1.4.2 & MediaPipe Hands -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  
+  <!-- Shared AR Styles & Core Engine -->
+  <link rel="stylesheet" href="../common/ar-style.css">
+  <script src="../common/ar-core.js"></script>
+
+  <style>
+    :root {
+      --theme-color: #0284c7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebXR / A-Frame Scene -->
+  <div id="scene-container">
+    <a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true; colorManagement: true;">
+      
+      <!-- Lighting -->
+      <a-entity light="type: ambient; color: #475569; intensity: 1.3"></a-entity>
+      <a-entity light="type: directional; color: #38bdf8; intensity: 1.9; position: 3 4 3"></a-entity>
+      <a-entity light="type: point; color: #06b6d4; intensity: 1.4; position: 0 0.5 0"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="camera-rig" position="0 1.0 2.2">
+        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
+
+      <!-- Main Apparatus Pivot -->
+      <a-entity id="apparatus-pivot" position="0 0.95 -0.2" rotation="15 0 0">
+
+        <!-- 3D AQUACULTURE WATER BASIN -->
+        <a-box position="0 -0.45 0" width="2.2" height="0.4" depth="1.4"
+               material="color: #0369a1; opacity: 0.85; roughness: 0.1; metalness: 0.8">
+          <a-plane position="0 0.201 0" rotation="-90 0 0" width="2.16" height="1.36"
+                   material="color: #0284c7; opacity: 0.9; metalness: 0.9; roughness: 0.05">
+            <a-text value="Coastal Aquaculture Pond (Salinity 0-40 ppt)" position="-0.95 0.55 0.01" scale="0.16 0.16 0.16" color="#e0f2fe"></a-text>
+          </a-plane>
+        </a-box>
+
+        <!-- 3D PADDLEWHEEL AERATOR (Floating Rig) -->
+        <a-entity id="aerator-rig" position="-0.45 0 0">
+          
+          <!-- Floatation Pontoon (PVC/HDPE Pipes) -->
+          <a-cylinder position="0 -0.15 0.35" radius="0.06" height="0.8" rotation="0 0 90" material="color: #facc15; roughness: 0.4"></a-cylinder>
+          <a-cylinder position="0 -0.15 -0.35" radius="0.06" height="0.8" rotation="0 0 90" material="color: #facc15; roughness: 0.4"></a-cylinder>
+
+          <!-- Motor Gearbox Unit -->
+          <a-box position="0.32 0 0" width="0.16" height="0.22" depth="0.18" material="color: #1e293b; metalness: 0.6"></a-box>
+
+          <!-- Central Rotating Axle -->
+          <a-cylinder id="paddle-axle" position="0 0 0" radius="0.02" height="0.75" rotation="0 0 90"
+                      material="color: #cbd5e1; metalness: 0.9; roughness: 0.2">
+            
+            <!-- Paddle Blades Array 1 -->
+            <a-entity position="0 0.15 0">
+              <a-box width="0.01" height="0.18" depth="0.06" material="color: #0284c7"></a-box>
+              <a-box width="0.01" height="0.06" depth="0.18" material="color: #0284c7"></a-box>
+            </a-entity>
+
+            <!-- Paddle Blades Array 2 -->
+            <a-entity position="0 -0.15 0">
+              <a-box width="0.01" height="0.18" depth="0.06" material="color: #0284c7"></a-box>
+              <a-box width="0.01" height="0.06" depth="0.18" material="color: #0284c7"></a-box>
+            </a-entity>
+          </a-cylinder>
+
+          <!-- Water Splash Foam Emitter -->
+          <a-entity id="foam-particles" position="0 -0.15 0">
+            <a-sphere position="-0.08 0 0.1" radius="0.04" material="color: #ffffff; opacity: 0.7; transparent: true"></a-sphere>
+            <a-sphere position="0.06 0.05 -0.1" radius="0.05" material="color: #e0f2fe; opacity: 0.8; transparent: true"></a-sphere>
+          </a-entity>
+        </a-entity>
+
+        <!-- 3D VFD INVERTER DRIVE CABINET (Right Side) -->
+        <a-entity position="0.65 0.15 0">
+          <a-box width="0.35" height="0.55" depth="0.25" material="color: #0f172a; roughness: 0.3; metalness: 0.5">
+            <!-- VFD Screen Display -->
+            <a-plane position="0 0.12 0.126" width="0.28" height="0.16" material="color: #020617">
+              <a-text id="vfd-screen-freq" value="38.0 Hz" position="0 0.02 0.005" align="center" scale="0.28 0.28 0.28" color="#34d399" font="kelsonsans"></a-text>
+              <a-text id="vfd-screen-save" value="SAVE: 56.1%" position="0 -0.04 0.005" align="center" scale="0.14 0.14 0.14" color="#facc15" font="kelsonsans"></a-text>
+            </a-plane>
+
+            <!-- LED Indicators -->
+            <a-sphere position="-0.08 -0.04 0.128" radius="0.012" material="color: #10b981; emissive: #10b981; emissiveIntensity: 1"></a-sphere>
+            <a-sphere position="0 -0.04 0.128" radius="0.012" material="color: #38bdf8; emissive: #38bdf8; emissiveIntensity: 1"></a-sphere>
+            <a-sphere position="0.08 -0.04 0.128" radius="0.012" material="color: #ef4444; emissive: #ef4444; emissiveIntensity: 0.2"></a-sphere>
+
+            <!-- VFD Brand Label -->
+            <a-text value="VFD Affinity 3-Phase\nInverter Driver" position="0 -0.16 0.128" align="center" scale="0.11 0.11 0.11" color="#94a3b8"></a-text>
+          </a-box>
+        </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </div>
+
+  <!-- Camera & Skeleton HUD PiP -->
+  <div class="cam-box hidden" id="cam-box">
+    <video id="camera-feed" playsinline muted autoplay></video>
+    <canvas id="tracking-canvas" width="320" height="240"></canvas>
+    <div class="cam-badge">
+      <span class="dot-pulse"></span>
+      <span id="cam-status-text">Camera Off</span>
+    </div>
+    <div class="cam-controls">
+      <button class="cam-btn" onclick="core.toggleCamera()" title="เปิด/ปิด กล้อง AI">
+        <i class="fa-solid fa-video"></i>
+      </button>
+      <button class="cam-btn" onclick="document.getElementById('cam-box').classList.toggle('minimized')" title="ย่อ/ขยาย หน้าต่าง">
+        <i class="fa-solid fa-compress"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Zero-Overlap UI Overlay Header -->
+  <div class="ui-overlay">
+    <div class="left-panel-stack">
+      <div class="header-card">
+        <h1>
+          <i class="fa-solid fa-water text-sky-400"></i>
+          Lab 2: 3D AR Coastal Aquaculture DO &amp; VFD Inverter
+        </h1>
+        <p>
+          ระบบจำลองสมดุลออกซิเจนละลายน้ำ (DO Saturation) และการควบคุมกังหันตีน้ำด้วย VFD Inverter ตามกฎ Affinity Law
+        </p>
+        <div class="header-meta">
+          <span class="status-badge"><span class="dot-pulse"></span> Benson-Krause Saturation</span>
+          <span class="mode-indicator-pill mode-3d" id="mode-indicator-pill"><i class="fa-solid fa-cube"></i> โหมด: 3D Realtime Simulation Lab</span>
+          <span class="tech-badge">P1/P2 = (f1/f2)³</span>
+          <span class="tech-badge">Acoustic Motor Hum</span>
+        </div>
+      </div>
+
+      <div class="gesture-guide" id="gesture-guide-text">
+        <i class="fa-solid fa-hand-pointer text-sky-400"></i> <strong>โหมดปกติ:</strong> หมุนมุมมอง 3 มิติด้วยเมาส์/สัมผัสหน้าจอ และปรับสไลเดอร์อุณหภูมิน้ำและความเค็มด้านล่างแบบ Realtime หรือกดปุ่ม <strong>"เปิดโหมด AR Gesture"</strong> เพื่อตรวจจับมือด้วย AI
+      </div>
+    </div>
+
+    <!-- Top Right Controls -->
+    <div class="control-panel">
+      <div class="control-title">โหมดและมุมมองแล็บ</div>
+      <button class="btn-action btn-ar-mode-toggle" id="btn-toggle-ar-mode" onclick="core.toggleArMode()">
+        <i class="fa-solid fa-camera-rotate"></i> <span>เปิดโหมด AR Gesture</span>
+      </button>
+      <div class="btn-group-row">
+        <button class="btn-action btn-secondary" id="btn-elevate-up"><i class="fa-solid fa-arrow-up"></i> ขึ้น</button>
+        <button class="btn-action btn-secondary" id="btn-elevate-down"><i class="fa-solid fa-arrow-down"></i> ลง</button>
+      </div>
+      <button class="btn-action btn-secondary" id="btn-reset-view"><i class="fa-solid fa-rotate-left"></i> รีเซ็ตมุมมอง</button>
+      <a href="../index.html" class="btn-action btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> รวมห้องทดลอง</a>
+    </div>
+  </div>
+
+  <!-- Fallback Direct Sliders -->
+  <div style="position: absolute; bottom: 85px; left: 24px; z-index: 25; background: rgba(8, 15, 30, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 0.72rem; color: #e2e8f0;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span><i class="fa-solid fa-temperature-half text-sky-400"></i> อุณหภูมิน้ำ:</span>
+      <input type="range" id="slider-temp" min="20" max="38" step="0.5" value="29" style="width: 90px; accent-color: #38bdf8; cursor: pointer;" oninput="updateTemp(this.value)">
+      <span id="slider-temp-val" style="font-family: 'JetBrains Mono', monospace; color: #38bdf8; font-weight: bold;">29.0 °C</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span><i class="fa-solid fa-vial text-indigo-400"></i> ความเค็ม (Salinity):</span>
+      <input type="range" id="slider-sal" min="0" max="40" step="1" value="25" style="width: 90px; accent-color: #6366f1; cursor: pointer;" oninput="updateSal(this.value)">
+      <span id="slider-sal-val" style="font-family: 'JetBrains Mono', monospace; color: #a5b4fc; font-weight: bold;">25 ppt</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span><i class="fa-solid fa-fish text-emerald-400"></i> DO บ่อจริง:</span>
+      <input type="range" id="slider-do" min="1.0" max="8.0" step="0.1" value="5.2" style="width: 90px; accent-color: #10b981; cursor: pointer;" oninput="updateDO(this.value)">
+      <span id="slider-do-val" style="font-family: 'JetBrains Mono', monospace; color: #34d399; font-weight: bold;">5.20 mg/L</span>
+    </div>
+  </div>
+
+  <!-- Bottom Telemetry HUD Bar -->
+  <div class="hud-bar">
+    <div class="hud-item">
+      <span class="hud-label">DO อิ่มตัว (Benson-Krause)</span>
+      <span class="hud-val" id="hud-dosat" style="color: #38bdf8;">6.82 <span class="unit">mg/L</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">ความถี่ VFD Inverter</span>
+      <span class="hud-val" id="hud-freq" style="color: #a78bfa;">38.0 <span class="unit">Hz</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">อัตราประหยัดพลังงานไฟ</span>
+      <span class="hud-val" id="hud-save" style="color: #34d399;">56.1 <span class="unit">%</span></span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">สถานะกังหันตีน้ำ</span>
+      <span class="hud-val" id="hud-motor" style="color: #facc15; font-size: 0.88rem;">VFD ECO 38Hz</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">คำแนะนำ xAI</span>
+      <span class="hud-val" id="hud-action" style="color: #e2e8f0; font-size: 0.74rem;">ลดความถี่ VFD เหลือ 38Hz ประหยัดค่าไฟ 56%</span>
+    </div>
+  </div>
+
+  <script>
+    let waterTemp = 29.0;
+    let waterSal = 25.0;
+    let actualDO = 5.2;
+    let paddleAngle = 0;
+
+    const core = new ARCoreEngine({
+      labId: 'lab-aquaculture-vfd',
+      themeColor: '#0284c7',
+      initialPosY: 0.95,
+      onPinchMove: (pos) => {
+        // Horizontal pinch pos.x maps to Water Temp (20 - 38 C)
+        const t = Math.max(0.1, Math.min(0.9, pos.x));
+        waterTemp = 20.0 + ((t - 0.1) / 0.8) * 18.0;
+        
+        // Vertical pinch pos.y maps to Salinity (0 - 40 ppt)
+        const s = Math.max(0.1, Math.min(0.9, pos.y));
+        waterSal = ((s - 0.1) / 0.8) * 40.0;
+
+        renderAquaPhysics();
+      }
+    });
+
+    function updateTemp(val) { waterTemp = parseFloat(val); renderAquaPhysics(); }
+    function updateSal(val) { waterSal = parseFloat(val); renderAquaPhysics(); }
+    function updateDO(val) { actualDO = parseFloat(val); renderAquaPhysics(); }
+
+    function renderAquaPhysics() {
+      // Sync Sliders
+      const sTemp = document.getElementById('slider-temp');
+      const sTempV = document.getElementById('slider-temp-val');
+      const sSal = document.getElementById('slider-sal');
+      const sSalV = document.getElementById('slider-sal-val');
+      const sDo = document.getElementById('slider-do');
+      const sDoV = document.getElementById('slider-do-val');
+      if (sTemp) sTemp.value = waterTemp;
+      if (sTempV) sTempV.innerText = `${waterTemp.toFixed(1)} °C`;
+      if (sSal) sSal.value = waterSal;
+      if (sSalV) sSalV.innerText = `${waterSal.toFixed(0)} ppt`;
+      if (sDo) sDo.value = actualDO;
+      if (sDoV) sDoV.innerText = `${actualDO.toFixed(2)} mg/L`;
+
+      // Benson-Krause Saturation Equation
+      const Tk = waterTemp + 273.15;
+      const lnC = -139.34411 + (1.575701e5 / Tk) - (6.642308e7 / Math.pow(Tk, 2)) + (1.2438e10 / Math.pow(Tk, 3)) - (8.621949e11 / Math.pow(Tk, 4));
+      let DO_sat = Math.exp(lnC);
+      const Fs = waterSal * (0.017674 - (10.754 / Tk) + (2140.7 / Math.pow(Tk, 2)));
+      DO_sat = DO_sat * Math.exp(-Fs);
+
+      // Determine VFD Frequency based on DO deficit
+      let vfdFreq = 50.0;
+      let actionText = '';
+      if (actualDO < 3.5) {
+        vfdFreq = 50.0; // Emergency Full Speed
+        actionText = 'วิกฤตออกซิเจนต่ำ เร่งกังหันเต็มพิกัด 50.0 Hz ด่วน!';
+      } else if (actualDO < 4.5) {
+        vfdFreq = 44.0;
+        actionText = 'ออกซิเจนปานกลาง เดินกังหัน 44.0 Hz ประหยัดไฟ 31.5%';
+      } else if (actualDO < 6.0) {
+        vfdFreq = 38.0;
+        actionText = 'ออกซิเจนสมบูรณ์แบบ เดินรอบประหยัด 38.0 Hz ลดไฟ 56.1%';
+      } else {
+        vfdFreq = 30.0;
+        actionText = 'ออกซิเจนสูงเกินพอ ชะลอเหลือ 30.0 Hz ประหยัดไฟสูงสุด 78.4%';
+      }
+
+      // Affinity Law: Power Ratio = (f / 50)^3
+      const powerRatio = Math.pow(vfdFreq / 50.0, 3);
+      const powerSavings = (1.0 - powerRatio) * 100.0;
+
+      // Update HUD Values
+      document.getElementById('hud-dosat').innerHTML = `${DO_sat.toFixed(2)} <span class="unit">mg/L</span>`;
+      document.getElementById('hud-freq').innerHTML = `${vfdFreq.toFixed(1)} <span class="unit">Hz</span>`;
+      document.getElementById('hud-save').innerHTML = `${powerSavings.toFixed(1)} <span class="unit">%</span>`;
+      document.getElementById('hud-motor').innerHTML = `VFD ${vfdFreq.toFixed(1)}Hz`;
+      document.getElementById('hud-action').innerText = actionText;
+
+      // 3D VFD Screen Update
+      const vfdFreqText = document.getElementById('vfd-screen-freq');
+      const vfdSaveText = document.getElementById('vfd-screen-save');
+      if (vfdFreqText) vfdFreqText.setAttribute('value', `${vfdFreq.toFixed(1)} Hz`);
+      if (vfdSaveText) vfdSaveText.setAttribute('value', `SAVE: ${powerSavings.toFixed(1)}%`);
+
+      // Synthesize Continuous Motor Hum Pitch
+      core.setHumFrequency(vfdFreq * 1.8, 0.04);
+    }
+
+    // 60 FPS Animation Loop for Rotating Paddlewheel
+    function animatePaddle() {
+      const vfdFreq = parseFloat(document.getElementById('hud-freq').innerText) || 38.0;
+      paddleAngle = (paddleAngle + (vfdFreq / 50.0) * 8.0) % 360;
+      
+      const axle = document.getElementById('paddle-axle');
+      if (axle) {
+        axle.setAttribute('rotation', `${paddleAngle.toFixed(1)} 0 90`);
+      }
+      requestAnimationFrame(animatePaddle);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAquaPhysics();
+      animatePaddle();
+    });
+  </script>
+</body>
+</html>
