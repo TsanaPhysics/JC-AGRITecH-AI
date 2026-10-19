@@ -1980,7 +1980,7 @@ navigator.geolocation.getCurrentPosition(
 
 ---
 
-### ภาคผนวก ๑๕: สถาปัตยกรรมแถบเมนูบาร์สมาร์ทโฟน 3 มิติ (3D Curved Scoop Dock & Tactile 3D Icons Architecture)
+### ภาคผนวก 15: สถาปัตยกรรมแถบเมนูบาร์สมาร์ทโฟน 3 มิติ (3D Curved Scoop Dock & Tactile 3D Icons Architecture)
 
 บันทึกมาตรฐานการออกแบบแถบเมนูบาร์ด้านล่าง (Mobile App Bottom Navigation Bar) สำหรับเว็บแอปพลิเคชันยุค 2026 เพื่อนำไปใช้ซ้ำในโครงการอื่นๆ:
 
@@ -2059,16 +2059,7 @@ graph TD
 | `RESET_CONFIG` | - | `RESET_CONFIG` | ล้างค่าคอนฟิกทั้งหมดใน NVS คืนสู่ค่าโรงงาน |
 | `REBOOT` | - | `REBOOT` | สั่งรีสตาร์ตระบบบอร์ด ESP32-S3 |
 
-### 12.4 สถาปัตยกรรมการเชื่อมต่อสื่อสารข้ามเครือข่ายต่างวง (Cross-Network IoT Communication)
-ในสถานการณ์จริง บอร์ด ESP32 ในแปลงอาจเชื่อมต่ออินเทอร์เน็ตผ่าน **Mobile Hotspot ของสมาร์ทโฟน** (ซับเน็ต `192.168.43.x` ติด Carrier-Grade NAT) ในขณะที่คอมพิวเตอร์เปิดแดชบอร์ดผ่าน **Wi-Fi มหาวิทยาลัยหรือบ้าน** (ซับเน็ต `192.168.1.x` หรือติด AP Isolation) ทำให้ไม่สามารถสื่อสารผ่าน Local IP ตรงๆ ได้
-
-โครงการได้จัดทำคู่มือวิศวกรรมฉบับสมบูรณ์สำหรับผู้เริ่มต้นไว้ที่ **[`MANUAL_IOT_CROSS_NETWORK_GUIDE.md`](file:///Applications/XAMPP/xamppfiles/htdocs/handysense/MANUAL_IOT_CROSS_NETWORK_GUIDE.md)** ครอบคลุม 3 สถาปัตยกรรมหลัก:
-1. **Cloud MQTT Broker (HiveMQ Cloud / EMQX):** สถาปัตยกรรม Publish/Subscribe ข้ามทวีป Latency < 100ms ปลอดภัยผ่านพอร์ต TLS 8883 / WebSocket 8884 ไม่ติดบล็อกไฟร์วอลล์สถาบัน
-2. **Google Firebase Realtime Database:** สถาปัตยกรรม Cloud JSON Tree อัปเดตข้อมูลและสวิตช์ควบคุมอัตโนมัติ Real-time พร้อมเก็บบันทึกประวัติ
-3. **Localhost Server (XAMPP/Python) + Cloudflare Tunnel:** การเจาะอุโมงค์ HTTPS ปลอดภัยจากเครื่องคอมพิวเตอร์ส่วนบุคคลสู่โลกภายนอกฟรี 100% โดยไม่ต้องเปิดพอร์ตเราเตอร์
-
 ---
-
 
 ## 13. สถาปัตยกรรมเรนเดอร์ฟอนต์และการขจัดปัญหากล่องสี่เหลี่ยมสามภาษาบนจอ 3.5 นิ้ว IPS (Tri-Lingual Display Font Engine & Zero-Tofu Architecture)
 
@@ -2161,6 +2152,29 @@ Boot (thai_font_vlw) ──> วาดจอไทยสมบูรณ์ ─�
 2. **ระบบยืนยันความปลอดภัย 2 ชั้น (Two-Step SweetAlert2 Confirmation):**
    - เมื่อกดปุ่ม "ล้างข้อมูลทั้งหมด" (สีแดง Danger) หน้าต่างแจ้งเตือนจะแสดงข้อความเตือนความปลอดภัย พร้อมถามยืนยันซ้ำ
    - หากยืนยัน ระบบจะส่งคำขอแบบ Asynchronous ผ่าน AJAX POST และรีเฟรชตารางข้อมูลทันที ทำให้ข้อมูลกลายเป็น 0 รายการอย่างแท้จริง
+
+### 14.4 สถาปัตยกรรมการแสดงผลและตรวจสอบความครอบคลุมฐานข้อมูลคู่ขนาน (Dual-Storage Database Coverage & Ecosystem Inspection Architecture)
+
+เพื่อมอบความโปร่งใสและการบริหารจัดการฐานข้อมูลระดับวิศวกรรมสำหรับผู้ดูแลระบบ ได้มีการยกระดับคอมโพเนนต์ `database_coverage.php` และโมดูลรวมข้อมูล `auth_and_data.php`:
+
+1. **การคำนวณและดึงสถิติฐานข้อมูล SQLite3 แบบไดนามิก (Dynamic SQLite Metrics Engine):**
+   - คำนวณจำนวนระเบียนจริงทุกตารางแบบ Real-time โดยเฉพาะตารางประวัติเซนเซอร์ `telemetry_logs` ซึ่งมีระเบียนสะสมมากกว่า 25,450 แถว และตาราง `relay_states` 4 ช่องรีเลย์
+   - แสดงผลข้อมูลสรุปไฟล์ฐานข้อมูลหลัก `data/leqs_xai.db` (ขนาด 6.54 MB, โหมด WAL Active, 5 ตารางหลัก, รวมกว่า 25,480 ระเบียน)
+   - เชื่อมต่อปุ่มทางลัด **"CRUD"** ที่เรียกฟังก์ชัน JavaScript `selectDbTable()` เพื่อเปิดแท็บตารางที่เลือกใน `database_manager.php` และเลื่อนหน้าจอลงไปยังจุดจัดการทันที (Smooth Scroll Transition)
+
+2. **ระบบบัญชีและสถิติแฟ้มข้อมูลแบน Flat-File JSON (JSON Flat-File Ecosystem Catalog):**
+   - ยกระดับจากการแสดงผลเฉพาะ `participants.json` เพียงไฟล์เดียว สู่การแสดงผลแฟ้มข้อมูล JSON ครบทั้ง 7 แฟ้มหลักของระบบ:
+     1. `participants.json` — บัญชีรายชื่อผู้เข้าร่วมอบรม และผลคะแนน Pre/Post
+     2. `announcements.json` — ข่าวสารประชาสัมพันธ์ และกำหนดการอบรม
+     3. `evaluations.json` — ผลประเมินความพึงพอใจ 10 ด้าน (Likert Scale)
+     4. `questions.json` — คลังข้อสอบวัดสมรรถนะปัญญาประดิษฐ์
+     5. `certificate_config.json` — การตั้งค่าแม่แบบและผู้ลงนามวุฒิบัตร
+     6. `site_content.json` — เนื้อหาหน้าเว็บและคอนฟิก CMS
+     7. `telemetry_state.json` — ข้อมูลเซนเซอร์ 7-in-1 และสถานะฮาร์ดแวร์ล่าสุด
+   - แสดงขนาดไฟล์จริงระดับ KB, ป้ายสถานะการเชื่อมต่อ (Active / Synced), และตรารับรอง **Dual-Write Auto-Mirroring Active** ยืนยันความสอดคล้อง 100% ระหว่างฐานข้อมูลเชิงสัมพันธ์ SQLite3 และ Flat-File JSON
+
+3. **การปรับแต่งการเชื่อมโยงข้ามระบบสู่ `aiot-fleet-dashboard`:**
+   - ปรับการดึงข้อมูลและลิงก์เชื่อมโยงใน `aiot-fleet-dashboard` (Navbar, Master Card, Backend API) ให้ชี้ตรงมายัง `edge-xaiot-agrienvi` พร้อม Fallback สำรอง ป้องกันปัญหา Dead Link เมื่อมีการปรับเปลี่ยนชื่อโฟลเดอร์โครงการ
 
 ---
 

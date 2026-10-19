@@ -47,13 +47,13 @@
 
             <!-- Action Buttons: Quick Navigation to Main Workshop System -->
             <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
-                <a href="../leqs-workshop/dashboard/index.php" target="_blank" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-xs font-bold font-tech flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition transform hover:scale-[1.02]">
+                <a href="../edge-xaiot-agrienvi/dashboard/index.php" target="_blank" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-xs font-bold font-tech flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition transform hover:scale-[1.02]">
                     <i class="fa-solid fa-gauge-high text-sm"></i>
                     <span>เปิดแดชบอร์ดสาธิตหลัก</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
 
-                <a href="../leqs-workshop/mobile/index.php" target="_blank" class="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs font-bold font-tech flex items-center gap-1.5 transition">
+                <a href="../edge-xaiot-agrienvi/mobile/index.php" target="_blank" class="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs font-bold font-tech flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-mobile-screen text-sm"></i>
                     <span>แอปมือถือ</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>

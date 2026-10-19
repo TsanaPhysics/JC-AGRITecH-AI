@@ -8,7 +8,7 @@ const FleetUI = {
     trendChartInstance: null,
 
     // =========================================================================
-    // 0. RENDER INSTRUCTOR MASTER CARD (/leqs-workshop/dashboard Sync)
+    // 0. RENDER INSTRUCTOR MASTER CARD (/edge-xaiot-agrienvi/dashboard Sync)
     // =========================================================================
     renderMasterCard() {
         const master = FleetState.getMasterBoard();
@@ -649,18 +649,93 @@ const FleetUI = {
 
                 case 'camera_vision':
                     html += `
-                        <div class="glass-panel rounded-3xl p-5 border border-white/10 space-y-3 relative overflow-hidden bg-gradient-to-br from-slate-900/90 to-slate-950 col-span-1 md:col-span-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold font-tech text-slate-300 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-camera text-indigo-400"></i> กล้องตรวจโรคใบพืช OV2640 (YOLOv8 Edge Vision)
-                                </span>
-                                <span class="text-[10px] font-mono text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-500/30">FPS: 15</span>
+                        <div class="glass-panel rounded-3xl p-5 border border-purple-500/30 space-y-4 relative overflow-hidden bg-gradient-to-br from-slate-900/95 to-purple-950/20 col-span-1 md:col-span-2">
+                            <!-- Header -->
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-bold font-tech text-white flex items-center gap-1.5">
+                                            กล้องวิเคราะห์โรคใบพืช Computer Vision (3.6_CV-pytorch)
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 font-tech">โมเดล MobileNetV3 + ONNX Edge Vision • ผศ.ดร.ชีวะ ทัศนา</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[9px] font-mono text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">ACC 98.4%</span>
+                                    <span class="text-[9px] font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-500/30">Grad-CAM XAI</span>
+                                </div>
                             </div>
-                            <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 aspect-video flex items-center justify-center">
-                                <img src="../assets/img/hero-cover.jpg" onerror="this.src='https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80'" class="w-full h-full object-cover opacity-80" alt="Plant Vision">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                                <div class="absolute top-3 left-3 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-mono text-emerald-400 border border-emerald-500/30">
-                                    YOLOv8: Anthracnose 0% (Healthy)
+
+                            <!-- Live Vision Viewport with Interactive Samples -->
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center">
+                                <div class="sm:col-span-7 relative rounded-2xl overflow-hidden bg-slate-950 border border-purple-500/30 aspect-video flex items-center justify-center group shadow-inner">
+                                    <img id="cvWidgetImgPreview" 
+                                         src="../../../3.6_CV-pytorch/app/2026-10-16-durian-leaf-app/sample1.jpg" 
+                                         onerror="this.src='https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80'" 
+                                         class="w-full h-full object-cover transition duration-300" 
+                                         alt="Plant Vision Sample">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/30"></div>
+                                    
+                                    <!-- Diagnosis Badge Overlay -->
+                                    <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-xl bg-black/75 backdrop-blur-md text-[10px] font-mono text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                        <span id="cvWidgetDiagnosisBadge">โรคใบจุดสาหร่าย (98.6%)</span>
+                                    </div>
+
+                                    <!-- Explainable AI Overlay Badge -->
+                                    <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-mono text-slate-300">
+                                        <span id="cvWidgetPathogenText" class="text-amber-300 truncate">Cephaleuros virescens</span>
+                                        <span class="text-purple-300 bg-purple-950/90 px-1.5 py-0.5 rounded border border-purple-500/30">Grad-CAM Hotspot</span>
+                                    </div>
+                                </div>
+
+                                <!-- Sample Selector & Action Stack -->
+                                <div class="sm:col-span-5 space-y-2.5 text-xs">
+                                    <div class="text-[10px] text-slate-400 font-tech font-bold uppercase tracking-wider flex items-center justify-between">
+                                        <span>เลือกภาพทดสอบ (Colab/Dataset)</span>
+                                        <span class="text-purple-400 font-mono">4 Samples</span>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <button type="button" onclick="FleetUI.switchCvSample(1, 'โรคใบจุดสาหร่าย (98.6%)', 'Cephaleuros virescens')" 
+                                                class="cv-sample-btn p-1.5 rounded-xl bg-slate-900 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/50 text-[10px] font-tech text-left text-slate-200 transition">
+                                            <span class="font-bold text-amber-300 block">Sample 1</span>
+                                            <span class="text-[9px] text-slate-400 block truncate">ใบจุดสาหร่าย</span>
+                                        </button>
+                                        <button type="button" onclick="FleetUI.switchCvSample(2, 'โรคใบติด/ใบไหม้ (97.4%)', 'Rhizoctonia solani')" 
+                                                class="cv-sample-btn p-1.5 rounded-xl bg-slate-900 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/50 text-[10px] font-tech text-left text-slate-200 transition">
+                                            <span class="font-bold text-rose-300 block">Sample 2</span>
+                                            <span class="text-[9px] text-slate-400 block truncate">โรคใบติด</span>
+                                        </button>
+                                        <button type="button" onclick="FleetUI.switchCvSample(3, 'โรคใบจุดสนิม (96.8%)', 'Colletotrichum gloeosporioides')" 
+                                                class="cv-sample-btn p-1.5 rounded-xl bg-slate-900 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/50 text-[10px] font-tech text-left text-slate-200 transition">
+                                            <span class="font-bold text-cyan-300 block">Sample 3</span>
+                                            <span class="text-[9px] text-slate-400 block truncate">ใบจุดสนิม</span>
+                                        </button>
+                                        <button type="button" onclick="FleetUI.switchCvSample(4, 'ใบสมบูรณ์แข็งแรง (99.2%)', 'Healthy Durian Folio')" 
+                                                class="cv-sample-btn p-1.5 rounded-xl bg-slate-900 hover:bg-purple-900/40 border border-white/10 hover:border-purple-500/50 text-[10px] font-tech text-left text-slate-200 transition">
+                                            <span class="font-bold text-emerald-300 block">Sample 4</span>
+                                            <span class="text-[9px] text-slate-400 block truncate">ใบสมบูรณ์</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Quick Launch Buttons -->
+                                    <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                        <button onclick="openCvVisionModal()" class="flex-1 py-1.5 px-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-[11px] font-bold font-tech flex items-center justify-center gap-1 transition">
+                                            <i class="fa-solid fa-play text-xs text-purple-400"></i> ทดสอบ AI
+                                        </button>
+                                        <a href="../../../3.6_CV-pytorch/app/2026-10-16-durian-leaf-app/index.html" target="_blank" 
+                                           class="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-[11px] font-bold font-tech flex items-center gap-1 transition" title="เปิดแอปเต็มจอ">
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </a>
+                                        <a href="../../../3.6_CV-pytorch/docs/main.pdf" target="_blank" 
+                                           class="py-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/20 text-[11px] font-bold font-mono transition" title="คู่มือ PDF 6x9">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1051,6 +1126,22 @@ const FleetUI = {
                 </tbody>
             </table>
         `;
+    },
+
+    // Interactive Sample Switcher for Computer Vision Widget (3.6_CV-pytorch)
+    switchCvSample(num, diagnosis, pathogen) {
+        const img = document.getElementById('cvWidgetImgPreview');
+        const badge = document.getElementById('cvWidgetDiagnosisBadge');
+        const pathTxt = document.getElementById('cvWidgetPathogenText');
+        if (img) {
+            img.style.opacity = '0.4';
+            setTimeout(() => {
+                img.src = `../../../3.6_CV-pytorch/app/2026-10-16-durian-leaf-app/sample${num}.jpg`;
+                img.style.opacity = '1';
+            }, 120);
+        }
+        if (badge) badge.innerText = diagnosis;
+        if (pathTxt) pathTxt.innerText = pathogen;
     }
 };
 

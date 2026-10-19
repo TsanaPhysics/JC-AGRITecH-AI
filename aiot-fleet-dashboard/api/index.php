@@ -46,8 +46,11 @@ try {
             ");
             $boards = $stmt->fetchAll();
 
-            // Load live hardware telemetry from /leqs-workshop for the Master Demonstration Node
-            $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+            // Load live hardware telemetry from /edge-xaiot-agrienvi for the Master Demonstration Node
+            $masterJsonFile = __DIR__ . '/../../edge-xaiot-agrienvi/data/telemetry_state.json';
+            if (!file_exists($masterJsonFile)) {
+                $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+            }
             $masterLiveState = null;
             if (file_exists($masterJsonFile)) {
                 $masterLiveState = json_decode(@file_get_contents($masterJsonFile), true);
@@ -56,8 +59,8 @@ try {
             foreach ($boards as &$b) {
                 $isMaster = !empty($b['is_master']) || ($b['board_code'] ?? '') === 'MASTER-LEQS' || intval($b['id']) === 1;
                 $b['is_master'] = $isMaster ? 1 : 0;
-                $b['demo_url'] = '../leqs-workshop/dashboard/index.php';
-                $b['mobile_url'] = '../leqs-workshop/mobile/index.php';
+                $b['demo_url'] = '../edge-xaiot-agrienvi/dashboard/index.php';
+                $b['mobile_url'] = '../edge-xaiot-agrienvi/mobile/index.php';
                 $b['code'] = $b['board_code'] ?? ('ESP32-NODE-' . str_pad($b['id'], 2, '0', STR_PAD_LEFT));
                 $b['relay_1'] = intval($b['relay1_state'] ?? 0);
                 $b['relay_2'] = intval($b['relay2_state'] ?? 0);
@@ -451,7 +454,10 @@ try {
             $isMaster = !empty($board['is_master']) || ($board['board_code'] ?? '') === 'MASTER-LEQS' || intval($id) === 1;
             if ($isMaster) {
                 $board['is_master'] = 1;
-                $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+                $masterJsonFile = __DIR__ . '/../../edge-xaiot-agrienvi/data/telemetry_state.json';
+                if (!file_exists($masterJsonFile)) {
+                    $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+                }
                 if (file_exists($masterJsonFile)) {
                     $masterLive = json_decode(@file_get_contents($masterJsonFile), true);
                     if ($masterLive && isset($masterLive['sensors'])) {
@@ -522,8 +528,11 @@ try {
             $b = $stmtB->fetch();
             $hwSync = 'simulated';
 
-            // Sync with Master leqs-workshop telemetry_state.json
-            $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+            // Sync with Master edge-xaiot-agrienvi telemetry_state.json
+            $masterJsonFile = __DIR__ . '/../../edge-xaiot-agrienvi/data/telemetry_state.json';
+            if (!file_exists($masterJsonFile)) {
+                $masterJsonFile = __DIR__ . '/../../leqs-workshop/data/telemetry_state.json';
+            }
             if (file_exists($masterJsonFile)) {
                 $mState = json_decode(@file_get_contents($masterJsonFile), true);
                 if (is_array($mState) && isset($mState['relays'][strval($relayId)])) {

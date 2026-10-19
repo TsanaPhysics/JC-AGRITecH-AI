@@ -42,8 +42,14 @@
         <!-- Right: Action Buttons & Controls -->
         <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
             
+            <!-- Computer Vision (CV-PyTorch) Edge AI Portal Link & Modal Trigger -->
+            <button onclick="openCvVisionModal()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/50 text-xs font-bold font-tech flex items-center gap-1.5 transition shadow-xs" title="เปิดระบบ Computer Vision AI & โมเดล MobileNetV3 วิเคราะห์โรคในทุเรียน (/3.6_CV-pytorch)">
+                <i class="fa-solid fa-eye text-purple-400 text-xs"></i> ตรวจโรคใบพืช (CV-AI)
+                <span class="text-[9px] font-mono px-1.5 py-0.2 bg-purple-900/80 text-purple-300 rounded border border-purple-500/30">PyTorch</span>
+            </button>
+
             <!-- Quick Link to Main Workshop Dashboard -->
-            <a href="../leqs-workshop/dashboard/index.php" target="_blank" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold font-tech flex items-center gap-1.5 transition shadow-xs" title="เปิดหน้าแดชบอร์ดหลักของวิทยากร (/leqs-workshop/dashboard/)">
+            <a href="../edge-xaiot-agrienvi/dashboard/index.php" target="_blank" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold font-tech flex items-center gap-1.5 transition shadow-xs" title="เปิดหน้าแดชบอร์ดหลักของวิทยากร (/edge-xaiot-agrienvi/dashboard/)">
                 <i class="fa-solid fa-crown text-amber-400 text-xs"></i> แดชบอร์ดสาธิต
                 <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-amber-400/80"></i>
             </a>

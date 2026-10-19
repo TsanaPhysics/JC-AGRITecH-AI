@@ -149,16 +149,16 @@
                     <i class="fa-solid fa-chart-line text-cyan-400"></i>
                 </label>
 
-                <!-- Widget 10: OV2640 YOLOv8 Vision -->
-                <label class="p-3 rounded-2xl bg-slate-900/90 border border-white/5 hover:border-cyan-500/30 flex items-center justify-between cursor-pointer group">
+                <!-- Widget 10: Computer Vision (3.6_CV-pytorch) -->
+                <label class="p-3 rounded-2xl bg-slate-900/90 border border-purple-500/20 hover:border-purple-500/50 flex items-center justify-between cursor-pointer group">
                     <div class="flex items-center gap-2.5">
-                        <input type="checkbox" value="camera_vision" class="widget-toggle accent-cyan-500 w-4 h-4 rounded">
+                        <input type="checkbox" value="camera_vision" class="widget-toggle accent-purple-500 w-4 h-4 rounded" checked>
                         <div>
-                            <span class="font-bold text-white block">กล้อง OV2640 AI Vision</span>
-                            <span class="text-[10px] text-slate-400">ตรวจโรคใบพืช YOLOv8 Edge Vision</span>
+                            <span class="font-bold text-white block">กล้อง AI ตรวจโรคใบพืช (CV-PyTorch)</span>
+                            <span class="text-[10px] text-purple-300">MobileNetV3 + ONNX Edge Vision (98.4%)</span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-camera text-indigo-400"></i>
+                    <i class="fa-solid fa-eye text-purple-400"></i>
                 </label>
 
                 <!-- Widget 11: Wearable Vital Signs -->

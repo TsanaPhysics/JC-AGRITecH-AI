@@ -94,11 +94,6 @@ if (class_exists('SQLite3')) {
         }
         @file_put_contents($data_dir . '/announcements.json', json_encode($announcements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-        $tables_summary[] = ['name' => 'participants', 'count' => count($participants)];
-        $tables_summary[] = ['name' => 'announcements', 'count' => count($announcements)];
-        $tables_summary[] = ['name' => 'telemetry_logs', 'count' => 1420];
-        $tables_summary[] = ['name' => 'relay_states', 'count' => 4];
-
         // Create Evaluations Table & Seed
         $db->exec("CREATE TABLE IF NOT EXISTS evaluations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -146,7 +141,95 @@ if (class_exists('SQLite3')) {
             }
         }
         @file_put_contents($data_dir . '/evaluations.json', json_encode($evaluations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        $tables_summary[] = ['name' => 'evaluations', 'count' => count($evaluations)];
+
+        // Dynamic query for table counts
+        $cnt_telemetry = (int)($db->querySingle("SELECT COUNT(*) FROM telemetry_logs") ?: 0);
+        $cnt_relays = (int)($db->querySingle("SELECT COUNT(*) FROM relay_states") ?: 4);
+
+        $tables_summary = [
+            ['name' => 'participants', 'title' => 'ข้อมูลผู้ลงทะเบียนอบรม', 'count' => count($participants), 'desc' => 'บัญชีรายชื่อ, สังกัด, คะแนน Pre/Post, แทร็กโครงงาน'],
+            ['name' => 'announcements', 'title' => 'ประกาศ & กำหนดการ', 'count' => count($announcements), 'desc' => 'ข่าวสารประชาสัมพันธ์ กำหนดการอบรม และประกาศด่วน'],
+            ['name' => 'evaluations', 'title' => 'ผลประเมินความพึงพอใจ', 'count' => count($evaluations), 'desc' => 'คะแนนประเมิน 10 ด้าน (Likert Scale) และข้อเสนอแนะ'],
+            ['name' => 'telemetry_logs', 'title' => 'ประวัติบันทึกเซนเซอร์ IoT', 'count' => $cnt_telemetry, 'desc' => 'ประวัติเซนเซอร์ Modbus ดิน 7in1, NPK, สภาพอากาศ, VPD'],
+            ['name' => 'relay_states', 'title' => 'สถานะรีเลย์ควบคุมฮาร์ดแวร์', 'count' => $cnt_relays, 'desc' => 'สถานะสวิตช์และรีเลย์ 4 ช่อง (ปั๊มน้ำ, พัดลม, ไฟปลูก, พ่นหมอก)']
+        ];
+
+        $total_db_rows = array_sum(array_column($tables_summary, 'count'));
+        $sqlite_file_size = file_exists($db_file) ? filesize($db_file) : 0;
+
+        // Structured Catalog of all JSON Flat-File Databases
+        $json_files_catalog = [
+            [
+                'name' => 'participants.json',
+                'title' => 'ข้อมูลผู้ลงทะเบียน (Participants)',
+                'path' => $data_dir . '/participants.json',
+                'rel_path' => 'data/participants.json',
+                'icon' => 'fa-users',
+                'color' => 'text-blue-400',
+                'badge' => count($participants) . ' คน',
+                'desc' => 'รายชื่อ ข้อมูลสังกัด ผลคะแนน Pre/Post และแทร็กโครงงาน'
+            ],
+            [
+                'name' => 'announcements.json',
+                'title' => 'ประกาศ & ข่าวสาร (Announcements)',
+                'path' => $data_dir . '/announcements.json',
+                'rel_path' => 'data/announcements.json',
+                'icon' => 'fa-bullhorn',
+                'color' => 'text-amber-400',
+                'badge' => count($announcements) . ' รายการ',
+                'desc' => 'ข่าวประชาสัมพันธ์ กำหนดการอบรม และประกาศสำคัญ'
+            ],
+            [
+                'name' => 'evaluations.json',
+                'title' => 'ผลการประเมิน (Evaluations)',
+                'path' => $data_dir . '/evaluations.json',
+                'rel_path' => 'data/evaluations.json',
+                'icon' => 'fa-star',
+                'color' => 'text-emerald-400',
+                'badge' => count($evaluations) . ' ชุด',
+                'desc' => 'คะแนนความพึงพอใจ 10 ด้าน Likert Scale 5 ระดับ'
+            ],
+            [
+                'name' => 'questions.json',
+                'title' => 'คลังข้อสอบ Pre/Post-Test',
+                'path' => $data_dir . '/questions.json',
+                'rel_path' => 'data/questions.json',
+                'icon' => 'fa-clipboard-question',
+                'color' => 'text-purple-400',
+                'badge' => '20 ข้อ',
+                'desc' => 'ชุดข้อสอบวัดสมรรถนะปัญญาประดิษฐ์และเกษตรดิจิทัล'
+            ],
+            [
+                'name' => 'certificate_config.json',
+                'title' => 'คอนฟิกเกียรติบัตร (Certificate)',
+                'path' => $data_dir . '/certificate_config.json',
+                'rel_path' => 'data/certificate_config.json',
+                'icon' => 'fa-award',
+                'color' => 'text-yellow-400',
+                'badge' => 'Config Active',
+                'desc' => 'ชื่อโครงการ วันที่จัด ผู้ลงนาม และรูปแบบฟอนต์วุฒิบัตร'
+            ],
+            [
+                'name' => 'site_content.json',
+                'title' => 'เนื้อหาหน้าเว็บ (CMS Content)',
+                'path' => $data_dir . '/site_content.json',
+                'rel_path' => 'data/site_content.json',
+                'icon' => 'fa-file-pen',
+                'color' => 'text-cyan-400',
+                'badge' => 'CMS Synced',
+                'desc' => 'ข้อความหัวเว็บ วันที่จัด สถานที่ และคอนฟิก CMS'
+            ],
+            [
+                'name' => 'telemetry_state.json',
+                'title' => 'สถานะฮาร์ดแวร์ล่าสุด (Telemetry)',
+                'path' => $data_dir . '/telemetry_state.json',
+                'rel_path' => 'data/telemetry_state.json',
+                'icon' => 'fa-microchip',
+                'color' => 'text-rose-400',
+                'badge' => 'Real-time',
+                'desc' => 'เซนเซอร์ดิน 7-in-1, NPK, สภาพอากาศ, และรีเลย์ 4 ช่อง'
+            ]
+        ];
 
     } catch (Exception $e) {
         $db_connected = false;

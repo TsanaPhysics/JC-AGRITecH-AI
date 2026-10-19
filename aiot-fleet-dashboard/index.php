@@ -43,6 +43,7 @@ require_once __DIR__ . '/includes/navbar.php';
 <?php require_once __DIR__ . '/components/board_modal.php'; ?>
 <?php require_once __DIR__ . '/components/broadcast_modal.php'; ?>
 <?php require_once __DIR__ . '/components/admin_fleet_modal.php'; ?>
+<?php require_once __DIR__ . '/components/cv_vision_modal.php'; ?>
 
 <!-- Master Footer -->
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

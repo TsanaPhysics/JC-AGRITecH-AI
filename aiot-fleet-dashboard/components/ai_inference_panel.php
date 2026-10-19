@@ -213,4 +213,32 @@
             </p>
         </div>
     </div>
+
+    <!-- Computer Vision (CV-PyTorch) Model Integration Banner -->
+    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/70 via-slate-950/80 to-indigo-950/70 border border-purple-500/40 flex flex-col md:flex-row items-center justify-between gap-3.5 text-xs relative z-10">
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold flex-shrink-0 shadow-lg shadow-purple-500/30">
+                <i class="fa-solid fa-eye text-base"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-white font-tech text-sm">Computer Vision Edge AI: โมเดลวิเคราะห์โรคในใบพืช (3.6_CV-pytorch)</span>
+                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">MobileNetV3 &bull; 98.4% Acc</span>
+                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-500/40">ONNX WASM</span>
+                </div>
+                <p class="text-[11px] text-slate-300 font-tech mt-0.5">
+                    โมเดลโครงข่ายประสาทเทียมตรวจโรคใบจุดสาหร่าย, ใบติด, ใบจุดสนิม และใบสมบูรณ์ พร้อมแผนที่ความร้อน Grad-CAM ทำงานออฟไลน์ 100% บนเบราว์เซอร์และสมาร์ทโฟน
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0 w-full md:w-auto justify-end">
+            <button onclick="openCvVisionModal()" class="px-3.5 py-1.5 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 border border-purple-500/50 font-bold font-tech text-xs flex items-center gap-1.5 transition shadow-xs">
+                <i class="fa-solid fa-play text-purple-400"></i> ทดสอบโมเดล (Hub)
+            </button>
+            <a href="../../../3.6_CV-pytorch/app/2026-10-16-durian-leaf-app/index.html" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold font-tech text-xs flex items-center gap-1.5 transition shadow-md shadow-purple-900/30">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดแอปเต็มจอ
+            </a>
+        </div>
+    </div>
 </div>
