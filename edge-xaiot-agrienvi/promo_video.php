@@ -103,6 +103,12 @@
                 <i class="fa-solid fa-circle text-[10px] text-white animate-pulse" id="recordDot"></i>
                 <span id="recordText">บันทึกเป็นวิดีโอ (WebM)</span>
             </button>
+
+            <!-- Thai Male Voiceover Prompts Modal Trigger -->
+            <button onclick="openMaleVoiceModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-950/40">
+                <i class="fa-solid fa-microphone-lines text-amber-300"></i>
+                <span>🎙️ พรอมต์ &amp; บทพากย์เสียงผู้ชายไทย</span>
+            </button>
         </div>
     </header>
 
@@ -923,6 +929,210 @@
         });
 
         window.addEventListener('resize', resizeCanvas);
+
+        // ==========================================
+        // THAI MALE VOICEOVER PROMPTS MODAL LOGIC
+        // ==========================================
+        function openMaleVoiceModal() {
+            document.getElementById('maleVoiceModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeMaleVoiceModal() {
+            document.getElementById('maleVoiceModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function copyTtsScript() {
+            const text = document.getElementById('ttsCopyBlock').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('btnCopyTts');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> คัดลอกสำเร็จแล้ว!';
+                setTimeout(() => { btn.innerHTML = orig; }, 2500);
+            });
+        }
+
+        function copyEnglishPrompts() {
+            const text = document.getElementById('englishPromptsBlock').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('btnCopyPrompts');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> คัดลอกพรอมต์ภาษาอังกฤษสำเร็จแล้ว!';
+                setTimeout(() => { btn.innerHTML = orig; }, 2500);
+            });
+        }
+
+        function speakMalePreview() {
+            if (!('speechSynthesis' in window)) {
+                alert('เบราว์เซอร์นี้ไม่รองรับการจำลองเสียงสังเคราะห์ Web Speech API');
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const text = document.getElementById('ttsCopyBlock').innerText;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'th-TH';
+            utter.rate = 1.0;
+            utter.pitch = 0.95; // Slightly deeper pitch for male tone
+
+            const voices = window.speechSynthesis.getVoices();
+            const thVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH'));
+            if (thVoice) utter.voice = thVoice;
+
+            window.speechSynthesis.speak(utter);
+        }
     </script>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: THAI MALE VOICEOVER & MASTERCLASS AI VIDEO PROMPTS -->
+    <!-- ========================================================================= -->
+    <div id="maleVoiceModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-[#0b101d] border border-indigo-500/30 rounded-3xl max-w-4xl w-full p-5 sm:p-7 space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto text-slate-200">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-lg shadow-indigo-900/40">
+                        <i class="fa-solid fa-microphone-lines text-amber-300"></i>
+                    </div>
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold font-tech mb-0.5">
+                            THAI MALE VOICEOVER &bull; 60 SECONDS MASTERCLASS
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-black text-white font-heading">
+                            ชุดพรอมต์ AI วิดีโอ 6 ฉาก &amp; บทพากย์เสียงผู้ชายไทย (Professional Prompts &amp; Script)
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            โครงการ Edge xAIoT : 4D-AgriEnvi 2569 ณ มรภ.รำไพพรรณี (17 - 19 ธ.ค. 2569)
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeMaleVoiceModal()" class="text-slate-400 hover:text-white p-2 text-xl transition">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Tone and Voice Direction Box -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-1">
+                    <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider font-tech flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tie"></i> โทนเสียงผู้บรรยายชาย
+                    </div>
+                    <div class="text-xs font-bold text-white">วัย 30-40 ปี สุขุม อบอุ่น มีพลัง</div>
+                    <p class="text-[11px] text-slate-400">สไตล์อาจารย์นักวิจัย/วิทยากรเทคโนโลยี น่าเชื่อถือ สุภาพ และสร้างแรงบันดาลใจ</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-1">
+                    <div class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider font-tech flex items-center gap-1.5">
+                        <i class="fa-solid fa-clapperboard"></i> สไตล์ภาพ 6 ฉาก (60 วิ)
+                    </div>
+                    <div class="text-xs font-bold text-white">Cinematic Photorealistic 8K</div>
+                    <p class="text-[11px] text-slate-400">แสงสี Golden Hour ทะลุแปลงผลไม้ โฮโลแกรมเซนเซอร์ NPK และแล็บคอมพิวเตอร์</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-1">
+                    <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider font-tech flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders"></i> แนะนำ TTS AI Model
+                    </div>
+                    <div class="text-xs font-bold text-white">Botnoi / ElevenLabs / Azure</div>
+                    <p class="text-[11px] text-slate-400">Botnoi (ดนัย, คุณกล้า) | ElevenLabs (Adam, Antoni) | Azure (th-TH-NiwatNeural)</p>
+                </div>
+            </div>
+
+            <!-- Tab 1: Thai Voiceover Script Section -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h4 class="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-amber-400"></i>
+                        <span>บทพากย์เสียงภาษาไทย กำกับจังหวะเวลา (Timestamped Script)</span>
+                    </h4>
+                    <div class="flex items-center gap-2">
+                        <button onclick="speakMalePreview()" class="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                            <i class="fa-solid fa-play text-purple-300"></i> ฟังเสียงตัวอย่าง (Web Speech)
+                        </button>
+                        <button onclick="copyTtsScript()" id="btnCopyTts" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-950/40">
+                            <i class="fa-solid fa-copy"></i> คัดลอกบทพากย์ลง TTS
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-950 border border-white/5 text-xs space-y-3 leading-relaxed font-sans max-h-52 overflow-y-auto" id="ttsCopyBlock">
+                    <div class="pb-2 border-b border-white/5">
+                        <span class="font-bold text-amber-400 font-mono">[00:00 - 00:10] ฉากที่ 1:</span>
+                        <p class="text-slate-200 mt-0.5">"จะดีแค่ไหน… ถ้าแปลงเกษตรของคุณ สามารถคิด วิเคราะห์ และดูแลตัวเองได้อย่างแม่นยำ ด้วยพลังของ เอไอ และ ไอโอที ยุคใหม่!"</p>
+                    </div>
+                    <div class="pb-2 border-b border-white/5">
+                        <span class="font-bold text-cyan-400 font-mono">[00:10 - 00:20] ฉากที่ 2:</span>
+                        <p class="text-slate-200 mt-0.5">"พบกับเทคโนโลยีตรวจลึกถึงรากพืช! ด้วยเซนเซอร์ ม็อดบัส เจ็ด-อิน-วัน วัดค่า เอ็น-พี-เค, พีเอช, อีซี และสภาพอากาศแบบเรียลไทม์ บนบอร์ดอัจฉริยะ อีเอสพี สามสิบสอง เอสสาม"</p>
+                    </div>
+                    <div class="pb-2 border-b border-white/5">
+                        <span class="font-bold text-emerald-400 font-mono">[00:20 - 00:30] ฉากที่ 3:</span>
+                        <p class="text-slate-200 mt-0.5">"ยกระดับสู่อีกขั้น ด้วย คอมพิวเตอร์วิชัน เอไอ แค่สแกนใบพืชผ่านสมาร์ทโฟน ก็รู้โรค รู้การขาดธาตุอาหาร และรับคำแนะนำทันทีในเสี้ยววินาที!"</p>
+                    </div>
+                    <div class="pb-2 border-b border-white/5">
+                        <span class="font-bold text-indigo-400 font-mono">[00:30 - 00:40] ฉากที่ 4:</span>
+                        <p class="text-slate-200 mt-0.5">"ทั้งหมดนี้ คุณจะได้ลงมือทำจริงในเวิร์กช็อปสุดเข้มข้น! ร่วมแฮกกาธอนพัฒนาโครงงานจริง กับทีมอาจารย์และผู้เชี่ยวชาญ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี"</p>
+                    </div>
+                    <div class="pb-2 border-b border-white/5">
+                        <span class="font-bold text-rose-400 font-mono">[00:40 - 00:50] ฉากที่ 5:</span>
+                        <p class="text-slate-200 mt-0.5">"วันที่ สิบเจ็ด ถึง สิบเก้า ธันวาคม สองพันห้าร้อยหกสิบเก้า ณ ห้องประชุมปะการัง อาคารเก้า… อบรมฟรีตลอดหลักสูตร! พร้อมรับวุฒิบัตรรับรองสมรรถนะทันทีเมื่อผ่านการอบรม"</p>
+                    </div>
+                    <div>
+                        <span class="font-bold text-yellow-400 font-mono">[00:50 - 01:00] ฉากที่ 6:</span>
+                        <p class="text-slate-200 mt-0.5">"โอกาสพัฒนาสู่นวัตกรเกษตรดิจิทัลมาถึงแล้ว! รับจำนวนจำกัดเพียง สามสิบท่าน… สแกน คิวอาร์โค้ด เพื่อลงทะเบียนได้เลยตอนนี้ แล้วพบกันนะครับ!"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: English AI Video Generation Prompts -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h4 class="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+                        <span>ชุดพรอมต์ภาษาอังกฤษสำหรับ AI Video Generators (Runway Gen-3 / Luma / Sora / Kling AI)</span>
+                    </h4>
+                    <button onclick="copyEnglishPrompts()" id="btnCopyPrompts" class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-950/40">
+                        <i class="fa-solid fa-copy"></i> คัดลอกพรอมต์ภาษาอังกฤษ
+                    </button>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-950 border border-white/5 text-[11px] font-mono space-y-3 max-h-56 overflow-y-auto text-slate-300" id="englishPromptsBlock">
+                    <div>
+                        <span class="text-amber-400 font-bold">[Scene 1 - Drone Intro]:</span>
+                        <p class="mt-0.5 text-slate-300">Cinematic photorealistic 8K. Majestic aerial drone fly-through over an ultra-modern tropical fruit smart orchard and high-tech greenhouse at sunrise. Warm golden hour volumetric sunlight beams cutting through morning mist. Subtle glowing emerald and cyan digital data streamlines flowing through irrigation pipes. A confident Thai male agricultural researcher in a smart casual lab coat with RBRU emblem walks forward with a warm smile. Crisp depth of field, Unreal Engine 5 render, award-winning documentary aesthetics.</p>
+                    </div>
+                    <div>
+                        <span class="text-cyan-400 font-bold">[Scene 2 - 7-in-1 IoT Probe & ESP32-S3]:</span>
+                        <p class="mt-0.5 text-slate-300">High-end cinematic macro shot. Hands of a skilled engineer gently inserting a stainless steel 7-in-1 RS485 soil sensor probe into rich dark organic soil. Vibrant neon holographic 3D particle data erupts from the soil: 'pH 6.5, NPK 17-11-10, Moisture 68%, EC 1.2 mS/cm'. Camera pans smoothly to an ESP32-S3 ATD3.5 custom board with a crisp 3.5-inch color IPS touchscreen glowing brightly with live telemetry curves. High dynamic range, soft reflections.</p>
+                    </div>
+                    <div>
+                        <span class="text-emerald-400 font-bold">[Scene 3 - Computer Vision Edge AI]:</span>
+                        <p class="mt-0.5 text-slate-300">Hyper-realistic cinematic scene. Over-the-shoulder shot of a modern farmer holding a smartphone targeting a lush durian leaf. The camera app projects an interactive cyan laser scanning grid over the leaf surface. Within milliseconds, sleek AI bounding boxes lock onto the leaf veins, displaying a cheerful holographic diagnosis badge: 'Health 98.4% - Ready for Nutrient Optimization'. Instant AI treatment recommendations appear in clean typography.</p>
+                    </div>
+                    <div>
+                        <span class="text-indigo-400 font-bold">[Scene 4 - Workshop Lab & Hackathon]:</span>
+                        <p class="mt-0.5 text-slate-300">Vibrant cinematic tracking shot inside a modern, sunlit computer science laboratory at Faculty of Science and Technology, Rambhai Barni Rajabhat University. Diverse enthusiastic Thai students in uniforms, science teachers, and smart farmers sitting together around wooden tables. They are excitedly wiring breadboards, testing ESP32 microcontrollers, and analyzing live IoT dashboard graphs on laptop screens. Collaborative joy, smiling faces, 8K resolution.</p>
+                    </div>
+                    <div>
+                        <span class="text-rose-400 font-bold">[Scene 5 - Pakarang Hall & Certificate]:</span>
+                        <p class="mt-0.5 text-slate-300">Inspiring cinematic medium shot. Modern Pakarang Conference Hall, Building 9, Faculty of Science and Technology, Rambhai Barni Rajabhat University. Elegant lighting, modern presentation stage. A glowing 3D golden holographic Certificate of Achievement with official university seal and QR verification badge floats in the air. Clear bold elegant typography overlay displaying '17 - 19 ธันวาคม 2569 ณ ห้องประชุมปะการัง อาคาร 9'.</p>
+                    </div>
+                    <div>
+                        <span class="text-yellow-400 font-bold">[Scene 6 - Grand Finale & QR Call to Action]:</span>
+                        <p class="mt-0.5 text-slate-300">Epic cinematic finale. Center portrait of the friendly Thai male instructor wearing a sharp blazer with green RBRU crest, standing in front of the illuminated smart farm hub. He warmly gestures toward a prominent, ultra-crisp 3D embossed QR Code floating beside him with bold glowing badges 'อบรมฟรี 100%!' and 'รับเพียง 30 ท่าน!'. Confetti of soft digital particles, warm sunset backlighting, inspiring corporate tech commercial finish.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action Links -->
+            <div class="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-3">
+                <a href="PROMO_VIDEO_PROMPTS_MALE_VOICE.md" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1.5 font-bold">
+                    <i class="fa-solid fa-file-markdown"></i> เปิดอ่านไฟล์เอกสารแม่แบบเต็ม (PROMO_VIDEO_PROMPTS_MALE_VOICE.md)
+                </a>
+                <button onclick="closeMaleVoiceModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
