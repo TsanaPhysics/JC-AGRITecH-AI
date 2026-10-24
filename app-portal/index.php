@@ -123,11 +123,15 @@ $currentHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
             <!-- Header Quick Actions -->
             <div class="flex items-center gap-2 sm:gap-3">
+                <a href="../edge-xaiot-agrienvi/index.php" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-house text-emerald-400"></i>
+                    <span class="hidden md:inline">เว็บหลัก Master Portal</span>
+                </a>
                 <a href="../aiot-fleet-dashboard/index.php" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-network-wired text-cyan-400"></i>
                     <span class="hidden md:inline">Fleet Dashboard</span>
                 </a>
-                <a href="../leqs-workshop/mobile/index.php" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5">
+                <a href="../edge-xaiot-agrienvi/mobile/index.php" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-mobile-screen text-emerald-400"></i>
                     <span class="hidden md:inline">Mobile Web</span>
                 </a>

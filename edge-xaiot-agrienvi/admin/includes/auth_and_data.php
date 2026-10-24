@@ -45,9 +45,16 @@ $data_dir = __DIR__ . '/../../data';
 if (!is_dir($data_dir)) {
     @mkdir($data_dir, 0777, true);
 }
+@chmod($data_dir, 0777);
 
 $db_file = $data_dir . '/leqs_xai.db';
 $json_file = $data_dir . '/participants.json';
+if (file_exists($db_file)) {
+    @chmod($db_file, 0666);
+}
+if (file_exists($json_file)) {
+    @chmod($json_file, 0666);
+}
 
 // Initialize Database & Flat-file JSON
 $participants = [];

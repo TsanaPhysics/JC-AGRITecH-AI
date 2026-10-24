@@ -41,20 +41,20 @@ class SensorData {
     }
 
     return SensorData(
-      temperature: toDbl(json['temperature'], 31.4),
-      humidity: toDbl(json['humidity'], 85.0),
-      vpd: toDbl(json['vpd'], 0.69),
-      dewPoint: toDbl(json['dew_point'], 28.4),
-      parLux: toDbl(json['par_lux'], 897.5),
-      solarRadiation: toDbl(json['solar_radiation'], 7.09),
-      soilMoisture: toDbl(json['soil_moisture'], 65.0),
-      soilPh: toDbl(json['soil_ph'], 6.2),
-      soilEc: toDbl(json['soil_ec'], 120.0),
-      soilTemperature: toDbl(json['soil_temperature'], 27.5),
-      nitrogen: toDbl(json['nitrogen'], 45.0),
-      phosphorus: toDbl(json['phosphorus'], 32.0),
-      potassium: toDbl(json['potassium'], 180.0),
-      batteryPct: toDbl(json['battery_pct'], 98.5),
+      temperature: toDbl(json['temperature']),
+      humidity: toDbl(json['humidity']),
+      vpd: toDbl(json['vpd']),
+      dewPoint: toDbl(json['dew_point']),
+      parLux: toDbl(json['par_lux']),
+      solarRadiation: toDbl(json['solar_radiation']),
+      soilMoisture: toDbl(json['soil_moisture']),
+      soilPh: toDbl(json['soil_ph']),
+      soilEc: toDbl(json['soil_ec']),
+      soilTemperature: toDbl(json['soil_temperature']),
+      nitrogen: toDbl(json['nitrogen']),
+      phosphorus: toDbl(json['phosphorus']),
+      potassium: toDbl(json['potassium']),
+      batteryPct: toDbl(json['battery_pct']),
       updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
@@ -103,6 +103,7 @@ class BoardData {
   final int rssi;
   final String cloudUrl;
   final bool isLive;
+  final int lastPostEpoch; // เวลา (epoch วินาที) ที่เซิร์ฟเวอร์ได้รับข้อมูลจากบอร์ดล่าสุด
 
   BoardData({
     required this.deviceName,
@@ -113,18 +114,20 @@ class BoardData {
     required this.rssi,
     required this.cloudUrl,
     required this.isLive,
+    this.lastPostEpoch = 0,
   });
 
   factory BoardData.fromJson(Map<String, dynamic> json) {
     return BoardData(
       deviceName: json['device_name']?.toString() ?? 'ESP32-S3 ATD3.5',
       status: json['status']?.toString() ?? 'ONLINE',
-      ssid: json['ssid']?.toString() ?? 'JC_Home',
-      ipAddress: json['ip_address']?.toString() ?? '192.168.0.111',
+      ssid: json['ssid']?.toString() ?? '-',
+      ipAddress: json['ip_address']?.toString() ?? '-',
       webPort: (json['web_port'] is num) ? (json['web_port'] as num).toInt() : 8500,
       rssi: (json['rssi'] is num) ? (json['rssi'] as num).toInt() : -99,
       cloudUrl: json['cloud_url']?.toString() ?? 'http://14.207.141.164:8000',
       isLive: json['is_live'] == true || json['status']?.toString().contains('ONLINE') == true,
+      lastPostEpoch: (json['last_direct_post_time'] is num) ? (json['last_direct_post_time'] as num).toInt() : 0,
     );
   }
 }
@@ -158,14 +161,14 @@ class AiCalibratedData {
     }
 
     return AiCalibratedData(
-      nitrogen: toDbl(json['nitrogen'], 48.2),
-      phosphorus: toDbl(json['phosphorus'], 33.1),
-      potassium: toDbl(json['potassium'], 178.5),
-      ph: toDbl(json['ph'], 6.2),
-      moisture: toDbl(json['moisture'], 65.4),
-      confidence: toDbl(json['confidence'], 0.984),
-      npkRatio: json['npk_ratio']?.toString() ?? '1.5:1:5.6',
-      npkTotal: toDbl(json['npk_total'], 259.8),
+      nitrogen: toDbl(json['nitrogen']),
+      phosphorus: toDbl(json['phosphorus']),
+      potassium: toDbl(json['potassium']),
+      ph: toDbl(json['ph']),
+      moisture: toDbl(json['moisture']),
+      confidence: toDbl(json['confidence']),
+      npkRatio: json['npk_ratio']?.toString() ?? '-',
+      npkTotal: toDbl(json['npk_total']),
     );
   }
 }
@@ -204,6 +207,10 @@ class TelemetryModel {
   final String controlMode; // 'manual', 'auto', 'ai'
   final AiCalibratedData aiCalibrated;
   final GpsData gps;
+  final Map<int, int> timers;       // รีเลย์ -> วินาทีที่เหลือก่อนปิดอัตโนมัติ
+  final Map<int, int> relaySince;   // รีเลย์ -> เวลา (epoch) ที่เปลี่ยนสถานะล่าสุด
+  final bool keyRequired;           // เซิร์ฟเวอร์เปิดใช้ API Key
+  final int serverEpoch;
 
   TelemetryModel({
     required this.board,
@@ -213,7 +220,18 @@ class TelemetryModel {
     required this.controlMode,
     required this.aiCalibrated,
     required this.gps,
+    this.timers = const {},
+    this.relaySince = const {},
+    this.keyRequired = false,
+    this.serverEpoch = 0,
   });
+
+  /// อายุข้อมูลจากบอร์ด (วินาที) ณ เวลาที่เซิร์ฟเวอร์ตอบ; null = ไม่ทราบ
+  int? get dataAgeSeconds {
+    if (serverEpoch <= 0 || board.lastPostEpoch <= 0) return null;
+    final age = serverEpoch - board.lastPostEpoch;
+    return age < 0 ? 0 : age;
+  }
 
   factory TelemetryModel.fromJson(Map<String, dynamic> json) {
     final relaysMap = <int, RelayItem>{};
@@ -247,7 +265,23 @@ class TelemetryModel {
       }
     }
 
+    Map<int, int> intMap(dynamic raw) {
+      final out = <int, int>{};
+      if (raw is Map) {
+        raw.forEach((k, v) {
+          final id = int.tryParse(k.toString());
+          final val = v is num ? v.toInt() : int.tryParse(v.toString());
+          if (id != null && val != null) out[id] = val;
+        });
+      }
+      return out;
+    }
+
     return TelemetryModel(
+      timers: intMap(json['timers']),
+      relaySince: intMap(json['relay_since']),
+      keyRequired: json['key_required'] == true,
+      serverEpoch: (json['server_epoch'] is num) ? (json['server_epoch'] as num).toInt() : 0,
       board: BoardData.fromJson(Map<String, dynamic>.from(json['board'] as Map? ?? {})),
       sensors: SensorData.fromJson(Map<String, dynamic>.from(json['sensors'] as Map? ?? {})),
       relays: relaysMap,

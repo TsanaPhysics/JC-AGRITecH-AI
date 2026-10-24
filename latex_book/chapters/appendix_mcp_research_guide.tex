@@ -1,0 +1,278 @@
+% ==============================================================================
+% ภาคผนวก ค: คู่มือวิศวกรรมงานวิจัยและสถาปัตยกรรมตำราวิชาการ AIoT
+% (Appendix C: AI Research & Academic Textbook Engineering Manual)
+% บูรณาการ Consensus MCP + Perplexity MCP ร่วมกับ Academic Architect Frameworks
+% มหาวิทยาลัยราชภัฏรำไพพรรณี (RBRU Master Style)
+% ==============================================================================
+\chapter{คู่มือวิศวกรรมงานวิจัยและสถาปัตยกรรมตำราวิชาการ AIoT}
+\label{ch:appendix_mcp_guide}
+
+\section{บทนำและภาพรวมสถาปัตยกรรมวิจัยและตำรา (Introduction \& Framework)}
+
+ในยุคดิจิทัลที่เทคโนโลยีปัญญาประดิษฐ์และอินเทอร์เน็ตของสรรพสิ่ง (AIoT) พัฒนาอย่างก้าวกระโดด การผลิตงานวิจัยและการจัดทำตำราวิชาการระดับมหาวิทยาลัยให้มีคุณภาพสูง สอดคล้องกับเกณฑ์การประเมินตำแหน่งทางวิชาการ (ผศ., รศ., ศ.) จำเป็นต้องอาศัยการบูรณาการเครื่องมือปัญญาประดิษฐ์เชิงระบบ (Systematic AI-Assisted Research \& Authoring) 
+
+ภาคผนวกนี้นำเสนอ \textbf{คู่มือวิศวกรรมงานวิจัยและสถาปัตยกรรมตำราวิชาการ AIoT} ซึ่งผสานพลังของโปรโตคอลบริบทโมเดล (\textbf{Model Context Protocol: MCP}) ร่วมกับระเบียบวิธีวิจัยและสถาปัตยกรรมการผลิตสื่อการสอนมาตรฐาน มหาวิทยาลัยราชภัฏรำไพพรรณี โดยเชื่อมโยง 2 แหล่งสืบค้นวิจัยระดับโลก:
+\begin{enumerate}
+    \item \textbf{Consensus MCP (\texttt{consensus\_search}):} ระบบค้นหาและสังเคราะห์งานวิจัยวิทยาศาสตร์เชิงประจักษ์จากฐานข้อมูลระดับนานาชาติกว่า 400 ล้านบทความ คัดกรองเฉพาะวารสารที่มีดัชนี SCImago Journal Rank (\textbf{SJR Q1--Q4}), ค่า Citation, รหัส DOI, และข้อสรุปเชิงประจักษ์ (\textbf{AI Consensus Takeaways})
+    \item \textbf{Perplexity MCP (\texttt{perplexity-web}):} ระบบสืบค้นข้อมูลสถานะปัจจุบัน (State-of-the-Art: SOTA) แบบเรียลไทม์ และสำรวจมาตรฐานอุตสาหกรรมเกษตรแม่นยำ
+\end{enumerate}
+
+เข้ากับ 3 สถาปัตยกรรมการพัฒนาตำราวิชาการชั้นสูง:
+\begin{itemize}
+    \item \textbf{\texttt{/academic-content-architect}:} กรอบการออกแบบเนื้อหาและการเรียนรู้เชิงรุก (Active Learning Cycle, Bloom's Taxonomy, CLEAR Prompting Framework และ 8 Core Academic Elements)
+    \item \textbf{\texttt{/academic-book-cover-architect}:} วิศวกรรมหน้าปก 3D Pixar Semi-realistics สัดส่วน 2:3 บนระบบเรียงพิมพ์ XeLaTeX TikZ Titlepage Overlay ด้วยเทคนิค Dual-Layer Micro Drop-Shadow
+    \item \textbf{\texttt{/rbru-latex-textbook-builder}:} ระบบเรียงพิมพ์และจัดรูปแบบตำราวิชาการภาษาไทยคุณภาพสูงด้วย XeLaTeX ตามระเบียบ มรภ.รำไพพรรณี
+\end{itemize}
+
+\section{สถาปัตยกรรมกระบวนการทำงานภาพรวม (Holistic Pipeline)}
+
+กระบวนการผลิตงานวิจัยและสร้างสรรค์ตำราวิชาการตั้งแต่ขั้นสืบค้นวรรณกรรมจนถึงการออกรูปเล่มสมบูรณ์ สามารถสรุปเป็นแผนภาพบล็อกการไหลของข้อมูลเชิงวิศวกรรมได้ดังแสดงในภาพที่ \ref{fig:mcp_research_pipeline}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.92\textwidth}{!}{
+\begin{tikzpicture}[
+    node distance=1.1cm and 0.8cm,
+    font=\small,
+    boxResearch/.style={rectangle, draw=agriBlue, fill=agriBlue!8, thick, rounded corners=4pt, align=center, minimum height=1.2cm, minimum width=4.5cm, drop shadow={opacity=0.15}},
+    boxContent/.style={rectangle, draw=agriGreen, fill=agriGreen!10, thick, rounded corners=4pt, align=center, minimum height=1.3cm, minimum width=9.5cm, drop shadow={opacity=0.15}},
+    boxLatex/.style={rectangle, draw=rbruNavy, fill=rbruNavy!8, thick, rounded corners=4pt, align=center, minimum height=1.3cm, minimum width=4.5cm, drop shadow={opacity=0.15}},
+    boxCover/.style={rectangle, draw=rbruGold!90!black, fill=rbruGold!12, thick, rounded corners=4pt, align=center, minimum height=1.3cm, minimum width=4.5cm, drop shadow={opacity=0.15}},
+    arrowLine/.style={-latex', thick, draw=rbruNavy}
+]
+    % Level 1: Deep Research
+    \node[boxResearch] (consensus) {\textbf{Consensus MCP}\\\footnotesize 400M+ Peer-reviewed $\cdot$ SJR Q1--Q4\\\footnotesize AI Consensus Takeaways $\cdot$ DOI};
+    \node[boxResearch, right=1.0cm of consensus] (perplexity) {\textbf{Perplexity MCP}\\\footnotesize Real-time Web $\cdot$ SOTA Tech\\\footnotesize Industry Specs $\cdot$ Live Grounding};
+
+    % Level 2: Academic Content Architect
+    \node[boxContent, below=1.2cm of $(consensus.south)!0.5!(perplexity.south)$] (architect) {%
+        \textbf{Academic Content Architect (\texttt{/academic-content-architect})}\\%
+        \footnotesize Bloom's Taxonomy (Analyze $\to$ Evaluate $\to$ Create) $\cdot$ CLEAR Prompting Framework\\%
+        \footnotesize 8 Core Elements: OBE Objectives, Theoretical Backbone, Full Python Code, Virtual Lab%
+    };
+
+    % Level 3: Output Engines
+    \node[boxLatex, below left=1.2cm and 0.2cm of architect] (textbook) {%
+        \textbf{RBRU LaTeX Textbook Builder}\\%
+        \footnotesize XeLaTeX Thai Unicode $\cdot$ \texttt{rbru\_style}\\%
+        \footnotesize TikZ Vector Diagrams $\cdot$ APA 7th References%
+    };
+
+    \node[boxCover, below right=1.2cm and 0.2cm of architect] (cover) {%
+        \textbf{Academic Book Cover Architect}\\%
+        \footnotesize 3D Pixar Negative Space (Ratio 2:3)\\%
+        \footnotesize XeLaTeX TikZ Dual-Layer Drop-Shadow%
+    };
+
+    % Connections
+    \draw[arrowLine] (consensus.south) -- ++(0,-0.4) -| (architect.north -| consensus.south);
+    \draw[arrowLine] (perplexity.south) -- ++(0,-0.4) -| (architect.north -| perplexity.south);
+    \draw[arrowLine] (architect.south) -- ++(0,-0.4) -| (textbook.north);
+    \draw[arrowLine] (architect.south) -- ++(0,-0.4) -| (cover.north);
+
+\end{tikzpicture}
+}
+\caption{สถาปัตยกรรมกระบวนการทำงานแบบบูรณาการตั้งแต่การสืบค้นจนถึงการผลิตเล่มตำราวิชาการ}
+\label{fig:mcp_research_pipeline}
+\end{figure}
+
+\section{เมทริกซ์เครื่องมือ MCP สำหรับงานวิจัย (Research MCP Tools Matrix)}
+
+ตารางที่ \ref{tab:mcp_tools_matrix} สรุปบทบาทหน้าที่และเครื่องมือ MCP ที่ได้รับการติดตั้งและเชื่อมต่อในระบบสำหรับรองรับงานวิจัยทางฟิสิกส์เกษตรและสมองกลฝังตัว
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l p{2.8cm} Y}
+\toprule
+\textbf{ชื่อเซิร์ฟเวอร์ MCP} & \textbf{เครื่องมือ (Tools)} & \textbf{วัตถุประสงค์และการประยุกต์ใช้ในงานวิจัย} \\
+\midrule
+\texttt{consensus} & \texttt{consensus\_search} & ค้นหางานวิจัย Peer-reviewed สากล ดึงวารสาร SJR Q1--Q4, ค่า Citation, ลิงก์ DOI และข้อสรุปเชิงประจักษ์โดย AI สำหรับการทบทวนวรรณกรรมและอภิปรายผลแล็บ \\
+\addlinespace
+\texttt{perplexity-web} & \texttt{search}, \texttt{search\_advanced} & ค้นหาข้อมูลเชิงลึกแบบเรียลไทม์ สำรวจเทคโนโลยี SOTA, บอร์ดประมวลผลล่าสุด (เช่น ESP32-S3, Wio Terminal) โดยทำงานผ่าน Playwright Chromium ไร้ข้อจำกัดด้าน API Key \\
+\addlinespace
+\texttt{mysql-smartfarm} & \texttt{query\_database} & ดึงข้อมูลสภาพแวดล้อม ดิน อากาศ แสง จากฐานข้อมูลจริงในโรงเรือน Smart Farm เพื่อนำไปวิเคราะห์ทางสถิติและเทรนโมเดล TinyML \\
+\addlinespace
+\texttt{openscad-3d} & \texttt{render\_scad\_png}, \texttt{export\_scad\_stl} & สร้างแบบจำลอง 3D กล่องหุ้มอุปกรณ์เซนเซอร์และแชสซีส์เครื่องมือวัด สำหรับประกอบภาคผนวกสิทธิบัตรและคู่มือฮาร์ดแวร์ \\
+\bottomrule
+\end{tabularx}
+\caption{เมทริกซ์การจำแนกประเภทและบทบาทของเครื่องมือ MCP ในโครงการวิจัย}
+\label{tab:mcp_tools_matrix}
+\end{table}
+
+\section{คลังพร้อมพ์มาตรฐานวิศวกรรมงานวิจัยและตำรา (Prompt Library)}
+
+\subsection{ชุดที่ 1: พรอมพ์ค้นคว้าและสังเคราะห์วรรณกรรมวิจัย (Consensus \& Perplexity)}
+
+การดึงข้อมูลวิจัยระดับสากลเพื่อสร้างความน่าเชื่อถือทางวิชาการและการอภิปรายผล มีรูปแบบการสั่งการมาตรฐานดังแสดงในกรอบที่ \ref{box:prompt_consensus} และ \ref{box:prompt_perplexity}
+
+\begin{promptbox}{พรอมพ์สืบค้นงานวิจัยสากลระดับ SJR Q1 ด้วย Consensus MCP}
+\small
+\textbf{[OBJECTIVE]}\\
+ทำการทบทวนวรรณกรรมเพื่อสนับสนุนรายงานวิจัยและตำราวิชาการ เรื่อง ``การชดเชยค่าความคลาดเคลื่อนของเซนเซอร์ pH ในดินด้วยปัญญาประดิษฐ์ฝังตัว''
+
+\vspace{4pt}
+\textbf{[MCP DIRECTIVE]}\\
+เรียกใช้เครื่องมือ \texttt{consensus\_search} ด้วยคำค้นหา:\\
+\texttt{"soil pH sensor drift compensation machine learning"} \\
+กำหนดเงื่อนไข: \texttt{year\_min=2021}, \texttt{year\_max=2026}, \texttt{page\_size=10}
+
+\vspace{4pt}
+\textbf{[OUTPUT REQUIREMENTS]}
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item สรุปรายการเปเปอร์ที่ได้รับการจัดอันดับ SJR Quartile ระดับ Q1 หรือ Q2 พร้อมระบุชื่อวารสารและค่าการอ้างอิง (Citations)
+    \item ดึงข้อสรุปเชิงประจักษ์ (Consensus AI Takeaway) มาเรียบเรียงเป็นภาษาไทยเชิงวิชาการ
+    \item จำแนกประเภทของอัลกอริทึมที่ใช้ (เช่น ANN, Bi-LSTM, Random Forest, หรือ 2-Factor Compensation)
+    \item จัดทำรายการบรรณานุกรมในรูปแบบ APA 7th และโค้ด BibTeX สำหรับนำเข้าไฟล์ \texttt{references.bib}
+\end{enumerate}
+\end{promptbox}
+\label{box:prompt_consensus}
+
+\begin{promptbox}{พรอมพ์สำรวจ State-of-the-Art (SOTA) ด้านฮาร์ดแวร์ด้วย Perplexity MCP}
+\small
+\textbf{[OBJECTIVE]}\\
+สำรวจสเปกฮาร์ดแวร์และมาตรฐานเทคโนโลยี Edge AI สำหรับเขียนบทนำและเปรียบเทียบข้อได้เปรียบทางวิศวกรรม
+
+\vspace{4pt}
+\textbf{[MCP DIRECTIVE]}\\
+เรียกใช้เครื่องมือ \texttt{perplexity-web} ผ่านคำสั่ง \texttt{search}:\\
+\texttt{"Latest Edge AI microcontrollers for precision agriculture soil sensing ESP32-S3 vs Wio Terminal 2025 2026"}
+
+\vspace{4pt}
+\textbf{[SYNTHESIS CRITERIA]}
+\begin{itemize}[leftmargin=15pt, itemsep=1pt]
+    \item วิเคราะห์เปรียบเทียบสมรรถนะการประมวลผล TinyML (TensorFlow Lite for Microcontrollers / ESP-NN)
+    \item สรุปจุดเด่นด้านการประหยัดพลังงานในโหมด Deep Sleep และการเชื่อมต่อบัส RS485 Modbus RTU
+    \item ระบุ URL แหล่งอ้างอิงและ Datasheet ล่าสุด
+\end{itemize}
+\end{promptbox}
+\label{box:prompt_perplexity}
+
+\subsection{ชุดที่ 2: พรอมพ์สร้างเนื้อหาตามสถาปัตยกรรม \texttt{/academic-content-architect}}
+
+เมื่อได้ข้อมูลวรรณกรรมวิจัยแล้ว ขั้นตอนต่อไปคือการแปลงองค์ความรู้ให้กลายเป็นโมดูลการเรียนรู้ระดับสูง (High-Grade Learning Module) ตามกรอบ 8 Core Elements ดังแสดงในกรอบที่ \ref{box:prompt_content_architect}
+
+\begin{promptbox}{พรอมพ์แปลงผลการวิจัยเป็นโมดูลการเรียนรู้ระดับสูง (8 Core Elements)}
+\small
+\textbf{[SKILL ACTIVATION]}\\
+\texttt{/academic-content-architect}
+
+\vspace{4pt}
+\textbf{[INPUT CORPUS]}\\
+นำผลการสืบค้นจาก Consensus MCP เรื่องการชดเชยค่า pH ในดินด้วยโครงข่ายประสาทเทียม
+
+\vspace{4pt}
+\textbf{[STRUCTURE REQUIREMENTS]}
+\begin{enumerate}[leftmargin=15pt, itemsep=2pt]
+    \item \textbf{Module Title \& OBE Objectives:} ชื่อบทเรียนตัดคำว่า ``หัวข้อที่'' ออก พร้อมกำหนดวัตถุประสงค์เชิงพฤติกรรมตาม Bloom's Taxonomy ระดับ Analyzing ถึง Creating
+    \item \textbf{Key Concepts Map:} ตารางศัพท์บัญญัติ นิยาม และสมการแกนกลาง (Nernst Equation, Temperature Drift Compensation)
+    \item \textbf{Conceptual Flowchart:} แผนภาพผังกระบวนการคิดภาพรวมแบบ Bird's-eye View
+    \item \textbf{Theoretical Backbone:} พิสูจน์ที่มาของสมการ Nernstian Slope และสมการชดเชยความคลาดเคลื่อนแบบบรรทัดต่อบรรทัด
+    \item \textbf{Computational Implementation:} โค้ดภาษา Python 3.11 จำลองระบบแบบ Self-Contained ห้ามมี Placeholder (\texttt{\# ...})
+    \item \textbf{Virtual Lab Manual:} คู่มือปฏิบัติการแล็บเสมือนจริงพร้อมเกณฑ์รูบริกประเมินผล
+    \item \textbf{Video Storyboard:} สคริปต์วีดีโอการสอนสองคอลัมน์ (ภาพ vs เสียงบรรยาย)
+    \item \textbf{Summary \& Critical Synthesis:} คำถามทบทวนท้ายบท 3 ระดับ
+\end{enumerate}
+\end{promptbox}
+\label{box:prompt_content_architect}
+
+\subsection{ชุดที่ 3: พรอมพ์เรียงพิมพ์เล่มตำรา \texttt{/rbru-latex-textbook-builder}}
+
+\begin{promptbox}{พรอมพ์สร้างไฟล์บทเรียน XeLaTeX มาตรฐาน มรภ.รำไพพรรณี}
+\small
+\textbf{[SKILL ACTIVATION]}\\
+\texttt{/rbru-latex-textbook-builder}
+
+\vspace{4pt}
+\textbf{[TARGET DIRECTIVE]}\\
+สร้างและจัดรูปแบบไฟล์บทเรียนใหม่ \texttt{chapters/ch06\_tinyml\_soil.tex} ภายใต้ระเบียบวิชาการ:
+\begin{enumerate}[leftmargin=15pt, itemsep=1pt]
+    \item ส่วนต้นบทต้องมี \texttt{\textbackslash chapter\{...\}} ตามด้วย \texttt{\textbackslash section*\{แผนบริหารการสอนประจำบท\}} พร้อมระบุหัวข้อ, วัตถุประสงค์เชิงพฤติกรรม, กิจกรรม, สื่อ, และการประเมินผล
+    \item จัดช่องไฟภาษาไทยด้วยคำสั่ง \texttt{\textbackslash XeTeXlinebreakskip = 0pt plus 2pt}
+    \item ออกแบบแผนภาพบล็อกสถาปัตยกรรมวงจรด้วยสภาพแวดล้อม TikZ โดยใช้จานสีทางการ (\texttt{rbruNavy}, \texttt{rbruGold}, \texttt{agriGreen})
+    \item บูรณาการกล่องวิชาการ \texttt{definitionbox}, \texttt{workedbox}, และ \texttt{promptbox}
+    \item เชื่อมโยงรหัสอ้างอิง \texttt{\textbackslash cite\{...\}} เข้ากับเอกสารที่สืบค้นได้จาก Consensus
+    \item ปิดท้ายด้วย \texttt{\textbackslash section*\{คำถามทบทวนท้ายบท\}} และรันคำสั่งคอมไพล์ผ่าน \texttt{./compile.sh}
+\end{enumerate}
+\end{promptbox}
+\label{box:prompt_latex_builder}
+
+\subsection{ชุดที่ 4: พรอมพ์วิศวกรรมหน้าปก 3D Pixar \texttt{/academic-book-cover-architect}}
+
+กรอบที่ \ref{box:prompt_cover_architect} แสดงโครงสร้างพรอมพ์สำหรับเจนภาพ 3D Pixar สัดส่วน 2:3 พร้อมโค้ด XeLaTeX TikZ Titlepage Overlay ที่ใช้เทคนิค Dual-Layer Micro Drop-Shadow เพื่อความคมชัดสูงสุด
+
+\begin{promptbox}{พรอมพ์สร้างภาพหน้าปก 3D Pixar และโค้ด TikZ Titlepage Overlay}
+\small
+\textbf{[SKILL ACTIVATION]}\\
+\texttt{/academic-book-cover-architect}
+
+\vspace{4pt}
+\textbf{[IMAGE GENERATION PROMPT (Ratio 2:3)]}\\
+\texttt{"3D Pixar Semi-realistic animation style, vertical book cover ratio 2:3.}\\
+\texttt{UPPER 30\% SKY ZONE: Clear, wide, pristine pastel daylight sky with very soft ambient clouds, vast negative open space completely free from objects, trees, flying vehicles, or clutter for clear book title placement.}\\
+\texttt{MIDDLE 45\% SUBJECT ZONE: A friendly cute Pixar-style smart farming robot companion and a warm enthusiastic Thai agricultural scientist in modern field attire, inspecting glowing IoT smart soil sensors and translucent holographic charts floating above lush green durian tree branches. Rich cinematic rim lighting, warm golden hour sunbeams, subsurface scattering.}\\
+\texttt{BOTTOM 25\% GROUND ZONE: Deep rich dark organic soil cross-section with glowing bio-nutritional pathways and root micro-networks, providing a clean dark canvas at the bottom for crisp author credentials. Masterpiece, 8k render, Unreal Engine 5 render style, photorealistic textures."}
+
+\vspace{4pt}
+\textbf{[LATEX TIKZ TITLEPAGE OVERLAY CODE]}
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\scriptsize]
+\begin{titlepage}
+\thispagestyle{empty}
+\begingroup
+\setlength{\XeTeXlinebreakskip}{0pt}
+\begin{tikzpicture}[remember picture, overlay]
+  \node[anchor=center, inner sep=0pt] at (current page.center) {
+    \includegraphics[width=\paperwidth,height=\paperheight]{figures/cover_3d.jpg}
+  };
+  % UPPER ZONE: Title (White Glow + Rich Color Overlay)
+  \node[anchor=north, align=center, text width=14cm] 
+        at ([xshift=0.8pt, yshift=-1.1cm]current page.north) {
+    {\fontsize{13pt}{16pt}\selectfont\bfseries\color{white} [Academic Masterclass Series]}\\
+    {\fontsize{22pt}{27pt}\selectfont\bfseries\color{white} [Precision Agri-xAI Engineering]}
+  };
+  \node[anchor=north, align=center, text width=14cm] 
+        at ([yshift=-1.12cm]current page.north) {
+    {\fontsize{13pt}{16pt}\selectfont\bfseries\color{cyan!20!black} [Academic Masterclass Series]}\\
+    {\fontsize{22pt}{27pt}\selectfont\bfseries\color{rbruNavy} [Precision Agri-xAI Engineering]}
+  };
+  % BOTTOM ZONE: Author (Drop Shadow + Crisp White)
+  \node[anchor=south, align=center, text width=14cm] 
+        at ([yshift=1.2cm]current page.south) {
+    {\fontsize{13pt}{16pt}\selectfont\bfseries\color{white} Asst. Prof. Dr. Chewa Thassana}\\[2pt]
+    {\fontsize{9pt}{12pt}\selectfont\color{white!95} Rambhai Barni Rajabhat University}
+  };
+\end{tikzpicture}
+\endgroup
+\end{titlepage}
+\end{lstlisting}
+\end{promptbox}
+\label{box:prompt_cover_architect}
+
+\section{พรอมพ์แม่บทการสั่งการแบบครบวงจร (All-in-One Master Prompt)}
+
+สำหรับการเริ่มต้นบทเรียนใหม่ตั้งแต่ขั้นตอนการสืบค้นจนถึงการคอมไพล์เล่มตำรา สามารถใช้พรอมพ์แม่บทดังแสดงในกรอบที่ \ref{box:prompt_all_in_one}
+
+\begin{promptbox}{พรอมพ์แม่บทการสั่งการแบบครบวงจร (All-in-One Master Prompt)}
+\small
+\textbf{[MASTER COMMAND]}\\
+\texttt{/academic-content-architect /rbru-latex-textbook-builder}
+
+\vspace{4pt}
+\textbf{[MISSION OBJECTIVE]}\\
+วิจัยและจัดทำบทเรียนใหม่: ``การประมวลผลสัญญาณเซนเซอร์ดินหลายพารามิเตอร์และการชดเชยความคลาดเคลื่อนด้วย TinyML''
+
+\vspace{4pt}
+\textbf{[EXECUTION PROTOCOL]}
+\begin{enumerate}[leftmargin=15pt, itemsep=2pt]
+    \item \textbf{Research Discovery:} สแกนค้นหาเปเปอร์วิจัยระดับ SJR Q1 ล่าสุด (2022--2026) ผ่านเครื่องมือ \texttt{consensus\_search} และสำรวจสเปกฮาร์ดแวร์จริงผ่าน \texttt{perplexity-web}
+    \item \textbf{Content Architecture:} ออกแบบโครงสร้างเนื้อหาตามกรอบ 8 Core Elements โดยเน้นการพิสูจน์สมการคณิตศาสตร์และโค้ด Python แบบสมบูรณ์ ไร้โค้ดจำลอง
+    \item \textbf{LaTeX Engineering:} จัดทำซอร์สโค้ดบทเรียนตามมาตรฐาน XeLaTeX มรภ.รำไพพรรณี พร้อมแผนบริหารการสอนประจำบทและแผนภาพ TikZ เวกเตอร์
+    \item \textbf{BibTeX Integration:} สังเคราะห์รายการอ้างอิงบรรณานุกรมแบบ APA 7th ลงในไฟล์ \texttt{references.tex}
+    \item \textbf{Visual Cover Conception:} ออกแบบแนวคิดภาพหน้าปก 3D Pixar สำหรับบทเรียนตามมาตรฐานสัดส่วน 2:3
+\end{enumerate}
+\end{promptbox}
+\label{box:prompt_all_in_one}
+
+\section{บทสรุปและแนวทางการนำไปใช้}
+
+การบูรณาการระบบตัวแทนปัญญาประดิษฐ์ผ่าน Model Context Protocol (Consensus \& Perplexity MCP) ร่วมกับมาตรฐานการเรียงพิมพ์ตำรา XeLaTeX ของมหาวิทยาลัยราชภัฏรำไพพรรณี ช่วยลดระยะเวลาในการสืบค้นวรรณกรรมและยกระดับความถูกต้องแม่นยำของเนื้อหาวิชาการได้อย่างมีนัยสำคัญ ส่งผลให้ผลงานวิจัยและตำราที่ได้มีมาตรฐานสากล ทั้งในมิติของความลุ่มลึกทางทฤษฎี ความสมบูรณ์ของแผนการสอน และความประณีตของงานศิลป์บนหน้าปก

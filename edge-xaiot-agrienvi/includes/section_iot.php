@@ -143,6 +143,9 @@
                             <i class="fa-solid fa-mobile-screen-button"></i> เปิดใช้งาน Smartphone App จริง
                             <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                         </a>
+                        <a href="../app-portal/" target="_blank" class="px-4 py-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs transition flex items-center gap-1.5 shadow-xs" title="ดาวน์โหลดไฟล์ APK ติดตั้งลงมือถือ Android">
+                            <i class="fa-solid fa-cloud-arrow-down text-amber-600"></i> โหลด APK
+                        </a>
                         <a href="#relay-console" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5">
                             <i class="fa-solid fa-sliders"></i> ทดลองสั่งการ
                         </a>
@@ -205,6 +208,9 @@
                         <a href="dashboard/index.php" target="_blank" class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-bold py-3 px-5 rounded-xl shadow-md text-xs md:text-sm text-center flex items-center justify-center gap-2 transition transform hover:scale-[1.02]">
                             <i class="fa-solid fa-gauge-high"></i> เปิดใช้งาน Web Dashboard จริง
                             <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                        <a href="../aiot-fleet-dashboard/" target="_blank" class="px-4 py-3 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 font-bold text-xs transition flex items-center gap-1.5 shadow-xs" title="มอนิเตอร์บอร์ดรายกลุ่ม 1-15 กลุ่ม และบอร์ด Master">
+                            <i class="fa-solid fa-network-wired text-cyan-600"></i> Fleet 15 กลุ่ม
                         </a>
                         <a href="dashboard/index.php" target="_blank" class="px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center gap-1.5" title="เปิดดูกราฟและข้อมูลสด">
                             <i class="fa-solid fa-chart-line"></i> ดูกราฟ Real-Time

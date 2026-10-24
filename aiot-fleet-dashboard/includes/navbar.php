@@ -48,6 +48,11 @@
                 <span class="text-[9px] font-mono px-1.5 py-0.2 bg-purple-900/80 text-purple-300 rounded border border-purple-500/30">PyTorch</span>
             </button>
 
+            <!-- Quick Link to Master Web Portal -->
+            <a href="../edge-xaiot-agrienvi/index.php" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 text-xs font-bold font-tech flex items-center gap-1.5 transition shadow-xs" title="กลับสู่หน้าหลักโครงการ (/edge-xaiot-agrienvi/)">
+                <i class="fa-solid fa-house text-emerald-400 text-xs"></i> เว็บหลัก
+            </a>
+
             <!-- Quick Link to Main Workshop Dashboard -->
             <a href="../edge-xaiot-agrienvi/dashboard/index.php" target="_blank" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold font-tech flex items-center gap-1.5 transition shadow-xs" title="เปิดหน้าแดชบอร์ดหลักของวิทยากร (/edge-xaiot-agrienvi/dashboard/)">
                 <i class="fa-solid fa-crown text-amber-400 text-xs"></i> แดชบอร์ดสาธิต

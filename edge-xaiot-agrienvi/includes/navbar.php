@@ -18,8 +18,16 @@
                         <i class="fa-solid fa-phone text-amber-300"></i> สอบถาม: ผศ.ดร.ชีวะ 093 742 2654
                     </a>
                     <span class="text-emerald-400/60">•</span>
+                    <a href="../aiot-fleet-dashboard/" target="_blank" class="hover:text-cyan-300 transition flex items-center gap-1 text-[10px] bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-400/30 text-cyan-200">
+                        <i class="fa-solid fa-network-wired text-cyan-400"></i> Fleet Dashboard (15 กลุ่ม)
+                    </a>
+                    <span class="text-emerald-400/60">•</span>
+                    <a href="../app-portal/" target="_blank" class="hover:text-amber-300 transition flex items-center gap-1 text-[10px] bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-400/30 text-amber-200">
+                        <i class="fa-solid fa-mobile-screen-button text-amber-300"></i> App Portal (APK)
+                    </a>
+                    <span class="text-emerald-400/60">•</span>
                     <a href="poster.php" class="hover:text-cyan-300 transition flex items-center gap-1 text-[10px]">
-                        <i class="fa-solid fa-bullhorn text-cyan-300"></i> โปสเตอร์ประชาสัมพันธ์
+                        <i class="fa-solid fa-bullhorn text-cyan-300"></i> โปสเตอร์
                     </a>
                     <span class="text-emerald-400/60">•</span>
                     <span class="flex items-center gap-1 font-mono text-[9px] bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-400/30 text-emerald-200">
@@ -220,6 +228,38 @@
                                     <div class="text-[10px] text-gray-500">6 แทร็กนวัตกรรมเกษตรและสิ่งแวดล้อม</div>
                                 </div>
                             </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <div class="px-3 pt-1 pb-1 text-[9px] font-bold text-cyan-800 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                                <i class="fa-solid fa-network-wired text-cyan-600"></i> HandySense AIoT Ecosystem
+                            </div>
+                            <a href="../aiot-fleet-dashboard/" target="_blank" class="px-3.5 py-2 rounded-xl hover:bg-cyan-50 hover:text-cyan-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-layer-group text-cyan-600 w-5 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-xs text-gray-800">AIoT Fleet Dashboard (15 กลุ่ม)</div>
+                                    <div class="text-[10px] text-gray-500">มอนิเตอร์บอร์ดทุกกลุ่มและบอร์ดอาจารย์</div>
+                                </div>
+                            </a>
+                            <a href="../app-portal/" target="_blank" class="px-3.5 py-2 rounded-xl hover:bg-amber-50 hover:text-amber-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-cloud-arrow-down text-amber-500 w-5 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-xs text-gray-800">ศูนย์ดาวน์โหลด App &amp; APK</div>
+                                    <div class="text-[10px] text-gray-500">โมบายล์แอป HandySense &amp; AI Detector</div>
+                                </div>
+                            </a>
+                            <a href="http://localhost:8501" target="_blank" class="px-3.5 py-2 rounded-xl hover:bg-emerald-50 hover:text-emerald-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-flask text-emerald-600 w-5 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-xs text-gray-800">Streamlit Cockpit (:8501)</div>
+                                    <div class="text-[10px] text-gray-500">Deep Learning Time-Series Forecaster</div>
+                                </div>
+                            </a>
+                            <a href="http://localhost:8000/docs" target="_blank" class="px-3.5 py-2 rounded-xl hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-bolt text-blue-600 w-5 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-xs text-gray-800">FastAPI Telemetry Hub (:8000)</div>
+                                    <div class="text-[10px] text-gray-500">REST API &amp; Swagger Documentation</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
 
@@ -257,6 +297,13 @@
                                 <div>
                                     <span class="font-bold text-xs block text-gray-800">เอกสารและคู่มือโครงการ</span>
                                     <span class="text-[10px] text-gray-500">ข้อเสนอโครงการและคู่มือปฏิบัติการ</span>
+                                </div>
+                            </a>
+                            <a href="assets/docs/jc_agritech_ai_textbook_masterclass.pdf" target="_blank" class="px-3.5 py-2 rounded-xl hover:bg-emerald-50 hover:text-emerald-700 transition flex items-center gap-3">
+                                <i class="fa-solid fa-graduation-cap text-emerald-600 w-5 text-center"></i>
+                                <div>
+                                    <span class="font-bold text-xs block text-gray-800">ตำราวิชาการ 78 หน้า (Masterclass PDF)</span>
+                                    <span class="text-[10px] text-gray-500">JC-AGRITecH + AI ฉบับสมบูรณ์ (มรภ.รำไพพรรณี)</span>
                                 </div>
                             </a>
                             <a href="#leqs-teams" class="px-3.5 py-2 rounded-xl hover:bg-purple-50 hover:text-purple-700 transition flex items-center gap-3">
@@ -331,6 +378,12 @@
             <a href="app/durian-leaf-app/index.html" class="block pl-4 py-1.5 text-emerald-700 hover:text-emerald-800 text-xs">Mobile Edge AI ตรวจโรคใบพืช</a>
             <a href="#iot-platform" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-gray-700 hover:text-teal-600 text-xs">แผงควบคุมเซ็นเซอร์สด ESP32-S3</a>
             <a href="#capstone" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-gray-700 hover:text-rose-600 text-xs">โครงงาน Capstone (6 Tracks)</a>
+            <a href="../aiot-fleet-dashboard/" target="_blank" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-cyan-700 font-semibold hover:text-cyan-800 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-network-wired text-cyan-600"></i> AIoT Fleet Dashboard (15 กลุ่ม)
+            </a>
+            <a href="../app-portal/" target="_blank" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-amber-700 font-semibold hover:text-amber-800 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-mobile-screen-button text-amber-600"></i> ศูนย์ดาวน์โหลด App &amp; APK
+            </a>
 
             <hr class="border-gray-100">
             <!-- Group 5 -->
@@ -339,6 +392,9 @@
             </div>
             <a href="poster.php" class="block pl-4 py-1.5 text-emerald-700 font-semibold hover:text-emerald-800 text-xs">📢 โปสเตอร์ประชาสัมพันธ์ (A4 / 9:16)</a>
             <a href="promo_video.php" class="block pl-4 py-1.5 text-cyan-700 font-semibold hover:text-cyan-800 text-xs">🎬 วิดีโอสปอตประชาสัมพันธ์ (Motion Video)</a>
+            <a href="assets/docs/jc_agritech_ai_textbook_masterclass.pdf" target="_blank" class="block pl-4 py-1.5 text-emerald-700 font-semibold hover:text-emerald-800 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-graduation-cap text-emerald-600"></i> 📖 ตำราวิชาการ 78 หน้า (Masterclass PDF)
+            </a>
             <a href="#documents" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-gray-700 hover:text-blue-600 text-xs">เอกสารและคู่มือโครงการ</a>
             <a href="#leqs-teams" onclick="toggleMobileMenu()" class="block pl-4 py-1.5 text-gray-700 hover:text-purple-600 text-xs">ทีมวิทยากร &amp; นักวิจัย (LEQs Teams)</a>
             <a href="admin/index.php" class="block pl-4 py-2 text-slate-900 font-bold hover:text-cyan-600 text-xs flex items-center gap-1.5">

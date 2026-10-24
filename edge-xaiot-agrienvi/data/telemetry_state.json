@@ -22,7 +22,7 @@
             "5. SETUP",
             "ENG"
         ],
-        "last_seen": "2026-10-19 12:15:46",
+        "last_seen": "2026-10-19 15:54:34",
         "mac_address": "48:27:E2:B4:8A:1C",
         "device_id": "ESP32-S3-ATD35",
         "last_direct_post_time": 1791443796,
@@ -52,7 +52,7 @@
         "phosphorus": 0,
         "potassium": 0,
         "battery_pct": 98.5,
-        "updated_at": "2026-10-19 12:15:46"
+        "updated_at": "2026-10-19 15:54:34"
     },
     "sd_card": {
         "mounted": false,

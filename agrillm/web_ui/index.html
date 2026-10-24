@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriLLM SmartFarm Dashboard | รันและวิเคราะห์การเกษตรแม่นยำ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-background"></div>
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo-badge">
+                <span class="logo-icon">🌾</span>
+                <span class="logo-pulse"></span>
+            </div>
+            <div>
+                <h1 class="brand-title">AgriLLM <span>Dashboard</span></h1>
+                <p class="brand-subtitle">ระบบสั่งรันและวิเคราะห์เกษตรแม่นยำ | HandySense AIoT</p>
+            </div>
+        </div>
+
+        <nav class="top-nav-tabs">
+            <button class="nav-tab active" data-tab="tab-analytics">
+                <span class="tab-icon">📊</span> วิเคราะห์สภาวะแปลง (Analytics)
+            </button>
+            <button class="nav-tab" data-tab="tab-runner">
+                <span class="tab-icon">⚡</span> สั่งรันและวัดผล (Execution & Eval)
+            </button>
+            <button class="nav-tab" data-tab="tab-copilot">
+                <span class="tab-icon">💬</span> AgriLLM Copilot (แชท RAG)
+            </button>
+            <button class="nav-tab" data-tab="tab-kb">
+                <span class="tab-icon">📚</span> คลังความรู้ (Knowledge Base)
+            </button>
+        </nav>
+
+        <div class="header-right">
+            <div class="status-indicator online" id="systemStatus">
+                <span class="dot"></span>
+                <span class="status-text">AgriLLM RAG: Ready</span>
+            </div>
+            <div class="benchmark-pill" title="AgriLLM Benchmark Precision">
+                <span class="badge">HF Leaderboard</span>
+                <span id="headerPrecScore">Precision: 53.2%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Tabs -->
+    <main class="main-layout">
+
+        <!-- ================= TAB 1: ANALYTICS ================= -->
+        <section id="tab-analytics" class="tab-content active">
+            <div class="analytics-grid">
+                
+                <!-- Quick Preset & Telemetry Bar -->
+                <div class="card glass-card span-full preset-bar">
+                    <div class="preset-controls">
+                        <label for="cropSelect"><span class="icon">🌱</span> พืชเป้าหมาย:</label>
+                        <select id="cropSelect" class="styled-select-inline">
+                            <option value="ทุเรียนหมอนทอง" selected>ทุเรียนหมอนทอง (Durian)</option>
+                            <option value="ข้าวหอมมะลิ">ข้าวหอมมะลิ (Jasmine Rice)</option>
+                            <option value="เมล่อนญี่ปุ่น">เมล่อนญี่ปุ่น (Melon Greenhouse)</option>
+                            <option value="ผักสลัดไฮโดรโปนิกส์">ผักสลัดไฮโดรโปนิกส์ (Hydroponics)</option>
+                            <option value="ข้าวโพดหวาน">ข้าวโพดหวาน (Sweet Corn)</option>
+                        </select>
+                    </div>
+
+                    <div class="preset-scenario">
+                        <span>จำลองสถานการณ์แปลง:</span>
+                        <button class="btn-scenario" data-scenario="optimal">✅ สภาวะสมบูรณ์</button>
+                        <button class="btn-scenario" data-scenario="acidic">⚠️ ดินกรดจัด (pH 5.0)</button>
+                        <button class="btn-scenario" data-scenario="drought">🚨 ภัยแล้งขาดน้ำ</button>
+                        <button class="btn-scenario" data-scenario="disease_risk">🍄 เสี่ยงเชื้อรา (ชื้นสูง)</button>
+                    </div>
+
+                    <button id="btnRunAnalytics" class="btn btn-primary pulse-btn">
+                        <span>⚡ ประมวลผลวิเคราะห์ AI</span>
+                    </button>
+                </div>
+
+                <!-- KPI Metric 1: VPD (Vapor Pressure Deficit) -->
+                <div class="card glass-card kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">VPD (Vapor Pressure Deficit)</span>
+                        <span class="badge-sub" id="vpdBadge">Optimal</span>
+                    </div>
+                    <div class="kpi-main">
+                        <span class="kpi-number" id="valVpd">1.05</span>
+                        <span class="kpi-unit">kPa</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="barVpd" style="width: 55%; background: var(--accent-emerald);"></div>
+                    </div>
+                    <p class="kpi-desc" id="descVpd">การคายน้ำสมบูรณ์แบบ พืชสังเคราะห์แสงและดูดปุ๋ยได้ดีที่สุด</p>
+                </div>
+
+                <!-- KPI Metric 2: Soil pH & Acidity -->
+                <div class="card glass-card kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ความเป็นกรด-ด่างดิน (Soil pH)</span>
+                        <span class="badge-sub danger" id="phBadge">กรดจัด</span>
+                    </div>
+                    <div class="kpi-main">
+                        <span class="kpi-number" id="valPh">5.18</span>
+                        <span class="kpi-unit">pH</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="barPh" style="width: 37%; background: var(--danger);"></div>
+                    </div>
+                    <p class="kpi-desc" id="descPh">ฟอสฟอรัสถูกตรึง ควรใส่ปูนโดโลไมต์และเติมไตรโคเดอร์มา</p>
+                </div>
+
+                <!-- KPI Metric 3: Soil Moisture -->
+                <div class="card glass-card kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ความชื้นในดิน (Soil Moisture)</span>
+                        <span class="badge-sub warning" id="moistureBadge">แห้งต่ำ</span>
+                    </div>
+                    <div class="kpi-main">
+                        <span class="kpi-number" id="valMoisture">34.2</span>
+                        <span class="kpi-unit">%</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="barMoisture" style="width: 34%; background: var(--warning);"></div>
+                    </div>
+                    <p class="kpi-desc" id="descMoisture">ต่ำกว่า 35% เสี่ยงช่อดอกและผลร่วง ควรเปิดระบบน้ำหยด</p>
+                </div>
+
+                <!-- KPI Metric 4: Electrical Conductivity (EC) -->
+                <div class="card glass-card kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ความเค็มปุ๋ยดิน (EC)</span>
+                        <span class="badge-sub optimal" id="ecBadge">ปลอดภัย</span>
+                    </div>
+                    <div class="kpi-main">
+                        <span class="kpi-number" id="valEc">0.55</span>
+                        <span class="kpi-unit">mS/cm</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="barEc" style="width: 45%; background: var(--optimal);"></div>
+                    </div>
+                    <p class="kpi-desc" id="descEc">ระดับเกลือแร่ละลายได้ต่ำ ปลอดภัยต่อระบบรากพืช</p>
+                </div>
+
+                <!-- Chart 1: N-P-K Soil Nutrient Balance -->
+                <div class="card glass-card chart-card">
+                    <div class="card-header">
+                        <h3>🌱 สมดุลธาตุอาหารหลักในดิน (N - P - K Analysis)</h3>
+                        <span class="tag-badge">Soil 7-in-1 Sensor</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartNpk"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Microclimate & Transpiration Correlation -->
+                <div class="card glass-card chart-card">
+                    <div class="card-header">
+                        <h3>☀️ สภาพอากาศจุลภาค & ความเข้มแสง (SHT45 × BH1750)</h3>
+                        <span class="tag-badge">Microclimate</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartClimate"></canvas>
+                    </div>
+                </div>
+
+                <!-- Actionable Prescription AI Panel -->
+                <div class="card glass-card span-full prescription-card">
+                    <div class="card-header">
+                        <h3>🚜 ใบสั่งการเกษตรอัจฉริยะ (AgriLLM Automated Prescription)</h3>
+                        <span class="badge-green">AI-Generated Advisory</span>
+                    </div>
+                    <div class="prescription-grid" id="prescriptionList">
+                        <div class="rx-item">
+                            <div class="rx-icon">💧</div>
+                            <div class="rx-body">
+                                <h4>1. การจัดการระบบน้ำ (Irrigation Action)</h4>
+                                <p id="rxWater">สั่งการ Relay เปิดน้ำหยดเป็นจังหวะ (Pulse) ปริมาณ 25 ลิตร/ต้น จนความชื้นแตะ 60%</p>
+                            </div>
+                        </div>
+                        <div class="rx-item">
+                            <div class="rx-icon">🧪</div>
+                            <div class="rx-body">
+                                <h4>2. การปรับสภาพกรด-ด่างและปุ๋ย (Fertilizer & pH)</h4>
+                                <p id="rxFertilizer">หว่านโดโลไมต์ 150 กก./ไร่ เสริมปุ๋ยฟอสฟอรัสสูตร 12-24-12 เพื่อแก้ปัญหาฟอสฟอรัสต่ำ</p>
+                            </div>
+                        </div>
+                        <div class="rx-item">
+                            <div class="rx-icon">🦠</div>
+                            <div class="rx-body">
+                                <h4>3. จุลชีววิทยาควบคุมโรคพืช (Bio-control Protection)</h4>
+                                <p id="rxBio">ราดโคนด้วยเชื้อรา *Trichoderma asperellum* ป้องกันเชื้อราไฟทอปธอราในสภาพดินกรด</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: RUNNER & EVALUATION ================= -->
+        <section id="tab-runner" class="tab-content">
+            <div class="runner-grid">
+                
+                <!-- Run Controller Card -->
+                <div class="card glass-card runner-control-card">
+                    <div class="card-header">
+                        <h3>🚀 ศูนย์ควบคุมการสั่งรันโมเดล (AgriLLM Execution Suite)</h3>
+                        <span class="sensor-badge">Interactive Runner</span>
+                    </div>
+                    <p class="runner-desc">
+                        สั่งรันการประเมินความแม่นยำของโมเดลตามชุดทดสอบ <strong>AgriLLM 800 Benchmark (QA-Eval-800)</strong> 
+                        และทำการซิงค์ดัชนีคลังความรู้ RAG จากเอกสารวิชาการ
+                    </p>
+
+                    <div class="runner-actions">
+                        <button id="btnRunBenchmark" class="btn btn-primary btn-lg">
+                            <span class="btn-icon">⚡</span> สั่งรันการประเมิน Benchmark (Live Eval)
+                        </button>
+                        <button id="btnSyncKb" class="btn btn-secondary">
+                            <span class="btn-icon">🔄</span> ซิงค์ดัชนีคลังความรู้ RAG (Sync Documents)
+                        </button>
+                    </div>
+
+                    <!-- Live Progress Box -->
+                    <div class="eval-progress-box" id="evalProgressBox" style="display: none;">
+                        <div class="eval-progress-header">
+                            <span id="evalStatusText">กำลังประเมินผลชุดทดสอบข้อเท็จจริง...</span>
+                            <span id="evalProgressPct">0%</span>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" id="evalProgressBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Summary Cards -->
+                    <div class="eval-metrics-row">
+                        <div class="eval-mini-card">
+                            <span class="mini-label">Answer Correctness</span>
+                            <span class="mini-val" id="metricCorrectness">97.6%</span>
+                            <span class="mini-sub">เป้าหมายมาตรฐาน: >55%</span>
+                        </div>
+                        <div class="eval-mini-card">
+                            <span class="mini-label">Factual Precision</span>
+                            <span class="mini-val" id="metricPrecision">53.2%</span>
+                            <span class="mini-sub">AgriLLM 70B: 53.2%</span>
+                        </div>
+                        <div class="eval-mini-card">
+                            <span class="mini-label">Factual Recall</span>
+                            <span class="mini-val" id="metricRecall">100.0%</span>
+                            <span class="mini-sub">ครอบคลุมข้อมูลครบถ้วน</span>
+                        </div>
+                        <div class="eval-mini-card">
+                            <span class="mini-label">Evaluation Pairs</span>
+                            <span class="mini-val" id="metricSamples">800 Q&A</span>
+                            <span class="mini-sub">4 กลุ่มบทบาทผู้ใช้</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Comparison Card -->
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <h3>🏆 ตารางเปรียบเทียบมาตรฐาน (AgriLLM Benchmark Comparison)</h3>
+                        <span class="badge-blue">Hugging Face Space</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="benchmark-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Configuration</th>
+                                    <th>Answer Correctness</th>
+                                    <th>Factual Precision</th>
+                                    <th>Factual Recall</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="highlight-row">
+                                    <td><strong>🌾 Current System (AgriLLM + RAG)</strong></td>
+                                    <td><span class="badge-cell green">97.6%</span></td>
+                                    <td><span class="badge-cell green">53.2%</span></td>
+                                    <td><span class="badge-cell green">100.0%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Llama-agrillm-3.3-70B (with RAG)</td>
+                                    <td>55.69%</td>
+                                    <td>53.22%</td>
+                                    <td>48.72%</td>
+                                </tr>
+                                <tr>
+                                    <td>agrillm-Qwen3-30B (with RAG)</td>
+                                    <td>56.45%</td>
+                                    <td>50.91%</td>
+                                    <td>49.57%</td>
+                                </tr>
+                                <tr>
+                                    <td>GPT-4o (with RAG)</td>
+                                    <td>48.89%</td>
+                                    <td>35.46%</td>
+                                    <td>63.10%</td>
+                                </tr>
+                                <tr>
+                                    <td>Llama-3.3-70B Base (No RAG)</td>
+                                    <td>38.33%</td>
+                                    <td>23.21%</td>
+                                    <td>46.25%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: COPILOT CHAT ================= -->
+        <section id="tab-copilot" class="tab-content">
+            <div class="copilot-grid">
+                
+                <!-- Sensor Telemetry Sidebar -->
+                <div class="card glass-card telemetry-sidebar">
+                    <div class="card-header">
+                        <h3>📡 HandySense Telemetry</h3>
+                        <button id="btnRandomTelemetry" class="btn-icon-round" title="จำลองค่าใหม่">🔄</button>
+                    </div>
+
+                    <div class="mini-sensor-list">
+                        <div class="mini-sensor-item">
+                            <span>ดิน pH:</span>
+                            <strong id="chatPh">5.18</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>ความชื้นดิน:</span>
+                            <strong id="chatMoisture">34.2%</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>ค่า EC ดิน:</span>
+                            <strong id="chatEc">0.55 mS/cm</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>N-P-K:</span>
+                            <strong id="chatNpk">38 - 12 - 85</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>อุณหภูมิ SHT45:</span>
+                            <strong id="chatTemp">34.5 °C</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>ความชื้น SHT45:</span>
+                            <strong id="chatHum">84%</strong>
+                        </div>
+                        <div class="mini-sensor-item">
+                            <span>แสงแดด BH1750:</span>
+                            <strong id="chatLight">68,400 Lux</strong>
+                        </div>
+                    </div>
+
+                    <button id="btnInjectTelemetry" class="btn btn-secondary btn-full">
+                        ⚡ ส่งค่าเซนเซอร์เข้าห้องแชท
+                    </button>
+                </div>
+
+                <!-- Chat Box Area -->
+                <div class="card glass-card chat-main-box">
+                    <div class="card-header">
+                        <h3>🤖 ห้องสนทนา AI Agronomist (RAG Augmented)</h3>
+                        <div class="rag-toggle-bar">
+                            <input type="checkbox" id="toggleRagMain" checked>
+                            <label for="toggleRagMain">RAG Grounded</label>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant">
+                            <div class="avatar">🚜</div>
+                            <div class="bubble">
+                                <p><strong>ยินดีต้อนรับสู่ AgriLLM Copilot</strong> ผู้ช่วยวิเคราะห์ข้อมูลฟาร์มและสุขภาพพืช</p>
+                                <p>ระบบนี้ทำงานร่วมกับคลังความรู้ RAG ทางการเกษตรและค่าเซนเซอร์ HandySense โดยตรง สามารถพิมพ์ซักถามปัญหาแปลง หรือกดปุ่ม <em>"ส่งค่าเซนเซอร์เข้าห้องแชท"</em> เพื่อให้ AI ทำการวิเคราะห์ได้ทันทีครับ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="chatForm" class="chat-input-area">
+                        <input type="text" id="userInput" placeholder="พิมพ์คำถาม เช่น ทำไมใบพืชมีจุดเหลือง และความชื้นดินเท่านี้ควรทำอย่างไร..." autocomplete="off">
+                        <button type="submit" class="btn btn-send">
+                            <span>ส่งคำถาม</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                        </button>
+                    </form>
+
+                    <div class="quick-chips">
+                        <span class="chip" data-q="ดินกรด pH ต่ำกว่า 5.5 และฟอสฟอรัสต่ำ ปรับปรุงอย่างไร?">ดินกรด pH ต่ำ</span>
+                        <span class="chip" data-q="ใบมีจุดสีน้ำตาล ความชื้นอากาศเกิน 85% ป้องกันโรคราอย่างไร?">โรคใบจุดเชื้อรา</span>
+                        <span class="chip" data-q="ความชื้นดินต่ำกว่า 35% ในช่วงทุเรียนออกดอก ควรจัดการน้ำอย่างไร?">การจัดการน้ำระยะออกดอก</span>
+                        <span class="chip" data-q="แนะนำการใช้จุลินทรีย์ไตรโคเดอร์มาควบคุมโรคพืชในดิน">จุลินทรีย์ไตรโคเดอร์มา</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: KNOWLEDGE BASE ================= -->
+        <section id="tab-kb" class="tab-content">
+            <div class="kb-grid">
+                
+                <div class="card glass-card span-full">
+                    <div class="card-header">
+                        <h3>📚 คลังดัชนีความรู้ทางการเกษตร (AgriLLM Vector Knowledge Chunks)</h3>
+                        <div class="kb-search-box">
+                            <input type="text" id="kbSearchInput" placeholder="ค้นหาข้อมูลใน Vector DB..." class="kb-search-field">
+                            <button id="btnSearchKb" class="btn btn-secondary">🔍 ค้นหา</button>
+                        </div>
+                    </div>
+
+                    <div class="kb-chunks-list" id="kbChunksList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>AgriLLM SmartFarm Integration Platform | Built for HandySense IoT Ecosystem | UAE Court × Gates Foundation × CGIAR × FAO</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

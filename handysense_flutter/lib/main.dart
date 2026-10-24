@@ -6,7 +6,11 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/telemetry_repository.dart';
 import 'data/services/api_service.dart';
+import 'presentation/screens/control_screen.dart';
 import 'presentation/screens/dashboard_screen.dart';
+import 'presentation/screens/trends_screen.dart';
+import 'presentation/widgets/common.dart';
+import 'data/models/farm_models.dart';
 import 'presentation/screens/soil_analytics_screen.dart';
 import 'presentation/screens/settings_screen.dart';
 import 'presentation/view_models/telemetry_view_model.dart';
@@ -53,7 +57,7 @@ class HandySenseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LEQsxAI | Smart Farm IoT',
+      title: 'Edge xAI : LEQs-4D-AgriEnvi',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.cyberDarkTheme,
       home: const AppShell(),
@@ -77,9 +81,11 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
 
   // Nav items — Sci-Fi Cyber Icons & Labels
   static const _navItems = [
-    _NavItem(emoji: '📊', label: 'แดชบอร์ด', icon: Icons.dashboard_customize_rounded),
-    _NavItem(emoji: '🧪', label: 'วิเคราะห์ดิน', icon: Icons.biotech_rounded),
-    _NavItem(emoji: '⚙️', label: 'ตั้งค่าระบบ', icon: Icons.tune_rounded),
+    _NavItem(emoji: '📊', label: 'ภาพรวม', icon: Icons.dashboard_customize_rounded),
+    _NavItem(emoji: '🎛️', label: 'ควบคุม', icon: Icons.toggle_on_rounded),
+    _NavItem(emoji: '📈', label: 'แนวโน้ม', icon: Icons.show_chart_rounded),
+    _NavItem(emoji: '🧪', label: 'ดิน', icon: Icons.biotech_rounded),
+    _NavItem(emoji: '⚙️', label: 'ตั้งค่า', icon: Icons.tune_rounded),
   ];
 
   @override
@@ -113,8 +119,12 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
       case 0:
         return const DashboardScreen();
       case 1:
-        return const SoilAnalyticsScreen();
+        return const ControlScreen();
       case 2:
+        return const TrendsScreen();
+      case 3:
+        return const SoilAnalyticsScreen();
+      case 4:
         return const SettingsScreen();
       default:
         return const DashboardScreen();
@@ -124,12 +134,27 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<TelemetryViewModel>();
+    final pending = vm.notice;
+    if (pending != null) {
+      final isErr = vm.noticeIsError;
+      vm.clearNotice();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showAppSnack(context, pending, error: isErr);
+      });
+    }
     return Scaffold(
       backgroundColor: AppColors.scaffoldDark, // Deep obsidian #090D16
       appBar: _buildAppBar(vm),
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: _buildBody(),
+      body: Column(
+        children: [
+          ConnectionBanner(vm: vm),
+          Expanded(
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: _buildBody(),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -137,11 +162,9 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
 
   // ── AppBar ───────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar(TelemetryViewModel vm) {
-    final isOnline = vm.errorMessage == null && vm.telemetry != null;
-    final statusColor = isOnline ? AppColors.neonGreen : AppColors.alertRed;
-    final statusLabel = isOnline
-        ? 'ESP32-S3 · ONLINE'
-        : 'DISCONNECTED';
+    final cs = connStyle(vm.connState);
+    final statusColor = cs.color;
+    final statusLabel = 'ESP32-S3 · ${cs.label}';
 
     return AppBar(
       backgroundColor: const Color(0xFF0C1322), // Dark glass obsidian
@@ -177,9 +200,9 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'LEQsxAI',
+            'Edge xAI : LEQs-4D',
             style: GoogleFonts.orbitron(
-              fontSize: 14.5,
+              fontSize: 13.5,
               fontWeight: FontWeight.w800,
               color: Colors.white,
               letterSpacing: 0.8,
@@ -226,32 +249,21 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
         // Mode badge
         _ModeBadge(vm: vm),
 
-        // Latency chip
-        if (vm.boardLatencyMs != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.neonCyan.withAlpha(20),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.neonCyan.withAlpha(80),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  '${vm.boardLatencyMs}ms',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.neonCyanLight,
-                  ),
-                ),
-              ),
+        // Alerts
+        IconButton(
+          tooltip: 'การแจ้งเตือน',
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          onPressed: () => _showAlerts(vm),
+          icon: Badge(
+            isLabelVisible: vm.alerts.isNotEmpty,
+            label: Text('${vm.alerts.length}'),
+            backgroundColor: vm.alerts.any((a) => a.level == 'critical') ? AppColors.alertRed : AppColors.alertAmber,
+            child: Icon(
+              vm.alerts.isEmpty ? Icons.notifications_none_rounded : Icons.notifications_active_rounded,
+              color: vm.alerts.isEmpty ? AppColors.textMuted : AppColors.alertAmber,
             ),
           ),
+        ),
 
         // Refresh Button
         Padding(
@@ -277,6 +289,69 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
           ),
         ),
       ],
+    );
+  }
+
+  void _showAlerts(TelemetryViewModel vm) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.darkCard,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final alerts = vm.alerts;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('การแจ้งเตือน', style: thText(18, weight: FontWeight.w700, color: AppColors.textWhite)),
+                const SizedBox(height: 12),
+                if (alerts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Row(children: [
+                      const Icon(Icons.check_circle_rounded, color: AppColors.neonGreen),
+                      const SizedBox(width: 10),
+                      Text('ทุกอย่างปกติ ไม่มีการแจ้งเตือน', style: thText(14)),
+                    ]),
+                  )
+                else
+                  for (final AlertItem a in alerts)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: AppCard(
+                        borderColor: a.level == 'critical' ? AppColors.alertRed : AppColors.alertAmber,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              a.level == 'critical' ? Icons.error_rounded : Icons.warning_amber_rounded,
+                              color: a.level == 'critical' ? AppColors.alertRed : AppColors.alertAmber,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(a.title, style: thText(14.5, weight: FontWeight.w700, color: AppColors.textWhite)),
+                                  Text(a.detail, style: thText(12.5, color: AppColors.textBody)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                Text('การแจ้งเตือนแสดงเฉพาะขณะเปิดแอป (การแจ้งเตือนเบื้องหลังต้องเพิ่ม Firebase ในภายหลัง)',
+                    style: thText(11.5, color: AppColors.textMuted)),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -308,7 +383,11 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onTap: () => _onNavTap(index),
                   behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
+                  child: Semantics(
+                    button: true,
+                    selected: isSelected,
+                    label: item.label,
+                    child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeInOut,
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -319,7 +398,7 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
+                            horizontal: 12,
                             vertical: 3.5,
                           ),
                           decoration: BoxDecoration(
@@ -373,6 +452,7 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
+                    ),
                 ),
               );
             }),

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+<title>Leaf AI</title>
+</head>
+<body>
+<header><h1>Leaf AI</h1><span id="status">กำลังโหลดโมเดล…</span></header>
+<main>
+  <div class="stage">
+    <video id="video" playsinline muted autoplay></video>
+    <img id="photo" alt="" hidden>
+  </div>
+  <div class="row">
+    <button id="btnCam">เปิดกล้อง</button>
+    <button id="btnSnap" disabled>ถ่ายและทำนาย</button>
+    <label class="btn">เลือกรูป<input id="file" type="file" accept="image/*" hidden></label>
+  </div>
+  <section id="result" aria-live="polite"><p class="hint">ยังไม่มีผลทำนาย</p></section>
+  <section>
+    <h2>ประวัติ <small id="count"></small></h2>
+    <div class="row"><button id="btnCsv" class="ghost">ดาวน์โหลด CSV</button><button id="btnClear" class="ghost">ล้างประวัติ</button></div>
+    <ul id="log"></ul>
+  </section>
+</main>
+<script src="vendor/tf.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

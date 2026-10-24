@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../view_models/telemetry_view_model.dart';
+import '../widgets/common.dart';
 
 // ─────────────────────────────────────────────────────────────
 // ⚙️ SettingsScreen — Cyber Dark Sci-Fi Configuration UI
@@ -19,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   late TextEditingController _ipController;
   late TextEditingController _portController;
   late TextEditingController _apiUrlController;
+  late TextEditingController _apiKeyController;
   late AnimationController _pingAnim;
   bool _isPinging = false;
 
@@ -30,6 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     _portController =
         TextEditingController(text: vm.currentBoardPort.toString());
     _apiUrlController = TextEditingController(text: vm.currentLocalApiUrl);
+    _apiKeyController = TextEditingController(text: vm.apiKey);
     _pingAnim = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -41,6 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     _ipController.dispose();
     _portController.dispose();
     _apiUrlController.dispose();
+    _apiKeyController.dispose();
     _pingAnim.dispose();
     super.dispose();
   }
@@ -115,6 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           ip: ip,
           port: port,
           apiUrl: apiUrl,
+          apiKey: _apiKeyController.text.trim(),
         );
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -197,13 +202,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                     controller: _apiUrlController,
                     label: 'PHP API Endpoint URL',
                     hint:
-                        'http://192.168.0.107/handysense/leqs-workshop/api/api.php',
+                        'http://14.207.141.164/edge-xaiot-agrienvi/api/api.php',
                     icon: Icons.link_rounded,
                     accentColor: AppColors.neonGreen,
                     sw: sw,
                   ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _apiKeyController,
+                    label: 'API Key (ถ้าเซิร์ฟเวอร์เปิดใช้)',
+                    hint: 'เว้นว่างได้ถ้าไม่ได้ตั้งไฟล์ data/api_key.txt',
+                    icon: Icons.key_rounded,
+                    accentColor: AppColors.neonGreen,
+                    obscure: true,
+                    sw: sw,
+                  ),
                 ],
               ),
+              const SizedBox(height: 14),
+
+              // ── Plant Profile ──
+              _buildProfileCard(vm),
               const SizedBox(height: 22),
 
               // ── Save Button ──
@@ -224,6 +243,44 @@ class _SettingsScreenState extends State<SettingsScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // ── Plant Profile (เกณฑ์ที่ใช้ตัดสินสถานะเซนเซอร์และแจ้งเตือน) ──
+  Widget _buildProfileCard(TelemetryViewModel vm) {
+    return AppCard(
+      borderColor: AppColors.neonGreen.withAlpha(90),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('โปรไฟล์พืช', style: thText(16, weight: FontWeight.w700, color: AppColors.textWhite)),
+          const SizedBox(height: 2),
+          Text('เกณฑ์ที่ใช้ประเมิน "เหมาะสม/ต่ำ/สูง" และการแจ้งเตือน — ค่าเริ่มต้นควรปรับให้ตรงพืชของท่าน',
+              style: thText(12.5, color: AppColors.textMuted)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final p in vm.profiles)
+                ChoiceChip(
+                  label: Text(p.name, style: thText(14, weight: FontWeight.w600, color: AppColors.textWhite)),
+                  selected: vm.activeProfileId == p.id,
+                  onSelected: (_) async {
+                    final ok = await vm.selectProfile(p.id);
+                    if (mounted) {
+                      showAppSnack(context, ok ? 'เปลี่ยนเป็นโปรไฟล์ ${p.name} แล้ว' : 'เปลี่ยนโปรไฟล์ไม่สำเร็จ (ตรวจ API Key)', error: !ok);
+                    }
+                  },
+                ),
+            ],
+          ),
+          if (vm.profile.note.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(vm.profile.note, style: thText(12, color: AppColors.textMuted)),
+          ],
+        ],
       ),
     );
   }
@@ -260,7 +317,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
             ),
             Text(
-              'ESP32-S3 · LEQsxAI v1.0.0',
+              'ESP32-S3 · Edge xAI : LEQs-4D-AgriEnvi v1.0.0',
               style: GoogleFonts.orbitron(
                 fontSize: sw < 360 ? 8.5 : 9.5,
                 fontWeight: FontWeight.w700,
@@ -474,9 +531,13 @@ class _SettingsScreenState extends State<SettingsScreen>
     required Color accentColor,
     required double sw,
     TextInputType keyboardType = TextInputType.text,
+    bool obscure = false,
   }) {
     return TextField(
       controller: controller,
+      obscureText: obscure,
+      autocorrect: false,
+      enableSuggestions: !obscure,
       keyboardType: keyboardType,
       style: GoogleFonts.rajdhani(
         fontSize: sw < 360 ? 13 : 14.5,
@@ -688,7 +749,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             child: Column(
               children: [
                 Text(
-                  'LEQsxAI · SMART FARM IOT',
+                  'Edge xAI : LEQs-4D-AgriEnvi',
                   style: GoogleFonts.orbitron(
                     fontSize: sw < 360 ? 9.5 : 10.5,
                     fontWeight: FontWeight.w700,

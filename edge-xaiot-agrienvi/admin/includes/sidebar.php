@@ -119,6 +119,41 @@
                 </a>
 
                 <div class="h-px bg-white/5 my-4"></div>
+                <div class="text-[10px] font-bold text-cyan-400/80 uppercase tracking-widest px-3 mb-2 font-tech flex items-center gap-1.5">
+                    <i class="fas fa-network-wired text-cyan-400"></i> ระบบนิเวศ HandySense AIoT
+                </div>
+
+                <!-- Link Fleet: AIoT Multi-Board Fleet -->
+                <a href="../../aiot-fleet-dashboard/" target="_blank" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/5 rounded-xl font-bold transition-all group">
+                    <i class="fas fa-layer-group group-hover:text-cyan-400 transition"></i>
+                    <span class="text-sm">Fleet Dashboard (15 กลุ่ม)</span>
+                </a>
+
+                <!-- Link App Portal: Download Center -->
+                <a href="../../app-portal/" target="_blank" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-amber-400 hover:bg-amber-500/5 rounded-xl font-bold transition-all group">
+                    <i class="fas fa-cloud-arrow-down group-hover:text-amber-400 transition"></i>
+                    <span class="text-sm">App &amp; APK Download Portal</span>
+                </a>
+
+                <!-- Link Streamlit Cockpit -->
+                <a href="http://localhost:8501" target="_blank" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/5 rounded-xl font-bold transition-all group">
+                    <i class="fas fa-flask group-hover:text-emerald-400 transition"></i>
+                    <span class="text-sm">Streamlit Cockpit (:8501)</span>
+                </a>
+
+                <!-- Link FastAPI Swagger Docs -->
+                <a href="http://localhost:8000/docs" target="_blank" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-blue-400 hover:bg-blue-500/5 rounded-xl font-bold transition-all group">
+                    <i class="fas fa-bolt group-hover:text-blue-400 transition"></i>
+                    <span class="text-sm">FastAPI Hub &amp; Docs (:8000)</span>
+                </a>
+
+                <!-- Link Masterclass Textbook PDF -->
+                <a href="../assets/docs/jc_agritech_ai_textbook_masterclass.pdf" target="_blank" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-purple-400 hover:bg-purple-500/5 rounded-xl font-bold transition-all group">
+                    <i class="fas fa-graduation-cap group-hover:text-purple-400 transition"></i>
+                    <span class="text-sm">ตำราวิชาการ 78 หน้า (PDF)</span>
+                </a>
+
+                <div class="h-px bg-white/5 my-4"></div>
                 
                 <!-- Link 8: Back to Site -->
                 <a href="../index.php" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl font-bold transition-all group">

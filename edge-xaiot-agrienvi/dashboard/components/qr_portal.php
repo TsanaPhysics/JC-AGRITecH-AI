@@ -24,7 +24,7 @@
                         </a>
                     </div>
                     <h3 class="text-sm sm:text-base font-bold text-white font-tech">
-                        พอร์ทัลสแกนเชื่อมต่อและระบบยืนยันตัวตน Smart Farm AIoT
+                        พอร์ทัลสแกนเชื่อมต่อและระบบยืนยันตัวตน Edge xAI : LEQs-4D-AgriEnvi
                     </h3>
                     <p class="text-xs text-slate-300 font-mono">
                         URL: <a href="https://scicenter.rbru.ac.th/edge-xaiot-agrienvi/index.php" target="_blank" class="text-cyan-400 hover:text-cyan-300 underline font-semibold">https://scicenter.rbru.ac.th/edge-xaiot-agrienvi/index.php</a>

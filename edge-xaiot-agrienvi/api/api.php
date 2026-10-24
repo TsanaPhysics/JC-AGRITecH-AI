@@ -24,9 +24,16 @@ $history_file = $data_dir . '/telemetry_history.json';
 $gs_config_file = $data_dir . '/google_sheets_config.json';
 $line_config_file = $data_dir . '/line_config.json';
 
-// Ensure data folder exists
+// Ensure data folder exists and has full write permissions
 if (!is_dir($data_dir)) {
-    mkdir($data_dir, 0777, true);
+    @mkdir($data_dir, 0777, true);
+}
+@chmod($data_dir, 0777);
+if (file_exists($db_file)) {
+    @chmod($db_file, 0666);
+}
+if (file_exists($json_backup)) {
+    @chmod($json_backup, 0666);
 }
 
 // Default Telemetry & Board State matching ESP32-S3 ATD3.5 screen photo:
@@ -685,26 +692,100 @@ if ($action === 'get_telemetry' || $action === 'status') {
         if (($now_micro - $last_sync_time) >= 1.0) {
             file_put_contents($cloud_rate_file, strval($now_micro));
             
-            $cloud_url = 'http://14.207.141.164:8000/api/telemetry/latest';
-            $ctx = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'timeout' => 1.5,
-                    'header' => "User-Agent: Edge-xAI-4DAgriEnvi-Sync/1.0\r\nAccept: application/json\r\n"
-                ]
-            ]);
+            $cloud_urls = [
+                'http://127.0.0.1:8000/api/telemetry/latest' => 'LOCAL_FASTAPI_HUB (127.0.0.1:8000)',
+                'http://14.207.141.164:8000/api/telemetry/latest' => 'CLOUD_HUB (14.207.141.164:8000)'
+            ];
             
-            $raw_cloud = @file_get_contents($cloud_url, false, $ctx);
-            if ($raw_cloud !== false) {
-                $cloud_data = json_decode($raw_cloud, true);
-                if (is_array($cloud_data) && isset($cloud_data['id'])) {
-                    // Fallback Cloud Hub Data
-                    $state['board']['telemetry_id'] = $cloud_data['id'];
-                    $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
-                    $state['board']['cloud_status'] = 'CLOUD HUB (ONLINE)';
-                    $state['board']['data_source'] = 'FALLBACK_CLOUD_HUB (14.207.141.164:8000)';
-                    $state['board']['is_live'] = true;
-                    $state['board']['last_seen'] = date('Y-m-d H:i:s');
+            $cloud_data = null;
+            $active_source_label = '';
+            
+            foreach ($cloud_urls as $c_url => $c_label) {
+                $ctx = stream_context_create([
+                    'http' => [
+                        'method' => 'GET',
+                        'timeout' => 0.5,
+                        'header' => "User-Agent: Edge-xAI-4DAgriEnvi-Sync/1.0\r\nAccept: application/json\r\n"
+                    ]
+                ]);
+                $raw_cloud = @file_get_contents($c_url, false, $ctx);
+                if ($raw_cloud !== false) {
+                    $parsed = json_decode($raw_cloud, true);
+                    if (is_array($parsed) && isset($parsed['id'])) {
+                        $cloud_data = $parsed;
+                        $active_source_label = $c_label;
+                        break;
+                    }
+                }
+            }
+
+            // Tier 3: Direct Instant Read from SQLite3 server/agri_telemetry.db (15,900+ real records)
+            if (!$cloud_data) {
+                $agri_db_file = __DIR__ . '/../../server/agri_telemetry.db';
+                if (file_exists($agri_db_file)) {
+                    try {
+                        $agri_db = new SQLite3($agri_db_file, SQLITE3_OPEN_READONLY);
+                        $res = $agri_db->query("SELECT * FROM telemetry ORDER BY id DESC LIMIT 1");
+                        if ($res && ($row = $res->fetchArray(SQLITE3_ASSOC))) {
+                            $cloud_data = [
+                                'id' => $row['id'],
+                                'timestamp' => $row['timestamp'],
+                                'air' => [
+                                    'temp' => $row['air_temp'],
+                                    'humidity' => $row['air_humidity'],
+                                    'vpd' => $row['air_vpd'],
+                                    'dew_point' => $row['air_dew_point'],
+                                    'connected' => (bool)$row['air_connected']
+                                ],
+                                'light' => [
+                                    'lux' => $row['light_lux'],
+                                    'klux' => $row['light_klux'],
+                                    'solar_radiation' => $row['light_solar_radiation'],
+                                    'connected' => (bool)$row['light_connected']
+                                ],
+                                'soil_stick' => [
+                                    'adc_raw' => $row['soil_stick_adc'],
+                                    'moisture_percent' => $row['soil_stick_moisture'],
+                                    'connected' => true
+                                ],
+                                'soil_7in1' => [
+                                    'ph' => $row['soil_7in1_ph'],
+                                    'ec' => $row['soil_7in1_ec'],
+                                    'temperature' => $row['soil_7in1_temp'],
+                                    'moisture_percent' => $row['soil_7in1_moisture'],
+                                    'nitrogen' => $row['soil_7in1_n'],
+                                    'phosphorus' => $row['soil_7in1_p'],
+                                    'potassium' => $row['soil_7in1_k'],
+                                    'connected' => (bool)$row['soil_7in1_connected']
+                                ],
+                                'ai_calibrated' => [
+                                    'nitrogen' => $row['ai_calibrated_n'],
+                                    'phosphorus' => $row['ai_calibrated_p'],
+                                    'potassium' => $row['ai_calibrated_k'],
+                                    'ph' => $row['ai_calibrated_ph'],
+                                    'moisture_percent' => $row['ai_calibrated_moisture'],
+                                    'confidence' => $row['ai_confidence']
+                                ],
+                                'actuators' => [
+                                    'pump' => (bool)$row['actuator_pump'],
+                                    'misting' => (bool)$row['actuator_misting']
+                                ]
+                            ];
+                            $active_source_label = 'LOCAL_SQLITE_TELEMETRY (server/agri_telemetry.db)';
+                        }
+                        $agri_db->close();
+                    } catch (Exception $e) {}
+                }
+            }
+
+            if ($cloud_data !== null && is_array($cloud_data) && isset($cloud_data['id'])) {
+                // Multi-Tier Telemetry Data Hub
+                $state['board']['telemetry_id'] = $cloud_data['id'];
+                $state['board']['telemetry_timestamp'] = $cloud_data['timestamp'] ?? date('Y-m-d H:i:s');
+                $state['board']['cloud_status'] = 'CONNECTED (ONLINE)';
+                $state['board']['data_source'] = $active_source_label ?: 'FALLBACK_CLOUD_HUB';
+                $state['board']['is_live'] = true;
+                $state['board']['last_seen'] = date('Y-m-d H:i:s');
                 
                 // 1. Air Microclimate (SHT45)
                 $air = $cloud_data['air'] ?? [];
@@ -847,7 +928,6 @@ if ($action === 'get_telemetry' || $action === 'status') {
                 log_telemetry_to_db($db, $state);
             }
         }
-    }
     }
     
     // Query database record count for real-time stats
@@ -1707,7 +1787,14 @@ if ($action === 'delete_participant') {
     if ($db) {
         $stmt = $db->prepare("DELETE FROM participants WHERE id = :id");
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-        $stmt->execute();
+        $res = $stmt->execute();
+        if ($res === false) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'ไม่สามารถลบข้อมูลได้: ' . $db->lastErrorMsg() . ' (ฐานข้อมูล SQLite อยู่ในโหมดอ่านอย่างเดียว กรุณาตั้ง Permission โฟลเดอร์ data/ เป็น 777)'
+            ]);
+            exit();
+        }
 
         sync_participants_json($db, $json_backup);
 
@@ -1738,7 +1825,14 @@ if ($action === 'toggle_checkin') {
         $stmt = $db->prepare("UPDATE participants SET status = :status WHERE id = :id");
         $stmt->bindValue(':status', $new_status, SQLITE3_TEXT);
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-        $stmt->execute();
+        $res = $stmt->execute();
+        if ($res === false) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'ไม่สามารถเปลี่ยนสถานะได้: ' . $db->lastErrorMsg() . ' (ฐานข้อมูล SQLite อยู่ในโหมดอ่านอย่างเดียว)'
+            ]);
+            exit();
+        }
 
         sync_participants_json($db, $json_backup);
 
@@ -1755,7 +1849,14 @@ if ($action === 'toggle_checkin') {
 // 8.7 RESET TO DEFAULT PARTICIPANTS (POST ?action=reset_participants)
 if ($action === 'reset_participants') {
     if ($db) {
-        $db->exec("DELETE FROM participants");
+        $del_res = $db->exec("DELETE FROM participants");
+        if ($del_res === false) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'ไม่สามารถรีเซ็ตได้: ' . $db->lastErrorMsg() . ' (ฐานข้อมูล SQLite อยู่ในโหมดอ่านอย่างเดียว กรุณาตั้ง Permission โฟลเดอร์ data/ เป็น 777)'
+            ]);
+            exit();
+        }
         $seed_p = [
             ['นาย', 'ธนภัทร สุขสมบูรณ์', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '081-234-5678', 'tanapat@praneet.ac.th', 'Track B — Plant Vision & Leaf AI', 16, 19, 'checked-in'],
             ['นางสาว', 'กานต์ธิดา แก้วมณี', 'นักเรียนมัธยมศึกษาตอนปลาย', 'โรงเรียนประณีตวิทยาคม', '082-345-6789', 'kantida@praneet.ac.th', 'Track A — Smart Agriculture & Sensor Hub', 15, 20, 'checked-in'],
@@ -1791,7 +1892,14 @@ if ($action === 'reset_participants') {
 // 8.8 CLEAR ALL PARTICIPANTS (POST ?action=clear_all_participants)
 if ($action === 'clear_all_participants') {
     if ($db) {
-        $db->exec("DELETE FROM participants");
+        $del_res = $db->exec("DELETE FROM participants");
+        if ($del_res === false) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'ไม่สามารถล้างข้อมูลได้: ' . $db->lastErrorMsg() . ' (ฐานข้อมูล SQLite อยู่ในโหมดอ่านอย่างเดียว กรุณาตั้ง Permission โฟลเดอร์ data/ เป็น 777)'
+            ]);
+            exit();
+        }
         $db->exec("DELETE FROM sqlite_sequence WHERE name='participants'");
         sync_participants_json($db, $json_backup);
         echo json_encode(['status' => 'success', 'message' => 'ล้างข้อมูลผู้ลงทะเบียนทั้งหมดเรียบร้อยแล้ว (0 รายการ)']);

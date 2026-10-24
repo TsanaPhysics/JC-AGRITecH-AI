@@ -67,6 +67,7 @@ server/smartfarm.db
 *.db
 *.bak
 *.apk
+*.ipa
 app-portal/files/*.apk
 
 # Backups

@@ -17,6 +17,7 @@
  *  Core 1 | loop()      : UI Task  - ประมวลผลคิวทัช + วาดหน้าจอ + บันทึก SD (ไม่มีงานบล็อกเครือข่าย)
  *  Core 1 | touchPoll   : อ่านทัช FT6336U ทุก 8 ms (ใน DisplayManager) -> ไม่พลาดการแตะแม้กำลังวาดจอ
  *  Core 0 | netTask     : WebServer (/relay /mode), Captive Portal, Serial CLI - ตอบสนองคำสั่งรีเลย์ทันที
+ *  Core 0 | cmdTask     : โพลล์คำสั่งรีเลย์/โหมดจากเซิร์ฟเวอร์ทุก 1 วินาที (ข้ามเครือข่ายได้)
  *  Core 0 | sensorTask  : อ่านเซนเซอร์ + ควบคุมอัตโนมัติ + ส่ง HTTP Telemetry (บล็อกได้โดยไม่กระทบ UI)
  * ============================================================================
  */
@@ -43,6 +44,7 @@ static uint32_t uiTelemetrySeq = 0;
 void executeAgronomyControl(const FarmSensorTelemetry &data);
 static void netTask(void *arg);
 static void sensorTask(void *arg);
+static void cmdTask(void *arg);
 
 static void publishTelemetry(const FarmSensorTelemetry &t) {
     if (telemetryMutex && xSemaphoreTake(telemetryMutex, pdMS_TO_TICKS(20)) == pdTRUE) {
@@ -106,6 +108,7 @@ void setup() {
 
     xTaskCreatePinnedToCore(netTask,    "netTask",    8192,  nullptr, 2, nullptr, 0);
     xTaskCreatePinnedToCore(sensorTask, "sensorTask", 16384, nullptr, 1, nullptr, 0);
+    xTaskCreatePinnedToCore(cmdTask,    "cmdTask",    12288, nullptr, 2, nullptr, 0);
 
     Serial.println("[System] System setup completed successfully. Starting multi-task telemetry loop...\n");
 }
@@ -181,6 +184,17 @@ void executeAgronomyControl(const FarmSensorTelemetry &data) {
 // ============================================================================
 // netTask (Core 0): บริการเครือข่ายภายในบอร์ด ตอบสนองเร็วโดยไม่รอการอ่านเซนเซอร์
 // ============================================================================
+// cmdTask (core 0): โพลล์คำสั่งรีเลย์/โหมดจากเซิร์ฟเวอร์ทุก COMMAND_POLL_INTERVAL_MS
+// แยกจากการอัปโหลดข้อมูล เพื่อให้คำสั่งจากแดชบอร์ด (ข้ามเครือข่าย) ถึงบอร์ดภายในราว 1 วินาที
+static void cmdTask(void *arg) {
+    (void)arg;
+    TickType_t last = xTaskGetTickCount();
+    for (;;) {
+        CloudDataManager_pollCommands();
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(COMMAND_POLL_INTERVAL_MS));
+    }
+}
+
 static void netTask(void *arg) {
     for (;;) {
         // คำขอจากหน้าจอสัมผัส: เปิด/ปิด SoftAP Captive Portal (ทำใน Task นี้เพื่อความปลอดภัยของ WebServer)

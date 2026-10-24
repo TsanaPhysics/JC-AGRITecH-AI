@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-10-23 19:19:59",
+  "total_samples": 5,
+  "execution_time_seconds": 0.01,
+  "metrics": {
+    "mean_answer_correctness": 0.976,
+    "mean_factual_precision": 0.3385,
+    "mean_factual_recall": 1.0
+  },
+  "target_benchmarks_comparison": {
+    "agrillm_70b_rag_baseline": {
+      "correctness": 0.5569,
+      "precision": 0.5322,
+      "recall": 0.4872
+    },
+    "agrillm_qwen_30b_rag_baseline": {
+      "correctness": 0.5645,
+      "precision": 0.5091,
+      "recall": 0.4957
+    },
+    "current_system_rag": {
+      "correctness": 0.976,
+      "precision": 0.3385,
+      "recall": 1.0
+    }
+  },
+  "sample_evaluations": [
+    {
+      "id": "AGRI-QA-001",
+      "persona": "Farmer",
+      "question": "ดินมีค่า pH 5.2 และค่าความชื้น 40% ควรปรับปรุงอย่างไรสำหรับปลูกพืชเศรษฐกิจ?",
+      "factual_precision": 0.4578,
+      "factual_recall": 1.0,
+      "correctness": 1.0,
+      "rag_applied": true,
+      "model_used": "domain_rules_rag"
+    },
+    {
+      "id": "AGRI-QA-002",
+      "persona": "Extension Agent",
+      "question": "เมื่อเซนเซอร์วัดความชื้นในดิน (Soil Stick / Soil 7-in-1) แสดงผลต่ำกว่า 35% ในระยะออกดอกของไม้ผล ควรจัดการน้ำอย่างไร?",
+      "factual_precision": 0.3014,
+      "factual_recall": 1.0,
+      "correctness": 1.0,
+      "rag_applied": true,
+      "model_used": "domain_rules_rag"
+    },
+    {
+      "id": "AGRI-QA-003",
+      "persona": "Researcher",
+      "question": "ค่า N-P-K จากเซนเซอร์ดินอ่านได้ N: 45 mg/kg, P: 12 mg/kg, K: 95 mg/kg และ EC: 0.4 mS/cm บ่งบอกอะไร?",
+      "factual_precision": 0.3412,
+      "factual_recall": 1.0,
+      "correctness": 1.0,
+      "rag_applied": true,
+      "model_used": "domain_rules_rag"
+    },
+    {
+      "id": "AGRI-QA-004",
+      "persona": "Farmer",
+      "question": "ใบมีจุดสีน้ำตาลเข้มล้อมรอบด้วยวงสีเหลือง และสภาพอากาศมีความชื้นสัมพัทธ์ (SHT45) สูงกว่า 85% เป็นโรคอะไรและแก้อย่างไร?",
+      "factual_precision": 0.3421,
+      "factual_recall": 1.0,
+      "correctness": 1.0,
+      "rag_applied": true,
+      "model_used": "domain_rules_rag"
+    },
+    {
+      "id": "AGRI-QA-005",
+      "persona": "Policymaker / Farm Manager",
+      "question": "เซนเซอร์แสง BH1750 ตรวจพบค่าความเข้มแสงแดด 85,000 Lux และอุณหภูมิอากาศ 38.5 องศาเซลเซียส ส่งผลกระทบต่อประสิทธิภาพการสังเคราะห์แสงอย่างไร?",
+      "factual_precision": 0.25,
+      "factual_recall": 1.0,
+      "correctness": 0.88,
+      "rag_applied": true,
+      "model_used": "domain_rules_rag"
+    }
+  ]
+}

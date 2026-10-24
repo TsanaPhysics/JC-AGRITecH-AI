@@ -3,25 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../view_models/telemetry_view_model.dart';
-import '../widgets/relay_switch_card.dart';
+import '../widgets/common.dart';
 import '../widgets/sensor_gauge_card.dart';
-import '../widgets/tri_mode_selector.dart';
 
 // ─────────────────────────────────────────────────────────────
 // 🌌 DashboardScreen — Cyber Dark Sci-Fi IoT Farm Dashboard
 // ─────────────────────────────────────────────────────────────
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  // Relay icons — cyber tech hardware
-  static const _relayIcons = [
-    Icons.water_rounded,          // Main pump
-    Icons.opacity_rounded,        // Drip / mist system
-    Icons.wb_sunny_rounded,       // Grow lights
-    Icons.air_rounded,            // Ventilation fans
-  ];
-
-  static const _relayEmojis = ['💧', '🌧️', '☀️', '💨'];
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +30,15 @@ class DashboardScreen extends StatelessWidget {
     }
 
     final sensors = telemetry.sensors;
-    final relays = telemetry.relays;
-
+    
     final isLargeScreen = sw > 650;
     final isTablet = sw > 500;
     final hPad = sw < 360 ? 12.0 : sw < 420 ? 16.0 : 20.0;
     final gridCols = isLargeScreen ? 4 : 2;
     // Calibrated for circular HUD dials:
     final gridRatio = isLargeScreen ? 0.95 : (isTablet ? 0.90 : 0.74);
+
+    final profile = vm.profile;
 
     return RefreshIndicator(
       onRefresh: () => vm.fetchTelemetry(silent: false),
@@ -64,20 +54,19 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Board Connection Banner ──
                 _buildConnectionBanner(vm, telemetry, sw),
+                const SizedBox(height: 14),
+                _buildRunningSummary(context, vm),
                 const SizedBox(height: 20),
-
-                // ── Sensor HUD Section Header ──
-                _buildSectionHeader(
-                  title: 'สภาพแวดล้อมและพารามิเตอร์ดิน',
-                  subtitle: 'ENVIRONMENT & SOIL SENSORS',
-                  accentColor: AppColors.neonCyan,
-                  sw: sw,
+                SectionTitle(
+                  'สภาพแวดล้อมและดิน',
+                  subtitle: 'เกณฑ์เทียบกับโปรไฟล์พืช: ${profile.name}',
+                  trailing: Text(
+                    'อัปเดต ${fmtAge(vm.dataAgeSeconds)}',
+                    style: thText(12, color: AppColors.textMuted),
+                  ),
                 ),
                 const SizedBox(height: 12),
-
-                // ── 6-Gauge HUD Grid (Environment + Soil + Light + pH) ──
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -86,94 +75,31 @@ class DashboardScreen extends StatelessWidget {
                   mainAxisSpacing: 10,
                   childAspectRatio: gridRatio,
                   children: [
-                    // 1. Air Temperature (Neon Orange)
+                    _gauge(vm, key: 'temp', label: 'อุณหภูมิอากาศ', value: sensors.temperature, unit: '°C',
+                        decimals: 1, maxScale: 50, icon: Icons.thermostat_rounded, accent: const Color(0xFFFF7A00)),
+                    _gauge(vm, key: 'humidity', label: 'ความชื้นอากาศ', value: sensors.humidity, unit: '%',
+                        decimals: 1, maxScale: 100, icon: Icons.water_drop_rounded, accent: const Color(0xFF00C6FF)),
+                    _gauge(vm, key: 'soil_moisture', label: 'ความชื้นดิน', value: sensors.soilMoisture, unit: '%',
+                        decimals: 1, maxScale: 100, icon: Icons.grass_rounded, accent: const Color(0xFF00E676)),
+                    _gauge(vm, key: 'vpd', label: 'VPD', value: sensors.vpd, unit: 'kPa',
+                        decimals: 2, maxScale: 2.5, icon: Icons.cloud_sync_rounded, accent: const Color(0xFF7C4DFF)),
+                    _gauge(vm, key: 'soil_ph', label: 'ความเป็นกรด-ด่างของดิน', value: sensors.soilPh, unit: 'pH',
+                        decimals: 1, maxScale: 14, icon: Icons.science_rounded, accent: const Color(0xFFFFD600)),
                     SensorGaugeCard(
-                      label: 'Air Temperature',
-                      value: sensors.temperature.toStringAsFixed(2),
-                      unit: '°C',
-                      subTarget: '28.5',
-                      statusText: sensors.temperature > 35
-                          ? 'Hot'
-                          : sensors.temperature < 20
-                              ? 'Cold'
-                              : 'Optimal',
-                      icon: Icons.thermostat_rounded,
-                      accentColor: const Color(0xFFFF7A00),
-                      statusColor: const Color(0xFFFFAB00),
-                      progress: (sensors.temperature / 50.0).clamp(0.0, 1.0),
-                    ),
-
-                    // 2. Air Humidity (Neon Cyan)
-                    SensorGaugeCard(
-                      label: 'Air Humidity',
-                      value: sensors.humidity.toStringAsFixed(2),
-                      unit: '%',
-                      subTarget: '65',
-                      statusText: sensors.humidity < 40 ? 'Dry' : 'Ideal',
-                      icon: Icons.water_drop_rounded,
-                      accentColor: const Color(0xFF00C6FF),
-                      statusColor: const Color(0xFF00E5FF),
-                      progress: (sensors.humidity / 100.0).clamp(0.0, 1.0),
-                    ),
-
-                    // 3. Soil Moisture (Neon Green)
-                    SensorGaugeCard(
-                      label: 'Soil Moisture',
-                      value: sensors.soilMoisture.toStringAsFixed(1),
-                      unit: '%',
-                      subTarget: '72.0',
-                      statusText: sensors.soilMoisture < 30 ? 'Low' : 'Ideal',
-                      icon: Icons.grass_rounded,
-                      accentColor: const Color(0xFF00E676),
-                      statusColor: const Color(0xFF00E676),
-                      progress: (sensors.soilMoisture / 100.0).clamp(0.0, 1.0),
-                    ),
-
-                    // 4. VPD (Neon Violet/Purple)
-                    SensorGaugeCard(
-                      label: 'VPD',
-                      value: sensors.vpd.toStringAsFixed(2),
-                      unit: 'kPa',
-                      subTarget: '0.95',
-                      statusText: (sensors.vpd >= 0.8 && sensors.vpd <= 1.2)
-                          ? 'Ideal'
-                          : 'Caution',
-                      icon: Icons.cloud_sync_rounded,
-                      accentColor: const Color(0xFF7C4DFF),
-                      statusColor: const Color(0xFF8B5CF6),
-                      progress: (sensors.vpd / 2.5).clamp(0.0, 1.0),
-                    ),
-
-                    // 5. Soil pH (Neon Amber/Yellow)
-                    SensorGaugeCard(
-                      label: 'Soil pH',
-                      value: sensors.soilPh.toStringAsFixed(1),
-                      unit: 'pH',
-                      subTarget: '6.5',
-                      statusText: (sensors.soilPh >= 5.5 && sensors.soilPh <= 7.0)
-                          ? 'Optimal'
-                          : sensors.soilPh < 5.5
-                              ? 'Acidic'
-                              : 'Alkaline',
-                      icon: Icons.science_rounded,
-                      accentColor: const Color(0xFFFFD600),
-                      statusColor: const Color(0xFFFFAB40),
-                      progress: (sensors.soilPh / 14.0).clamp(0.0, 1.0),
-                    ),
-
-                    // 6. Light Intensity (Neon Rose/Pink)
-                    SensorGaugeCard(
-                      label: 'Light Intensity',
-                      value: sensors.parLux >= 1000
-                          ? (sensors.parLux / 1000).toStringAsFixed(1)
-                          : sensors.parLux.toStringAsFixed(0),
+                      label: 'ความเข้มแสง',
+                      value: !_hasData(vm)
+                          ? '--'
+                          : sensors.parLux >= 1000
+                              ? (sensors.parLux / 1000).toStringAsFixed(1)
+                              : sensors.parLux.toStringAsFixed(0),
                       unit: sensors.parLux >= 1000 ? 'kLux' : 'Lux',
-                      subTarget: '25.0',
-                      statusText: sensors.parLux < 500
-                          ? 'Low'
-                          : sensors.parLux <= 50000
-                              ? 'Good'
-                              : 'Intense',
+                      statusText: !_hasData(vm)
+                          ? 'ไม่มีข้อมูล'
+                          : sensors.parLux < 500
+                              ? 'แสงน้อย'
+                              : sensors.parLux <= 50000
+                                  ? 'เหมาะสม'
+                                  : 'แสงจัด',
                       icon: Icons.wb_sunny_rounded,
                       accentColor: const Color(0xFFFF4081),
                       statusColor: const Color(0xFFFF80AB),
@@ -181,55 +107,7 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 24),
-
-                // ── Mode Selector ──
-                TriModeSelector(
-                  currentMode: vm.controlMode,
-                  onModeChanged: vm.setMode,
-                ),
-
-                const SizedBox(height: 24),
-
-                // ── Relay Section ──
-                _buildRelayHeader(relays, sw),
-                const SizedBox(height: 12),
-
-                // Relay cards layout
-                if (isTablet)
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 3.2,
-                    children: _buildRelayList(relays, vm),
-                  )
-                else
-                  Column(
-                    children: [
-                      for (int i = 0; i < 4; i++) ...[
-                        if (relays.containsKey(i + 1))
-                          RelaySwitchCard(
-                            relay: relays[i + 1]!,
-                            onToggle: () => vm.toggleRelay(i + 1),
-                            icon: _relayIcons[i],
-                          ),
-                        if (i < 3 && relays.containsKey(i + 1))
-                          const SizedBox(height: 10),
-                      ],
-                    ],
-                  ),
-
-                const SizedBox(height: 18),
-
-                // ── Active relay count summary ──
-                _buildRelayStatusSummary(relays, sw),
-                const SizedBox(height: 10),
-
-                // ── GPS Pill ──
+                const SizedBox(height: 20),
                 if (telemetry.gps.locationName.isNotEmpty) ...[
                   _buildGpsPill(telemetry, sw),
                   const SizedBox(height: 8),
@@ -238,6 +116,88 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  bool _hasData(TelemetryViewModel vm) => (vm.telemetry?.sensors.updatedAt ?? '').isNotEmpty;
+
+  /// เกจเซนเซอร์ที่อิงเกณฑ์ของโปรไฟล์พืช (ไม่ใช้ค่าเป้าหมายตายตัวในโค้ด)
+  Widget _gauge(
+    TelemetryViewModel vm, {
+    required String key,
+    required String label,
+    required double value,
+    required String unit,
+    required int decimals,
+    required double maxScale,
+    required IconData icon,
+    required Color accent,
+  }) {
+    final range = vm.profile.thresholds[key];
+    final has = _hasData(vm);
+    String status;
+    Color statusColor;
+    if (!has) {
+      status = 'ไม่มีข้อมูล';
+      statusColor = AppColors.textDim;
+    } else if (range == null) {
+      status = '-';
+      statusColor = AppColors.textMuted;
+    } else if (value < range.min) {
+      status = 'ต่ำกว่าเกณฑ์';
+      statusColor = AppColors.alertAmber;
+    } else if (value > range.max) {
+      status = 'สูงกว่าเกณฑ์';
+      statusColor = AppColors.alertAmber;
+    } else {
+      status = 'เหมาะสม';
+      statusColor = AppColors.neonGreen;
+    }
+    return SensorGaugeCard(
+      label: label,
+      value: has ? value.toStringAsFixed(decimals) : '--',
+      unit: unit,
+      subTarget: range?.mid.toStringAsFixed(decimals),
+      statusText: status,
+      icon: icon,
+      accentColor: accent,
+      statusColor: statusColor,
+      progress: (value / maxScale).clamp(0.0, 1.0),
+    );
+  }
+
+  /// สรุปรีเลย์ที่กำลังทำงาน (ชื่อจริงจากเซิร์ฟเวอร์) + ทางลัดไปหน้าควบคุม
+  Widget _buildRunningSummary(BuildContext context, TelemetryViewModel vm) {
+    final running = [
+      for (int i = 1; i <= 4; i++)
+        if (vm.relayView(i).on) vm.relayView(i)
+    ];
+    return AppCard(
+      borderColor: running.isEmpty ? AppColors.borderDark : AppColors.neonGreen.withAlpha(120),
+      child: Row(
+        children: [
+          Icon(running.isEmpty ? Icons.power_off_rounded : Icons.bolt_rounded,
+              color: running.isEmpty ? AppColors.textDim : AppColors.neonGreen),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(running.isEmpty ? 'ไม่มีรีเลย์ที่กำลังทำงาน' : 'กำลังทำงาน ${running.length} ช่อง',
+                    style: thText(14.5, weight: FontWeight.w700, color: AppColors.textWhite)),
+                if (running.isNotEmpty)
+                  Text(
+                    running
+                        .map((r) => relayShortName(r.item.name) +
+                            (r.timerLeftSec != null ? ' (อีก ${fmtCountdown(r.timerLeftSec!)})' : ''))
+                        .join(' · '),
+                    style: thText(12.5, color: AppColors.neonGreen),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -261,7 +221,7 @@ class DashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'กำลังเชื่อมต่อเซิร์ฟเวอร์ LEQsxAI IoT',
+            'กำลังเชื่อมต่อเซิร์ฟเวอร์ Edge xAI : LEQs-4D-AgriEnvi',
             style: GoogleFonts.rajdhani(
               fontSize: 12,
               color: const Color(0xFF8EA2C6),
@@ -354,207 +314,15 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  // ── Section Header ────────────────────────────────────────
-  Widget _buildSectionHeader({
-    required String title,
-    required String subtitle,
-    required Color accentColor,
-    required double sw,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 28,
-          decoration: BoxDecoration(
-            color: accentColor,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: [
-              BoxShadow(
-                color: accentColor.withAlpha(180),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: GoogleFonts.rajdhani(
-                fontSize: sw < 360 ? 15 : 17,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.3,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: GoogleFonts.orbitron(
-                fontSize: sw < 360 ? 8.5 : 9.5,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF64748B),
-                letterSpacing: 0.8,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ── Relay Section Header ──────────────────────────────────
-  Widget _buildRelayHeader(Map<int, dynamic> relays, double sw) {
-    final activeCount = relays.values.where((r) => r.state == true).length;
-
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 28,
-          decoration: BoxDecoration(
-            color: AppColors.neonGreen,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.neonGreen.withAlpha(180),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'ควบคุมรีเลย์ 4 ช่อง',
-                style: GoogleFonts.rajdhani(
-                  fontSize: sw < 360 ? 15 : 17,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              Text(
-                'HARDWARE RELAY CONTROL · ESP32 GPIO',
-                style: GoogleFonts.orbitron(
-                  fontSize: sw < 360 ? 8.5 : 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF64748B),
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (activeCount > 0)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.neonGreen.withAlpha(25),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.neonGreen.withAlpha(120),
-                width: 1.2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.neonGreen.withAlpha(40),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Text(
-              '$activeCount ACTIVE',
-              style: GoogleFonts.orbitron(
-                fontSize: sw < 360 ? 9.5 : 10.5,
-                fontWeight: FontWeight.w800,
-                color: AppColors.neonGreen,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  List<Widget> _buildRelayList(
-      Map<int, dynamic> relays, TelemetryViewModel vm) {
-    return List.generate(4, (i) {
-      final id = i + 1;
-      if (!relays.containsKey(id)) return const SizedBox.shrink();
-      return RelaySwitchCard(
-        relay: relays[id]!,
-        onToggle: () => vm.toggleRelay(id),
-        icon: _relayIcons[i],
-      );
-    });
-  }
-
-  // ── Relay Status Summary ──────────────────────────────────
-  Widget _buildRelayStatusSummary(Map<int, dynamic> relays, double sw) {
-    final names = ['ปั๊มน้ำ', 'สปริงเกลอร์', 'หลอดโต', 'พัดลม'];
-    final active = <String>[];
-    for (int i = 0; i < 4; i++) {
-      final id = i + 1;
-      if (relays.containsKey(id) && relays[id]!.state == true) {
-        active.add('${_relayEmojis[i]} ${names[i]}');
-      }
-    }
-
-    if (active.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: sw < 360 ? 12 : 16,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111A2E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.neonGreen.withAlpha(120),
-          width: 1.2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neonGreen.withAlpha(25),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.bolt_rounded, color: AppColors.neonGreen, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'กำลังทำงาน: ${active.join('  •  ')}',
-              style: GoogleFonts.rajdhani(
-                fontSize: sw < 360 ? 12 : 13.5,
-                fontWeight: FontWeight.w700,
-                color: AppColors.neonGreen,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ── Connection Banner ─────────────────────────────────────
   Widget _buildConnectionBanner(
       TelemetryViewModel vm, dynamic telemetry, double sw) {
     final board = telemetry.board;
-    final isOnline = vm.errorMessage == null;
-    final statusColor = isOnline ? AppColors.neonGreen : AppColors.alertRed;
+    final cs = vm.connState;
+    final isOnline = cs == ConnState.live;
+    final style = connStyle(cs);
+    final statusColor = style.color;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -616,14 +384,9 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   isOnline
-                      ? 'ESP32-S3 ONLINE · ${board.status}'
-                      : 'OFFLINE · ตรวจสอบการเชื่อมต่อ WI-FI',
-                  style: GoogleFonts.rajdhani(
-                    fontSize: sw < 360 ? 11 : 12,
-                    color: statusColor,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
+                      ? 'ESP32-S3 ${style.label} · ${board.status}'
+                      : '${style.label} · ข้อมูลล่าสุด ${fmtAge(vm.dataAgeSeconds)}',
+                  style: thText(sw < 360 ? 11.5 : 12.5, weight: FontWeight.w700, color: statusColor),
                 ),
               ],
             ),

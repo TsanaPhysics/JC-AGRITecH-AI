@@ -16,8 +16,8 @@
                 </p>
             </div>
 
-            <!-- Documents 3-Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Documents 4-Grid (Proposal, Syllabus, Prompt Book & Masterclass Textbook) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 <!-- Doc 1: Official Proposal -->
                 <div class="glass-card p-6 md:p-7 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
@@ -87,6 +87,29 @@
                         <span class="text-xs md:text-sm text-gray-500 font-mono font-semibold">Quick Reference</span>
                         <a href="MANUAL_AND_PROMPT_BOOK.md" target="_blank" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-bold shadow-md hover:shadow-purple-500/30 transition flex items-center gap-2">
                             <i class="fa-solid fa-download text-sm"></i> ดาวน์โหลด
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Doc 4: Masterclass Textbook (78 Pages XeLaTeX) -->
+                <div class="glass-card p-6 md:p-7 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                        <div class="rounded-2xl overflow-hidden border border-gray-100 mb-5 bg-white p-2 shadow-xs group-hover:shadow-md transition">
+                            <img src="assets/images/cover_agrixai_pixar_3d_2x3.jpg" alt="3D Pixar Cover Artwork" class="w-full h-40 md:h-44 object-cover object-top rounded-xl group-hover:scale-105 transition duration-500">
+                        </div>
+                        <span class="inline-block text-xs md:text-sm font-mono font-bold text-amber-800 uppercase bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100">
+                            Academic Masterclass (82 หน้า)
+                        </span>
+                        <h3 class="font-bold text-gray-900 text-lg md:text-xl lg:text-2xl mt-3 leading-snug group-hover:text-amber-700 transition">
+                            ตำราวิชาการและพิมพ์เขียว (3D Pixar Edition)
+                        </h3>
+                        <p class="text-sm md:text-base text-gray-600 mt-2.5 leading-relaxed">
+                            คู่มือ JC-AGRITecH + AI ฉบับสมบูรณ์ (82 หน้า) ฟิสิกส์เซนเซอร์ 2 ระดับความลึก, TinyML, Time-Series Forecaster และพิมพ์เขียวซอร์สโค้ด
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-xs md:text-sm text-gray-500 font-mono font-semibold">XeLaTeX Book</span>
+                        <a href="assets/docs/jc_agritech_ai_textbook_masterclass.pdf" target="_blank" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs md:text-sm font-bold shadow-md hover:shadow-amber-500/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-book text-sm"></i> อ่านตำรา
                         </a>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 #pragma once
-#include "SensorSupport.h"
 #include "PinConfigs.h"
+#include "SensorSupport.h"
 
 /**
  * ============================================================================
@@ -11,73 +11,99 @@
 
 // 1. อุณหภูมิและความชื้นสัมพัทธ์ในอากาศ (Air Temperature & Relative Humidity)
 // ตัวอย่าง: โพรบ SHT45 (Sensirion SHT45 ปลอกกรองโลหะ sintered metal)
-#define TEMP_HUMID_SENSOR           SHT45
-#define SHT45_I2C_ADDR              0x44
+#define TEMP_HUMID_SENSOR SHT45
+#define SHT45_I2C_ADDR 0x44
 
 // 2. ความเข้มแสง (Light Intensity)
 // ตัวอย่าง: เซนเซอร์โดมตะวันกันน้ำ (Dome Light Sensor) ผ่านบัส I2C ชิป BH1750
-#define LIGHT_SENSOR                BH1750
-#define BH1750_I2C_ADDR             0x23    // ขา ADDR ต่อ GND = 0x23 (ค่ามาตรฐาน), ต่อ VCC = 0x5C
+#define LIGHT_SENSOR BH1750
+#define BH1750_I2C_ADDR 0x23 // ขา ADDR ต่อ GND = 0x23 (ค่ามาตรฐาน), ต่อ VCC = 0x5C
 
 // 3. เซนเซอร์วัดความชื้นในดินตัวเดี่ยว (Soil Stick เกษตรไทย IoT)
 // ทำงานด้วยหลักการวัดความจุไฟฟ้า (Capacitive) ป้องกันปัญหาการกัดกร่อนของโพรบ
-#define SOIL_SENSOR                 ANALOG_SOIL_STICK
-#define SOIL_STICK_PIN              SOIL_STICK_ADC_PIN // ขา A1_PIN (GPIO1 บน Farm1 Shield)
+#define SOIL_SENSOR ANALOG_SOIL_STICK
+#define SOIL_STICK_PIN SOIL_STICK_ADC_PIN // ขา A1_PIN (GPIO1 บน Farm1 Shield)
 
 // ค่าคาลิเบรต ADC (ESP32-S3 ADC 12-bit: 0 - 4095) สำหรับแปลงเป็นความชื้น 0 - 100%
 // แนะนำ: วัดค่าดิบในอากาศแห้ง (Air/Dry) และในน้ำเปล่า (Water/Wet)
-#define SOIL_STICK_ADC_AIR          2950    // ค่า ADC ขณะหัววัดอยู่ในอากาศแห้ง (ความชื้น 0%)
-#define SOIL_STICK_ADC_WATER        1450    // ค่า ADC ขณะหัววัดจุ่มในน้ำ (ความชื้น 100%)
+#define SOIL_STICK_ADC_AIR 2950   // ค่า ADC ขณะหัววัดอยู่ในอากาศแห้ง (ความชื้น 0%)
+#define SOIL_STICK_ADC_WATER 1450 // ค่า ADC ขณะหัววัดจุ่มในน้ำ (ความชื้น 100%)
 
 // 3.1 เซนเซอร์วัดค่าความเป็นกรด-ด่างผิวดิน (Surface Soil pH Sensor: Analog A2)
 // รองรับโพรบพลวงสถานะของแข็ง (Antimony Solid-State) หรือโมดูลบัฟเฟอร์ pH อิมพีแดนซ์สูง
-#define ENABLE_SURFACE_SOIL_PH      true
-#define SOIL_PH_PIN                 SOIL_PH_ADC_PIN    // ขา A2_PIN (GPIO2 บน Farm1 Shield)
-#define SOIL_PH_CALIB_PH4_VOLT      2.120f  // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 4.01
-#define SOIL_PH_CALIB_PH7_VOLT      1.500f  // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 7.00
-#define SOIL_PH_READ_SAMPLES        16      // จำนวนตัวอย่าง Oversampling เพื่อกรองสัญญาณรบกวน
+#define ENABLE_SURFACE_SOIL_PH true
+#define SOIL_PH_PIN SOIL_PH_ADC_PIN // ขา A2_PIN (GPIO2 บน Farm1 Shield)
+#define SOIL_PH_CALIB_PH4_VOLT                                                 \
+  2.120f // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 4.01
+#define SOIL_PH_CALIB_PH7_VOLT                                                 \
+  1.500f                        // ค่าแรงดัน (V) เมื่อจุ่มในสารละลายบัฟเฟอร์ pH 7.00
+#define SOIL_PH_READ_SAMPLES 16 // จำนวนตัวอย่าง Oversampling เพื่อกรองสัญญาณรบกวน
 
 // 4. เซนเซอร์วัดคุณสมบัติดินรอบด้าน (Soil Multi-parameter 7-in-1: RS485 Modbus RTU)
 // รุ่นที่ใช้งาน: SN-3002-TR-ECTHNPKPH-N01
 // สายไฟ: น้ำตาล=VCC(12V), ดำ=GND, เหลือง=485-A, น้ำเงิน=485-B
-// วัดค่า: Moisture, Soil Temp, EC (ความเค็ม), pH (กรด-ด่าง), N (ไนโตรเจน), P (ฟอสฟอรัส), K (โพแทสเซียม)
-#define SOIL_7IN1_SENSOR            RS485_SOIL_7IN1
-#define SOIL_7IN1_SLAVE_ID          1       // Slave ID / Station Address (โรงงานมักตั้งเป็น 1 หรือ 2)
-#define SOIL_7IN1_BAUDRATE          4800    // Baudrate มาตรฐานจากโรงงานรุ่น SN-3002 คือ 4800 (หรือ 9600)
+// วัดค่า: Moisture, Soil Temp, EC (ความเค็ม), pH (กรด-ด่าง), N (ไนโตรเจน), P
+// (ฟอสฟอรัส), K (โพแทสเซียม)
+#define SOIL_7IN1_SENSOR RS485_SOIL_7IN1
+#define SOIL_7IN1_SLAVE_ID                                                     \
+  1 // Slave ID / Station Address (โรงงานมักตั้งเป็น 1 หรือ 2)
+#define SOIL_7IN1_BAUDRATE                                                     \
+  4800 // Baudrate มาตรฐานจากโรงงานรุ่น SN-3002 คือ 4800 (หรือ 9600)
 
 // ช่วงเวลาในการอ่านค่าเซนเซอร์ (มิลลิวินาที)
-#define SENSOR_READ_INTERVAL_MS     1000    // อ่านค่าทุกๆ 1 วินาที (เรียลไทม์ - รันบน sensorTask ไม่กระทบทัชสกรีน)
-#define DISPLAY_UPDATE_INTERVAL_MS  1000    // อัปเดตหน้าจอทุกๆ 1 วินาที
-#define MODBUS_QUERY_DELAY_MS       50      // หน่วงเวลาสลับโพลลิ่ง Modbus เพื่อลดสัญญาณสะท้อนในบัส
+#define SENSOR_READ_INTERVAL_MS                                                \
+  1000 // อ่านค่าทุกๆ 1 วินาที (เรียลไทม์ - รันบน sensorTask ไม่กระทบทัชสกรีน)
+#define DISPLAY_UPDATE_INTERVAL_MS 1000 // อัปเดตหน้าจอทุกๆ 1 วินาที
+#define MODBUS_QUERY_DELAY_MS 50 // หน่วงเวลาสลับโพลลิ่ง Modbus เพื่อลดสัญญาณสะท้อนในบัส
 
 // ============================================================================
-// 5. การตั้งค่า Wi-Fi, Google Firebase และ Custom Python Server (FastAPI + Streamlit)
+// 5. การตั้งค่า Wi-Fi, Google Firebase และ Custom Python Server (FastAPI +
+// Streamlit)
 // ============================================================================
-#define WIFI_SSID                   "JC_Home"              // Wi-Fi SSID (2.4GHz)
-#define WIFI_PASSWORD               "JChome2023"           // รหัสผ่าน Wi-Fi (Capital H)
+#define WIFI_SSID "JC_Home"        // Wi-Fi SSID (2.4GHz)
+#define WIFI_PASSWORD "JChome2023" // รหัสผ่าน Wi-Fi (Capital H)
 
-// 5.1 ตัวเลือกส่งเข้า Custom Server ของตนเอง (FastAPI Cloud Telemetry Hub + Local PHP REST API)
-#define ENABLE_CUSTOM_SERVER        true
+// 5.1 ตัวเลือกส่งเข้า Custom Server ของตนเอง (FastAPI Cloud Telemetry Hub + Local
+// PHP REST API)
+#define ENABLE_CUSTOM_SERVER false
 // Cloud Telemetry Hub (14.207.141.164:8000) ที่เว็บแดชบอร์ดดึงข้อมูลเรียลไทม์
-#define CUSTOM_SERVER_URL           "http://14.207.141.164:8000/api/telemetry"
-// Localhost Web Server บนเครื่อง Mac (พอร์ต 80 Apache XAMPP - IP ปัจจุบัน: 192.168.0.107)
-#define LOCAL_SERVER_URL            "http://192.168.0.107/handysense/leqs-workshop/api/api.php?action=update_telemetry"
-#define WEB_SERVER_PORT             8500
+#define CUSTOM_SERVER_URL "http://14.207.141.164:8000/api/telemetry"
+// Localhost Web Server บนเครื่อง Mac (พอร์ต 80 Apache XAMPP - IP ปัจจุบัน:
+// 192.168.0.107)
+#define LOCAL_SERVER_URL                                                       \
+  "http://192.168.0.107/handysense/leqs-workshop/api/"                         \
+  "api.php?action=update_telemetry"
+#define WEB_SERVER_PORT 8500
+
+// 5.1.0 ปลายทางหลักของแดชบอร์ด (สั่งงานข้ามเครือข่าย)
+// ถ้ากำหนดค่านี้ บอร์ดจะใช้ URL นี้ส่งข้อมูลและดึงคำสั่ง แทนค่า Server ที่จำไว้ใน NVS (พอร์ทัล)
+// ปิดการใช้งานโดยลบบรรทัดนี้ หรือกำหนดเป็น ""
+#define DASHBOARD_URL "http://14.207.141.164/edge-xaiot-agrienvi/api/api.php?action=update_telemetry"
+
+
+// 5.1.1 ความปลอดภัย/ความเร็วเมื่อใช้งานผ่านอินเทอร์เน็ต (บอร์ดอยู่ฮอตสปอต,
+// แดชบอร์ดอยู่คนละเครือข่าย) DEVICE_TOKEN: ต้องตรงกับเนื้อหาไฟล์
+// leqs-workshop/data/device_token.txt บนเซิร์ฟเวอร์ (เว้นว่าง = ไม่ใช้)
+#define DEVICE_TOKEN "sciRBRU2027ChewaThassanaLEQs"
+// รอบโพลล์คำสั่งรีเลย์/โหมดจากเซิร์ฟเวอร์ (api.php?action=get_commands)
+// แยกจากรอบอัปโหลดข้อมูล
+#define COMMAND_POLL_INTERVAL_MS 1000
 
 // 5.2 ตัวเลือกส่งเข้า Google Firebase Realtime Database
-#define ENABLE_FIREBASE             false
-#define FIREBASE_HOST               "your-project-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH               ""
-
-// ช่วงเวลาในการส่งข้อมูลขึ้น Server / Firebase (มิลลิวินาที) เช่น 3000 = ทุก 3 วินาที (เรียลไทม์)
-#define CLOUD_UPLOAD_INTERVAL_MS    1500    // ส่งขึ้นเซิร์ฟเวอร์ทุก ~2 วินาที (คูณรอบอ่านเซนเซอร์ 1 วินาที) ลดความหน่วงบนแดชบอร์ด
+#define ENABLE_FIREBASE false
+#define FIREBASE_HOST                                                          \
+  "your-project-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define FIREBASE_AUTH ""
+// #define DEVICE_TOKEN "sciRBRU2027ChewaThassanaLEQs"
+//  ช่วงเวลาในการส่งข้อมูลขึ้น Server / Firebase (มิลลิวินาที) เช่น 3000 = ทุก 3 วินาที
+//  (เรียลไทม์)
+#define CLOUD_UPLOAD_INTERVAL_MS                                               \
+  1500 // ส่งขึ้นเซิร์ฟเวอร์ทุก ~2 วินาที (คูณรอบอ่านเซนเซอร์ 1 วินาที) ลดความหน่วงบนแดชบอร์ด
 
 // ============================================================================
 // 6. พิกัดภูมิศาสตร์จุดติดตั้งบอร์ดและเซนเซอร์จริงในแปลง (Real Field Sensor GPS)
 // กำหนดตามพิกัดจุดปักเสาเซนเซอร์จริงในแปลงเพาะปลูก
 // ============================================================================
-#define SENSOR_GPS_LATITUDE         12.6644f    // ละติจูดจริง (°N)
-#define SENSOR_GPS_LONGITUDE        102.1039f   // ลองจิจูดจริง (°E)
-#define SENSOR_GPS_LOCATION_NAME    "RBRU"      // ชื่อแปลง/สถานที่ติดตั้งย่อ
-
-
+#define SENSOR_GPS_LATITUDE 12.6644f    // ละติจูดจริง (°N)
+#define SENSOR_GPS_LONGITUDE 102.1039f  // ลองจิจูดจริง (°E)
+#define SENSOR_GPS_LOCATION_NAME "RBRU" // ชื่อแปลง/สถานที่ติดตั้งย่อ

@@ -1,62 +1,63 @@
-\begin{titlepage}
+% ==============================================================================
+% ปกหน้าตำราวิชาการมาตรฐานสากล (Academic Book Cover Architect)
+% สไตล์: 3D Pixar Semi-realistics & XeLaTeX TikZ Full-Bleed
+% สัดส่วน: 2:3 (Full-Bleed 100% ไร้ขอบขาว) พร้อมระบบ Dual-Layer Drop-Shadow
+% คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี
+% ==============================================================================
 \thispagestyle{empty}
-\normalfont
+\begin{titlepage}
+\begingroup
+\setlength{\XeTeXlinebreakskip}{0pt}
 \begin{tikzpicture}[remember picture, overlay]
-    % พื้นหลังหลักสีน้ำเงินเข้มและสีเขียวใบไม้ (Masterclass Geometry)
-    \fill[rbruNavy] (current page.north west) rectangle (current page.south east);
+    % 1. ภาพอาร์ตเวิร์ก 3D Pixar Semi-realistics แบบ Full-Bleed 100% (2:3 Aspect Ratio)
+    \node[anchor=center, inner sep=0pt] at (current page.center) {
+        \includegraphics[width=\paperwidth, height=\paperheight]{figures/cover_agrixai_pixar_3d_2x3.jpg}
+    };
+
+    % 2. UPPER SKY / NEGATIVE SPACE ZONE: หมวดหมู่และชื่อเรื่อง (Dual-Layer Micro Drop-Shadow)
     
-    % แถบลายเส้นสีทองตัดระหว่างแถบหัว แถบกลาง และแถบล่าง
-    \fill[rbruGold] ($(current page.north west)+(0,-5.4cm)$) rectangle ($(current page.north east)+(0,-5.7cm)$);
-    \fill[agriGreen!80!black] ($(current page.north west)+(0,-5.7cm)$) rectangle ($(current page.south east)+(0,5.8cm)$);
-    \fill[rbruGold] ($(current page.south west)+(0,5.8cm)$) rectangle ($(current page.south east)+(0,5.5cm)$);
-
-    % วงกลมประดับออร่าเทคโนโลยีสีทองด้านหลังหน้าจอแดชบอร์ด (Grand Halo)
-    \draw[rbruGold!35, line width=1.5pt] ($(current page.center)+(0,0.05cm)$) circle (7.4cm);
-    \draw[rbruGold!20, line width=1pt, dashed] ($(current page.center)+(0,0.05cm)$) circle (8.0cm);
-
-    % =========================================================================
-    % 1. ชื่อหนังสือและตำราวิชาการด้านบนสุดของปก (Top Title Banner)
-    % =========================================================================
-    \node[anchor=north, text=white, align=center] at ($(current page.north)+(0,-1.15cm)$) {
-        {\normalfont\fontsize{29}{35}\selectfont\bfseries JC -AGRITecH + AI Version 1.0}\\[7pt]
-        {\normalfont\fontsize{18}{24}\selectfont\bfseries\color{rbruGold} คู่มือจัดทำระบบฟาร์มอัจฉริยะด้วยปัญญาประดิษฐ์และการเรียนรู้เชิงลึก}\\[5pt]
-        {\normalfont\fontsize{13.5}{18}\selectfont\color{white} จากสมองกลฝังตัวสู่การพยากรณ์แปลงปลูกด้วย Deep Learning}
+    % 2.1 Category Badge (แถบหมวดหมู่วิชาการ)
+    \node[anchor=north, align=center, text width=15cm] at ([yshift=-1.00cm]current page.north) {
+        {\fontsize{9pt}{12pt}\selectfont\bfseries\color{teal!85!black}%
+        ACADEMIC MASTERCLASS SERIES \textbullet\ ฟิสิกส์เกษตรดิจิทัลและปัญญาประดิษฐ์ฝังตัว}
     };
 
-    % =========================================================================
-    % 2. ภาพประกอบหน้าจอแสดงผลหลัก Masterpiece UI ขยายขนาดใหญ่พิเศษ (18.0 cm x 12.0 cm)
-    % =========================================================================
-    \node[anchor=center] at ($(current page.center)+(0,0.05cm)$) {
-        \begin{tikzpicture}
-            % กรอบเงานุ่มลึก 3 มิติ (Soft Ambient Drop Shadow)
-            \fill[black!60, rounded corners=14pt] (-8.95,-5.95) rectangle (9.05,5.85);
-            % ภาพหน้าปัดตัดมุมโค้งมนขนาดใหญ่เต็มหน้ากระดาษ (18.0 cm x 12.0 cm)
-            \begin{scope}
-                \clip[rounded corners=12pt] (-9.0,-6.0) rectangle (9.0,6.0);
-                \node at (0,0) {\includegraphics[width=18.0cm, height=12.0cm]{figures/smart_farm_ui_overview.jpg}};
-            \end{scope}
-            % ขอบสีทอง RBRU Gold หรูหรา ขนาด 3.5pt
-            \draw[rbruGold, line width=3.5pt, rounded corners=12pt] (-9.0,-6.0) rectangle (9.0,6.0);
-        \end{tikzpicture}
+    % 2.2 Main Title: Layer 1 - Soft White Glow (เงาสีขาวกันจมสกัดตัวอักษรออกจากเมฆและฟ้าพาสเทล)
+    \node[anchor=north, align=center, text width=16cm] at ([xshift=0.6pt, yshift=-1.58cm]current page.north) {
+        {\fontsize{24pt}{29pt}\selectfont\bfseries\color{white} ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัล}\\[6pt]
+        {\fontsize{21pt}{26pt}\selectfont\bfseries\color{white} และการเรียนรู้เชิงลึกพยากรณ์แปลงปลูก}
+    };
+    
+    % 2.3 Main Title: Layer 2 - Rich Contrast Typography (สีอักษรวิชาการคมกริบ)
+    \node[anchor=north, align=center, text width=16cm] at ([yshift=-1.60cm]current page.north) {
+        {\fontsize{24pt}{29pt}\selectfont\bfseries\color{blue!45!black} ปัญญาประดิษฐ์เพื่อเกษตรดิจิทัล}\\[6pt]
+        {\fontsize{21pt}{26pt}\selectfont\bfseries\color{teal!45!black} และการเรียนรู้เชิงลึกพยากรณ์แปลงปลูก}
     };
 
-    % =========================================================================
-    % 3. ชื่อคณะผู้แต่งและตำแหน่งวิชาการ (Co-Authorship with Specific Disciplines)
-    % =========================================================================
-    \node[anchor=south, text=white, align=center] at ($(current page.south)+(0,2.0cm)$) {
-        \begin{tabular}{c@{\hspace{1.2cm}}c}
-            {\normalfont\fontsize{15}{19}\selectfont\bfseries ผู้ช่วยศาสตราจารย์ ดร.จิรภัทร จันทมาลี} & 
-            {\normalfont\fontsize{15}{19}\selectfont\bfseries ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา}\\[3pt]
-            {\normalfont\fontsize{13}{17}\selectfont\color{rbruGold} สาขาวิชาจุลชีววิทยา} & 
-            {\normalfont\fontsize{13}{17}\selectfont\color{rbruGold} สาขาวิชาฟิสิกส์}\\[7pt]
-            \multicolumn{2}{c}{{\normalfont\fontsize{13.5}{17.5}\selectfont คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี}}
-        \end{tabular}
+    % 2.4 Subtitle & English Title (คำโปรยรองภาษาไทยและภาษาอังกฤษ เว้นระยะห่างไม่อัดทับซ้อน)
+    \node[anchor=north, align=center, text width=16cm] at ([yshift=-4.15cm]current page.north) {
+        {\fontsize{10pt}{13.5pt}\selectfont\bfseries\color{slate!90!black}%
+        จากสมองกลฝังตัว Edge AIoT สู่การพยากรณ์อนุกรมเวลาและคลาวด์เทเลเมตรี}\\[4pt]
+        {\fontsize{8.5pt}{11pt}\selectfont\color{gray!80!black}%
+        JC-AGRITecH + AI: EMBEDDED EDGE COMPUTING \& DEEP LEARNING TIME-SERIES}
     };
 
-    % ปีที่พิมพ์
-    \node[anchor=south, text=rbruGold] at ($(current page.south)+(0,0.85cm)$) {
-        {\normalfont\fontsize{13.5}{17}\selectfont พ.ศ. 2569}
+    % 3. FOREGROUND / ROOT & SOIL ZONE: รายนามคณะผู้เขียนและสถาบัน (Dual-Layer Shadow บนผืนดิน)
+    
+    % 3.1 Author Text: Layer 1 - Deep Black Drop Shadow
+    \node[anchor=south, align=center, text width=16cm] at ([xshift=0.6pt, yshift=1.18cm]current page.south) {
+        {\fontsize{13pt}{16pt}\selectfont\bfseries\color{black} ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา \quad $\bullet$ \quad ผู้ช่วยศาสตราจารย์ ดร.จิรภัทร จันทมาลี}\\[3pt]
+        {\fontsize{9.5pt}{13pt}\selectfont\color{black} คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี}\\[2pt]
+        {\fontsize{8.5pt}{11pt}\selectfont\color{black} ชุดโครงการพัฒนาต้นแบบระบบฟาร์มอัจฉริยะ (JC-AGRITecH) \textbullet\ พ.ศ. 2569--2570}
+    };
+
+    % 3.2 Author Text: Layer 2 - Pure Crisp White & Warm Gold
+    \node[anchor=south, align=center, text width=16cm] at ([yshift=1.20cm]current page.south) {
+        {\fontsize{13pt}{16pt}\selectfont\bfseries\color{white} ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา \quad $\bullet$ \quad ผู้ช่วยศาสตราจารย์ ดร.จิรภัทร จันทมาลี}\\[3pt]
+        {\fontsize{9.5pt}{13pt}\selectfont\color{white!95} คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี}\\[2pt]
+        {\fontsize{8.5pt}{11pt}\selectfont\color{yellow!90!white} ชุดโครงการพัฒนาต้นแบบระบบฟาร์มอัจฉริยะ (JC-AGRITecH) \textbullet\ พ.ศ. 2569--2570}
     };
 \end{tikzpicture}
+\endgroup
 \end{titlepage}
-\cleardoublepage
+\clearpage

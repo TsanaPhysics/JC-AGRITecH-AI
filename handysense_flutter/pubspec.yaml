@@ -1,5 +1,5 @@
 name: handysense_flutter
-description: "HandySense LEQs-xAI Smart Farm IoT Controller — ผศ.ดร.ชีวะ ทัศนา, RBRU"
+description: "HandySense Edge xAI : LEQs-4D-AgriEnvi — ผศ.ดร.ชีวะ ทัศนา, RBRU"
 publish_to: 'none'
 
 # The following defines the version and build number for your application.
@@ -17,7 +17,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.5
+  sdk: '>=3.3.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,21 +34,17 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
   http: ^1.6.0
-  intl: ^0.20.3
-  google_fonts: ^8.2.1
-  fl_chart: ^1.2.0
+  intl: ^0.20.2
+  google_fonts: ^6.2.1
+  fl_chart: ^0.70.2
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

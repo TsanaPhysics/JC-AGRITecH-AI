@@ -1,0 +1,57 @@
+{
+  "models": [
+    {
+      "id": "AI71ai/Llama-agrillm-3.3-70B",
+      "type": "model",
+      "base": "meta-llama/Llama-3.3-70B-Instruct",
+      "finetune_method": "LoRA",
+      "params": "70B",
+      "intended_use": "Agricultural RAG Systems, Agronomic Advisory, Disease Diagnosis"
+    },
+    {
+      "id": "AI71ai/agrillm-Qwen3-30B-A3B",
+      "type": "model",
+      "base": "Qwen3-30B-A3B",
+      "finetune_method": "LoRA",
+      "params": "30B",
+      "intended_use": "High-Efficiency Farm Edge & Research Advisory"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "AI71ai/agrillm-train-146k",
+      "type": "dataset",
+      "samples_count": 146000,
+      "description": "146,000 Supervised Q&A pairs covering diverse crops, soil, pest management, and farming tasks.",
+      "source": "UAE Presidential Court, Gates Foundation, CGIAR, FAO, Embrapa, World Bank"
+    },
+    {
+      "id": "AI71ai/agrillm-qa-eval-800",
+      "type": "dataset",
+      "samples_count": 800,
+      "description": "800 benchmark evaluation Q&A pairs across 4 user personas (Farmers, Extension Agents, Researchers, Policymakers)",
+      "source": "AgriLLM Evaluation Framework (RAGAS / LLM-as-a-judge)"
+    }
+  ],
+  "leaderboard": {
+    "id": "AI71ai/agrillm-leaderboard",
+    "url": "https://huggingface.co/spaces/AI71ai/agrillm-leaderboard",
+    "benchmarks": {
+      "Llama-agrillm-3.3-70B_RAG": {
+        "correctness": 0.5569,
+        "factual_precision": 0.5322,
+        "factual_recall": 0.4872
+      },
+      "Qwen3-agrillm-30B_RAG": {
+        "correctness": 0.5645,
+        "factual_precision": 0.5091,
+        "factual_recall": 0.4957
+      },
+      "GPT-4o_RAG": {
+        "correctness": 0.4888,
+        "factual_precision": 0.3546,
+        "factual_recall": 0.6309
+      }
+    }
+  }
+}

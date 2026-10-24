@@ -1,0 +1,47 @@
+{
+  "system": {
+    "name": "AgriLLM SmartFarm Integration System",
+    "version": "1.0.0",
+    "environment": "production",
+    "port": 8089,
+    "host": "0.0.0.0"
+  },
+  "agrillm_hf": {
+    "collection_url": "https://huggingface.co/collections/AI71ai/agrillm",
+    "models": {
+      "llama_70b": "AI71ai/Llama-agrillm-3.3-70B",
+      "qwen_30b": "AI71ai/agrillm-Qwen3-30B-A3B"
+    },
+    "datasets": {
+      "train_146k": "AI71ai/agrillm-train-146k",
+      "eval_800": "AI71ai/agrillm-qa-eval-800"
+    },
+    "leaderboard": "AI71ai/agrillm-leaderboard"
+  },
+  "model_execution": {
+    "mode": "hybrid",
+    "primary_provider": "local_ollama",
+    "ollama_endpoint": "http://127.0.0.1:11434",
+    "ollama_model": "qwen2.5:7b-instruct",
+    "fallback_provider": "domain_rules_rag",
+    "temperature": 0.3,
+    "max_tokens": 1024
+  },
+  "rag": {
+    "top_k": 4,
+    "similarity_threshold": 0.25,
+    "vector_store_path": "data/vector_store.db",
+    "kb_docs_path": "data/kb_docs"
+  },
+  "handysense_telemetry": {
+    "sensors_supported": ["soil_7in1", "sht45", "bh1750", "soil_stick"],
+    "alert_thresholds": {
+      "soil_moisture_min_pct": 35.0,
+      "soil_moisture_max_pct": 75.0,
+      "soil_ph_optimal_min": 5.8,
+      "soil_ph_optimal_max": 6.8,
+      "temperature_optimal_min": 24.0,
+      "temperature_optimal_max": 33.0
+    }
+  }
+}

@@ -40,15 +40,18 @@
                     <a href="../mobile/index.php" target="_blank" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
                         <i class="fa-solid fa-mobile-screen-button"></i> Mobile
                     </a>
+                    <a href="../download/index.php" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> โหลดแอป
+                    </a>
                     <!-- เครื่องมือเพิ่มเติม -->
                     <div class="relative" id="toolsWrap">
                         <button id="toolsBtn" type="button" aria-haspopup="true" aria-expanded="false" onclick="toggleToolsMenu(event)" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-300 flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-ellipsis"></i> เพิ่มเติม
                         </button>
-                        <div id="toolsMenu" class="hidden absolute right-0 mt-2 w-52 rounded-2xl glass-box border border-slate-700 shadow-2xl p-1.5 text-xs z-50">
+                        <div id="toolsMenu" class="hidden absolute right-0 mt-2 w-56 rounded-2xl glass-box border border-slate-700 shadow-2xl p-1.5 text-xs z-50">
                             <button onclick="promptChangeIp(); toggleToolsMenu();" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 text-cyan-300"><i class="fa-solid fa-network-wired w-4"></i> ตั้งค่า IP บอร์ด</button>
                             <a href="../api/api.php?action=export_csv" target="_blank" class="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 text-amber-300"><i class="fa-solid fa-file-csv w-4"></i> ดาวน์โหลด CSV</a>
-                            <a href="../../app-portal/index.php" target="_blank" class="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 text-emerald-300"><i class="fa-solid fa-cloud-arrow-down w-4"></i> โหลด APK</a>
+                            <a href="../download/index.php" class="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 text-emerald-300"><i class="fa-solid fa-mobile-screen-button w-4"></i> โหลดแอป Android & iOS</a>
                             <a href="../index.php" class="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 text-slate-300"><i class="fa-solid fa-house w-4"></i> เว็บหลัก</a>
                         </div>
                     </div>

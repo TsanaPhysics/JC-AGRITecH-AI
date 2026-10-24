@@ -38,3 +38,6 @@ void CloudDataManager_applyRelayCommand(int relayId, bool state);
 String CloudDataManager_getControlMode();
 void CloudDataManager_setControlMode(const String &mode);
 bool CloudDataManager_getRelayState(int relayId);
+
+// โพลล์คำสั่งรีเลย์/โหมดจากเซิร์ฟเวอร์ (api.php?action=get_commands) - เรียกจาก cmdTask ทุก COMMAND_POLL_INTERVAL_MS
+void CloudDataManager_pollCommands();

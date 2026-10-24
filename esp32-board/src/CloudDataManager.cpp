@@ -46,11 +46,24 @@ String CloudDataManager_getControlMode() {
     return m;
 }
 
+// ป้องกันค่าเก่าจากเซิร์ฟเวอร์ย้อนทับการเปลี่ยนแปลงที่เกิดบนบอร์ด (สัมผัสหน้าจอ/AUTO/AI) ก่อนที่เซิร์ฟเวอร์จะรับรู้
+static volatile bool g_applyingRemote = false;
+static volatile unsigned long g_localRelayChangeMs[5] = {0, 0, 0, 0, 0};
+static volatile unsigned long g_localModeChangeMs = 0;
+#define LOCAL_CHANGE_GUARD_MS 3000UL
+static bool recentlyChanged(unsigned long stamp) {
+    return stamp != 0 && (millis() - stamp) < LOCAL_CHANGE_GUARD_MS;
+}
+
 void CloudDataManager_setControlMode(const String &mode) {
     modeLock();
     bool changed = (currentControlMode != mode);
     currentControlMode = mode;
     modeUnlock();
+    if (changed && !g_applyingRemote) {
+        g_localModeChangeMs = millis() ? millis() : 1;
+        lastUploadTime = 0;   // แจ้งเซิร์ฟเวอร์ทันทีในรอบถัดไป
+    }
     if (changed) {
         Serial.printf("[ControlMode] System mode changed to: %s\n", mode.c_str());
     }
@@ -67,6 +80,10 @@ bool CloudDataManager_getRelayState(int relayId) {
 }
 
 void CloudDataManager_applyRelayCommand(int relayId, bool state) {
+    if (!g_applyingRemote && relayId >= 1 && relayId <= 4) {
+        g_localRelayChangeMs[relayId] = millis() ? millis() : 1;
+        lastUploadTime = 0;   // แจ้งเซิร์ฟเวอร์ทันทีในรอบถัดไป
+    }
     switch (relayId) {
         case 1:
             digitalWrite(RELAY_1_PIN, state ? HIGH : LOW);
@@ -97,30 +114,100 @@ static void parseRelayResponse(const String &responseBody) {
     DeserializationError err = deserializeJson(respDoc, responseBody);
     if (err) return;
 
-    if (respDoc.containsKey("control_mode")) {
+    g_applyingRemote = true;
+    if (respDoc.containsKey("control_mode") && !recentlyChanged(g_localModeChangeMs)) {
         String m = respDoc["control_mode"].as<String>();
         if (m.length() > 0) CloudDataManager_setControlMode(m);
     }
 
     if (respDoc.containsKey("relays_command")) {
         JsonObject rc = respDoc["relays_command"];
-        if (rc.containsKey("r1")) {
-            bool r1 = (rc["r1"].as<int>() == 1);
-            if (CloudDataManager_getRelayState(1) != r1) CloudDataManager_applyRelayCommand(1, r1);
-        }
-        if (rc.containsKey("r2")) {
-            bool r2 = (rc["r2"].as<int>() == 1);
-            if (CloudDataManager_getRelayState(2) != r2) CloudDataManager_applyRelayCommand(2, r2);
-        }
-        if (rc.containsKey("r3")) {
-            bool r3 = (rc["r3"].as<int>() == 1);
-            if (CloudDataManager_getRelayState(3) != r3) CloudDataManager_applyRelayCommand(3, r3);
-        }
-        if (rc.containsKey("r4")) {
-            bool r4 = (rc["r4"].as<int>() == 1);
-            if (CloudDataManager_getRelayState(4) != r4) CloudDataManager_applyRelayCommand(4, r4);
+        const char *keys[4] = {"r1", "r2", "r3", "r4"};
+        for (int i = 0; i < 4; i++) {
+            int id = i + 1;
+            if (!rc.containsKey(keys[i])) continue;
+            if (recentlyChanged(g_localRelayChangeMs[id])) continue;   // เพิ่งเปลี่ยนบนบอร์ด รอให้เซิร์ฟเวอร์รับรู้ก่อน
+            bool want = (rc[keys[i]].as<int>() == 1);
+            if (CloudDataManager_getRelayState(id) != want) CloudDataManager_applyRelayCommand(id, want);
         }
     }
+    g_applyingRemote = false;
+}
+
+// ----------------------------------------------------------------------------
+// โพลล์คำสั่งจากเซิร์ฟเวอร์ (ใช้ได้ข้ามเครือข่าย: บอร์ดบนฮอตสปอต <-> เซิร์ฟเวอร์สาธารณะ <-> แดชบอร์ด)
+// - ใช้ URL ที่ตั้งไว้ผ่านพอร์ทัล (Dashboard URL) ก่อน แล้วค่อย LOCAL_SERVER_URL
+// - แปลง ?action=update_telemetry|post_data เป็น ?action=get_commands
+// - ใช้ Keep-Alive เพื่อลดเวลา (โดยเฉพาะ HTTPS) และถอยหลังเมื่อล้มเหลวต่อเนื่อง
+// ----------------------------------------------------------------------------
+static String activeServerUrl() {
+#if defined(DASHBOARD_URL)
+    if (strlen(DASHBOARD_URL) > 0) return String(DASHBOARD_URL);
+#endif
+    return WiFiConfigManager_getServerURL();
+}
+
+static String buildCommandUrl(const String &base) {
+    if (!base.startsWith("http")) return "";
+    String u = base;
+    if (u.indexOf("action=update_telemetry") >= 0) { u.replace("action=update_telemetry", "action=get_commands"); return u; }
+    if (u.indexOf("action=post_data") >= 0)        { u.replace("action=post_data", "action=get_commands"); return u; }
+    if (u.indexOf("action=") >= 0) return "";                 // เป็น action อื่น ไม่ใช่ api.php
+    if (u.endsWith("api.php")) return u + "?action=get_commands";
+    return "";                                               // เช่น FastAPI /api/telemetry ไม่มี get_commands
+}
+
+void CloudDataManager_pollCommands() {
+    if (WiFi.status() != WL_CONNECTED) return;
+
+    static unsigned long cooldownUntil = 0;
+    static int failCount = 0;
+    if (cooldownUntil != 0 && (long)(millis() - cooldownUntil) < 0) return;
+
+    String url = buildCommandUrl(activeServerUrl());
+#if defined(LOCAL_SERVER_URL)
+    if (url.length() == 0) url = buildCommandUrl(String(LOCAL_SERVER_URL));
+#endif
+    if (url.length() == 0) return;
+
+    static WiFiClient plainClient;
+    static WiFiClientSecure secureClient;
+    static bool secureInit = false;
+    static HTTPClient http;
+
+    bool isHttps = url.startsWith("https://");
+    if (isHttps && !secureInit) { secureClient.setInsecure(); secureInit = true; }
+
+    http.setReuse(true);
+    http.setTimeout(900);
+    bool began = isHttps ? http.begin(secureClient, url) : http.begin(plainClient, url);
+    if (!began) { failCount++; return; }
+    if (strlen(DEVICE_TOKEN) > 0) http.addHeader("X-Device-Token", DEVICE_TOKEN);
+
+    int code = http.GET();
+    if (code == HTTP_CODE_OK) {
+        String body = http.getString();
+        parseRelayResponse(body);
+        static unsigned long lastLog = 0;
+        if (millis() - lastLog > 5000) {
+            lastLog = millis();
+            Serial.printf("[CmdPoll] OK 200 | relays now=%d%d%d%d | %s\n",
+                CloudDataManager_getRelayState(1), CloudDataManager_getRelayState(2),
+                CloudDataManager_getRelayState(3), CloudDataManager_getRelayState(4), url.c_str());
+        }
+        failCount = 0;
+        cooldownUntil = 0;
+    } else {
+        failCount++;
+        if (failCount >= 3) {
+            // ถอยหลัง 5 วินาที เพื่อไม่ให้รบกวนการทำงานอื่นเมื่อเซิร์ฟเวอร์ใช้งานไม่ได้
+            cooldownUntil = millis() + 5000;
+            if (cooldownUntil == 0) cooldownUntil = 1;
+            failCount = 0;
+            Serial.printf("[CmdPoll] [!] get_commands failed (code %d) -> retry in 5s\n", code);
+        }
+    }
+    http.end();
 }
 
 // รับเวลาปัจจุบันในรูปแบบ Unix Epoch Time (วินาที)
@@ -392,6 +479,7 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
         HTTPClient http;
         if (http.begin(CUSTOM_SERVER_URL)) {
             http.addHeader("Content-Type", "application/json");
+            if (strlen(DEVICE_TOKEN) > 0) http.addHeader("X-Device-Token", DEVICE_TOKEN);
             http.setTimeout(450); // Timeout สั้น 450ms เพื่อรักษาความลื่นไหลของหน้าจอสัมผัส
             int httpCode = http.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
@@ -417,6 +505,7 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
         HTTPClient httpLocal;
         if (httpLocal.begin(LOCAL_SERVER_URL)) {
             httpLocal.addHeader("Content-Type", "application/json");
+            if (strlen(DEVICE_TOKEN) > 0) httpLocal.addHeader("X-Device-Token", DEVICE_TOKEN);
             httpLocal.setTimeout(350); // Local LAN ตอบสนอง 20-50ms ใช้ 350ms รวดเร็วไม่ค้าง
             int httpCode = httpLocal.POST(jsonPayload);
             if (httpCode == HTTP_CODE_OK || httpCode == 200) {
@@ -436,7 +525,7 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
 #endif
 
     // 1.1 ส่งข้อมูลเข้า Dynamic Configured Dashboard (ที่ผู้ใช้ตั้งค่าผ่าน Web Portal หรือ Serial)
-    String dynServerUrl = WiFiConfigManager_getServerURL();
+    String dynServerUrl = activeServerUrl();
     if (dynServerUrl.startsWith("http")) {
         bool isDuplicate = false;
 #if defined(ENABLE_CUSTOM_SERVER) && ENABLE_CUSTOM_SERVER == true
@@ -446,17 +535,25 @@ static void sendTelemetryToFirebase(const FarmSensorTelemetry &telemetry, bool p
 #endif
 #endif
         if (!isDuplicate) {
-            HTTPClient httpDyn;
-            if (httpDyn.begin(dynServerUrl)) {
+            static WiFiClientSecure dynSecure;
+            static WiFiClient dynPlain;
+            static bool dynSecureInit = false;
+            static HTTPClient httpDyn;
+            bool dynHttps = dynServerUrl.startsWith("https://");
+            if (dynHttps && !dynSecureInit) { dynSecure.setInsecure(); dynSecureInit = true; }
+            httpDyn.setReuse(true);
+            bool dynBegan = dynHttps ? httpDyn.begin(dynSecure, dynServerUrl) : httpDyn.begin(dynPlain, dynServerUrl);
+            if (dynBegan) {
                 httpDyn.addHeader("Content-Type", "application/json");
-                httpDyn.setTimeout(400); // 400ms สั้นกระชับ
+                if (strlen(DEVICE_TOKEN) > 0) httpDyn.addHeader("X-Device-Token", DEVICE_TOKEN);
+                httpDyn.setTimeout(dynHttps ? 2500 : 400);
                 int httpCode = httpDyn.POST(jsonPayload);
                 if (httpCode == HTTP_CODE_OK || httpCode == 200) {
                     String resp = httpDyn.getString();
                     parseRelayResponse(resp);
-                    Serial.printf("[CloudData] >>> Sent Telemetry to Configured Dashboard [OK] (Code: %d)\n", httpCode);
+                    Serial.printf("[CloudData] >>> Sent Telemetry to Configured Dashboard [OK] (Code: %d) %s\n", httpCode, dynServerUrl.c_str());
                 } else {
-                    Serial.printf("[CloudData] [!] Configured Dashboard POST returned: %d\n", httpCode);
+                    Serial.printf("[CloudData] [!] Configured Dashboard POST returned: %d (%s)\n", httpCode, dynServerUrl.c_str());
                 }
                 httpDyn.end();
             }
